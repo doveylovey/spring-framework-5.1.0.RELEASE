@@ -1,3 +1,5 @@
+# 使用 IntelliJ IDEA 2019.1、Gradle 5.4.1构建的 spring-framework-5.1.0.RELEASE 源码
+
 # <img src="src/docs/asciidoc/images/spring-framework.png" width="80" height="80"> Spring Framework
 
 This is the home of the Spring Framework, the foundation for all
