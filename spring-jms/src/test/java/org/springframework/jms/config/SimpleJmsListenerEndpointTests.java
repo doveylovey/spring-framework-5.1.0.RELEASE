@@ -30,15 +30,15 @@ import static org.junit.Assert.*;
  */
 public class SimpleJmsListenerEndpointTests {
 
-	private final SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
+    private final SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
 
 
-	@Test
-	public void createListener() {
-		SimpleJmsListenerEndpoint endpoint = new SimpleJmsListenerEndpoint();
-		MessageListener messageListener = new MessageListenerAdapter();
-		endpoint.setMessageListener(messageListener);
-		assertSame(messageListener, endpoint.createMessageListener(container));
-	}
+    @Test
+    public void createListener() {
+        SimpleJmsListenerEndpoint endpoint = new SimpleJmsListenerEndpoint();
+        MessageListener messageListener = new MessageListenerAdapter();
+        endpoint.setMessageListener(messageListener);
+        assertSame(messageListener, endpoint.createMessageListener(container));
+    }
 
 }

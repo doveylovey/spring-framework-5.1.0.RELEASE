@@ -40,164 +40,167 @@ import org.springframework.util.Assert;
  */
 public abstract class SqlCall extends RdbmsOperation {
 
-	/**
-	 * Object enabling us to create CallableStatementCreators
-	 * efficiently, based on this class's declared parameters.
-	 */
-	@Nullable
-	private CallableStatementCreatorFactory callableStatementFactory;
+    /**
+     * Object enabling us to create CallableStatementCreators
+     * efficiently, based on this class's declared parameters.
+     */
+    @Nullable
+    private CallableStatementCreatorFactory callableStatementFactory;
 
-	/**
-	 * Flag used to indicate that this call is for a function and to
-	 * use the {? = call get_invoice_count(?)} syntax.
-	 */
-	private boolean function = false;
+    /**
+     * Flag used to indicate that this call is for a function and to
+     * use the {? = call get_invoice_count(?)} syntax.
+     */
+    private boolean function = false;
 
-	/**
-	 * Flag used to indicate that the sql for this call should be used exactly as it is
-	 * defined.  No need to add the escape syntax and parameter place holders.
-	 */
-	private boolean sqlReadyForUse = false;
+    /**
+     * Flag used to indicate that the sql for this call should be used exactly as it is
+     * defined.  No need to add the escape syntax and parameter place holders.
+     */
+    private boolean sqlReadyForUse = false;
 
-	/**
-	 * Call string as defined in java.sql.CallableStatement.
-	 * String of form {call add_invoice(?, ?, ?)}
-	 * or {? = call get_invoice_count(?)} if isFunction is set to true
-	 * Updated after each parameter is added.
-	 */
-	@Nullable
-	private String callString;
-
-
-	/**
-	 * Constructor to allow use as a JavaBean.
-	 * A DataSource, SQL and any parameters must be supplied before
-	 * invoking the {@code compile} method and using this object.
-	 * @see #setDataSource
-	 * @see #setSql
-	 * @see #compile
-	 */
-	public SqlCall() {
-	}
-
-	/**
-	 * Create a new SqlCall object with SQL, but without parameters.
-	 * Must add parameters or settle with none.
-	 * @param ds the DataSource to obtain connections from
-	 * @param sql the SQL to execute
-	 */
-	public SqlCall(DataSource ds, String sql) {
-		setDataSource(ds);
-		setSql(sql);
-	}
+    /**
+     * Call string as defined in java.sql.CallableStatement.
+     * String of form {call add_invoice(?, ?, ?)}
+     * or {? = call get_invoice_count(?)} if isFunction is set to true
+     * Updated after each parameter is added.
+     */
+    @Nullable
+    private String callString;
 
 
-	/**
-	 * Set whether this call is for a function.
-	 */
-	public void setFunction(boolean function) {
-		this.function = function;
-	}
+    /**
+     * Constructor to allow use as a JavaBean.
+     * A DataSource, SQL and any parameters must be supplied before
+     * invoking the {@code compile} method and using this object.
+     *
+     * @see #setDataSource
+     * @see #setSql
+     * @see #compile
+     */
+    public SqlCall() {
+    }
 
-	/**
-	 * Return whether this call is for a function.
-	 */
-	public boolean isFunction() {
-		return this.function;
-	}
-
-	/**
-	 * Set whether the SQL can be used as is.
-	 */
-	public void setSqlReadyForUse(boolean sqlReadyForUse) {
-		this.sqlReadyForUse = sqlReadyForUse;
-	}
-
-	/**
-	 * Return whether the SQL can be used as is.
-	 */
-	public boolean isSqlReadyForUse() {
-		return this.sqlReadyForUse;
-	}
+    /**
+     * Create a new SqlCall object with SQL, but without parameters.
+     * Must add parameters or settle with none.
+     *
+     * @param ds  the DataSource to obtain connections from
+     * @param sql the SQL to execute
+     */
+    public SqlCall(DataSource ds, String sql) {
+        setDataSource(ds);
+        setSql(sql);
+    }
 
 
-	/**
-	 * Overridden method to configure the CallableStatementCreatorFactory
-	 * based on our declared parameters.
-	 * @see RdbmsOperation#compileInternal()
-	 */
-	@Override
-	protected final void compileInternal() {
-		if (isSqlReadyForUse()) {
-			this.callString = getSql();
-		}
-		else {
-			List<SqlParameter> parameters = getDeclaredParameters();
-			int parameterCount = 0;
-			if (isFunction()) {
-				this.callString = "{? = call " + getSql() + "(";
-				parameterCount = -1;
-			}
-			else {
-				this.callString = "{call " + getSql() + "(";
-			}
-			for (SqlParameter parameter : parameters) {
-				if (!(parameter.isResultsParameter())) {
-					if (parameterCount > 0) {
-						this.callString += ", ";
-					}
-					if (parameterCount >= 0) {
-						this.callString += "?";
-					}
-					parameterCount++;
-				}
-			}
-			this.callString += ")}";
-		}
-		if (logger.isDebugEnabled()) {
-			logger.debug("Compiled stored procedure. Call string is [" + this.callString + "]");
-		}
+    /**
+     * Set whether this call is for a function.
+     */
+    public void setFunction(boolean function) {
+        this.function = function;
+    }
 
-		this.callableStatementFactory = new CallableStatementCreatorFactory(this.callString, getDeclaredParameters());
-		this.callableStatementFactory.setResultSetType(getResultSetType());
-		this.callableStatementFactory.setUpdatableResults(isUpdatableResults());
+    /**
+     * Return whether this call is for a function.
+     */
+    public boolean isFunction() {
+        return this.function;
+    }
 
-		onCompileInternal();
-	}
+    /**
+     * Set whether the SQL can be used as is.
+     */
+    public void setSqlReadyForUse(boolean sqlReadyForUse) {
+        this.sqlReadyForUse = sqlReadyForUse;
+    }
 
-	/**
-	 * Hook method that subclasses may override to react to compilation.
-	 * This implementation does nothing.
-	 */
-	protected void onCompileInternal() {
-	}
+    /**
+     * Return whether the SQL can be used as is.
+     */
+    public boolean isSqlReadyForUse() {
+        return this.sqlReadyForUse;
+    }
 
-	/**
-	 * Get the call string.
-	 */
-	@Nullable
-	public String getCallString() {
-		return this.callString;
-	}
 
-	/**
-	 * Return a CallableStatementCreator to perform an operation
-	 * with this parameters.
-	 * @param inParams parameters. May be {@code null}.
-	 */
-	protected CallableStatementCreator newCallableStatementCreator(@Nullable Map<String, ?> inParams) {
-		Assert.state(this.callableStatementFactory != null, "No CallableStatementFactory available");
-		return this.callableStatementFactory.newCallableStatementCreator(inParams);
-	}
+    /**
+     * Overridden method to configure the CallableStatementCreatorFactory
+     * based on our declared parameters.
+     *
+     * @see RdbmsOperation#compileInternal()
+     */
+    @Override
+    protected final void compileInternal() {
+        if (isSqlReadyForUse()) {
+            this.callString = getSql();
+        } else {
+            List<SqlParameter> parameters = getDeclaredParameters();
+            int parameterCount = 0;
+            if (isFunction()) {
+                this.callString = "{? = call " + getSql() + "(";
+                parameterCount = -1;
+            } else {
+                this.callString = "{call " + getSql() + "(";
+            }
+            for (SqlParameter parameter : parameters) {
+                if (!(parameter.isResultsParameter())) {
+                    if (parameterCount > 0) {
+                        this.callString += ", ";
+                    }
+                    if (parameterCount >= 0) {
+                        this.callString += "?";
+                    }
+                    parameterCount++;
+                }
+            }
+            this.callString += ")}";
+        }
+        if (logger.isDebugEnabled()) {
+            logger.debug("Compiled stored procedure. Call string is [" + this.callString + "]");
+        }
 
-	/**
-	 * Return a CallableStatementCreator to perform an operation
-	 * with the parameters returned from this ParameterMapper.
-	 * @param inParamMapper parametermapper. May not be {@code null}.
-	 */
-	protected CallableStatementCreator newCallableStatementCreator(ParameterMapper inParamMapper) {
-		Assert.state(this.callableStatementFactory != null, "No CallableStatementFactory available");
-		return this.callableStatementFactory.newCallableStatementCreator(inParamMapper);
-	}
+        this.callableStatementFactory = new CallableStatementCreatorFactory(this.callString, getDeclaredParameters());
+        this.callableStatementFactory.setResultSetType(getResultSetType());
+        this.callableStatementFactory.setUpdatableResults(isUpdatableResults());
+
+        onCompileInternal();
+    }
+
+    /**
+     * Hook method that subclasses may override to react to compilation.
+     * This implementation does nothing.
+     */
+    protected void onCompileInternal() {
+    }
+
+    /**
+     * Get the call string.
+     */
+    @Nullable
+    public String getCallString() {
+        return this.callString;
+    }
+
+    /**
+     * Return a CallableStatementCreator to perform an operation
+     * with this parameters.
+     *
+     * @param inParams parameters. May be {@code null}.
+     */
+    protected CallableStatementCreator newCallableStatementCreator(@Nullable Map<String, ?> inParams) {
+        Assert.state(this.callableStatementFactory != null, "No CallableStatementFactory available");
+        return this.callableStatementFactory.newCallableStatementCreator(inParams);
+    }
+
+    /**
+     * Return a CallableStatementCreator to perform an operation
+     * with the parameters returned from this ParameterMapper.
+     *
+     * @param inParamMapper parametermapper. May not be {@code null}.
+     */
+    protected CallableStatementCreator newCallableStatementCreator(ParameterMapper inParamMapper) {
+        Assert.state(this.callableStatementFactory != null, "No CallableStatementFactory available");
+        return this.callableStatementFactory.newCallableStatementCreator(inParamMapper);
+    }
 
 }

@@ -36,71 +36,71 @@ import org.springframework.util.MultiValueMap;
  * {@link ClientHttpResponse} implementation for the Reactor-Netty HTTP client.
  *
  * @author Brian Clozel
- * @since 5.0
  * @see reactor.netty.http.client.HttpClient
+ * @since 5.0
  */
 class ReactorClientHttpResponse implements ClientHttpResponse {
 
-	private final NettyDataBufferFactory bufferFactory;
+    private final NettyDataBufferFactory bufferFactory;
 
-	private final HttpClientResponse response;
+    private final HttpClientResponse response;
 
-	private final NettyInbound inbound;
-
-
-	public ReactorClientHttpResponse(HttpClientResponse response, NettyInbound inbound, ByteBufAllocator alloc) {
-		this.response = response;
-		this.inbound = inbound;
-		this.bufferFactory = new NettyDataBufferFactory(alloc);
-	}
+    private final NettyInbound inbound;
 
 
-	@Override
-	public Flux<DataBuffer> getBody() {
-		return this.inbound.receive()
-				.map(byteBuf -> {
-					byteBuf.retain();
-					return this.bufferFactory.wrap(byteBuf);
-				});
-	}
+    public ReactorClientHttpResponse(HttpClientResponse response, NettyInbound inbound, ByteBufAllocator alloc) {
+        this.response = response;
+        this.inbound = inbound;
+        this.bufferFactory = new NettyDataBufferFactory(alloc);
+    }
 
-	@Override
-	public HttpHeaders getHeaders() {
-		HttpHeaders headers = new HttpHeaders();
-		this.response.responseHeaders().entries().forEach(e -> headers.add(e.getKey(), e.getValue()));
-		return headers;
-	}
 
-	@Override
-	public HttpStatus getStatusCode() {
-		return HttpStatus.valueOf(getRawStatusCode());
-	}
+    @Override
+    public Flux<DataBuffer> getBody() {
+        return this.inbound.receive()
+                .map(byteBuf -> {
+                    byteBuf.retain();
+                    return this.bufferFactory.wrap(byteBuf);
+                });
+    }
 
-	@Override
-	public int getRawStatusCode() {
-		return this.response.status().code();
-	}
+    @Override
+    public HttpHeaders getHeaders() {
+        HttpHeaders headers = new HttpHeaders();
+        this.response.responseHeaders().entries().forEach(e -> headers.add(e.getKey(), e.getValue()));
+        return headers;
+    }
 
-	@Override
-	public MultiValueMap<String, ResponseCookie> getCookies() {
-		MultiValueMap<String, ResponseCookie> result = new LinkedMultiValueMap<>();
-		this.response.cookies().values().stream().flatMap(Collection::stream)
-				.forEach(cookie ->
-					result.add(cookie.name(), ResponseCookie.from(cookie.name(), cookie.value())
-							.domain(cookie.domain())
-							.path(cookie.path())
-							.maxAge(cookie.maxAge())
-							.secure(cookie.isSecure())
-							.httpOnly(cookie.isHttpOnly())
-							.build()));
-		return CollectionUtils.unmodifiableMultiValueMap(result);
-	}
+    @Override
+    public HttpStatus getStatusCode() {
+        return HttpStatus.valueOf(getRawStatusCode());
+    }
 
-	@Override
-	public String toString() {
-		return "ReactorClientHttpResponse{" +
-				"request=[" + this.response.method().name() + " " + this.response.uri() + "]," +
-				"status=" + getRawStatusCode() + '}';
-	}
+    @Override
+    public int getRawStatusCode() {
+        return this.response.status().code();
+    }
+
+    @Override
+    public MultiValueMap<String, ResponseCookie> getCookies() {
+        MultiValueMap<String, ResponseCookie> result = new LinkedMultiValueMap<>();
+        this.response.cookies().values().stream().flatMap(Collection::stream)
+                .forEach(cookie ->
+                        result.add(cookie.name(), ResponseCookie.from(cookie.name(), cookie.value())
+                                .domain(cookie.domain())
+                                .path(cookie.path())
+                                .maxAge(cookie.maxAge())
+                                .secure(cookie.isSecure())
+                                .httpOnly(cookie.isHttpOnly())
+                                .build()));
+        return CollectionUtils.unmodifiableMultiValueMap(result);
+    }
+
+    @Override
+    public String toString() {
+        return "ReactorClientHttpResponse{" +
+                "request=[" + this.response.method().name() + " " + this.response.uri() + "]," +
+                "status=" + getRawStatusCode() + '}';
+    }
 
 }

@@ -37,93 +37,93 @@ import static org.junit.Assert.*;
  */
 public class CacheProxyFactoryBeanTests {
 
-	@Test
-	public void configurationClassWithCacheProxyFactoryBean() {
-		try (AnnotationConfigApplicationContext applicationContext =
-				new AnnotationConfigApplicationContext(CacheProxyFactoryBeanConfiguration.class)) {
-			Greeter greeter = applicationContext.getBean("greeter", Greeter.class);
-			assertNotNull(greeter);
-			assertFalse(greeter.isCacheMiss());
-			assertEquals("Hello John!", greeter.greet("John"));
-			assertTrue(greeter.isCacheMiss());
-			assertEquals("Hello Jon!", greeter.greet("Jon"));
-			assertTrue(greeter.isCacheMiss());
-			assertEquals("Hello John!", greeter.greet("John"));
-			assertFalse(greeter.isCacheMiss());
-			assertEquals("Hello World!", greeter.greet());
-			assertTrue(greeter.isCacheMiss());
-			assertEquals("Hello World!", greeter.greet());
-			assertFalse(greeter.isCacheMiss());
-		}
-	}
+    @Test
+    public void configurationClassWithCacheProxyFactoryBean() {
+        try (AnnotationConfigApplicationContext applicationContext =
+                     new AnnotationConfigApplicationContext(CacheProxyFactoryBeanConfiguration.class)) {
+            Greeter greeter = applicationContext.getBean("greeter", Greeter.class);
+            assertNotNull(greeter);
+            assertFalse(greeter.isCacheMiss());
+            assertEquals("Hello John!", greeter.greet("John"));
+            assertTrue(greeter.isCacheMiss());
+            assertEquals("Hello Jon!", greeter.greet("Jon"));
+            assertTrue(greeter.isCacheMiss());
+            assertEquals("Hello John!", greeter.greet("John"));
+            assertFalse(greeter.isCacheMiss());
+            assertEquals("Hello World!", greeter.greet());
+            assertTrue(greeter.isCacheMiss());
+            assertEquals("Hello World!", greeter.greet());
+            assertFalse(greeter.isCacheMiss());
+        }
+    }
 
 
-	@Configuration
-	@EnableCaching
-	static class CacheProxyFactoryBeanConfiguration {
+    @Configuration
+    @EnableCaching
+    static class CacheProxyFactoryBeanConfiguration {
 
-		@Bean
-		ConcurrentMapCacheManager cacheManager() {
-			return new ConcurrentMapCacheManager("Greetings");
-		}
+        @Bean
+        ConcurrentMapCacheManager cacheManager() {
+            return new ConcurrentMapCacheManager("Greetings");
+        }
 
-		@Bean
-		CacheProxyFactoryBean greeter() {
-			CacheProxyFactoryBean factoryBean = new CacheProxyFactoryBean();
-			factoryBean.setCacheOperationSources(newCacheOperationSource("greet", newCacheOperation("Greetings")));
-			factoryBean.setTarget(new SimpleGreeter());
-			return factoryBean;
-		}
+        @Bean
+        CacheProxyFactoryBean greeter() {
+            CacheProxyFactoryBean factoryBean = new CacheProxyFactoryBean();
+            factoryBean.setCacheOperationSources(newCacheOperationSource("greet", newCacheOperation("Greetings")));
+            factoryBean.setTarget(new SimpleGreeter());
+            return factoryBean;
+        }
 
-		CacheOperationSource newCacheOperationSource(String methodName, CacheOperation... cacheOperations) {
-			NameMatchCacheOperationSource cacheOperationSource = new NameMatchCacheOperationSource();
-			cacheOperationSource.addCacheMethod(methodName, Arrays.asList(cacheOperations));
-			return cacheOperationSource;
-		}
+        CacheOperationSource newCacheOperationSource(String methodName, CacheOperation... cacheOperations) {
+            NameMatchCacheOperationSource cacheOperationSource = new NameMatchCacheOperationSource();
+            cacheOperationSource.addCacheMethod(methodName, Arrays.asList(cacheOperations));
+            return cacheOperationSource;
+        }
 
-		CacheableOperation newCacheOperation(String cacheName) {
-			CacheableOperation.Builder builder = new CacheableOperation.Builder();
-			builder.setCacheManager("cacheManager");
-			builder.setCacheName(cacheName);
-			return builder.build();
-		}
-	}
-
-
-	interface Greeter {
-
-		default boolean isCacheHit() {
-			return !isCacheMiss();
-		}
-
-		boolean isCacheMiss();
-
-		void setCacheMiss();
-
-		default String greet() {
-			return greet("World");
-		}
-
-		default String greet(String name) {
-			setCacheMiss();
-			return String.format("Hello %s!", name);
-		}
-	}
+        CacheableOperation newCacheOperation(String cacheName) {
+            CacheableOperation.Builder builder = new CacheableOperation.Builder();
+            builder.setCacheManager("cacheManager");
+            builder.setCacheName(cacheName);
+            return builder.build();
+        }
+    }
 
 
-	static class SimpleGreeter implements Greeter {
+    interface Greeter {
 
-		private final AtomicBoolean cacheMiss = new AtomicBoolean(false);
+        default boolean isCacheHit() {
+            return !isCacheMiss();
+        }
 
-		@Override
-		public boolean isCacheMiss() {
-			return this.cacheMiss.getAndSet(false);
-		}
+        boolean isCacheMiss();
 
-		@Override
-		public void setCacheMiss() {
-			this.cacheMiss.set(true);
-		}
-	}
+        void setCacheMiss();
+
+        default String greet() {
+            return greet("World");
+        }
+
+        default String greet(String name) {
+            setCacheMiss();
+            return String.format("Hello %s!", name);
+        }
+    }
+
+
+    static class SimpleGreeter implements Greeter {
+
+        private final AtomicBoolean cacheMiss = new AtomicBoolean(false);
+
+        @Override
+        public boolean isCacheMiss() {
+            return this.cacheMiss.getAndSet(false);
+        }
+
+        @Override
+        public void setCacheMiss() {
+            this.cacheMiss.set(true);
+        }
+    }
 
 }

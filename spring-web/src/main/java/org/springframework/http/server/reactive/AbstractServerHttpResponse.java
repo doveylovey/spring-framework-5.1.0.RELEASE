@@ -49,206 +49,210 @@ import org.springframework.util.MultiValueMap;
  */
 public abstract class AbstractServerHttpResponse implements ServerHttpResponse {
 
-	/**
-	 * COMMITTING -> COMMITTED is the period after doCommit is called but before
-	 * the response status and headers have been applied to the underlying
-	 * response during which time pre-commit actions can still make changes to
-	 * the response status and headers.
-	 */
-	private enum State {NEW, COMMITTING, COMMITTED}
+    /**
+     * COMMITTING -> COMMITTED is the period after doCommit is called but before
+     * the response status and headers have been applied to the underlying
+     * response during which time pre-commit actions can still make changes to
+     * the response status and headers.
+     */
+    private enum State {NEW, COMMITTING, COMMITTED}
 
-	protected final Log logger = HttpLogging.forLogName(getClass());
-
-
-	private final DataBufferFactory dataBufferFactory;
-
-	@Nullable
-	private Integer statusCode;
-
-	private final HttpHeaders headers;
-
-	private final MultiValueMap<String, ResponseCookie> cookies;
-
-	private final AtomicReference<State> state = new AtomicReference<>(State.NEW);
-
-	private final List<Supplier<? extends Mono<Void>>> commitActions = new ArrayList<>(4);
+    protected final Log logger = HttpLogging.forLogName(getClass());
 
 
-	public AbstractServerHttpResponse(DataBufferFactory dataBufferFactory) {
-		Assert.notNull(dataBufferFactory, "DataBufferFactory must not be null");
-		this.dataBufferFactory = dataBufferFactory;
-		this.headers = new HttpHeaders();
-		this.cookies = new LinkedMultiValueMap<>();
-	}
+    private final DataBufferFactory dataBufferFactory;
+
+    @Nullable
+    private Integer statusCode;
+
+    private final HttpHeaders headers;
+
+    private final MultiValueMap<String, ResponseCookie> cookies;
+
+    private final AtomicReference<State> state = new AtomicReference<>(State.NEW);
+
+    private final List<Supplier<? extends Mono<Void>>> commitActions = new ArrayList<>(4);
 
 
-	@Override
-	public final DataBufferFactory bufferFactory() {
-		return this.dataBufferFactory;
-	}
-
-	@Override
-	public boolean setStatusCode(@Nullable HttpStatus status) {
-		if (this.state.get() == State.COMMITTED) {
-			return false;
-		}
-		else {
-			this.statusCode = (status != null ? status.value() : null);
-			return true;
-		}
-	}
-
-	@Override
-	@Nullable
-	public HttpStatus getStatusCode() {
-		return (this.statusCode != null ? HttpStatus.resolve(this.statusCode) : null);
-	}
-
-	/**
-	 * Set the HTTP status code of the response.
-	 * @param statusCode the HTTP status as an integer value
-	 * @since 5.0.1
-	 */
-	public void setStatusCodeValue(@Nullable Integer statusCode) {
-		this.statusCode = statusCode;
-	}
-
-	/**
-	 * Return the HTTP status code of the response.
-	 * @return the HTTP status as an integer value
-	 * @since 5.0.1
-	 */
-	@Nullable
-	public Integer getStatusCodeValue() {
-		return this.statusCode;
-	}
-
-	@Override
-	public HttpHeaders getHeaders() {
-		return (this.state.get() == State.COMMITTED ?
-				HttpHeaders.readOnlyHttpHeaders(this.headers) : this.headers);
-	}
-
-	@Override
-	public MultiValueMap<String, ResponseCookie> getCookies() {
-		return (this.state.get() == State.COMMITTED ?
-				CollectionUtils.unmodifiableMultiValueMap(this.cookies) : this.cookies);
-	}
-
-	@Override
-	public void addCookie(ResponseCookie cookie) {
-		Assert.notNull(cookie, "ResponseCookie must not be null");
-
-		if (this.state.get() == State.COMMITTED) {
-			throw new IllegalStateException("Can't add the cookie " + cookie +
-					"because the HTTP response has already been committed");
-		}
-		else {
-			getCookies().add(cookie.getName(), cookie);
-		}
-	}
-
-	/**
-	 * Return the underlying server response.
-	 * <p><strong>Note:</strong> This is exposed mainly for internal framework
-	 * use such as WebSocket upgrades in the spring-webflux module.
-	 */
-	public abstract <T> T getNativeResponse();
+    public AbstractServerHttpResponse(DataBufferFactory dataBufferFactory) {
+        Assert.notNull(dataBufferFactory, "DataBufferFactory must not be null");
+        this.dataBufferFactory = dataBufferFactory;
+        this.headers = new HttpHeaders();
+        this.cookies = new LinkedMultiValueMap<>();
+    }
 
 
-	@Override
-	public void beforeCommit(Supplier<? extends Mono<Void>> action) {
-		this.commitActions.add(action);
-	}
+    @Override
+    public final DataBufferFactory bufferFactory() {
+        return this.dataBufferFactory;
+    }
 
-	@Override
-	public boolean isCommitted() {
-		return this.state.get() != State.NEW;
-	}
+    @Override
+    public boolean setStatusCode(@Nullable HttpStatus status) {
+        if (this.state.get() == State.COMMITTED) {
+            return false;
+        } else {
+            this.statusCode = (status != null ? status.value() : null);
+            return true;
+        }
+    }
 
-	@Override
-	public final Mono<Void> writeWith(Publisher<? extends DataBuffer> body) {
-		return new ChannelSendOperator<>(body,
-				writePublisher -> doCommit(() -> writeWithInternal(writePublisher)));
-	}
+    @Override
+    @Nullable
+    public HttpStatus getStatusCode() {
+        return (this.statusCode != null ? HttpStatus.resolve(this.statusCode) : null);
+    }
 
-	@Override
-	public final Mono<Void> writeAndFlushWith(Publisher<? extends Publisher<? extends DataBuffer>> body) {
-		return new ChannelSendOperator<>(body,
-				writePublisher -> doCommit(() -> writeAndFlushWithInternal(writePublisher)));
-	}
+    /**
+     * Set the HTTP status code of the response.
+     *
+     * @param statusCode the HTTP status as an integer value
+     * @since 5.0.1
+     */
+    public void setStatusCodeValue(@Nullable Integer statusCode) {
+        this.statusCode = statusCode;
+    }
 
-	@Override
-	public Mono<Void> setComplete() {
-		return !isCommitted() ? doCommit(null) : Mono.empty();
-	}
+    /**
+     * Return the HTTP status code of the response.
+     *
+     * @return the HTTP status as an integer value
+     * @since 5.0.1
+     */
+    @Nullable
+    public Integer getStatusCodeValue() {
+        return this.statusCode;
+    }
 
-	/**
-	 * A variant of {@link #doCommit(Supplier)} for a response without no body.
-	 * @return a completion publisher
-	 */
-	protected Mono<Void> doCommit() {
-		return doCommit(null);
-	}
+    @Override
+    public HttpHeaders getHeaders() {
+        return (this.state.get() == State.COMMITTED ?
+                HttpHeaders.readOnlyHttpHeaders(this.headers) : this.headers);
+    }
 
-	/**
-	 * Apply {@link #beforeCommit(Supplier) beforeCommit} actions, apply the
-	 * response status and headers/cookies, and write the response body.
-	 * @param writeAction the action to write the response body (may be {@code null})
-	 * @return a completion publisher
-	 */
-	protected Mono<Void> doCommit(@Nullable Supplier<? extends Mono<Void>> writeAction) {
-		if (!this.state.compareAndSet(State.NEW, State.COMMITTING)) {
-			return Mono.empty();
-		}
+    @Override
+    public MultiValueMap<String, ResponseCookie> getCookies() {
+        return (this.state.get() == State.COMMITTED ?
+                CollectionUtils.unmodifiableMultiValueMap(this.cookies) : this.cookies);
+    }
 
-		this.commitActions.add(() ->
-				Mono.fromRunnable(() -> {
-					applyStatusCode();
-					applyHeaders();
-					applyCookies();
-					this.state.set(State.COMMITTED);
-				}));
+    @Override
+    public void addCookie(ResponseCookie cookie) {
+        Assert.notNull(cookie, "ResponseCookie must not be null");
 
-		if (writeAction != null) {
-			this.commitActions.add(writeAction);
-		}
+        if (this.state.get() == State.COMMITTED) {
+            throw new IllegalStateException("Can't add the cookie " + cookie +
+                    "because the HTTP response has already been committed");
+        } else {
+            getCookies().add(cookie.getName(), cookie);
+        }
+    }
 
-		List<? extends Mono<Void>> actions = this.commitActions.stream()
-				.map(Supplier::get).collect(Collectors.toList());
-
-		return Flux.concat(actions).then();
-	}
+    /**
+     * Return the underlying server response.
+     * <p><strong>Note:</strong> This is exposed mainly for internal framework
+     * use such as WebSocket upgrades in the spring-webflux module.
+     */
+    public abstract <T> T getNativeResponse();
 
 
-	/**
-	 * Write to the underlying the response.
-	 * @param body the publisher to write with
-	 */
-	protected abstract Mono<Void> writeWithInternal(Publisher<? extends DataBuffer> body);
+    @Override
+    public void beforeCommit(Supplier<? extends Mono<Void>> action) {
+        this.commitActions.add(action);
+    }
 
-	/**
-	 * Write to the underlying the response, and flush after each {@code Publisher<DataBuffer>}.
-	 * @param body the publisher to write and flush with
-	 */
-	protected abstract Mono<Void> writeAndFlushWithInternal(Publisher<? extends Publisher<? extends DataBuffer>> body);
+    @Override
+    public boolean isCommitted() {
+        return this.state.get() != State.NEW;
+    }
 
-	/**
-	 * Write the status code to the underlying response.
-	 * This method is called once only.
-	 */
-	protected abstract void applyStatusCode();
+    @Override
+    public final Mono<Void> writeWith(Publisher<? extends DataBuffer> body) {
+        return new ChannelSendOperator<>(body,
+                writePublisher -> doCommit(() -> writeWithInternal(writePublisher)));
+    }
 
-	/**
-	 * Apply header changes from {@link #getHeaders()} to the underlying response.
-	 * This method is called once only.
-	 */
-	protected abstract void applyHeaders();
+    @Override
+    public final Mono<Void> writeAndFlushWith(Publisher<? extends Publisher<? extends DataBuffer>> body) {
+        return new ChannelSendOperator<>(body,
+                writePublisher -> doCommit(() -> writeAndFlushWithInternal(writePublisher)));
+    }
 
-	/**
-	 * Add cookies from {@link #getHeaders()} to the underlying response.
-	 * This method is called once only.
-	 */
-	protected abstract void applyCookies();
+    @Override
+    public Mono<Void> setComplete() {
+        return !isCommitted() ? doCommit(null) : Mono.empty();
+    }
+
+    /**
+     * A variant of {@link #doCommit(Supplier)} for a response without no body.
+     *
+     * @return a completion publisher
+     */
+    protected Mono<Void> doCommit() {
+        return doCommit(null);
+    }
+
+    /**
+     * Apply {@link #beforeCommit(Supplier) beforeCommit} actions, apply the
+     * response status and headers/cookies, and write the response body.
+     *
+     * @param writeAction the action to write the response body (may be {@code null})
+     * @return a completion publisher
+     */
+    protected Mono<Void> doCommit(@Nullable Supplier<? extends Mono<Void>> writeAction) {
+        if (!this.state.compareAndSet(State.NEW, State.COMMITTING)) {
+            return Mono.empty();
+        }
+
+        this.commitActions.add(() ->
+                Mono.fromRunnable(() -> {
+                    applyStatusCode();
+                    applyHeaders();
+                    applyCookies();
+                    this.state.set(State.COMMITTED);
+                }));
+
+        if (writeAction != null) {
+            this.commitActions.add(writeAction);
+        }
+
+        List<? extends Mono<Void>> actions = this.commitActions.stream()
+                .map(Supplier::get).collect(Collectors.toList());
+
+        return Flux.concat(actions).then();
+    }
+
+
+    /**
+     * Write to the underlying the response.
+     *
+     * @param body the publisher to write with
+     */
+    protected abstract Mono<Void> writeWithInternal(Publisher<? extends DataBuffer> body);
+
+    /**
+     * Write to the underlying the response, and flush after each {@code Publisher<DataBuffer>}.
+     *
+     * @param body the publisher to write and flush with
+     */
+    protected abstract Mono<Void> writeAndFlushWithInternal(Publisher<? extends Publisher<? extends DataBuffer>> body);
+
+    /**
+     * Write the status code to the underlying response.
+     * This method is called once only.
+     */
+    protected abstract void applyStatusCode();
+
+    /**
+     * Apply header changes from {@link #getHeaders()} to the underlying response.
+     * This method is called once only.
+     */
+    protected abstract void applyHeaders();
+
+    /**
+     * Add cookies from {@link #getHeaders()} to the underlying response.
+     * This method is called once only.
+     */
+    protected abstract void applyCookies();
 
 }

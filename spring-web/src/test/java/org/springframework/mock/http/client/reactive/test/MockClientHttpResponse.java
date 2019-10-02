@@ -47,101 +47,101 @@ import org.springframework.util.MultiValueMap;
  */
 public class MockClientHttpResponse implements ClientHttpResponse {
 
-	private final HttpStatus status;
+    private final HttpStatus status;
 
-	private final HttpHeaders headers = new HttpHeaders();
+    private final HttpHeaders headers = new HttpHeaders();
 
-	private final MultiValueMap<String, ResponseCookie> cookies = new LinkedMultiValueMap<>();
+    private final MultiValueMap<String, ResponseCookie> cookies = new LinkedMultiValueMap<>();
 
-	private Flux<DataBuffer> body = Flux.empty();
+    private Flux<DataBuffer> body = Flux.empty();
 
-	private final DataBufferFactory bufferFactory = new DefaultDataBufferFactory();
-
-
-	public MockClientHttpResponse(HttpStatus status) {
-		Assert.notNull(status, "HttpStatus is required");
-		this.status = status;
-	}
+    private final DataBufferFactory bufferFactory = new DefaultDataBufferFactory();
 
 
-	@Override
-	public HttpStatus getStatusCode() {
-		return this.status;
-	}
+    public MockClientHttpResponse(HttpStatus status) {
+        Assert.notNull(status, "HttpStatus is required");
+        this.status = status;
+    }
 
-	@Override
-	public int getRawStatusCode() {
-		return this.status.value();
-	}
 
-	@Override
-	public HttpHeaders getHeaders() {
-		String headerName = HttpHeaders.SET_COOKIE;
-		if (!getCookies().isEmpty() && this.headers.get(headerName) == null) {
-			getCookies().values().stream().flatMap(Collection::stream)
-					.forEach(cookie -> getHeaders().add(headerName, cookie.toString()));
-		}
-		return this.headers;
-	}
+    @Override
+    public HttpStatus getStatusCode() {
+        return this.status;
+    }
 
-	@Override
-	public MultiValueMap<String, ResponseCookie> getCookies() {
-		return this.cookies;
-	}
+    @Override
+    public int getRawStatusCode() {
+        return this.status.value();
+    }
 
-	public void setBody(Publisher<DataBuffer> body) {
-		this.body = Flux.from(body);
-	}
+    @Override
+    public HttpHeaders getHeaders() {
+        String headerName = HttpHeaders.SET_COOKIE;
+        if (!getCookies().isEmpty() && this.headers.get(headerName) == null) {
+            getCookies().values().stream().flatMap(Collection::stream)
+                    .forEach(cookie -> getHeaders().add(headerName, cookie.toString()));
+        }
+        return this.headers;
+    }
 
-	public void setBody(String body) {
-		setBody(body, StandardCharsets.UTF_8);
-	}
+    @Override
+    public MultiValueMap<String, ResponseCookie> getCookies() {
+        return this.cookies;
+    }
 
-	public void setBody(String body, Charset charset) {
-		DataBuffer buffer = toDataBuffer(body, charset);
-		this.body = Flux.just(buffer);
-	}
+    public void setBody(Publisher<DataBuffer> body) {
+        this.body = Flux.from(body);
+    }
 
-	private DataBuffer toDataBuffer(String body, Charset charset) {
-		byte[] bytes = body.getBytes(charset);
-		ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
-		return this.bufferFactory.wrap(byteBuffer);
-	}
+    public void setBody(String body) {
+        setBody(body, StandardCharsets.UTF_8);
+    }
 
-	@Override
-	public Flux<DataBuffer> getBody() {
-		return this.body;
-	}
+    public void setBody(String body, Charset charset) {
+        DataBuffer buffer = toDataBuffer(body, charset);
+        this.body = Flux.just(buffer);
+    }
 
-	/**
-	 * Return the response body aggregated and converted to a String using the
-	 * charset of the Content-Type response or otherwise as "UTF-8".
-	 */
-	public Mono<String> getBodyAsString() {
-		Charset charset = getCharset();
-		return Flux.from(getBody())
-				.reduce(bufferFactory.allocateBuffer(), (previous, current) -> {
-					previous.write(current);
-					DataBufferUtils.release(current);
-					return previous;
-				})
-				.map(buffer -> dumpString(buffer, charset));
-	}
+    private DataBuffer toDataBuffer(String body, Charset charset) {
+        byte[] bytes = body.getBytes(charset);
+        ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
+        return this.bufferFactory.wrap(byteBuffer);
+    }
 
-	private static String dumpString(DataBuffer buffer, Charset charset) {
-		Assert.notNull(charset, "'charset' must not be null");
-		byte[] bytes = new byte[buffer.readableByteCount()];
-		buffer.read(bytes);
-		return new String(bytes, charset);
-	}
+    @Override
+    public Flux<DataBuffer> getBody() {
+        return this.body;
+    }
 
-	private Charset getCharset() {
-		Charset charset = null;
-		MediaType contentType = getHeaders().getContentType();
-		if (contentType != null) {
-			charset = contentType.getCharset();
-		}
-		return (charset != null ? charset : StandardCharsets.UTF_8);
-	}
+    /**
+     * Return the response body aggregated and converted to a String using the
+     * charset of the Content-Type response or otherwise as "UTF-8".
+     */
+    public Mono<String> getBodyAsString() {
+        Charset charset = getCharset();
+        return Flux.from(getBody())
+                .reduce(bufferFactory.allocateBuffer(), (previous, current) -> {
+                    previous.write(current);
+                    DataBufferUtils.release(current);
+                    return previous;
+                })
+                .map(buffer -> dumpString(buffer, charset));
+    }
+
+    private static String dumpString(DataBuffer buffer, Charset charset) {
+        Assert.notNull(charset, "'charset' must not be null");
+        byte[] bytes = new byte[buffer.readableByteCount()];
+        buffer.read(bytes);
+        return new String(bytes, charset);
+    }
+
+    private Charset getCharset() {
+        Charset charset = null;
+        MediaType contentType = getHeaders().getContentType();
+        if (contentType != null) {
+            charset = contentType.getCharset();
+        }
+        return (charset != null ? charset : StandardCharsets.UTF_8);
+    }
 
 }

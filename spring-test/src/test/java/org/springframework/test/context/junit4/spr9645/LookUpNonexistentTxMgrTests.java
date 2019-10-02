@@ -39,22 +39,22 @@ import static org.junit.Assert.*;
 @ContextConfiguration
 public class LookUpNonexistentTxMgrTests {
 
-	private static final CallCountingTransactionManager txManager = new CallCountingTransactionManager();
+    private static final CallCountingTransactionManager txManager = new CallCountingTransactionManager();
 
-	@Configuration
-	static class Config {
+    @Configuration
+    static class Config {
 
-		@Bean
-		public PlatformTransactionManager transactionManager() {
-			return txManager;
-		}
-	}
+        @Bean
+        public PlatformTransactionManager transactionManager() {
+            return txManager;
+        }
+    }
 
-	@Test
-	public void nonTransactionalTest() {
-		assertEquals(0, txManager.begun);
-		assertEquals(0, txManager.inflight);
-		assertEquals(0, txManager.commits);
-		assertEquals(0, txManager.rollbacks);
-	}
+    @Test
+    public void nonTransactionalTest() {
+        assertEquals(0, txManager.begun);
+        assertEquals(0, txManager.inflight);
+        assertEquals(0, txManager.commits);
+        assertEquals(0, txManager.rollbacks);
+    }
 }

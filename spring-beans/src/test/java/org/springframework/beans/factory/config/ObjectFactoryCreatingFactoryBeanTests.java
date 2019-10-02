@@ -42,147 +42,147 @@ import static org.springframework.tests.TestResourceUtils.*;
  */
 public class ObjectFactoryCreatingFactoryBeanTests {
 
-	private static final Resource CONTEXT =
-		qualifiedResource(ObjectFactoryCreatingFactoryBeanTests.class, "context.xml");
+    private static final Resource CONTEXT =
+            qualifiedResource(ObjectFactoryCreatingFactoryBeanTests.class, "context.xml");
 
-	private DefaultListableBeanFactory beanFactory;
+    private DefaultListableBeanFactory beanFactory;
 
-	@Before
-	public void setUp() {
-		this.beanFactory = new DefaultListableBeanFactory();
-		new XmlBeanDefinitionReader(this.beanFactory).loadBeanDefinitions(CONTEXT);
-		this.beanFactory.setSerializationId("test");
-	}
+    @Before
+    public void setUp() {
+        this.beanFactory = new DefaultListableBeanFactory();
+        new XmlBeanDefinitionReader(this.beanFactory).loadBeanDefinitions(CONTEXT);
+        this.beanFactory.setSerializationId("test");
+    }
 
-	@After
-	public void tearDown() {
-		this.beanFactory.setSerializationId(null);
-	}
+    @After
+    public void tearDown() {
+        this.beanFactory.setSerializationId(null);
+    }
 
-	@Test
-	public void testFactoryOperation() throws Exception {
-		FactoryTestBean testBean = beanFactory.getBean("factoryTestBean", FactoryTestBean.class);
-		ObjectFactory<?> objectFactory = testBean.getObjectFactory();
+    @Test
+    public void testFactoryOperation() throws Exception {
+        FactoryTestBean testBean = beanFactory.getBean("factoryTestBean", FactoryTestBean.class);
+        ObjectFactory<?> objectFactory = testBean.getObjectFactory();
 
-		Date date1 = (Date) objectFactory.getObject();
-		Date date2 = (Date) objectFactory.getObject();
-		assertTrue(date1 != date2);
-	}
+        Date date1 = (Date) objectFactory.getObject();
+        Date date2 = (Date) objectFactory.getObject();
+        assertTrue(date1 != date2);
+    }
 
-	@Test
-	public void testFactorySerialization() throws Exception {
-		FactoryTestBean testBean = beanFactory.getBean("factoryTestBean", FactoryTestBean.class);
-		ObjectFactory<?> objectFactory = testBean.getObjectFactory();
+    @Test
+    public void testFactorySerialization() throws Exception {
+        FactoryTestBean testBean = beanFactory.getBean("factoryTestBean", FactoryTestBean.class);
+        ObjectFactory<?> objectFactory = testBean.getObjectFactory();
 
-		objectFactory = (ObjectFactory) SerializationTestUtils.serializeAndDeserialize(objectFactory);
+        objectFactory = (ObjectFactory) SerializationTestUtils.serializeAndDeserialize(objectFactory);
 
-		Date date1 = (Date) objectFactory.getObject();
-		Date date2 = (Date) objectFactory.getObject();
-		assertTrue(date1 != date2);
-	}
+        Date date1 = (Date) objectFactory.getObject();
+        Date date2 = (Date) objectFactory.getObject();
+        assertTrue(date1 != date2);
+    }
 
-	@Test
-	public void testProviderOperation() throws Exception {
-		ProviderTestBean testBean = beanFactory.getBean("providerTestBean", ProviderTestBean.class);
-		Provider<?> provider = testBean.getProvider();
+    @Test
+    public void testProviderOperation() throws Exception {
+        ProviderTestBean testBean = beanFactory.getBean("providerTestBean", ProviderTestBean.class);
+        Provider<?> provider = testBean.getProvider();
 
-		Date date1 = (Date) provider.get();
-		Date date2 = (Date) provider.get();
-		assertTrue(date1 != date2);
-	}
+        Date date1 = (Date) provider.get();
+        Date date2 = (Date) provider.get();
+        assertTrue(date1 != date2);
+    }
 
-	@Test
-	public void testProviderSerialization() throws Exception {
-		ProviderTestBean testBean = beanFactory.getBean("providerTestBean", ProviderTestBean.class);
-		Provider<?> provider = testBean.getProvider();
+    @Test
+    public void testProviderSerialization() throws Exception {
+        ProviderTestBean testBean = beanFactory.getBean("providerTestBean", ProviderTestBean.class);
+        Provider<?> provider = testBean.getProvider();
 
-		provider = (Provider) SerializationTestUtils.serializeAndDeserialize(provider);
+        provider = (Provider) SerializationTestUtils.serializeAndDeserialize(provider);
 
-		Date date1 = (Date) provider.get();
-		Date date2 = (Date) provider.get();
-		assertTrue(date1 != date2);
-	}
+        Date date1 = (Date) provider.get();
+        Date date2 = (Date) provider.get();
+        assertTrue(date1 != date2);
+    }
 
-	@Test
-	public void testDoesNotComplainWhenTargetBeanNameRefersToSingleton() throws Exception {
-		final String targetBeanName = "singleton";
-		final String expectedSingleton = "Alicia Keys";
+    @Test
+    public void testDoesNotComplainWhenTargetBeanNameRefersToSingleton() throws Exception {
+        final String targetBeanName = "singleton";
+        final String expectedSingleton = "Alicia Keys";
 
-		BeanFactory beanFactory = mock(BeanFactory.class);
-		given(beanFactory.getBean(targetBeanName)).willReturn(expectedSingleton);
+        BeanFactory beanFactory = mock(BeanFactory.class);
+        given(beanFactory.getBean(targetBeanName)).willReturn(expectedSingleton);
 
-		ObjectFactoryCreatingFactoryBean factory = new ObjectFactoryCreatingFactoryBean();
-		factory.setTargetBeanName(targetBeanName);
-		factory.setBeanFactory(beanFactory);
-		factory.afterPropertiesSet();
-		ObjectFactory<?> objectFactory = factory.getObject();
-		Object actualSingleton = objectFactory.getObject();
-		assertSame(expectedSingleton, actualSingleton);
-	}
+        ObjectFactoryCreatingFactoryBean factory = new ObjectFactoryCreatingFactoryBean();
+        factory.setTargetBeanName(targetBeanName);
+        factory.setBeanFactory(beanFactory);
+        factory.afterPropertiesSet();
+        ObjectFactory<?> objectFactory = factory.getObject();
+        Object actualSingleton = objectFactory.getObject();
+        assertSame(expectedSingleton, actualSingleton);
+    }
 
-	@Test
-	public void testWhenTargetBeanNameIsNull() throws Exception {
-		try {
-			new ObjectFactoryCreatingFactoryBean().afterPropertiesSet();
-			fail("Must have thrown an IllegalArgumentException; 'targetBeanName' property not set.");
-		}
-		catch (IllegalArgumentException expected) {}
-	}
+    @Test
+    public void testWhenTargetBeanNameIsNull() throws Exception {
+        try {
+            new ObjectFactoryCreatingFactoryBean().afterPropertiesSet();
+            fail("Must have thrown an IllegalArgumentException; 'targetBeanName' property not set.");
+        } catch (IllegalArgumentException expected) {
+        }
+    }
 
-	@Test
-	public void testWhenTargetBeanNameIsEmptyString() throws Exception {
-		try {
-			ObjectFactoryCreatingFactoryBean factory = new ObjectFactoryCreatingFactoryBean();
-			factory.setTargetBeanName("");
-			factory.afterPropertiesSet();
-			fail("Must have thrown an IllegalArgumentException; 'targetBeanName' property set to (invalid) empty string.");
-		}
-		catch (IllegalArgumentException expected) {}
-	}
+    @Test
+    public void testWhenTargetBeanNameIsEmptyString() throws Exception {
+        try {
+            ObjectFactoryCreatingFactoryBean factory = new ObjectFactoryCreatingFactoryBean();
+            factory.setTargetBeanName("");
+            factory.afterPropertiesSet();
+            fail("Must have thrown an IllegalArgumentException; 'targetBeanName' property set to (invalid) empty string.");
+        } catch (IllegalArgumentException expected) {
+        }
+    }
 
-	@Test
-	public void testWhenTargetBeanNameIsWhitespacedString() throws Exception {
-		try {
-			ObjectFactoryCreatingFactoryBean factory = new ObjectFactoryCreatingFactoryBean();
-			factory.setTargetBeanName("  \t");
-			factory.afterPropertiesSet();
-			fail("Must have thrown an IllegalArgumentException; 'targetBeanName' property set to (invalid) only-whitespace string.");
-		}
-		catch (IllegalArgumentException expected) {}
-	}
+    @Test
+    public void testWhenTargetBeanNameIsWhitespacedString() throws Exception {
+        try {
+            ObjectFactoryCreatingFactoryBean factory = new ObjectFactoryCreatingFactoryBean();
+            factory.setTargetBeanName("  \t");
+            factory.afterPropertiesSet();
+            fail("Must have thrown an IllegalArgumentException; 'targetBeanName' property set to (invalid) only-whitespace string.");
+        } catch (IllegalArgumentException expected) {
+        }
+    }
 
-	@Test
-	public void testEnsureOFBFBReportsThatItActuallyCreatesObjectFactoryInstances() throws Exception {
-		assertEquals("Must be reporting that it creates ObjectFactory instances (as per class contract).",
-			ObjectFactory.class, new ObjectFactoryCreatingFactoryBean().getObjectType());
-	}
-
-
-	public static class FactoryTestBean {
-
-		private ObjectFactory<?> objectFactory;
-
-		public ObjectFactory<?> getObjectFactory() {
-			return objectFactory;
-		}
-
-		public void setObjectFactory(ObjectFactory<?> objectFactory) {
-			this.objectFactory = objectFactory;
-		}
-	}
+    @Test
+    public void testEnsureOFBFBReportsThatItActuallyCreatesObjectFactoryInstances() throws Exception {
+        assertEquals("Must be reporting that it creates ObjectFactory instances (as per class contract).",
+                ObjectFactory.class, new ObjectFactoryCreatingFactoryBean().getObjectType());
+    }
 
 
-	public static class ProviderTestBean {
+    public static class FactoryTestBean {
 
-		private Provider<?> provider;
+        private ObjectFactory<?> objectFactory;
 
-		public Provider<?> getProvider() {
-			return provider;
-		}
+        public ObjectFactory<?> getObjectFactory() {
+            return objectFactory;
+        }
 
-		public void setProvider(Provider<?> provider) {
-			this.provider = provider;
-		}
-	}
+        public void setObjectFactory(ObjectFactory<?> objectFactory) {
+            this.objectFactory = objectFactory;
+        }
+    }
+
+
+    public static class ProviderTestBean {
+
+        private Provider<?> provider;
+
+        public Provider<?> getProvider() {
+            return provider;
+        }
+
+        public void setProvider(Provider<?> provider) {
+            this.provider = provider;
+        }
+    }
 
 }

@@ -27,15 +27,15 @@ import java.util.Collection;
  */
 public class MixedCollectionBean {
 
-	private Collection jumble;
+    private Collection jumble;
 
 
-	public void setJumble(Collection jumble) {
-		this.jumble = jumble;
-	}
+    public void setJumble(Collection jumble) {
+        this.jumble = jumble;
+    }
 
-	public Collection getJumble() {
-		return jumble;
-	}
+    public Collection getJumble() {
+        return jumble;
+    }
 
 }

@@ -55,110 +55,110 @@ import static org.junit.Assert.*;
 @WebAppConfiguration
 public class MockMvcHtmlUnitDriverBuilderTests {
 
-	private static final String EXPECTED_BODY = "MockMvcHtmlUnitDriverBuilderTests mvc";
+    private static final String EXPECTED_BODY = "MockMvcHtmlUnitDriverBuilderTests mvc";
 
-	@Autowired
-	private WebApplicationContext wac;
+    @Autowired
+    private WebApplicationContext wac;
 
-	private MockMvc mockMvc;
+    private MockMvc mockMvc;
 
-	private HtmlUnitDriver driver;
-
-
-	@Before
-	public void setup() {
-		this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();
-	}
+    private HtmlUnitDriver driver;
 
 
-	@Test(expected = IllegalArgumentException.class)
-	public void webAppContextSetupNull() {
-		MockMvcHtmlUnitDriverBuilder.webAppContextSetup(null);
-	}
-
-	@Test(expected = IllegalArgumentException.class)
-	public void mockMvcSetupNull() {
-		MockMvcHtmlUnitDriverBuilder.mockMvcSetup(null);
-	}
-
-	@Test
-	public void mockMvcSetupWithCustomDriverDelegate() throws Exception {
-		WebConnectionHtmlUnitDriver otherDriver = new WebConnectionHtmlUnitDriver();
-		this.driver = MockMvcHtmlUnitDriverBuilder.mockMvcSetup(this.mockMvc).withDelegate(otherDriver).build();
-
-		assertMockMvcUsed("http://localhost/test");
-		Assume.group(TestGroup.PERFORMANCE, () -> assertMockMvcNotUsed("http://example.com/"));
-	}
-
-	@Test
-	public void mockMvcSetupWithDefaultDriverDelegate() throws Exception {
-		this.driver = MockMvcHtmlUnitDriverBuilder.mockMvcSetup(this.mockMvc).build();
-
-		assertMockMvcUsed("http://localhost/test");
-		Assume.group(TestGroup.PERFORMANCE, () -> assertMockMvcNotUsed("http://example.com/"));
-	}
-
-	@Test
-	public void javaScriptEnabledByDefault() {
-		this.driver = MockMvcHtmlUnitDriverBuilder.mockMvcSetup(this.mockMvc).build();
-		assertTrue(this.driver.isJavascriptEnabled());
-	}
-
-	@Test
-	public void javaScriptDisabled() {
-		this.driver = MockMvcHtmlUnitDriverBuilder.mockMvcSetup(this.mockMvc).javascriptEnabled(false).build();
-		assertFalse(this.driver.isJavascriptEnabled());
-	}
-
-	@Test // SPR-14066
-	public void cookieManagerShared() throws Exception {
-		WebConnectionHtmlUnitDriver otherDriver = new WebConnectionHtmlUnitDriver();
-		this.mockMvc = MockMvcBuilders.standaloneSetup(new CookieController()).build();
-		this.driver = MockMvcHtmlUnitDriverBuilder.mockMvcSetup(this.mockMvc)
-				.withDelegate(otherDriver).build();
-
-		assertThat(get("http://localhost/"), equalTo(""));
-		Cookie cookie = new Cookie("localhost", "cookie", "cookieManagerShared");
-		otherDriver.getWebClient().getCookieManager().addCookie(cookie);
-		assertThat(get("http://localhost/"), equalTo("cookieManagerShared"));
-	}
+    @Before
+    public void setup() {
+        this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();
+    }
 
 
-	private void assertMockMvcUsed(String url) throws Exception {
-		assertThat(get(url), containsString(EXPECTED_BODY));
-	}
+    @Test(expected = IllegalArgumentException.class)
+    public void webAppContextSetupNull() {
+        MockMvcHtmlUnitDriverBuilder.webAppContextSetup(null);
+    }
 
-	private void assertMockMvcNotUsed(String url) throws Exception {
-		assertThat(get(url), not(containsString(EXPECTED_BODY)));
-	}
+    @Test(expected = IllegalArgumentException.class)
+    public void mockMvcSetupNull() {
+        MockMvcHtmlUnitDriverBuilder.mockMvcSetup(null);
+    }
 
-	private String get(String url) throws IOException {
-		this.driver.get(url);
-		return this.driver.getPageSource();
-	}
+    @Test
+    public void mockMvcSetupWithCustomDriverDelegate() throws Exception {
+        WebConnectionHtmlUnitDriver otherDriver = new WebConnectionHtmlUnitDriver();
+        this.driver = MockMvcHtmlUnitDriverBuilder.mockMvcSetup(this.mockMvc).withDelegate(otherDriver).build();
+
+        assertMockMvcUsed("http://localhost/test");
+        Assume.group(TestGroup.PERFORMANCE, () -> assertMockMvcNotUsed("http://example.com/"));
+    }
+
+    @Test
+    public void mockMvcSetupWithDefaultDriverDelegate() throws Exception {
+        this.driver = MockMvcHtmlUnitDriverBuilder.mockMvcSetup(this.mockMvc).build();
+
+        assertMockMvcUsed("http://localhost/test");
+        Assume.group(TestGroup.PERFORMANCE, () -> assertMockMvcNotUsed("http://example.com/"));
+    }
+
+    @Test
+    public void javaScriptEnabledByDefault() {
+        this.driver = MockMvcHtmlUnitDriverBuilder.mockMvcSetup(this.mockMvc).build();
+        assertTrue(this.driver.isJavascriptEnabled());
+    }
+
+    @Test
+    public void javaScriptDisabled() {
+        this.driver = MockMvcHtmlUnitDriverBuilder.mockMvcSetup(this.mockMvc).javascriptEnabled(false).build();
+        assertFalse(this.driver.isJavascriptEnabled());
+    }
+
+    @Test // SPR-14066
+    public void cookieManagerShared() throws Exception {
+        WebConnectionHtmlUnitDriver otherDriver = new WebConnectionHtmlUnitDriver();
+        this.mockMvc = MockMvcBuilders.standaloneSetup(new CookieController()).build();
+        this.driver = MockMvcHtmlUnitDriverBuilder.mockMvcSetup(this.mockMvc)
+                .withDelegate(otherDriver).build();
+
+        assertThat(get("http://localhost/"), equalTo(""));
+        Cookie cookie = new Cookie("localhost", "cookie", "cookieManagerShared");
+        otherDriver.getWebClient().getCookieManager().addCookie(cookie);
+        assertThat(get("http://localhost/"), equalTo("cookieManagerShared"));
+    }
 
 
-	@Configuration
-	@EnableWebMvc
-	static class Config {
+    private void assertMockMvcUsed(String url) throws Exception {
+        assertThat(get(url), containsString(EXPECTED_BODY));
+    }
 
-		@RestController
-		static class ContextPathController {
+    private void assertMockMvcNotUsed(String url) throws Exception {
+        assertThat(get(url), not(containsString(EXPECTED_BODY)));
+    }
 
-			@RequestMapping
-			public String contextPath(HttpServletRequest request) {
-				return EXPECTED_BODY;
-			}
-		}
-	}
+    private String get(String url) throws IOException {
+        this.driver.get(url);
+        return this.driver.getPageSource();
+    }
 
-	@RestController
-	static class CookieController {
 
-		@RequestMapping(path = "/", produces = "text/plain")
-		String cookie(@CookieValue("cookie") String cookie) {
-			return cookie;
-		}
-	}
+    @Configuration
+    @EnableWebMvc
+    static class Config {
+
+        @RestController
+        static class ContextPathController {
+
+            @RequestMapping
+            public String contextPath(HttpServletRequest request) {
+                return EXPECTED_BODY;
+            }
+        }
+    }
+
+    @RestController
+    static class CookieController {
+
+        @RequestMapping(path = "/", produces = "text/plain")
+        String cookie(@CookieValue("cookie") String cookie) {
+            return cookie;
+        }
+    }
 
 }

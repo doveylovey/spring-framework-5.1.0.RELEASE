@@ -38,109 +38,109 @@ import static org.junit.Assert.*;
  */
 public class Spr11202Tests {
 
-	@Test
-	public void testWithImporter() {
-		ApplicationContext context = new AnnotationConfigApplicationContext(Wrapper.class);
-		assertEquals("foo", context.getBean("value"));
-	}
+    @Test
+    public void testWithImporter() {
+        ApplicationContext context = new AnnotationConfigApplicationContext(Wrapper.class);
+        assertEquals("foo", context.getBean("value"));
+    }
 
-	@Test
-	public void testWithoutImporter() {
-		ApplicationContext context = new AnnotationConfigApplicationContext(Config.class);
-		assertEquals("foo", context.getBean("value"));
-	}
-
-
-	@Configuration
-	@Import(Selector.class)
-	protected static class Wrapper {
-	}
+    @Test
+    public void testWithoutImporter() {
+        ApplicationContext context = new AnnotationConfigApplicationContext(Config.class);
+        assertEquals("foo", context.getBean("value"));
+    }
 
 
-	protected static class Selector implements ImportSelector {
-
-		@Override
-		public String[] selectImports(AnnotationMetadata importingClassMetadata) {
-			return new String[] {Config.class.getName()};
-		}
-	}
+    @Configuration
+    @Import(Selector.class)
+    protected static class Wrapper {
+    }
 
 
-	@Configuration
-	protected static class Config {
+    protected static class Selector implements ImportSelector {
 
-		@Bean
-		public FooFactoryBean foo() {
-			return new FooFactoryBean();
-		}
-
-		@Bean
-		public String value() throws Exception {
-			String name = foo().getObject().getName();
-			Assert.state(name != null, "Name cannot be null");
-			return name;
-		}
-
-		@Bean
-		@Conditional(NoBarCondition.class)
-		public String bar() throws Exception {
-			return "bar";
-		}
-	}
+        @Override
+        public String[] selectImports(AnnotationMetadata importingClassMetadata) {
+            return new String[]{Config.class.getName()};
+        }
+    }
 
 
-	protected static class NoBarCondition implements Condition {
+    @Configuration
+    protected static class Config {
 
-		@Override
-		public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
-			if (context.getBeanFactory().getBeanNamesForAnnotation(Bar.class).length > 0) {
-				return false;
-			}
-			return true;
-		}
-	}
+        @Bean
+        public FooFactoryBean foo() {
+            return new FooFactoryBean();
+        }
 
+        @Bean
+        public String value() throws Exception {
+            String name = foo().getObject().getName();
+            Assert.state(name != null, "Name cannot be null");
+            return name;
+        }
 
-	@Retention(RetentionPolicy.RUNTIME)
-	@Documented
-	@Target(ElementType.TYPE)
-	protected @interface Bar {
-	}
-
-
-	protected static class FooFactoryBean implements FactoryBean<Foo>, InitializingBean {
-
-		private Foo foo = new Foo();
-
-		@Override
-		public Foo getObject() throws Exception {
-			return foo;
-		}
-
-		@Override
-		public Class<?> getObjectType() {
-			return Foo.class;
-		}
-
-		@Override
-		public boolean isSingleton() {
-			return true;
-		}
-
-		@Override
-		public void afterPropertiesSet() throws Exception {
-			this.foo.name = "foo";
-		}
-	}
+        @Bean
+        @Conditional(NoBarCondition.class)
+        public String bar() throws Exception {
+            return "bar";
+        }
+    }
 
 
-	protected static class Foo {
+    protected static class NoBarCondition implements Condition {
 
-		private String name;
+        @Override
+        public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
+            if (context.getBeanFactory().getBeanNamesForAnnotation(Bar.class).length > 0) {
+                return false;
+            }
+            return true;
+        }
+    }
 
-		public String getName() {
-			return name;
-		}
-	}
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Documented
+    @Target(ElementType.TYPE)
+    protected @interface Bar {
+    }
+
+
+    protected static class FooFactoryBean implements FactoryBean<Foo>, InitializingBean {
+
+        private Foo foo = new Foo();
+
+        @Override
+        public Foo getObject() throws Exception {
+            return foo;
+        }
+
+        @Override
+        public Class<?> getObjectType() {
+            return Foo.class;
+        }
+
+        @Override
+        public boolean isSingleton() {
+            return true;
+        }
+
+        @Override
+        public void afterPropertiesSet() throws Exception {
+            this.foo.name = "foo";
+        }
+    }
+
+
+    protected static class Foo {
+
+        private String name;
+
+        public String getName() {
+            return name;
+        }
+    }
 
 }

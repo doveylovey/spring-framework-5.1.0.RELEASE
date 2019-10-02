@@ -49,120 +49,119 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 public class Jaxb2XmlEncoderTests extends AbstractDataBufferAllocatingTestCase {
 
-	private final Jaxb2XmlEncoder encoder = new Jaxb2XmlEncoder();
+    private final Jaxb2XmlEncoder encoder = new Jaxb2XmlEncoder();
 
 
-	@Test
-	public void canEncode() {
-		assertTrue(this.encoder.canEncode(ResolvableType.forClass(Pojo.class),
-				MediaType.APPLICATION_XML));
-		assertTrue(this.encoder.canEncode(ResolvableType.forClass(Pojo.class),
-				MediaType.TEXT_XML));
-		assertFalse(this.encoder.canEncode(ResolvableType.forClass(Pojo.class),
-				MediaType.APPLICATION_JSON));
+    @Test
+    public void canEncode() {
+        assertTrue(this.encoder.canEncode(ResolvableType.forClass(Pojo.class),
+                MediaType.APPLICATION_XML));
+        assertTrue(this.encoder.canEncode(ResolvableType.forClass(Pojo.class),
+                MediaType.TEXT_XML));
+        assertFalse(this.encoder.canEncode(ResolvableType.forClass(Pojo.class),
+                MediaType.APPLICATION_JSON));
 
-		assertTrue(this.encoder.canEncode(
-				ResolvableType.forClass(Jaxb2XmlDecoderTests.TypePojo.class),
-				MediaType.APPLICATION_XML));
+        assertTrue(this.encoder.canEncode(
+                ResolvableType.forClass(Jaxb2XmlDecoderTests.TypePojo.class),
+                MediaType.APPLICATION_XML));
 
-		assertFalse(this.encoder.canEncode(ResolvableType.forClass(getClass()),
-				MediaType.APPLICATION_XML));
+        assertFalse(this.encoder.canEncode(ResolvableType.forClass(getClass()),
+                MediaType.APPLICATION_XML));
 
-		// SPR-15464
-		assertFalse(this.encoder.canEncode(ResolvableType.NONE, null));
-	}
+        // SPR-15464
+        assertFalse(this.encoder.canEncode(ResolvableType.NONE, null));
+    }
 
-	@Test
-	public void encode() {
-		Mono<Pojo> source = Mono.just(new Pojo("foofoo", "barbar"));
-		Flux<DataBuffer> output = this.encoder.encode(source, this.bufferFactory,
-				ResolvableType.forClass(Pojo.class),
-				MediaType.APPLICATION_XML, Collections.emptyMap());
+    @Test
+    public void encode() {
+        Mono<Pojo> source = Mono.just(new Pojo("foofoo", "barbar"));
+        Flux<DataBuffer> output = this.encoder.encode(source, this.bufferFactory,
+                ResolvableType.forClass(Pojo.class),
+                MediaType.APPLICATION_XML, Collections.emptyMap());
 
-		StepVerifier.create(output)
-				.consumeNextWith(dataBuffer -> {
-					try {
-						String s = DataBufferTestUtils
-								.dumpString(dataBuffer, StandardCharsets.UTF_8);
-						assertThat(s, isSimilarTo("<?xml version='1.0' encoding='UTF-8' standalone='yes'?>" +
-								"<pojo><bar>barbar</bar><foo>foofoo</foo></pojo>"));
-					}
-					finally {
-						DataBufferUtils.release(dataBuffer);
-					}
-				})
-				.verifyComplete();
-	}
+        StepVerifier.create(output)
+                .consumeNextWith(dataBuffer -> {
+                    try {
+                        String s = DataBufferTestUtils
+                                .dumpString(dataBuffer, StandardCharsets.UTF_8);
+                        assertThat(s, isSimilarTo("<?xml version='1.0' encoding='UTF-8' standalone='yes'?>" +
+                                "<pojo><bar>barbar</bar><foo>foofoo</foo></pojo>"));
+                    } finally {
+                        DataBufferUtils.release(dataBuffer);
+                    }
+                })
+                .verifyComplete();
+    }
 
-	@Test
-	public void encodeElementsWithCommonType() {
-		Mono<Container> source = Mono.just(new Container());
-		Flux<DataBuffer> output = this.encoder.encode(source, this.bufferFactory,
-				ResolvableType.forClass(Pojo.class),
-				MediaType.APPLICATION_XML, Collections.emptyMap());
+    @Test
+    public void encodeElementsWithCommonType() {
+        Mono<Container> source = Mono.just(new Container());
+        Flux<DataBuffer> output = this.encoder.encode(source, this.bufferFactory,
+                ResolvableType.forClass(Pojo.class),
+                MediaType.APPLICATION_XML, Collections.emptyMap());
 
-		StepVerifier.create(output)
-				.consumeNextWith(dataBuffer -> {
-					try {
-						String s = DataBufferTestUtils
-								.dumpString(dataBuffer, StandardCharsets.UTF_8);
-						assertThat(s, isSimilarTo("<?xml version='1.0' encoding='UTF-8' standalone='yes'?>" +
-								"<container><foo><name>name1</name></foo><bar><title>title1</title></bar></container>"));
-					}
-					finally {
-						DataBufferUtils.release(dataBuffer);
-					}
-				})
-				.verifyComplete();
-	}
+        StepVerifier.create(output)
+                .consumeNextWith(dataBuffer -> {
+                    try {
+                        String s = DataBufferTestUtils
+                                .dumpString(dataBuffer, StandardCharsets.UTF_8);
+                        assertThat(s, isSimilarTo("<?xml version='1.0' encoding='UTF-8' standalone='yes'?>" +
+                                "<container><foo><name>name1</name></foo><bar><title>title1</title></bar></container>"));
+                    } finally {
+                        DataBufferUtils.release(dataBuffer);
+                    }
+                })
+                .verifyComplete();
+    }
 
 
-	public static class Model {}
+    public static class Model {
+    }
 
-	public static class Foo extends Model {
+    public static class Foo extends Model {
 
-		private String name;
+        private String name;
 
-		public Foo(String name) {
-			this.name = name;
-		}
+        public Foo(String name) {
+            this.name = name;
+        }
 
-		public String getName() {
-			return this.name;
-		}
+        public String getName() {
+            return this.name;
+        }
 
-		public void setName(String name) {
-			this.name = name;
-		}
-	}
+        public void setName(String name) {
+            this.name = name;
+        }
+    }
 
-	public static class Bar extends Model {
+    public static class Bar extends Model {
 
-		private String title;
+        private String title;
 
-		public Bar(String title) {
-			this.title = title;
-		}
+        public Bar(String title) {
+            this.title = title;
+        }
 
-		public String getTitle() {
-			return title;
-		}
+        public String getTitle() {
+            return title;
+        }
 
-		public void setTitle(String title) {
-			this.title = title;
-		}
-	}
+        public void setTitle(String title) {
+            this.title = title;
+        }
+    }
 
-	@XmlRootElement
-	public static class Container {
+    @XmlRootElement
+    public static class Container {
 
-		@XmlElements({
-				@XmlElement(name="foo", type=Foo.class),
-				@XmlElement(name="bar", type=Bar.class)
-		})
-		public List<Model> getElements() {
-			return Arrays.asList(new Foo("name1"), new Bar("title1"));
-		}
-	}
+        @XmlElements({
+                @XmlElement(name = "foo", type = Foo.class),
+                @XmlElement(name = "bar", type = Bar.class)
+        })
+        public List<Model> getElements() {
+            return Arrays.asList(new Foo("name1"), new Bar("title1"));
+        }
+    }
 
 }

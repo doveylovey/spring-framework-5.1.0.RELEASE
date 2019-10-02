@@ -43,19 +43,19 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringJUnitConfig(TestConfig.class)
 interface GenericComicCharactersInterfaceDefaultMethodsTests<C extends Character> {
 
-	@Test
-	default void autowiredParameterWithParameterizedList(@Autowired List<C> characters) {
-		assertEquals(getExpectedNumCharacters(), characters.size(), "Number of characters in context");
-	}
+    @Test
+    default void autowiredParameterWithParameterizedList(@Autowired List<C> characters) {
+        assertEquals(getExpectedNumCharacters(), characters.size(), "Number of characters in context");
+    }
 
-	@Test
-	default void autowiredParameterWithGenericBean(@Autowired C character) {
-		assertNotNull(character, "Character should have been @Autowired by Spring");
-		assertEquals(getExpectedName(), character.getName(), "character's name");
-	}
+    @Test
+    default void autowiredParameterWithGenericBean(@Autowired C character) {
+        assertNotNull(character, "Character should have been @Autowired by Spring");
+        assertEquals(getExpectedName(), character.getName(), "character's name");
+    }
 
-	int getExpectedNumCharacters();
+    int getExpectedNumCharacters();
 
-	String getExpectedName();
+    String getExpectedName();
 
 }

@@ -34,51 +34,52 @@ import org.springframework.lang.Nullable;
  */
 public abstract class LogFormatUtils {
 
-	/**
-	 * Format the given value via {@code toString()}, quoting it if it is a
-	 * {@link CharSequence}, and possibly truncating at 100 if limitLength is
-	 * set to true.
-	 * @param value the value to format
-	 * @param limitLength whether to truncate large formatted values (over 100)
-	 * @return the formatted value
-	 * @since 5.1
-	 */
-	public static String formatValue(@Nullable Object value, boolean limitLength) {
-		if (value == null) {
-			return "";
-		}
-		String s = (value instanceof CharSequence ? "\"" + value + "\"" : value.toString());
-		return (limitLength && s.length() > 100 ? s.substring(0, 100) + " (truncated)..." : s);
-	}
+    /**
+     * Format the given value via {@code toString()}, quoting it if it is a
+     * {@link CharSequence}, and possibly truncating at 100 if limitLength is
+     * set to true.
+     *
+     * @param value       the value to format
+     * @param limitLength whether to truncate large formatted values (over 100)
+     * @return the formatted value
+     * @since 5.1
+     */
+    public static String formatValue(@Nullable Object value, boolean limitLength) {
+        if (value == null) {
+            return "";
+        }
+        String s = (value instanceof CharSequence ? "\"" + value + "\"" : value.toString());
+        return (limitLength && s.length() > 100 ? s.substring(0, 100) + " (truncated)..." : s);
+    }
 
-	/**
-	 * Use this to log a message with different levels of detail (or different
-	 * messages) at TRACE vs DEBUG log levels. Effectively, a substitute for:
-	 * <pre class="code">
-	 * if (logger.isDebugEnabled()) {
-	 *	String s = logger.isTraceEnabled() ? "..." : "...";
-	 *	if (logger.isTraceEnabled()) {
-	 *		logger.trace(s);
-	 *	}
-	 *	else {
-	 *		logger.debug(s);
-	 *	}
-	 * }
-	 * </pre>
-	 * @param logger the logger to use to log the message
-	 * @param messageFactory function that accepts a boolean set to the value
-	 * of {@link Log#isTraceEnabled()}
-	 */
-	public static void traceDebug(Log logger, Function<Boolean, String> messageFactory) {
-		if (logger.isDebugEnabled()) {
-			String logMessage = messageFactory.apply(logger.isTraceEnabled());
-			if (logger.isTraceEnabled()) {
-				logger.trace(logMessage);
-			}
-			else {
-				logger.debug(logMessage);
-			}
-		}
-	}
+    /**
+     * Use this to log a message with different levels of detail (or different
+     * messages) at TRACE vs DEBUG log levels. Effectively, a substitute for:
+     * <pre class="code">
+     * if (logger.isDebugEnabled()) {
+     * 	String s = logger.isTraceEnabled() ? "..." : "...";
+     * 	if (logger.isTraceEnabled()) {
+     * 		logger.trace(s);
+     *    }
+     * 	else {
+     * 		logger.debug(s);
+     *    }
+     * }
+     * </pre>
+     *
+     * @param logger         the logger to use to log the message
+     * @param messageFactory function that accepts a boolean set to the value
+     *                       of {@link Log#isTraceEnabled()}
+     */
+    public static void traceDebug(Log logger, Function<Boolean, String> messageFactory) {
+        if (logger.isDebugEnabled()) {
+            String logMessage = messageFactory.apply(logger.isTraceEnabled());
+            if (logger.isTraceEnabled()) {
+                logger.trace(logMessage);
+            } else {
+                logger.debug(logMessage);
+            }
+        }
+    }
 
 }

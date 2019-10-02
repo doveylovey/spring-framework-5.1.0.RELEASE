@@ -35,13 +35,13 @@ import java.util.Properties;
  */
 public class PropertiesPropertySource extends MapPropertySource {
 
-	@SuppressWarnings({"unchecked", "rawtypes"})
-	public PropertiesPropertySource(String name, Properties source) {
-		super(name, (Map) source);
-	}
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public PropertiesPropertySource(String name, Properties source) {
+        super(name, (Map) source);
+    }
 
-	protected PropertiesPropertySource(String name, Map<String, Object> source) {
-		super(name, source);
-	}
+    protected PropertiesPropertySource(String name, Map<String, Object> source) {
+        super(name, source);
+    }
 
 }

@@ -36,75 +36,77 @@ import org.springframework.web.server.WebSession;
  */
 public class DefaultWebSessionManager implements WebSessionManager {
 
-	private WebSessionIdResolver sessionIdResolver = new CookieWebSessionIdResolver();
+    private WebSessionIdResolver sessionIdResolver = new CookieWebSessionIdResolver();
 
-	private WebSessionStore sessionStore = new InMemoryWebSessionStore();
-
-
-	/**
-	 * Configure the id resolution strategy.
-	 * <p>By default an instance of {@link CookieWebSessionIdResolver}.
-	 * @param sessionIdResolver the resolver to use
-	 */
-	public void setSessionIdResolver(WebSessionIdResolver sessionIdResolver) {
-		Assert.notNull(sessionIdResolver, "WebSessionIdResolver is required");
-		this.sessionIdResolver = sessionIdResolver;
-	}
-
-	/**
-	 * Return the configured {@link WebSessionIdResolver}.
-	 */
-	public WebSessionIdResolver getSessionIdResolver() {
-		return this.sessionIdResolver;
-	}
-
-	/**
-	 * Configure the persistence strategy.
-	 * <p>By default an instance of {@link InMemoryWebSessionStore}.
-	 * @param sessionStore the persistence strategy to use
-	 */
-	public void setSessionStore(WebSessionStore sessionStore) {
-		Assert.notNull(sessionStore, "WebSessionStore is required");
-		this.sessionStore = sessionStore;
-	}
-
-	/**
-	 * Return the configured {@link WebSessionStore}.
-	 */
-	public WebSessionStore getSessionStore() {
-		return this.sessionStore;
-	}
+    private WebSessionStore sessionStore = new InMemoryWebSessionStore();
 
 
-	@Override
-	public Mono<WebSession> getSession(ServerWebExchange exchange) {
-		return Mono.defer(() -> retrieveSession(exchange)
-				.switchIfEmpty(this.sessionStore.createWebSession())
-				.doOnNext(session -> exchange.getResponse().beforeCommit(() -> save(exchange, session))));
-	}
+    /**
+     * Configure the id resolution strategy.
+     * <p>By default an instance of {@link CookieWebSessionIdResolver}.
+     *
+     * @param sessionIdResolver the resolver to use
+     */
+    public void setSessionIdResolver(WebSessionIdResolver sessionIdResolver) {
+        Assert.notNull(sessionIdResolver, "WebSessionIdResolver is required");
+        this.sessionIdResolver = sessionIdResolver;
+    }
 
-	private Mono<WebSession> retrieveSession(ServerWebExchange exchange) {
-		return Flux.fromIterable(getSessionIdResolver().resolveSessionIds(exchange))
-				.concatMap(this.sessionStore::retrieveSession)
-				.next();
-	}
+    /**
+     * Return the configured {@link WebSessionIdResolver}.
+     */
+    public WebSessionIdResolver getSessionIdResolver() {
+        return this.sessionIdResolver;
+    }
 
-	private Mono<Void> save(ServerWebExchange exchange, WebSession session) {
-		List<String> ids = getSessionIdResolver().resolveSessionIds(exchange);
+    /**
+     * Configure the persistence strategy.
+     * <p>By default an instance of {@link InMemoryWebSessionStore}.
+     *
+     * @param sessionStore the persistence strategy to use
+     */
+    public void setSessionStore(WebSessionStore sessionStore) {
+        Assert.notNull(sessionStore, "WebSessionStore is required");
+        this.sessionStore = sessionStore;
+    }
 
-		if (!session.isStarted() || session.isExpired()) {
-			if (!ids.isEmpty()) {
-				// Expired on retrieve or while processing request, or invalidated..
-				this.sessionIdResolver.expireSession(exchange);
-			}
-			return Mono.empty();
-		}
+    /**
+     * Return the configured {@link WebSessionStore}.
+     */
+    public WebSessionStore getSessionStore() {
+        return this.sessionStore;
+    }
 
-		if (ids.isEmpty() || !session.getId().equals(ids.get(0))) {
-			this.sessionIdResolver.setSessionId(exchange, session.getId());
-		}
 
-		return session.save();
-	}
+    @Override
+    public Mono<WebSession> getSession(ServerWebExchange exchange) {
+        return Mono.defer(() -> retrieveSession(exchange)
+                .switchIfEmpty(this.sessionStore.createWebSession())
+                .doOnNext(session -> exchange.getResponse().beforeCommit(() -> save(exchange, session))));
+    }
+
+    private Mono<WebSession> retrieveSession(ServerWebExchange exchange) {
+        return Flux.fromIterable(getSessionIdResolver().resolveSessionIds(exchange))
+                .concatMap(this.sessionStore::retrieveSession)
+                .next();
+    }
+
+    private Mono<Void> save(ServerWebExchange exchange, WebSession session) {
+        List<String> ids = getSessionIdResolver().resolveSessionIds(exchange);
+
+        if (!session.isStarted() || session.isExpired()) {
+            if (!ids.isEmpty()) {
+                // Expired on retrieve or while processing request, or invalidated..
+                this.sessionIdResolver.expireSession(exchange);
+            }
+            return Mono.empty();
+        }
+
+        if (ids.isEmpty() || !session.getId().equals(ids.get(0))) {
+            this.sessionIdResolver.setSessionId(exchange, session.getId());
+        }
+
+        return session.save();
+    }
 
 }

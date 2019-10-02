@@ -43,48 +43,46 @@ import org.springframework.util.MimeTypeUtils;
 public class ResourceDecoder extends AbstractDataBufferDecoder<Resource> {
 
 
-	public ResourceDecoder() {
-		super(MimeTypeUtils.ALL);
-	}
+    public ResourceDecoder() {
+        super(MimeTypeUtils.ALL);
+    }
 
 
-	@Override
-	public boolean canDecode(ResolvableType elementType, @Nullable MimeType mimeType) {
-		Class<?> clazz = elementType.getRawClass();
-		return clazz != null && Resource.class.isAssignableFrom(clazz) && super.canDecode(elementType, mimeType);
-	}
+    @Override
+    public boolean canDecode(ResolvableType elementType, @Nullable MimeType mimeType) {
+        Class<?> clazz = elementType.getRawClass();
+        return clazz != null && Resource.class.isAssignableFrom(clazz) && super.canDecode(elementType, mimeType);
+    }
 
-	@Override
-	public Flux<Resource> decode(Publisher<DataBuffer> inputStream, ResolvableType elementType,
-			@Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
+    @Override
+    public Flux<Resource> decode(Publisher<DataBuffer> inputStream, ResolvableType elementType,
+                                 @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
 
-		return Flux.from(decodeToMono(inputStream, elementType, mimeType, hints));
-	}
+        return Flux.from(decodeToMono(inputStream, elementType, mimeType, hints));
+    }
 
-	@Override
-	protected Resource decodeDataBuffer(DataBuffer dataBuffer, ResolvableType elementType,
-			@Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
+    @Override
+    protected Resource decodeDataBuffer(DataBuffer dataBuffer, ResolvableType elementType,
+                                        @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
 
-		byte[] bytes = new byte[dataBuffer.readableByteCount()];
-		dataBuffer.read(bytes);
-		DataBufferUtils.release(dataBuffer);
+        byte[] bytes = new byte[dataBuffer.readableByteCount()];
+        dataBuffer.read(bytes);
+        DataBufferUtils.release(dataBuffer);
 
-		Class<?> clazz = elementType.getRawClass();
-		Assert.state(clazz != null, "No resource class");
+        Class<?> clazz = elementType.getRawClass();
+        Assert.state(clazz != null, "No resource class");
 
-		if (logger.isDebugEnabled()) {
-			logger.debug(Hints.getLogPrefix(hints) + "Read " + bytes.length + " bytes");
-		}
+        if (logger.isDebugEnabled()) {
+            logger.debug(Hints.getLogPrefix(hints) + "Read " + bytes.length + " bytes");
+        }
 
-		if (InputStreamResource.class == clazz) {
-			return new InputStreamResource(new ByteArrayInputStream(bytes));
-		}
-		else if (Resource.class.isAssignableFrom(clazz)) {
-			return new ByteArrayResource(bytes);
-		}
-		else {
-			throw new IllegalStateException("Unsupported resource class: " + clazz);
-		}
-	}
+        if (InputStreamResource.class == clazz) {
+            return new InputStreamResource(new ByteArrayInputStream(bytes));
+        } else if (Resource.class.isAssignableFrom(clazz)) {
+            return new ByteArrayResource(bytes);
+        } else {
+            throw new IllegalStateException("Unsupported resource class: " + clazz);
+        }
+    }
 
 }

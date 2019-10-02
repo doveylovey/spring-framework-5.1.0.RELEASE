@@ -34,107 +34,111 @@ import org.springframework.web.multipart.MultipartFile;
  *
  * @author Juergen Hoeller
  * @author Eric Crampton
- * @since 2.0
  * @see MockMultipartHttpServletRequest
+ * @since 2.0
  */
 public class MockMultipartFile implements MultipartFile {
 
-	private final String name;
+    private final String name;
 
-	private String originalFilename;
+    private String originalFilename;
 
-	private String contentType;
+    private String contentType;
 
-	private final byte[] content;
-
-
-	/**
-	 * Create a new MockMultipartFile with the given content.
-	 * @param name the name of the file
-	 * @param content the content of the file
-	 */
-	public MockMultipartFile(String name, byte[] content) {
-		this(name, "", null, content);
-	}
-
-	/**
-	 * Create a new MockMultipartFile with the given content.
-	 * @param name the name of the file
-	 * @param contentStream the content of the file as stream
-	 * @throws IOException if reading from the stream failed
-	 */
-	public MockMultipartFile(String name, InputStream contentStream) throws IOException {
-		this(name, "", null, FileCopyUtils.copyToByteArray(contentStream));
-	}
-
-	/**
-	 * Create a new MockMultipartFile with the given content.
-	 * @param name the name of the file
-	 * @param originalFilename the original filename (as on the client's machine)
-	 * @param contentType the content type (if known)
-	 * @param content the content of the file
-	 */
-	public MockMultipartFile(String name, String originalFilename, String contentType, byte[] content) {
-		Assert.hasLength(name, "Name must not be null");
-		this.name = name;
-		this.originalFilename = (originalFilename != null ? originalFilename : "");
-		this.contentType = contentType;
-		this.content = (content != null ? content : new byte[0]);
-	}
-
-	/**
-	 * Create a new MockMultipartFile with the given content.
-	 * @param name the name of the file
-	 * @param originalFilename the original filename (as on the client's machine)
-	 * @param contentType the content type (if known)
-	 * @param contentStream the content of the file as stream
-	 * @throws IOException if reading from the stream failed
-	 */
-	public MockMultipartFile(String name, String originalFilename, String contentType, InputStream contentStream)
-			throws IOException {
-
-		this(name, originalFilename, contentType, FileCopyUtils.copyToByteArray(contentStream));
-	}
+    private final byte[] content;
 
 
-	@Override
-	public String getName() {
-		return this.name;
-	}
+    /**
+     * Create a new MockMultipartFile with the given content.
+     *
+     * @param name    the name of the file
+     * @param content the content of the file
+     */
+    public MockMultipartFile(String name, byte[] content) {
+        this(name, "", null, content);
+    }
 
-	@Override
-	public String getOriginalFilename() {
-		return this.originalFilename;
-	}
+    /**
+     * Create a new MockMultipartFile with the given content.
+     *
+     * @param name          the name of the file
+     * @param contentStream the content of the file as stream
+     * @throws IOException if reading from the stream failed
+     */
+    public MockMultipartFile(String name, InputStream contentStream) throws IOException {
+        this(name, "", null, FileCopyUtils.copyToByteArray(contentStream));
+    }
 
-	@Override
-	public String getContentType() {
-		return this.contentType;
-	}
+    /**
+     * Create a new MockMultipartFile with the given content.
+     *
+     * @param name             the name of the file
+     * @param originalFilename the original filename (as on the client's machine)
+     * @param contentType      the content type (if known)
+     * @param content          the content of the file
+     */
+    public MockMultipartFile(String name, String originalFilename, String contentType, byte[] content) {
+        Assert.hasLength(name, "Name must not be null");
+        this.name = name;
+        this.originalFilename = (originalFilename != null ? originalFilename : "");
+        this.contentType = contentType;
+        this.content = (content != null ? content : new byte[0]);
+    }
 
-	@Override
-	public boolean isEmpty() {
-		return (this.content.length == 0);
-	}
+    /**
+     * Create a new MockMultipartFile with the given content.
+     *
+     * @param name             the name of the file
+     * @param originalFilename the original filename (as on the client's machine)
+     * @param contentType      the content type (if known)
+     * @param contentStream    the content of the file as stream
+     * @throws IOException if reading from the stream failed
+     */
+    public MockMultipartFile(String name, String originalFilename, String contentType, InputStream contentStream)
+            throws IOException {
 
-	@Override
-	public long getSize() {
-		return this.content.length;
-	}
+        this(name, originalFilename, contentType, FileCopyUtils.copyToByteArray(contentStream));
+    }
 
-	@Override
-	public byte[] getBytes() throws IOException {
-		return this.content;
-	}
 
-	@Override
-	public InputStream getInputStream() throws IOException {
-		return new ByteArrayInputStream(this.content);
-	}
+    @Override
+    public String getName() {
+        return this.name;
+    }
 
-	@Override
-	public void transferTo(File dest) throws IOException, IllegalStateException {
-		FileCopyUtils.copy(this.content, dest);
-	}
+    @Override
+    public String getOriginalFilename() {
+        return this.originalFilename;
+    }
+
+    @Override
+    public String getContentType() {
+        return this.contentType;
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return (this.content.length == 0);
+    }
+
+    @Override
+    public long getSize() {
+        return this.content.length;
+    }
+
+    @Override
+    public byte[] getBytes() throws IOException {
+        return this.content;
+    }
+
+    @Override
+    public InputStream getInputStream() throws IOException {
+        return new ByteArrayInputStream(this.content);
+    }
+
+    @Override
+    public void transferTo(File dest) throws IOException, IllegalStateException {
+        FileCopyUtils.copy(this.content, dest);
+    }
 
 }

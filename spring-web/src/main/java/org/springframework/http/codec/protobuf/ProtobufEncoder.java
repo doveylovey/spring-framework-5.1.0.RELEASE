@@ -52,57 +52,55 @@ import org.springframework.util.MimeType;
  * {@code "com.google.protobuf:protobuf-java"} library.
  *
  * @author Sébastien Deleuze
- * @since 5.1
  * @see ProtobufDecoder
+ * @since 5.1
  */
 public class ProtobufEncoder extends ProtobufCodecSupport implements HttpMessageEncoder<Message> {
 
-	private static final List<MediaType> streamingMediaTypes = MIME_TYPES
-			.stream()
-			.map(mimeType -> new MediaType(mimeType.getType(), mimeType.getSubtype(),
-					Collections.singletonMap(DELIMITED_KEY, DELIMITED_VALUE)))
-			.collect(Collectors.toList());
+    private static final List<MediaType> streamingMediaTypes = MIME_TYPES
+            .stream()
+            .map(mimeType -> new MediaType(mimeType.getType(), mimeType.getSubtype(),
+                    Collections.singletonMap(DELIMITED_KEY, DELIMITED_VALUE)))
+            .collect(Collectors.toList());
 
 
-	@Override
-	public boolean canEncode(ResolvableType elementType, @Nullable MimeType mimeType) {
-		return Message.class.isAssignableFrom(elementType.toClass()) && supportsMimeType(mimeType);
-	}
+    @Override
+    public boolean canEncode(ResolvableType elementType, @Nullable MimeType mimeType) {
+        return Message.class.isAssignableFrom(elementType.toClass()) && supportsMimeType(mimeType);
+    }
 
-	@Override
-	public Flux<DataBuffer> encode(Publisher<? extends Message> inputStream, DataBufferFactory bufferFactory,
-			ResolvableType elementType, @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
+    @Override
+    public Flux<DataBuffer> encode(Publisher<? extends Message> inputStream, DataBufferFactory bufferFactory,
+                                   ResolvableType elementType, @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
 
-		return Flux
-				.from(inputStream)
-				.map(message -> encodeMessage(message, bufferFactory, !(inputStream instanceof Mono)));
-	}
+        return Flux
+                .from(inputStream)
+                .map(message -> encodeMessage(message, bufferFactory, !(inputStream instanceof Mono)));
+    }
 
-	private DataBuffer encodeMessage(Message message, DataBufferFactory bufferFactory, boolean streaming) {
-		DataBuffer buffer = bufferFactory.allocateBuffer();
-		OutputStream outputStream = buffer.asOutputStream();
-		try {
-			if (streaming) {
-				message.writeDelimitedTo(outputStream);
-			}
-			else {
-				message.writeTo(outputStream);
-			}
-			return buffer;
-		}
-		catch (IOException ex) {
-			throw new IllegalStateException("Unexpected I/O error while writing to data buffer", ex);
-		}
-	}
+    private DataBuffer encodeMessage(Message message, DataBufferFactory bufferFactory, boolean streaming) {
+        DataBuffer buffer = bufferFactory.allocateBuffer();
+        OutputStream outputStream = buffer.asOutputStream();
+        try {
+            if (streaming) {
+                message.writeDelimitedTo(outputStream);
+            } else {
+                message.writeTo(outputStream);
+            }
+            return buffer;
+        } catch (IOException ex) {
+            throw new IllegalStateException("Unexpected I/O error while writing to data buffer", ex);
+        }
+    }
 
-	@Override
-	public List<MediaType> getStreamingMediaTypes() {
-		return streamingMediaTypes;
-	}
+    @Override
+    public List<MediaType> getStreamingMediaTypes() {
+        return streamingMediaTypes;
+    }
 
-	@Override
-	public List<MimeType> getEncodableMimeTypes() {
-		return getMimeTypes();
-	}
+    @Override
+    public List<MimeType> getEncodableMimeTypes() {
+        return getMimeTypes();
+    }
 
 }

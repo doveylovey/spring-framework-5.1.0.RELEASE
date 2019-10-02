@@ -34,28 +34,28 @@ import static org.junit.Assert.assertThat;
  */
 public abstract class AbstractAliasAwareAnnotationAttributeExtractorTestCase {
 
-	@Test
-	public void getAttributeValueForImplicitAliases() throws Exception {
-		assertGetAttributeValueForImplicitAliases(GroovyImplicitAliasesContextConfigClass.class, "groovyScript");
-		assertGetAttributeValueForImplicitAliases(XmlImplicitAliasesContextConfigClass.class, "xmlFile");
-		assertGetAttributeValueForImplicitAliases(ValueImplicitAliasesContextConfigClass.class, "value");
-		assertGetAttributeValueForImplicitAliases(Location1ImplicitAliasesContextConfigClass.class, "location1");
-		assertGetAttributeValueForImplicitAliases(Location2ImplicitAliasesContextConfigClass.class, "location2");
-		assertGetAttributeValueForImplicitAliases(Location3ImplicitAliasesContextConfigClass.class, "location3");
-	}
+    @Test
+    public void getAttributeValueForImplicitAliases() throws Exception {
+        assertGetAttributeValueForImplicitAliases(GroovyImplicitAliasesContextConfigClass.class, "groovyScript");
+        assertGetAttributeValueForImplicitAliases(XmlImplicitAliasesContextConfigClass.class, "xmlFile");
+        assertGetAttributeValueForImplicitAliases(ValueImplicitAliasesContextConfigClass.class, "value");
+        assertGetAttributeValueForImplicitAliases(Location1ImplicitAliasesContextConfigClass.class, "location1");
+        assertGetAttributeValueForImplicitAliases(Location2ImplicitAliasesContextConfigClass.class, "location2");
+        assertGetAttributeValueForImplicitAliases(Location3ImplicitAliasesContextConfigClass.class, "location3");
+    }
 
-	private void assertGetAttributeValueForImplicitAliases(Class<?> clazz, String expected) throws Exception {
-		Method xmlFile = ImplicitAliasesContextConfig.class.getDeclaredMethod("xmlFile");
-		Method groovyScript = ImplicitAliasesContextConfig.class.getDeclaredMethod("groovyScript");
-		Method value = ImplicitAliasesContextConfig.class.getDeclaredMethod("value");
+    private void assertGetAttributeValueForImplicitAliases(Class<?> clazz, String expected) throws Exception {
+        Method xmlFile = ImplicitAliasesContextConfig.class.getDeclaredMethod("xmlFile");
+        Method groovyScript = ImplicitAliasesContextConfig.class.getDeclaredMethod("groovyScript");
+        Method value = ImplicitAliasesContextConfig.class.getDeclaredMethod("value");
 
-		AnnotationAttributeExtractor<?> extractor = createExtractorFor(clazz, expected, ImplicitAliasesContextConfig.class);
+        AnnotationAttributeExtractor<?> extractor = createExtractorFor(clazz, expected, ImplicitAliasesContextConfig.class);
 
-		assertThat(extractor.getAttributeValue(value), is(expected));
-		assertThat(extractor.getAttributeValue(groovyScript), is(expected));
-		assertThat(extractor.getAttributeValue(xmlFile), is(expected));
-	}
+        assertThat(extractor.getAttributeValue(value), is(expected));
+        assertThat(extractor.getAttributeValue(groovyScript), is(expected));
+        assertThat(extractor.getAttributeValue(xmlFile), is(expected));
+    }
 
-	protected abstract AnnotationAttributeExtractor<?> createExtractorFor(Class<?> clazz, String expected, Class<? extends Annotation> annotationType);
+    protected abstract AnnotationAttributeExtractor<?> createExtractorFor(Class<?> clazz, String expected, Class<? extends Annotation> annotationType);
 
 }

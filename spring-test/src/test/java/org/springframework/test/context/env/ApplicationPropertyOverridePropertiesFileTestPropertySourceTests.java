@@ -44,22 +44,22 @@ import static org.junit.Assert.*;
 @TestPropertySource("ApplicationPropertyOverridePropertiesFileTestPropertySourceTests.properties")
 public class ApplicationPropertyOverridePropertiesFileTestPropertySourceTests {
 
-	@Autowired
-	protected Environment env;
+    @Autowired
+    protected Environment env;
 
 
-	@Test
-	public void verifyPropertiesAreAvailableInEnvironment() {
-		assertEquals("test override", env.getProperty("explicit"));
-	}
+    @Test
+    public void verifyPropertiesAreAvailableInEnvironment() {
+        assertEquals("test override", env.getProperty("explicit"));
+    }
 
 
-	// -------------------------------------------------------------------
+    // -------------------------------------------------------------------
 
-	@Configuration
-	@PropertySource("classpath:/org/springframework/test/context/env/explicit.properties")
-	static class Config {
-		/* no user beans required for these tests */
-	}
+    @Configuration
+    @PropertySource("classpath:/org/springframework/test/context/env/explicit.properties")
+    static class Config {
+        /* no user beans required for these tests */
+    }
 
 }

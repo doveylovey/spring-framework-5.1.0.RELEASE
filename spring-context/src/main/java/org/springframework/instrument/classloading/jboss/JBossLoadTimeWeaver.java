@@ -39,84 +39,84 @@ import org.springframework.util.ReflectionUtils;
  */
 public class JBossLoadTimeWeaver implements LoadTimeWeaver {
 
-	private static final String DELEGATING_TRANSFORMER_CLASS_NAME =
-			"org.jboss.as.server.deployment.module.DelegatingClassFileTransformer";
+    private static final String DELEGATING_TRANSFORMER_CLASS_NAME =
+            "org.jboss.as.server.deployment.module.DelegatingClassFileTransformer";
 
 
-	private final ClassLoader classLoader;
+    private final ClassLoader classLoader;
 
-	private final Object delegatingTransformer;
+    private final Object delegatingTransformer;
 
-	private final Method addTransformer;
-
-
-	/**
-	 * Create a new instance of the {@link JBossLoadTimeWeaver} class using
-	 * the default {@link ClassLoader class loader}.
-	 * @see org.springframework.util.ClassUtils#getDefaultClassLoader()
-	 */
-	public JBossLoadTimeWeaver() {
-		this(ClassUtils.getDefaultClassLoader());
-	}
-
-	/**
-	 * Create a new instance of the {@link JBossLoadTimeWeaver} class using
-	 * the supplied {@link ClassLoader}.
-	 * @param classLoader the {@code ClassLoader} to delegate to for weaving
-	 */
-	public JBossLoadTimeWeaver(@Nullable ClassLoader classLoader) {
-		Assert.notNull(classLoader, "ClassLoader must not be null");
-		this.classLoader = classLoader;
-
-		try {
-			Field transformer = ReflectionUtils.findField(classLoader.getClass(), "transformer");
-			if (transformer == null) {
-				throw new IllegalArgumentException("Could not find 'transformer' field on JBoss ClassLoader: " +
-						classLoader.getClass().getName());
-			}
-			transformer.setAccessible(true);
-
-			this.delegatingTransformer = transformer.get(classLoader);
-			if (!this.delegatingTransformer.getClass().getName().equals(DELEGATING_TRANSFORMER_CLASS_NAME)) {
-				throw new IllegalStateException(
-						"Transformer not of the expected type DelegatingClassFileTransformer: " +
-						this.delegatingTransformer.getClass().getName());
-			}
-
-			Method addTransformer = ReflectionUtils.findMethod(this.delegatingTransformer.getClass(),
-					"addTransformer", ClassFileTransformer.class);
-			if (addTransformer == null) {
-				throw new IllegalArgumentException(
-						"Could not find 'addTransformer' method on JBoss DelegatingClassFileTransformer: " +
-						this.delegatingTransformer.getClass().getName());
-			}
-			addTransformer.setAccessible(true);
-			this.addTransformer = addTransformer;
-		}
-		catch (Throwable ex) {
-			throw new IllegalStateException("Could not initialize JBoss LoadTimeWeaver", ex);
-		}
-	}
+    private final Method addTransformer;
 
 
-	@Override
-	public void addTransformer(ClassFileTransformer transformer) {
-		try {
-			this.addTransformer.invoke(this.delegatingTransformer, transformer);
-		}
-		catch (Throwable ex) {
-			throw new IllegalStateException("Could not add transformer on JBoss ClassLoader: " + this.classLoader, ex);
-		}
-	}
+    /**
+     * Create a new instance of the {@link JBossLoadTimeWeaver} class using
+     * the default {@link ClassLoader class loader}.
+     *
+     * @see org.springframework.util.ClassUtils#getDefaultClassLoader()
+     */
+    public JBossLoadTimeWeaver() {
+        this(ClassUtils.getDefaultClassLoader());
+    }
 
-	@Override
-	public ClassLoader getInstrumentableClassLoader() {
-		return this.classLoader;
-	}
+    /**
+     * Create a new instance of the {@link JBossLoadTimeWeaver} class using
+     * the supplied {@link ClassLoader}.
+     *
+     * @param classLoader the {@code ClassLoader} to delegate to for weaving
+     */
+    public JBossLoadTimeWeaver(@Nullable ClassLoader classLoader) {
+        Assert.notNull(classLoader, "ClassLoader must not be null");
+        this.classLoader = classLoader;
 
-	@Override
-	public ClassLoader getThrowawayClassLoader() {
-		return new SimpleThrowawayClassLoader(getInstrumentableClassLoader());
-	}
+        try {
+            Field transformer = ReflectionUtils.findField(classLoader.getClass(), "transformer");
+            if (transformer == null) {
+                throw new IllegalArgumentException("Could not find 'transformer' field on JBoss ClassLoader: " +
+                        classLoader.getClass().getName());
+            }
+            transformer.setAccessible(true);
+
+            this.delegatingTransformer = transformer.get(classLoader);
+            if (!this.delegatingTransformer.getClass().getName().equals(DELEGATING_TRANSFORMER_CLASS_NAME)) {
+                throw new IllegalStateException(
+                        "Transformer not of the expected type DelegatingClassFileTransformer: " +
+                                this.delegatingTransformer.getClass().getName());
+            }
+
+            Method addTransformer = ReflectionUtils.findMethod(this.delegatingTransformer.getClass(),
+                    "addTransformer", ClassFileTransformer.class);
+            if (addTransformer == null) {
+                throw new IllegalArgumentException(
+                        "Could not find 'addTransformer' method on JBoss DelegatingClassFileTransformer: " +
+                                this.delegatingTransformer.getClass().getName());
+            }
+            addTransformer.setAccessible(true);
+            this.addTransformer = addTransformer;
+        } catch (Throwable ex) {
+            throw new IllegalStateException("Could not initialize JBoss LoadTimeWeaver", ex);
+        }
+    }
+
+
+    @Override
+    public void addTransformer(ClassFileTransformer transformer) {
+        try {
+            this.addTransformer.invoke(this.delegatingTransformer, transformer);
+        } catch (Throwable ex) {
+            throw new IllegalStateException("Could not add transformer on JBoss ClassLoader: " + this.classLoader, ex);
+        }
+    }
+
+    @Override
+    public ClassLoader getInstrumentableClassLoader() {
+        return this.classLoader;
+    }
+
+    @Override
+    public ClassLoader getThrowawayClassLoader() {
+        return new SimpleThrowawayClassLoader(getInstrumentableClassLoader());
+    }
 
 }

@@ -33,23 +33,23 @@ import static org.springframework.beans.factory.support.BeanDefinitionBuilder.*;
  */
 public class InvalidConfigurationClassDefinitionTests {
 
-	@Test
-	public void configurationClassesMayNotBeFinal() {
-		@Configuration
-		final class Config { }
+    @Test
+    public void configurationClassesMayNotBeFinal() {
+        @Configuration
+        final class Config {
+        }
 
-		BeanDefinition configBeanDef = rootBeanDefinition(Config.class).getBeanDefinition();
-		DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
-		beanFactory.registerBeanDefinition("config", configBeanDef);
+        BeanDefinition configBeanDef = rootBeanDefinition(Config.class).getBeanDefinition();
+        DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
+        beanFactory.registerBeanDefinition("config", configBeanDef);
 
-		try {
-			ConfigurationClassPostProcessor pp = new ConfigurationClassPostProcessor();
-			pp.postProcessBeanFactory(beanFactory);
-			fail("expected exception");
-		}
-		catch (BeanDefinitionParsingException ex) {
-			assertTrue(ex.getMessage(), ex.getMessage().contains("Remove the final modifier"));
-		}
-	}
+        try {
+            ConfigurationClassPostProcessor pp = new ConfigurationClassPostProcessor();
+            pp.postProcessBeanFactory(beanFactory);
+            fail("expected exception");
+        } catch (BeanDefinitionParsingException ex) {
+            assertTrue(ex.getMessage(), ex.getMessage().contains("Remove the final modifier"));
+        }
+    }
 
 }

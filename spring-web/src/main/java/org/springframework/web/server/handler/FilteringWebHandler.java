@@ -34,32 +34,33 @@ import org.springframework.web.server.WebHandler;
  */
 public class FilteringWebHandler extends WebHandlerDecorator {
 
-	private final WebFilter[] filters;
+    private final WebFilter[] filters;
 
 
-	/**
-	 * Constructor.
-	 * @param filters the chain of filters
-	 */
-	public FilteringWebHandler(WebHandler webHandler, List<WebFilter> filters) {
-		super(webHandler);
-		this.filters = filters.toArray(new WebFilter[0]);
-	}
+    /**
+     * Constructor.
+     *
+     * @param filters the chain of filters
+     */
+    public FilteringWebHandler(WebHandler webHandler, List<WebFilter> filters) {
+        super(webHandler);
+        this.filters = filters.toArray(new WebFilter[0]);
+    }
 
 
-	/**
-	 * Return a read-only list of the configured filters.
-	 */
-	public List<WebFilter> getFilters() {
-		return Arrays.asList(this.filters);
-	}
+    /**
+     * Return a read-only list of the configured filters.
+     */
+    public List<WebFilter> getFilters() {
+        return Arrays.asList(this.filters);
+    }
 
 
-	@Override
-	public Mono<Void> handle(ServerWebExchange exchange) {
-		return this.filters.length != 0 ?
-				new DefaultWebFilterChain(getDelegate(), this.filters).filter(exchange) :
-				super.handle(exchange);
-	}
+    @Override
+    public Mono<Void> handle(ServerWebExchange exchange) {
+        return this.filters.length != 0 ?
+                new DefaultWebFilterChain(getDelegate(), this.filters).filter(exchange) :
+                super.handle(exchange);
+    }
 
 }

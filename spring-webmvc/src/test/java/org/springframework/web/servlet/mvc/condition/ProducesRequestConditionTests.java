@@ -34,317 +34,317 @@ import static org.junit.Assert.*;
  */
 public class ProducesRequestConditionTests {
 
-	@Test
-	public void match() {
-		ProducesRequestCondition condition = new ProducesRequestCondition("text/plain");
+    @Test
+    public void match() {
+        ProducesRequestCondition condition = new ProducesRequestCondition("text/plain");
 
-		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.addHeader("Accept", "text/plain");
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addHeader("Accept", "text/plain");
 
-		assertNotNull(condition.getMatchingCondition(request));
-	}
+        assertNotNull(condition.getMatchingCondition(request));
+    }
 
-	@Test
-	public void matchNegated() {
-		ProducesRequestCondition condition = new ProducesRequestCondition("!text/plain");
+    @Test
+    public void matchNegated() {
+        ProducesRequestCondition condition = new ProducesRequestCondition("!text/plain");
 
-		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.addHeader("Accept", "text/plain");
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addHeader("Accept", "text/plain");
 
-		assertNull(condition.getMatchingCondition(request));
-	}
+        assertNull(condition.getMatchingCondition(request));
+    }
 
-	@Test
-	public void matchNegatedWithoutAcceptHeader() {
-		ProducesRequestCondition condition = new ProducesRequestCondition("!text/plain");
-		MockHttpServletRequest request = new MockHttpServletRequest();
+    @Test
+    public void matchNegatedWithoutAcceptHeader() {
+        ProducesRequestCondition condition = new ProducesRequestCondition("!text/plain");
+        MockHttpServletRequest request = new MockHttpServletRequest();
 
-		assertNotNull(condition.getMatchingCondition(request));
-		assertEquals(Collections.emptySet(), condition.getProducibleMediaTypes());
-	}
+        assertNotNull(condition.getMatchingCondition(request));
+        assertEquals(Collections.emptySet(), condition.getProducibleMediaTypes());
+    }
 
-	@Test
-	public void getProducibleMediaTypes() {
-		ProducesRequestCondition condition = new ProducesRequestCondition("!application/xml");
-		assertEquals(Collections.emptySet(), condition.getProducibleMediaTypes());
-	}
+    @Test
+    public void getProducibleMediaTypes() {
+        ProducesRequestCondition condition = new ProducesRequestCondition("!application/xml");
+        assertEquals(Collections.emptySet(), condition.getProducibleMediaTypes());
+    }
 
-	@Test
-	public void matchWildcard() {
-		ProducesRequestCondition condition = new ProducesRequestCondition("text/*");
+    @Test
+    public void matchWildcard() {
+        ProducesRequestCondition condition = new ProducesRequestCondition("text/*");
 
-		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.addHeader("Accept", "text/plain");
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addHeader("Accept", "text/plain");
 
-		assertNotNull(condition.getMatchingCondition(request));
-	}
+        assertNotNull(condition.getMatchingCondition(request));
+    }
 
-	@Test
-	public void matchMultiple() {
-		ProducesRequestCondition condition = new ProducesRequestCondition("text/plain", "application/xml");
+    @Test
+    public void matchMultiple() {
+        ProducesRequestCondition condition = new ProducesRequestCondition("text/plain", "application/xml");
 
-		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.addHeader("Accept", "text/plain");
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addHeader("Accept", "text/plain");
 
-		assertNotNull(condition.getMatchingCondition(request));
-	}
+        assertNotNull(condition.getMatchingCondition(request));
+    }
 
-	@Test
-	public void matchSingle() {
-		ProducesRequestCondition condition = new ProducesRequestCondition("text/plain");
+    @Test
+    public void matchSingle() {
+        ProducesRequestCondition condition = new ProducesRequestCondition("text/plain");
 
-		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.addHeader("Accept", "application/xml");
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addHeader("Accept", "application/xml");
 
-		assertNull(condition.getMatchingCondition(request));
-	}
+        assertNull(condition.getMatchingCondition(request));
+    }
 
-	@Test
-	public void matchParseError() {
-		ProducesRequestCondition condition = new ProducesRequestCondition("text/plain");
+    @Test
+    public void matchParseError() {
+        ProducesRequestCondition condition = new ProducesRequestCondition("text/plain");
 
-		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.addHeader("Accept", "bogus");
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addHeader("Accept", "bogus");
 
-		assertNull(condition.getMatchingCondition(request));
-	}
+        assertNull(condition.getMatchingCondition(request));
+    }
 
-	@Test
-	public void matchParseErrorWithNegation() {
-		ProducesRequestCondition condition = new ProducesRequestCondition("!text/plain");
+    @Test
+    public void matchParseErrorWithNegation() {
+        ProducesRequestCondition condition = new ProducesRequestCondition("!text/plain");
 
-		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.addHeader("Accept", "bogus");
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addHeader("Accept", "bogus");
 
-		assertNull(condition.getMatchingCondition(request));
-	}
+        assertNull(condition.getMatchingCondition(request));
+    }
 
-	@Test
-	public void matchByRequestParameter() {
-		ProducesRequestCondition condition = new ProducesRequestCondition(new String[] {"text/plain"}, new String[] {});
+    @Test
+    public void matchByRequestParameter() {
+        ProducesRequestCondition condition = new ProducesRequestCondition(new String[]{"text/plain"}, new String[]{});
 
-		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/foo.txt");
+        MockHttpServletRequest request = new MockHttpServletRequest("GET", "/foo.txt");
 
-		assertNotNull(condition.getMatchingCondition(request));
-	}
+        assertNotNull(condition.getMatchingCondition(request));
+    }
 
-	@Test
-	public void compareTo() {
-		ProducesRequestCondition html = new ProducesRequestCondition("text/html");
-		ProducesRequestCondition xml = new ProducesRequestCondition("application/xml");
-		ProducesRequestCondition none = new ProducesRequestCondition();
+    @Test
+    public void compareTo() {
+        ProducesRequestCondition html = new ProducesRequestCondition("text/html");
+        ProducesRequestCondition xml = new ProducesRequestCondition("application/xml");
+        ProducesRequestCondition none = new ProducesRequestCondition();
 
-		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.addHeader("Accept", "application/xml, text/html");
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addHeader("Accept", "application/xml, text/html");
 
-		assertTrue(html.compareTo(xml, request) > 0);
-		assertTrue(xml.compareTo(html, request) < 0);
-		assertTrue(xml.compareTo(none, request) < 0);
-		assertTrue(none.compareTo(xml, request) > 0);
-		assertTrue(html.compareTo(none, request) < 0);
-		assertTrue(none.compareTo(html, request) > 0);
+        assertTrue(html.compareTo(xml, request) > 0);
+        assertTrue(xml.compareTo(html, request) < 0);
+        assertTrue(xml.compareTo(none, request) < 0);
+        assertTrue(none.compareTo(xml, request) > 0);
+        assertTrue(html.compareTo(none, request) < 0);
+        assertTrue(none.compareTo(html, request) > 0);
 
-		request = new MockHttpServletRequest();
-		request.addHeader("Accept", "application/xml, text/*");
+        request = new MockHttpServletRequest();
+        request.addHeader("Accept", "application/xml, text/*");
 
-		assertTrue(html.compareTo(xml, request) > 0);
-		assertTrue(xml.compareTo(html, request) < 0);
+        assertTrue(html.compareTo(xml, request) > 0);
+        assertTrue(xml.compareTo(html, request) < 0);
 
-		request = new MockHttpServletRequest();
-		request.addHeader("Accept", "application/pdf");
+        request = new MockHttpServletRequest();
+        request.addHeader("Accept", "application/pdf");
 
-		assertTrue(html.compareTo(xml, request) == 0);
-		assertTrue(xml.compareTo(html, request) == 0);
+        assertTrue(html.compareTo(xml, request) == 0);
+        assertTrue(xml.compareTo(html, request) == 0);
 
-		// See SPR-7000
-		request = new MockHttpServletRequest();
-		request.addHeader("Accept", "text/html;q=0.9,application/xml");
+        // See SPR-7000
+        request = new MockHttpServletRequest();
+        request.addHeader("Accept", "text/html;q=0.9,application/xml");
 
-		assertTrue(html.compareTo(xml, request) > 0);
-		assertTrue(xml.compareTo(html, request) < 0);
-	}
+        assertTrue(html.compareTo(xml, request) > 0);
+        assertTrue(xml.compareTo(html, request) < 0);
+    }
 
-	@Test
-	public void compareToWithSingleExpression() {
-		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.addHeader("Accept", "text/plain");
+    @Test
+    public void compareToWithSingleExpression() {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addHeader("Accept", "text/plain");
 
-		ProducesRequestCondition condition1 = new ProducesRequestCondition("text/plain");
-		ProducesRequestCondition condition2 = new ProducesRequestCondition("text/*");
+        ProducesRequestCondition condition1 = new ProducesRequestCondition("text/plain");
+        ProducesRequestCondition condition2 = new ProducesRequestCondition("text/*");
 
-		int result = condition1.compareTo(condition2, request);
-		assertTrue("Invalid comparison result: " + result, result < 0);
+        int result = condition1.compareTo(condition2, request);
+        assertTrue("Invalid comparison result: " + result, result < 0);
 
-		result = condition2.compareTo(condition1, request);
-		assertTrue("Invalid comparison result: " + result, result > 0);
-	}
+        result = condition2.compareTo(condition1, request);
+        assertTrue("Invalid comparison result: " + result, result > 0);
+    }
 
-	@Test
-	public void compareToMultipleExpressions() {
-		ProducesRequestCondition condition1 = new ProducesRequestCondition("*/*", "text/plain");
-		ProducesRequestCondition condition2 = new ProducesRequestCondition("text/*", "text/plain;q=0.7");
+    @Test
+    public void compareToMultipleExpressions() {
+        ProducesRequestCondition condition1 = new ProducesRequestCondition("*/*", "text/plain");
+        ProducesRequestCondition condition2 = new ProducesRequestCondition("text/*", "text/plain;q=0.7");
 
-		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.addHeader("Accept", "text/plain");
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addHeader("Accept", "text/plain");
 
-		int result = condition1.compareTo(condition2, request);
-		assertTrue("Invalid comparison result: " + result, result < 0);
+        int result = condition1.compareTo(condition2, request);
+        assertTrue("Invalid comparison result: " + result, result < 0);
 
-		result = condition2.compareTo(condition1, request);
-		assertTrue("Invalid comparison result: " + result, result > 0);
-	}
+        result = condition2.compareTo(condition1, request);
+        assertTrue("Invalid comparison result: " + result, result > 0);
+    }
 
-	@Test
-	public void compareToMultipleExpressionsAndMultipeAcceptHeaderValues() {
-		ProducesRequestCondition condition1 = new ProducesRequestCondition("text/*", "text/plain");
-		ProducesRequestCondition condition2 = new ProducesRequestCondition("application/*", "application/xml");
+    @Test
+    public void compareToMultipleExpressionsAndMultipeAcceptHeaderValues() {
+        ProducesRequestCondition condition1 = new ProducesRequestCondition("text/*", "text/plain");
+        ProducesRequestCondition condition2 = new ProducesRequestCondition("application/*", "application/xml");
 
-		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.addHeader("Accept", "text/plain");
-		request.addHeader("Accept", "application/xml");
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addHeader("Accept", "text/plain");
+        request.addHeader("Accept", "application/xml");
 
-		int result = condition1.compareTo(condition2, request);
-		assertTrue("Invalid comparison result: " + result, result < 0);
+        int result = condition1.compareTo(condition2, request);
+        assertTrue("Invalid comparison result: " + result, result < 0);
 
-		result = condition2.compareTo(condition1, request);
-		assertTrue("Invalid comparison result: " + result, result > 0);
+        result = condition2.compareTo(condition1, request);
+        assertTrue("Invalid comparison result: " + result, result > 0);
 
-		request = new MockHttpServletRequest();
-		request.addHeader("Accept", "application/xml");
-		request.addHeader("Accept", "text/plain");
+        request = new MockHttpServletRequest();
+        request.addHeader("Accept", "application/xml");
+        request.addHeader("Accept", "text/plain");
 
-		result = condition1.compareTo(condition2, request);
-		assertTrue("Invalid comparison result: " + result, result > 0);
+        result = condition1.compareTo(condition2, request);
+        assertTrue("Invalid comparison result: " + result, result > 0);
 
-		result = condition2.compareTo(condition1, request);
-		assertTrue("Invalid comparison result: " + result, result < 0);
-	}
+        result = condition2.compareTo(condition1, request);
+        assertTrue("Invalid comparison result: " + result, result < 0);
+    }
 
-	// SPR-8536
+    // SPR-8536
 
-	@Test
-	public void compareToMediaTypeAll() {
-		MockHttpServletRequest request = new MockHttpServletRequest();
+    @Test
+    public void compareToMediaTypeAll() {
+        MockHttpServletRequest request = new MockHttpServletRequest();
 
-		ProducesRequestCondition condition1 = new ProducesRequestCondition();
-		ProducesRequestCondition condition2 = new ProducesRequestCondition("application/json");
+        ProducesRequestCondition condition1 = new ProducesRequestCondition();
+        ProducesRequestCondition condition2 = new ProducesRequestCondition("application/json");
 
-		assertTrue("Should have picked '*/*' condition as an exact match",
-				condition1.compareTo(condition2, request) < 0);
-		assertTrue("Should have picked '*/*' condition as an exact match",
-				condition2.compareTo(condition1, request) > 0);
+        assertTrue("Should have picked '*/*' condition as an exact match",
+                condition1.compareTo(condition2, request) < 0);
+        assertTrue("Should have picked '*/*' condition as an exact match",
+                condition2.compareTo(condition1, request) > 0);
 
-		condition1 = new ProducesRequestCondition("*/*");
-		condition2 = new ProducesRequestCondition("application/json");
+        condition1 = new ProducesRequestCondition("*/*");
+        condition2 = new ProducesRequestCondition("application/json");
 
-		assertTrue(condition1.compareTo(condition2, request) < 0);
-		assertTrue(condition2.compareTo(condition1, request) > 0);
+        assertTrue(condition1.compareTo(condition2, request) < 0);
+        assertTrue(condition2.compareTo(condition1, request) > 0);
 
-		request.addHeader("Accept", "*/*");
+        request.addHeader("Accept", "*/*");
 
-		condition1 = new ProducesRequestCondition();
-		condition2 = new ProducesRequestCondition("application/json");
+        condition1 = new ProducesRequestCondition();
+        condition2 = new ProducesRequestCondition("application/json");
 
-		assertTrue(condition1.compareTo(condition2, request) < 0);
-		assertTrue(condition2.compareTo(condition1, request) > 0);
+        assertTrue(condition1.compareTo(condition2, request) < 0);
+        assertTrue(condition2.compareTo(condition1, request) > 0);
 
-		condition1 = new ProducesRequestCondition("*/*");
-		condition2 = new ProducesRequestCondition("application/json");
+        condition1 = new ProducesRequestCondition("*/*");
+        condition2 = new ProducesRequestCondition("application/json");
 
-		assertTrue(condition1.compareTo(condition2, request) < 0);
-		assertTrue(condition2.compareTo(condition1, request) > 0);
-	}
+        assertTrue(condition1.compareTo(condition2, request) < 0);
+        assertTrue(condition2.compareTo(condition1, request) > 0);
+    }
 
-	// SPR-9021
+    // SPR-9021
 
-	@Test
-	public void compareToMediaTypeAllWithParameter() {
-		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.addHeader("Accept", "*/*;q=0.9");
+    @Test
+    public void compareToMediaTypeAllWithParameter() {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addHeader("Accept", "*/*;q=0.9");
 
-		ProducesRequestCondition condition1 = new ProducesRequestCondition();
-		ProducesRequestCondition condition2 = new ProducesRequestCondition("application/json");
+        ProducesRequestCondition condition1 = new ProducesRequestCondition();
+        ProducesRequestCondition condition2 = new ProducesRequestCondition("application/json");
 
-		assertTrue(condition1.compareTo(condition2, request) < 0);
-		assertTrue(condition2.compareTo(condition1, request) > 0);
-	}
+        assertTrue(condition1.compareTo(condition2, request) < 0);
+        assertTrue(condition2.compareTo(condition1, request) > 0);
+    }
 
-	@Test
-	public void compareToEqualMatch() {
-		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.addHeader("Accept", "text/*");
+    @Test
+    public void compareToEqualMatch() {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addHeader("Accept", "text/*");
 
-		ProducesRequestCondition condition1 = new ProducesRequestCondition("text/plain");
-		ProducesRequestCondition condition2 = new ProducesRequestCondition("text/xhtml");
+        ProducesRequestCondition condition1 = new ProducesRequestCondition("text/plain");
+        ProducesRequestCondition condition2 = new ProducesRequestCondition("text/xhtml");
 
-		int result = condition1.compareTo(condition2, request);
-		assertTrue("Should have used MediaType.equals(Object) to break the match", result < 0);
+        int result = condition1.compareTo(condition2, request);
+        assertTrue("Should have used MediaType.equals(Object) to break the match", result < 0);
 
-		result = condition2.compareTo(condition1, request);
-		assertTrue("Should have used MediaType.equals(Object) to break the match", result > 0);
-	}
+        result = condition2.compareTo(condition1, request);
+        assertTrue("Should have used MediaType.equals(Object) to break the match", result > 0);
+    }
 
-	@Test
-	public void combine() {
-		ProducesRequestCondition condition1 = new ProducesRequestCondition("text/plain");
-		ProducesRequestCondition condition2 = new ProducesRequestCondition("application/xml");
+    @Test
+    public void combine() {
+        ProducesRequestCondition condition1 = new ProducesRequestCondition("text/plain");
+        ProducesRequestCondition condition2 = new ProducesRequestCondition("application/xml");
 
-		ProducesRequestCondition result = condition1.combine(condition2);
-		assertEquals(condition2, result);
-	}
+        ProducesRequestCondition result = condition1.combine(condition2);
+        assertEquals(condition2, result);
+    }
 
-	@Test
-	public void combineWithDefault() {
-		ProducesRequestCondition condition1 = new ProducesRequestCondition("text/plain");
-		ProducesRequestCondition condition2 = new ProducesRequestCondition();
+    @Test
+    public void combineWithDefault() {
+        ProducesRequestCondition condition1 = new ProducesRequestCondition("text/plain");
+        ProducesRequestCondition condition2 = new ProducesRequestCondition();
 
-		ProducesRequestCondition result = condition1.combine(condition2);
-		assertEquals(condition1, result);
-	}
+        ProducesRequestCondition result = condition1.combine(condition2);
+        assertEquals(condition1, result);
+    }
 
-	@Test
-	public void instantiateWithProducesAndHeaderConditions() {
-		String[] produces = new String[] {"text/plain"};
-		String[] headers = new String[]{"foo=bar", "accept=application/xml,application/pdf"};
-		ProducesRequestCondition condition = new ProducesRequestCondition(produces, headers);
+    @Test
+    public void instantiateWithProducesAndHeaderConditions() {
+        String[] produces = new String[]{"text/plain"};
+        String[] headers = new String[]{"foo=bar", "accept=application/xml,application/pdf"};
+        ProducesRequestCondition condition = new ProducesRequestCondition(produces, headers);
 
-		assertConditions(condition, "text/plain", "application/xml", "application/pdf");
-	}
+        assertConditions(condition, "text/plain", "application/xml", "application/pdf");
+    }
 
-	@Test
-	public void getMatchingCondition() {
-		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.addHeader("Accept", "text/plain");
+    @Test
+    public void getMatchingCondition() {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addHeader("Accept", "text/plain");
 
-		ProducesRequestCondition condition = new ProducesRequestCondition("text/plain", "application/xml");
+        ProducesRequestCondition condition = new ProducesRequestCondition("text/plain", "application/xml");
 
-		ProducesRequestCondition result = condition.getMatchingCondition(request);
-		assertConditions(result, "text/plain");
+        ProducesRequestCondition result = condition.getMatchingCondition(request);
+        assertConditions(result, "text/plain");
 
-		condition = new ProducesRequestCondition("application/xml");
+        condition = new ProducesRequestCondition("application/xml");
 
-		result = condition.getMatchingCondition(request);
-		assertNull(result);
-	}
+        result = condition.getMatchingCondition(request);
+        assertNull(result);
+    }
 
 
-	private void assertConditions(ProducesRequestCondition condition, String... expected) {
-		Collection<ProduceMediaTypeExpression> expressions = condition.getContent();
-		assertEquals("Invalid number of conditions", expressions.size(), expected.length);
-		for (String s : expected) {
-			boolean found = false;
-			for (ProduceMediaTypeExpression expr : expressions) {
-				String conditionMediaType = expr.getMediaType().toString();
-				if (conditionMediaType.equals(s)) {
-					found = true;
-					break;
+    private void assertConditions(ProducesRequestCondition condition, String... expected) {
+        Collection<ProduceMediaTypeExpression> expressions = condition.getContent();
+        assertEquals("Invalid number of conditions", expressions.size(), expected.length);
+        for (String s : expected) {
+            boolean found = false;
+            for (ProduceMediaTypeExpression expr : expressions) {
+                String conditionMediaType = expr.getMediaType().toString();
+                if (conditionMediaType.equals(s)) {
+                    found = true;
+                    break;
 
-				}
-			}
-			if (!found) {
-				fail("Condition [" + s + "] not found");
-			}
-		}
-	}
+                }
+            }
+            if (!found) {
+                fail("Condition [" + s + "] not found");
+            }
+        }
+    }
 
 }

@@ -31,30 +31,30 @@ import org.springframework.web.context.request.NativeWebRequest;
  */
 public class StubArgumentResolver implements HandlerMethodArgumentResolver {
 
-	private final Class<?> parameterType;
+    private final Class<?> parameterType;
 
-	private final Object stubValue;
+    private final Object stubValue;
 
-	private List<MethodParameter> resolvedParameters = new ArrayList<>();
+    private List<MethodParameter> resolvedParameters = new ArrayList<>();
 
-	public StubArgumentResolver(Class<?> supportedParameterType, Object stubValue) {
-		this.parameterType = supportedParameterType;
-		this.stubValue = stubValue;
-	}
+    public StubArgumentResolver(Class<?> supportedParameterType, Object stubValue) {
+        this.parameterType = supportedParameterType;
+        this.stubValue = stubValue;
+    }
 
-	public List<MethodParameter> getResolvedParameters() {
-		return resolvedParameters;
-	}
+    public List<MethodParameter> getResolvedParameters() {
+        return resolvedParameters;
+    }
 
-	@Override
-	public boolean supportsParameter(MethodParameter parameter) {
-		return parameter.getParameterType().equals(this.parameterType);
-	}
+    @Override
+    public boolean supportsParameter(MethodParameter parameter) {
+        return parameter.getParameterType().equals(this.parameterType);
+    }
 
-	@Override
-	public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
-			NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
-		this.resolvedParameters.add(parameter);
-		return this.stubValue;
-	}
+    @Override
+    public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
+                                  NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
+        this.resolvedParameters.add(parameter);
+        return this.stubValue;
+    }
 }

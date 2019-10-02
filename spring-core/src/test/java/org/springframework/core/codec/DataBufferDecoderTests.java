@@ -38,45 +38,45 @@ import static org.junit.Assert.*;
  */
 public class DataBufferDecoderTests extends AbstractDataBufferAllocatingTestCase {
 
-	private final DataBufferDecoder decoder = new DataBufferDecoder();
+    private final DataBufferDecoder decoder = new DataBufferDecoder();
 
-	@Test
-	public void canDecode() {
-		assertTrue(this.decoder.canDecode(ResolvableType.forClass(DataBuffer.class),
-				MimeTypeUtils.TEXT_PLAIN));
-		assertFalse(this.decoder.canDecode(ResolvableType.forClass(Integer.class),
-				MimeTypeUtils.TEXT_PLAIN));
-		assertTrue(this.decoder.canDecode(ResolvableType.forClass(DataBuffer.class),
-				MimeTypeUtils.APPLICATION_JSON));
-	}
+    @Test
+    public void canDecode() {
+        assertTrue(this.decoder.canDecode(ResolvableType.forClass(DataBuffer.class),
+                MimeTypeUtils.TEXT_PLAIN));
+        assertFalse(this.decoder.canDecode(ResolvableType.forClass(Integer.class),
+                MimeTypeUtils.TEXT_PLAIN));
+        assertTrue(this.decoder.canDecode(ResolvableType.forClass(DataBuffer.class),
+                MimeTypeUtils.APPLICATION_JSON));
+    }
 
-	@Test
-	public void decode() {
-		DataBuffer fooBuffer = stringBuffer("foo");
-		DataBuffer barBuffer = stringBuffer("bar");
-		Flux<DataBuffer> source = Flux.just(fooBuffer, barBuffer);
-		Flux<DataBuffer> output = this.decoder.decode(source,
-				ResolvableType.forClassWithGenerics(Publisher.class, DataBuffer.class),
-				null, Collections.emptyMap());
+    @Test
+    public void decode() {
+        DataBuffer fooBuffer = stringBuffer("foo");
+        DataBuffer barBuffer = stringBuffer("bar");
+        Flux<DataBuffer> source = Flux.just(fooBuffer, barBuffer);
+        Flux<DataBuffer> output = this.decoder.decode(source,
+                ResolvableType.forClassWithGenerics(Publisher.class, DataBuffer.class),
+                null, Collections.emptyMap());
 
-		assertSame(source, output);
+        assertSame(source, output);
 
-		release(fooBuffer, barBuffer);
-	}
+        release(fooBuffer, barBuffer);
+    }
 
-	@Test
-	public void decodeToMono() {
-		DataBuffer fooBuffer = stringBuffer("foo");
-		DataBuffer barBuffer = stringBuffer("bar");
-		Flux<DataBuffer> source = Flux.just(fooBuffer, barBuffer);
-		Mono<DataBuffer> output = this.decoder.decodeToMono(source,
-				ResolvableType.forClassWithGenerics(Publisher.class, DataBuffer.class),
-				null, Collections.emptyMap());
+    @Test
+    public void decodeToMono() {
+        DataBuffer fooBuffer = stringBuffer("foo");
+        DataBuffer barBuffer = stringBuffer("bar");
+        Flux<DataBuffer> source = Flux.just(fooBuffer, barBuffer);
+        Mono<DataBuffer> output = this.decoder.decodeToMono(source,
+                ResolvableType.forClassWithGenerics(Publisher.class, DataBuffer.class),
+                null, Collections.emptyMap());
 
-		DataBuffer outputBuffer = output.block(Duration.ofSeconds(5));
-		assertEquals("foobar", DataBufferTestUtils.dumpString(outputBuffer, StandardCharsets.UTF_8));
+        DataBuffer outputBuffer = output.block(Duration.ofSeconds(5));
+        assertEquals("foobar", DataBufferTestUtils.dumpString(outputBuffer, StandardCharsets.UTF_8));
 
-		release(outputBuffer);
-	}
+        release(outputBuffer);
+    }
 
 }

@@ -40,18 +40,18 @@ import static org.junit.Assert.*;
 @RunWith(SpringJUnit4ClassRunner.class)
 public class AutowiredQualifierTests {
 
-	@Autowired
-	private String foo;
+    @Autowired
+    private String foo;
 
-	@Autowired
-	@Qualifier("customFoo")
-	private String customFoo;
+    @Autowired
+    @Qualifier("customFoo")
+    private String customFoo;
 
 
-	@Test
-	public void test() {
-		assertThat(foo, equalTo("normal"));
-		assertThat(customFoo, equalTo("custom"));
-	}
+    @Test
+    public void test() {
+        assertThat(foo, equalTo("normal"));
+        assertThat(customFoo, equalTo("custom"));
+    }
 
 }

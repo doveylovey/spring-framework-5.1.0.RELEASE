@@ -53,170 +53,168 @@ import org.springframework.web.socket.server.support.DefaultHandshakeHandler;
 
 /**
  * Integration tests for {@link WebSocketStompClient}.
+ *
  * @author Rossen Stoyanchev
  */
 public class WebSocketStompClientIntegrationTests {
 
-	private static final Log logger = LogFactory.getLog(WebSocketStompClientIntegrationTests.class);
+    private static final Log logger = LogFactory.getLog(WebSocketStompClientIntegrationTests.class);
 
-	@Rule
-	public final TestName testName = new TestName();
+    @Rule
+    public final TestName testName = new TestName();
 
-	private WebSocketStompClient stompClient;
+    private WebSocketStompClient stompClient;
 
-	private WebSocketTestServer server;
+    private WebSocketTestServer server;
 
-	private AnnotationConfigWebApplicationContext wac;
-
-
-	@Before
-	public void setUp() throws Exception {
-
-		logger.debug("Setting up before '" + this.testName.getMethodName() + "'");
-
-		this.wac = new AnnotationConfigWebApplicationContext();
-		this.wac.register(TestConfig.class);
-		this.wac.refresh();
-
-		this.server = new TomcatWebSocketTestServer();
-		this.server.setup();
-		this.server.deployConfig(this.wac);
-		this.server.start();
-
-		WebSocketClient webSocketClient = new StandardWebSocketClient();
-		this.stompClient = new WebSocketStompClient(webSocketClient);
-		this.stompClient.setMessageConverter(new StringMessageConverter());
-	}
-
-	@After
-	public void tearDown() throws Exception {
-		try {
-			this.server.undeployConfig();
-		}
-		catch (Throwable t) {
-			logger.error("Failed to undeploy application config", t);
-		}
-		try {
-			this.server.stop();
-		}
-		catch (Throwable t) {
-			logger.error("Failed to stop server", t);
-		}
-		try {
-			this.wac.close();
-		}
-		catch (Throwable t) {
-			logger.error("Failed to close WebApplicationContext", t);
-		}
-	}
+    private AnnotationConfigWebApplicationContext wac;
 
 
-	@Test
-	public void publishSubscribe() throws Exception {
+    @Before
+    public void setUp() throws Exception {
 
-		String url = "ws://127.0.0.1:" + this.server.getPort() + "/stomp";
+        logger.debug("Setting up before '" + this.testName.getMethodName() + "'");
 
-		TestHandler testHandler = new TestHandler("/topic/foo", "payload");
-		this.stompClient.connect(url, testHandler);
+        this.wac = new AnnotationConfigWebApplicationContext();
+        this.wac.register(TestConfig.class);
+        this.wac.refresh();
 
-		assertTrue(testHandler.awaitForMessageCount(1, 5000));
-		assertThat(testHandler.getReceived(), containsInAnyOrder("payload"));
-	}
+        this.server = new TomcatWebSocketTestServer();
+        this.server.setup();
+        this.server.deployConfig(this.wac);
+        this.server.start();
 
+        WebSocketClient webSocketClient = new StandardWebSocketClient();
+        this.stompClient = new WebSocketStompClient(webSocketClient);
+        this.stompClient.setMessageConverter(new StringMessageConverter());
+    }
 
-	@Configuration
-	static class TestConfig extends WebSocketMessageBrokerConfigurationSupport {
-
-		@Override
-		protected void registerStompEndpoints(StompEndpointRegistry registry) {
-			// Can't rely on classpath detection
-			RequestUpgradeStrategy upgradeStrategy = new TomcatRequestUpgradeStrategy();
-			registry.addEndpoint("/stomp")
-					.setHandshakeHandler(new DefaultHandshakeHandler(upgradeStrategy))
-					.setAllowedOrigins("*");
-		}
-
-		@Override
-		public void configureMessageBroker(MessageBrokerRegistry configurer) {
-			configurer.setApplicationDestinationPrefixes("/app");
-			configurer.enableSimpleBroker("/topic", "/queue");
-		}
-	}
-
-
-	private static class TestHandler extends StompSessionHandlerAdapter {
-
-		private final String topic;
-
-		private final Object payload;
-
-		private final List<String> received = new ArrayList<>();
+    @After
+    public void tearDown() throws Exception {
+        try {
+            this.server.undeployConfig();
+        } catch (Throwable t) {
+            logger.error("Failed to undeploy application config", t);
+        }
+        try {
+            this.server.stop();
+        } catch (Throwable t) {
+            logger.error("Failed to stop server", t);
+        }
+        try {
+            this.wac.close();
+        } catch (Throwable t) {
+            logger.error("Failed to close WebApplicationContext", t);
+        }
+    }
 
 
-		public TestHandler(String topic, Object payload) {
-			this.topic = topic;
-			this.payload = payload;
-		}
+    @Test
+    public void publishSubscribe() throws Exception {
+
+        String url = "ws://127.0.0.1:" + this.server.getPort() + "/stomp";
+
+        TestHandler testHandler = new TestHandler("/topic/foo", "payload");
+        this.stompClient.connect(url, testHandler);
+
+        assertTrue(testHandler.awaitForMessageCount(1, 5000));
+        assertThat(testHandler.getReceived(), containsInAnyOrder("payload"));
+    }
 
 
-		public List<String> getReceived() {
-			return this.received;
-		}
+    @Configuration
+    static class TestConfig extends WebSocketMessageBrokerConfigurationSupport {
+
+        @Override
+        protected void registerStompEndpoints(StompEndpointRegistry registry) {
+            // Can't rely on classpath detection
+            RequestUpgradeStrategy upgradeStrategy = new TomcatRequestUpgradeStrategy();
+            registry.addEndpoint("/stomp")
+                    .setHandshakeHandler(new DefaultHandshakeHandler(upgradeStrategy))
+                    .setAllowedOrigins("*");
+        }
+
+        @Override
+        public void configureMessageBroker(MessageBrokerRegistry configurer) {
+            configurer.setApplicationDestinationPrefixes("/app");
+            configurer.enableSimpleBroker("/topic", "/queue");
+        }
+    }
 
 
-		@Override
-		public void afterConnected(StompSession session, StompHeaders connectedHeaders) {
-			session.subscribe(this.topic, new StompFrameHandler() {
-				@Override
-				public Type getPayloadType(StompHeaders headers) {
-					return String.class;
-				}
-				@Override
-				public void handleFrame(StompHeaders headers, @Nullable Object payload) {
-					received.add((String) payload);
-				}
-			});
-			try {
-				// Delay send since server processes concurrently
-				// Ideally order should be preserved or receipts supported (simple broker)
-				Thread.sleep(500);
-			}
-			catch (InterruptedException ex) {
-				logger.error(ex);
-			}
-			session.send(this.topic, this.payload);
-		}
+    private static class TestHandler extends StompSessionHandlerAdapter {
 
-		public boolean awaitForMessageCount(int expected, long millisToWait) throws InterruptedException {
-			if (logger.isDebugEnabled()) {
-				logger.debug("Awaiting for message count: " + expected);
-			}
-			long startTime = System.currentTimeMillis();
-			while (this.received.size() < expected) {
-				Thread.sleep(500);
-				if ((System.currentTimeMillis() - startTime) > millisToWait) {
-					return false;
-				}
-			}
-			return true;
-		}
+        private final String topic;
 
-		@Override
-		public void handleException(StompSession session, StompCommand command,
-				StompHeaders headers, byte[] payload, Throwable ex) {
+        private final Object payload;
 
-			logger.error(command + " " + headers, ex);
-		}
+        private final List<String> received = new ArrayList<>();
 
-		@Override
-		public void handleFrame(StompHeaders headers, @Nullable Object payload) {
-			logger.error("STOMP error frame " + headers + " payload=" + payload);
-		}
 
-		@Override
-		public void handleTransportError(StompSession session, Throwable exception) {
-			logger.error(exception);
-		}
-	}
+        public TestHandler(String topic, Object payload) {
+            this.topic = topic;
+            this.payload = payload;
+        }
+
+
+        public List<String> getReceived() {
+            return this.received;
+        }
+
+
+        @Override
+        public void afterConnected(StompSession session, StompHeaders connectedHeaders) {
+            session.subscribe(this.topic, new StompFrameHandler() {
+                @Override
+                public Type getPayloadType(StompHeaders headers) {
+                    return String.class;
+                }
+
+                @Override
+                public void handleFrame(StompHeaders headers, @Nullable Object payload) {
+                    received.add((String) payload);
+                }
+            });
+            try {
+                // Delay send since server processes concurrently
+                // Ideally order should be preserved or receipts supported (simple broker)
+                Thread.sleep(500);
+            } catch (InterruptedException ex) {
+                logger.error(ex);
+            }
+            session.send(this.topic, this.payload);
+        }
+
+        public boolean awaitForMessageCount(int expected, long millisToWait) throws InterruptedException {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Awaiting for message count: " + expected);
+            }
+            long startTime = System.currentTimeMillis();
+            while (this.received.size() < expected) {
+                Thread.sleep(500);
+                if ((System.currentTimeMillis() - startTime) > millisToWait) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        @Override
+        public void handleException(StompSession session, StompCommand command,
+                                    StompHeaders headers, byte[] payload, Throwable ex) {
+
+            logger.error(command + " " + headers, ex);
+        }
+
+        @Override
+        public void handleFrame(StompHeaders headers, @Nullable Object payload) {
+            logger.error("STOMP error frame " + headers + " payload=" + payload);
+        }
+
+        @Override
+        public void handleTransportError(StompSession session, Throwable exception) {
+            logger.error(exception);
+        }
+    }
 
 }

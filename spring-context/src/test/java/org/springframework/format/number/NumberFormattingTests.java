@@ -41,230 +41,229 @@ import static org.junit.Assert.*;
  */
 public class NumberFormattingTests {
 
-	private final FormattingConversionService conversionService = new FormattingConversionService();
+    private final FormattingConversionService conversionService = new FormattingConversionService();
 
-	private DataBinder binder;
-
-
-	@Before
-	public void setUp() {
-		DefaultConversionService.addDefaultConverters(conversionService);
-		conversionService.setEmbeddedValueResolver(new StringValueResolver() {
-			@Override
-			public String resolveStringValue(String strVal) {
-				if ("${pattern}".equals(strVal)) {
-					return "#,##.00";
-				}
-				else {
-					return strVal;
-				}
-			}
-		});
-		conversionService.addFormatterForFieldType(Number.class, new NumberStyleFormatter());
-		conversionService.addFormatterForFieldAnnotation(new NumberFormatAnnotationFormatterFactory());
-		LocaleContextHolder.setLocale(Locale.US);
-		binder = new DataBinder(new TestBean());
-		binder.setConversionService(conversionService);
-	}
-
-	@After
-	public void tearDown() {
-		LocaleContextHolder.setLocale(null);
-	}
+    private DataBinder binder;
 
 
-	@Test
-	public void testDefaultNumberFormatting() {
-		MutablePropertyValues propertyValues = new MutablePropertyValues();
-		propertyValues.add("numberDefault", "3,339.12");
-		binder.bind(propertyValues);
-		assertEquals(0, binder.getBindingResult().getErrorCount());
-		assertEquals("3,339", binder.getBindingResult().getFieldValue("numberDefault"));
-	}
+    @Before
+    public void setUp() {
+        DefaultConversionService.addDefaultConverters(conversionService);
+        conversionService.setEmbeddedValueResolver(new StringValueResolver() {
+            @Override
+            public String resolveStringValue(String strVal) {
+                if ("${pattern}".equals(strVal)) {
+                    return "#,##.00";
+                } else {
+                    return strVal;
+                }
+            }
+        });
+        conversionService.addFormatterForFieldType(Number.class, new NumberStyleFormatter());
+        conversionService.addFormatterForFieldAnnotation(new NumberFormatAnnotationFormatterFactory());
+        LocaleContextHolder.setLocale(Locale.US);
+        binder = new DataBinder(new TestBean());
+        binder.setConversionService(conversionService);
+    }
 
-	@Test
-	public void testDefaultNumberFormattingAnnotated() {
-		MutablePropertyValues propertyValues = new MutablePropertyValues();
-		propertyValues.add("numberDefaultAnnotated", "3,339.12");
-		binder.bind(propertyValues);
-		assertEquals(0, binder.getBindingResult().getErrorCount());
-		assertEquals("3,339.12", binder.getBindingResult().getFieldValue("numberDefaultAnnotated"));
-	}
-
-	@Test
-	public void testCurrencyFormatting() {
-		MutablePropertyValues propertyValues = new MutablePropertyValues();
-		propertyValues.add("currency", "$3,339.12");
-		binder.bind(propertyValues);
-		assertEquals(0, binder.getBindingResult().getErrorCount());
-		assertEquals("$3,339.12", binder.getBindingResult().getFieldValue("currency"));
-	}
-
-	@Test
-	public void testPercentFormatting() {
-		MutablePropertyValues propertyValues = new MutablePropertyValues();
-		propertyValues.add("percent", "53%");
-		binder.bind(propertyValues);
-		assertEquals(0, binder.getBindingResult().getErrorCount());
-		assertEquals("53%", binder.getBindingResult().getFieldValue("percent"));
-	}
-
-	@Test
-	public void testPatternFormatting() {
-		MutablePropertyValues propertyValues = new MutablePropertyValues();
-		propertyValues.add("pattern", "1,25.00");
-		binder.bind(propertyValues);
-		assertEquals(0, binder.getBindingResult().getErrorCount());
-		assertEquals("1,25.00", binder.getBindingResult().getFieldValue("pattern"));
-	}
-
-	@Test
-	public void testPatternArrayFormatting() {
-		MutablePropertyValues propertyValues = new MutablePropertyValues();
-		propertyValues.add("patternArray", new String[] { "1,25.00", "2,35.00" });
-		binder.bind(propertyValues);
-		assertEquals(0, binder.getBindingResult().getErrorCount());
-		assertEquals("1,25.00", binder.getBindingResult().getFieldValue("patternArray[0]"));
-		assertEquals("2,35.00", binder.getBindingResult().getFieldValue("patternArray[1]"));
-
-		propertyValues = new MutablePropertyValues();
-		propertyValues.add("patternArray[0]", "1,25.00");
-		propertyValues.add("patternArray[1]", "2,35.00");
-		binder.bind(propertyValues);
-		assertEquals(0, binder.getBindingResult().getErrorCount());
-		assertEquals("1,25.00", binder.getBindingResult().getFieldValue("patternArray[0]"));
-		assertEquals("2,35.00", binder.getBindingResult().getFieldValue("patternArray[1]"));
-	}
-
-	@Test
-	public void testPatternListFormatting() {
-		MutablePropertyValues propertyValues = new MutablePropertyValues();
-		propertyValues.add("patternList", new String[] { "1,25.00", "2,35.00" });
-		binder.bind(propertyValues);
-		assertEquals(0, binder.getBindingResult().getErrorCount());
-		assertEquals("1,25.00", binder.getBindingResult().getFieldValue("patternList[0]"));
-		assertEquals("2,35.00", binder.getBindingResult().getFieldValue("patternList[1]"));
-
-		propertyValues = new MutablePropertyValues();
-		propertyValues.add("patternList[0]", "1,25.00");
-		propertyValues.add("patternList[1]", "2,35.00");
-		binder.bind(propertyValues);
-		assertEquals(0, binder.getBindingResult().getErrorCount());
-		assertEquals("1,25.00", binder.getBindingResult().getFieldValue("patternList[0]"));
-		assertEquals("2,35.00", binder.getBindingResult().getFieldValue("patternList[1]"));
-	}
-
-	@Test
-	public void testPatternList2FormattingListElement() {
-		MutablePropertyValues propertyValues = new MutablePropertyValues();
-		propertyValues.add("patternList2[0]", "1,25.00");
-		propertyValues.add("patternList2[1]", "2,35.00");
-		binder.bind(propertyValues);
-		assertEquals(0, binder.getBindingResult().getErrorCount());
-		assertEquals("1,25.00", binder.getBindingResult().getFieldValue("patternList2[0]"));
-		assertEquals("2,35.00", binder.getBindingResult().getFieldValue("patternList2[1]"));
-	}
-
-	@Test
-	public void testPatternList2FormattingList() {
-		MutablePropertyValues propertyValues = new MutablePropertyValues();
-		propertyValues.add("patternList2[0]", "1,25.00");
-		propertyValues.add("patternList2[1]", "2,35.00");
-		binder.bind(propertyValues);
-		assertEquals(0, binder.getBindingResult().getErrorCount());
-		assertEquals("1,25.00,2,35.00", binder.getBindingResult().getFieldValue("patternList2"));
-	}
+    @After
+    public void tearDown() {
+        LocaleContextHolder.setLocale(null);
+    }
 
 
-	@SuppressWarnings("unused")
-	private static class TestBean {
+    @Test
+    public void testDefaultNumberFormatting() {
+        MutablePropertyValues propertyValues = new MutablePropertyValues();
+        propertyValues.add("numberDefault", "3,339.12");
+        binder.bind(propertyValues);
+        assertEquals(0, binder.getBindingResult().getErrorCount());
+        assertEquals("3,339", binder.getBindingResult().getFieldValue("numberDefault"));
+    }
 
-		private Integer numberDefault;
+    @Test
+    public void testDefaultNumberFormattingAnnotated() {
+        MutablePropertyValues propertyValues = new MutablePropertyValues();
+        propertyValues.add("numberDefaultAnnotated", "3,339.12");
+        binder.bind(propertyValues);
+        assertEquals(0, binder.getBindingResult().getErrorCount());
+        assertEquals("3,339.12", binder.getBindingResult().getFieldValue("numberDefaultAnnotated"));
+    }
 
-		@NumberFormat
-		private Double numberDefaultAnnotated;
+    @Test
+    public void testCurrencyFormatting() {
+        MutablePropertyValues propertyValues = new MutablePropertyValues();
+        propertyValues.add("currency", "$3,339.12");
+        binder.bind(propertyValues);
+        assertEquals(0, binder.getBindingResult().getErrorCount());
+        assertEquals("$3,339.12", binder.getBindingResult().getFieldValue("currency"));
+    }
 
-		@NumberFormat(style = Style.CURRENCY)
-		private BigDecimal currency;
+    @Test
+    public void testPercentFormatting() {
+        MutablePropertyValues propertyValues = new MutablePropertyValues();
+        propertyValues.add("percent", "53%");
+        binder.bind(propertyValues);
+        assertEquals(0, binder.getBindingResult().getErrorCount());
+        assertEquals("53%", binder.getBindingResult().getFieldValue("percent"));
+    }
 
-		@NumberFormat(style = Style.PERCENT)
-		private BigDecimal percent;
+    @Test
+    public void testPatternFormatting() {
+        MutablePropertyValues propertyValues = new MutablePropertyValues();
+        propertyValues.add("pattern", "1,25.00");
+        binder.bind(propertyValues);
+        assertEquals(0, binder.getBindingResult().getErrorCount());
+        assertEquals("1,25.00", binder.getBindingResult().getFieldValue("pattern"));
+    }
 
-		@NumberFormat(pattern = "${pattern}")
-		private BigDecimal pattern;
+    @Test
+    public void testPatternArrayFormatting() {
+        MutablePropertyValues propertyValues = new MutablePropertyValues();
+        propertyValues.add("patternArray", new String[]{"1,25.00", "2,35.00"});
+        binder.bind(propertyValues);
+        assertEquals(0, binder.getBindingResult().getErrorCount());
+        assertEquals("1,25.00", binder.getBindingResult().getFieldValue("patternArray[0]"));
+        assertEquals("2,35.00", binder.getBindingResult().getFieldValue("patternArray[1]"));
 
-		@NumberFormat(pattern = "#,##.00")
-		private BigDecimal[] patternArray;
+        propertyValues = new MutablePropertyValues();
+        propertyValues.add("patternArray[0]", "1,25.00");
+        propertyValues.add("patternArray[1]", "2,35.00");
+        binder.bind(propertyValues);
+        assertEquals(0, binder.getBindingResult().getErrorCount());
+        assertEquals("1,25.00", binder.getBindingResult().getFieldValue("patternArray[0]"));
+        assertEquals("2,35.00", binder.getBindingResult().getFieldValue("patternArray[1]"));
+    }
 
-		@NumberFormat(pattern = "#,##.00")
-		private List<BigDecimal> patternList;
+    @Test
+    public void testPatternListFormatting() {
+        MutablePropertyValues propertyValues = new MutablePropertyValues();
+        propertyValues.add("patternList", new String[]{"1,25.00", "2,35.00"});
+        binder.bind(propertyValues);
+        assertEquals(0, binder.getBindingResult().getErrorCount());
+        assertEquals("1,25.00", binder.getBindingResult().getFieldValue("patternList[0]"));
+        assertEquals("2,35.00", binder.getBindingResult().getFieldValue("patternList[1]"));
 
-		@NumberFormat(pattern = "#,##.00")
-		private List<BigDecimal> patternList2;
+        propertyValues = new MutablePropertyValues();
+        propertyValues.add("patternList[0]", "1,25.00");
+        propertyValues.add("patternList[1]", "2,35.00");
+        binder.bind(propertyValues);
+        assertEquals(0, binder.getBindingResult().getErrorCount());
+        assertEquals("1,25.00", binder.getBindingResult().getFieldValue("patternList[0]"));
+        assertEquals("2,35.00", binder.getBindingResult().getFieldValue("patternList[1]"));
+    }
 
-		public Integer getNumberDefault() {
-			return numberDefault;
-		}
+    @Test
+    public void testPatternList2FormattingListElement() {
+        MutablePropertyValues propertyValues = new MutablePropertyValues();
+        propertyValues.add("patternList2[0]", "1,25.00");
+        propertyValues.add("patternList2[1]", "2,35.00");
+        binder.bind(propertyValues);
+        assertEquals(0, binder.getBindingResult().getErrorCount());
+        assertEquals("1,25.00", binder.getBindingResult().getFieldValue("patternList2[0]"));
+        assertEquals("2,35.00", binder.getBindingResult().getFieldValue("patternList2[1]"));
+    }
 
-		public void setNumberDefault(Integer numberDefault) {
-			this.numberDefault = numberDefault;
-		}
+    @Test
+    public void testPatternList2FormattingList() {
+        MutablePropertyValues propertyValues = new MutablePropertyValues();
+        propertyValues.add("patternList2[0]", "1,25.00");
+        propertyValues.add("patternList2[1]", "2,35.00");
+        binder.bind(propertyValues);
+        assertEquals(0, binder.getBindingResult().getErrorCount());
+        assertEquals("1,25.00,2,35.00", binder.getBindingResult().getFieldValue("patternList2"));
+    }
 
-		public Double getNumberDefaultAnnotated() {
-			return numberDefaultAnnotated;
-		}
 
-		public void setNumberDefaultAnnotated(Double numberDefaultAnnotated) {
-			this.numberDefaultAnnotated = numberDefaultAnnotated;
-		}
+    @SuppressWarnings("unused")
+    private static class TestBean {
 
-		public BigDecimal getCurrency() {
-			return currency;
-		}
+        private Integer numberDefault;
 
-		public void setCurrency(BigDecimal currency) {
-			this.currency = currency;
-		}
+        @NumberFormat
+        private Double numberDefaultAnnotated;
 
-		public BigDecimal getPercent() {
-			return percent;
-		}
+        @NumberFormat(style = Style.CURRENCY)
+        private BigDecimal currency;
 
-		public void setPercent(BigDecimal percent) {
-			this.percent = percent;
-		}
+        @NumberFormat(style = Style.PERCENT)
+        private BigDecimal percent;
 
-		public BigDecimal getPattern() {
-			return pattern;
-		}
+        @NumberFormat(pattern = "${pattern}")
+        private BigDecimal pattern;
 
-		public void setPattern(BigDecimal pattern) {
-			this.pattern = pattern;
-		}
+        @NumberFormat(pattern = "#,##.00")
+        private BigDecimal[] patternArray;
 
-		public BigDecimal[] getPatternArray() {
-			return patternArray;
-		}
+        @NumberFormat(pattern = "#,##.00")
+        private List<BigDecimal> patternList;
 
-		public void setPatternArray(BigDecimal[] patternArray) {
-			this.patternArray = patternArray;
-		}
+        @NumberFormat(pattern = "#,##.00")
+        private List<BigDecimal> patternList2;
 
-		public List<BigDecimal> getPatternList() {
-			return patternList;
-		}
+        public Integer getNumberDefault() {
+            return numberDefault;
+        }
 
-		public void setPatternList(List<BigDecimal> patternList) {
-			this.patternList = patternList;
-		}
+        public void setNumberDefault(Integer numberDefault) {
+            this.numberDefault = numberDefault;
+        }
 
-		public List<BigDecimal> getPatternList2() {
-			return patternList2;
-		}
+        public Double getNumberDefaultAnnotated() {
+            return numberDefaultAnnotated;
+        }
 
-		public void setPatternList2(List<BigDecimal> patternList2) {
-			this.patternList2 = patternList2;
-		}
-	}
+        public void setNumberDefaultAnnotated(Double numberDefaultAnnotated) {
+            this.numberDefaultAnnotated = numberDefaultAnnotated;
+        }
+
+        public BigDecimal getCurrency() {
+            return currency;
+        }
+
+        public void setCurrency(BigDecimal currency) {
+            this.currency = currency;
+        }
+
+        public BigDecimal getPercent() {
+            return percent;
+        }
+
+        public void setPercent(BigDecimal percent) {
+            this.percent = percent;
+        }
+
+        public BigDecimal getPattern() {
+            return pattern;
+        }
+
+        public void setPattern(BigDecimal pattern) {
+            this.pattern = pattern;
+        }
+
+        public BigDecimal[] getPatternArray() {
+            return patternArray;
+        }
+
+        public void setPatternArray(BigDecimal[] patternArray) {
+            this.patternArray = patternArray;
+        }
+
+        public List<BigDecimal> getPatternList() {
+            return patternList;
+        }
+
+        public void setPatternList(List<BigDecimal> patternList) {
+            this.patternList = patternList;
+        }
+
+        public List<BigDecimal> getPatternList2() {
+            return patternList2;
+        }
+
+        public void setPatternList2(List<BigDecimal> patternList2) {
+            this.patternList2 = patternList2;
+        }
+    }
 
 }

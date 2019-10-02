@@ -51,152 +51,153 @@ import static org.springframework.web.reactive.function.server.RouterFunctions.*
  */
 public class DispatcherHandlerIntegrationTests extends AbstractHttpHandlerIntegrationTests {
 
-	private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate = new RestTemplate();
 
-	private AnnotationConfigApplicationContext wac;
-
-
-	@Override
-	protected HttpHandler createHttpHandler() {
-		this.wac = new AnnotationConfigApplicationContext();
-		this.wac.register(TestConfiguration.class);
-		this.wac.refresh();
-
-		DispatcherHandler webHandler = new DispatcherHandler();
-		webHandler.setApplicationContext(this.wac);
-
-		return WebHttpHandlerBuilder.webHandler(webHandler).build();
-	}
+    private AnnotationConfigApplicationContext wac;
 
 
-	@Test
-	public void mono() {
-		ResponseEntity<Person> result =
-				this.restTemplate.getForEntity("http://localhost:" + this.port + "/mono", Person.class);
+    @Override
+    protected HttpHandler createHttpHandler() {
+        this.wac = new AnnotationConfigApplicationContext();
+        this.wac.register(TestConfiguration.class);
+        this.wac.refresh();
 
-		assertEquals(HttpStatus.OK, result.getStatusCode());
-		assertEquals("John", result.getBody().getName());
-	}
+        DispatcherHandler webHandler = new DispatcherHandler();
+        webHandler.setApplicationContext(this.wac);
 
-	@Test
-	public void flux() {
-		ParameterizedTypeReference<List<Person>> reference = new ParameterizedTypeReference<List<Person>>() {};
-		ResponseEntity<List<Person>> result =
-				this.restTemplate
-						.exchange("http://localhost:" + this.port + "/flux", HttpMethod.GET, null, reference);
-
-		assertEquals(HttpStatus.OK, result.getStatusCode());
-		List<Person> body = result.getBody();
-		assertEquals(2, body.size());
-		assertEquals("John", body.get(0).getName());
-		assertEquals("Jane", body.get(1).getName());
-	}
-
-	@Test
-	public void controller() {
-		ResponseEntity<Person> result =
-				this.restTemplate.getForEntity("http://localhost:" + this.port + "/controller", Person.class);
-
-		assertEquals(HttpStatus.OK, result.getStatusCode());
-		assertEquals("John", result.getBody().getName());
-	}
+        return WebHttpHandlerBuilder.webHandler(webHandler).build();
+    }
 
 
-	@EnableWebFlux
-	@Configuration
-	static class TestConfiguration {
+    @Test
+    public void mono() {
+        ResponseEntity<Person> result =
+                this.restTemplate.getForEntity("http://localhost:" + this.port + "/mono", Person.class);
 
-		@Bean
-		public PersonHandler personHandler() {
-			return new PersonHandler();
-		}
+        assertEquals(HttpStatus.OK, result.getStatusCode());
+        assertEquals("John", result.getBody().getName());
+    }
 
-		@Bean
-		public PersonController personController() {
-			return new PersonController();
-		}
+    @Test
+    public void flux() {
+        ParameterizedTypeReference<List<Person>> reference = new ParameterizedTypeReference<List<Person>>() {
+        };
+        ResponseEntity<List<Person>> result =
+                this.restTemplate
+                        .exchange("http://localhost:" + this.port + "/flux", HttpMethod.GET, null, reference);
 
-		@Bean
-		public RouterFunction<EntityResponse<Person>> monoRouterFunction(PersonHandler personHandler) {
-			return route(RequestPredicates.GET("/mono"), personHandler::mono);
-		}
+        assertEquals(HttpStatus.OK, result.getStatusCode());
+        List<Person> body = result.getBody();
+        assertEquals(2, body.size());
+        assertEquals("John", body.get(0).getName());
+        assertEquals("Jane", body.get(1).getName());
+    }
 
-		@Bean
-		public RouterFunction<ServerResponse> fluxRouterFunction(PersonHandler personHandler) {
-			return route(RequestPredicates.GET("/flux"), personHandler::flux);
-		}
+    @Test
+    public void controller() {
+        ResponseEntity<Person> result =
+                this.restTemplate.getForEntity("http://localhost:" + this.port + "/controller", Person.class);
 
-	}
+        assertEquals(HttpStatus.OK, result.getStatusCode());
+        assertEquals("John", result.getBody().getName());
+    }
 
 
-	private static class PersonHandler {
+    @EnableWebFlux
+    @Configuration
+    static class TestConfiguration {
 
-		public Mono<EntityResponse<Person>> mono(ServerRequest request) {
-			Person person = new Person("John");
-			return EntityResponse.fromObject(person).build();
-		}
+        @Bean
+        public PersonHandler personHandler() {
+            return new PersonHandler();
+        }
 
-		public Mono<ServerResponse> flux(ServerRequest request) {
-			Person person1 = new Person("John");
-			Person person2 = new Person("Jane");
-			return ServerResponse.ok().body(
-					fromPublisher(Flux.just(person1, person2), Person.class));
-		}
+        @Bean
+        public PersonController personController() {
+            return new PersonController();
+        }
 
-	}
+        @Bean
+        public RouterFunction<EntityResponse<Person>> monoRouterFunction(PersonHandler personHandler) {
+            return route(RequestPredicates.GET("/mono"), personHandler::mono);
+        }
 
-	@Controller
-	private static class PersonController {
+        @Bean
+        public RouterFunction<ServerResponse> fluxRouterFunction(PersonHandler personHandler) {
+            return route(RequestPredicates.GET("/flux"), personHandler::flux);
+        }
 
-		@RequestMapping("/controller")
-		@ResponseBody
-		public Mono<Person> controller() {
-			return Mono.just(new Person("John"));
-		}
-	}
+    }
 
-	private static class Person {
 
-		private String name;
+    private static class PersonHandler {
 
-		@SuppressWarnings("unused")
-		public Person() {
-		}
+        public Mono<EntityResponse<Person>> mono(ServerRequest request) {
+            Person person = new Person("John");
+            return EntityResponse.fromObject(person).build();
+        }
 
-		public Person(String name) {
-			this.name = name;
-		}
+        public Mono<ServerResponse> flux(ServerRequest request) {
+            Person person1 = new Person("John");
+            Person person2 = new Person("Jane");
+            return ServerResponse.ok().body(
+                    fromPublisher(Flux.just(person1, person2), Person.class));
+        }
 
-		public String getName() {
-			return this.name;
-		}
+    }
 
-		@SuppressWarnings("unused")
-		public void setName(String name) {
-			this.name = name;
-		}
+    @Controller
+    private static class PersonController {
 
-		@Override
-		public boolean equals(Object o) {
-			if (this == o) {
-				return true;
-			}
-			if (o == null || getClass() != o.getClass()) {
-				return false;
-			}
-			Person person = (Person) o;
-			return !(this.name != null ? !this.name.equals(person.name) : person.name != null);
-		}
+        @RequestMapping("/controller")
+        @ResponseBody
+        public Mono<Person> controller() {
+            return Mono.just(new Person("John"));
+        }
+    }
 
-		@Override
-		public int hashCode() {
-			return this.name != null ? this.name.hashCode() : 0;
-		}
+    private static class Person {
 
-		@Override
-		public String toString() {
-			return "Person{" + "name='" + this.name + '\'' + '}';
-		}
-	}
+        private String name;
+
+        @SuppressWarnings("unused")
+        public Person() {
+        }
+
+        public Person(String name) {
+            this.name = name;
+        }
+
+        public String getName() {
+            return this.name;
+        }
+
+        @SuppressWarnings("unused")
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            Person person = (Person) o;
+            return !(this.name != null ? !this.name.equals(person.name) : person.name != null);
+        }
+
+        @Override
+        public int hashCode() {
+            return this.name != null ? this.name.hashCode() : 0;
+        }
+
+        @Override
+        public String toString() {
+            return "Person{" + "name='" + this.name + '\'' + '}';
+        }
+    }
 
 }

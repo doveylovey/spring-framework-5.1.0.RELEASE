@@ -63,57 +63,57 @@ import static org.junit.Assert.*;
  * @since 3.2
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@TestExecutionListeners({ DependencyInjectionTestExecutionListener.class })
+@TestExecutionListeners({DependencyInjectionTestExecutionListener.class})
 @ContextConfiguration
 public class Jsr250LifecycleTests {
 
-	private final Log logger = LogFactory.getLog(Jsr250LifecycleTests.class);
+    private final Log logger = LogFactory.getLog(Jsr250LifecycleTests.class);
 
 
-	@Configuration
-	static class Config {
+    @Configuration
+    static class Config {
 
-		@Bean
-		public LifecycleBean lifecycleBean() {
-			return new LifecycleBean();
-		}
-	}
-
-
-	@Autowired
-	private LifecycleBean lifecycleBean;
+        @Bean
+        public LifecycleBean lifecycleBean() {
+            return new LifecycleBean();
+        }
+    }
 
 
-	@PostConstruct
-	public void beforeAllTests() {
-		logger.info("beforeAllTests()");
-	}
+    @Autowired
+    private LifecycleBean lifecycleBean;
 
-	@PreDestroy
-	public void afterTestSuite() {
-		logger.info("afterTestSuite()");
-	}
 
-	@Before
-	public void setUp() throws Exception {
-		logger.info("setUp()");
-	}
+    @PostConstruct
+    public void beforeAllTests() {
+        logger.info("beforeAllTests()");
+    }
 
-	@After
-	public void tearDown() throws Exception {
-		logger.info("tearDown()");
-	}
+    @PreDestroy
+    public void afterTestSuite() {
+        logger.info("afterTestSuite()");
+    }
 
-	@Test
-	public void test1() {
-		logger.info("test1()");
-		assertNotNull(lifecycleBean);
-	}
+    @Before
+    public void setUp() throws Exception {
+        logger.info("setUp()");
+    }
 
-	@Test
-	public void test2() {
-		logger.info("test2()");
-		assertNotNull(lifecycleBean);
-	}
+    @After
+    public void tearDown() throws Exception {
+        logger.info("tearDown()");
+    }
+
+    @Test
+    public void test1() {
+        logger.info("test1()");
+        assertNotNull(lifecycleBean);
+    }
+
+    @Test
+    public void test2() {
+        logger.info("test2()");
+        assertNotNull(lifecycleBean);
+    }
 
 }

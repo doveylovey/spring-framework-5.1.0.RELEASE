@@ -30,32 +30,32 @@ import org.springframework.web.server.WebSession;
  * Resolves method argument value of type {@link WebSession}.
  *
  * @author Rossen Stoyanchev
- * @since 5.0
  * @see ServerWebExchangeArgumentResolver
+ * @since 5.0
  */
 public class WebSessionArgumentResolver extends HandlerMethodArgumentResolverSupport {
 
-	// We need this resolver separate from ServerWebExchangeArgumentResolver which
-	// implements SyncHandlerMethodArgumentResolver.
+    // We need this resolver separate from ServerWebExchangeArgumentResolver which
+    // implements SyncHandlerMethodArgumentResolver.
 
 
-	public WebSessionArgumentResolver(ReactiveAdapterRegistry adapterRegistry) {
-		super(adapterRegistry);
-	}
+    public WebSessionArgumentResolver(ReactiveAdapterRegistry adapterRegistry) {
+        super(adapterRegistry);
+    }
 
 
-	@Override
-	public boolean supportsParameter(MethodParameter parameter) {
-		return checkParameterType(parameter, WebSession.class::isAssignableFrom);
-	}
+    @Override
+    public boolean supportsParameter(MethodParameter parameter) {
+        return checkParameterType(parameter, WebSession.class::isAssignableFrom);
+    }
 
-	@Override
-	public Mono<Object> resolveArgument(
-			MethodParameter parameter, BindingContext context, ServerWebExchange exchange) {
+    @Override
+    public Mono<Object> resolveArgument(
+            MethodParameter parameter, BindingContext context, ServerWebExchange exchange) {
 
-		Mono<WebSession> session = exchange.getSession();
-		ReactiveAdapter adapter = getAdapterRegistry().getAdapter(parameter.getParameterType());
-		return (adapter != null ? Mono.just(adapter.fromPublisher(session)) : Mono.from(session));
-	}
+        Mono<WebSession> session = exchange.getSession();
+        ReactiveAdapter adapter = getAdapterRegistry().getAdapter(parameter.getParameterType());
+        return (adapter != null ? Mono.just(adapter.fromPublisher(session)) : Mono.from(session));
+    }
 
 }

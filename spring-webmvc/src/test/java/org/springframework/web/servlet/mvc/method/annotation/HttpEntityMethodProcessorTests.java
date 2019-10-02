@@ -60,274 +60,274 @@ import static org.junit.Assert.*;
 @SuppressWarnings("unused")
 public class HttpEntityMethodProcessorTests {
 
-	private MethodParameter paramList;
+    private MethodParameter paramList;
 
-	private MethodParameter paramSimpleBean;
+    private MethodParameter paramSimpleBean;
 
-	private ModelAndViewContainer mavContainer;
+    private ModelAndViewContainer mavContainer;
 
-	private WebDataBinderFactory binderFactory;
+    private WebDataBinderFactory binderFactory;
 
-	private MockHttpServletRequest servletRequest;
+    private MockHttpServletRequest servletRequest;
 
-	private ServletWebRequest webRequest;
+    private ServletWebRequest webRequest;
 
-	private MockHttpServletResponse servletResponse;
+    private MockHttpServletResponse servletResponse;
 
 
-	@Before
-	public void setup() throws Exception {
-		Method method = getClass().getDeclaredMethod("handle", HttpEntity.class, HttpEntity.class);
-		paramList = new MethodParameter(method, 0);
-		paramSimpleBean = new MethodParameter(method, 1);
+    @Before
+    public void setup() throws Exception {
+        Method method = getClass().getDeclaredMethod("handle", HttpEntity.class, HttpEntity.class);
+        paramList = new MethodParameter(method, 0);
+        paramSimpleBean = new MethodParameter(method, 1);
 
-		mavContainer = new ModelAndViewContainer();
-		binderFactory = new ValidatingBinderFactory();
-		servletRequest = new MockHttpServletRequest();
-		servletResponse = new MockHttpServletResponse();
-		servletRequest.setMethod("POST");
-		webRequest = new ServletWebRequest(servletRequest, servletResponse);
-	}
+        mavContainer = new ModelAndViewContainer();
+        binderFactory = new ValidatingBinderFactory();
+        servletRequest = new MockHttpServletRequest();
+        servletResponse = new MockHttpServletResponse();
+        servletRequest.setMethod("POST");
+        webRequest = new ServletWebRequest(servletRequest, servletResponse);
+    }
 
 
-	@Test
-	public void resolveArgument() throws Exception {
-		String content = "{\"name\" : \"Jad\"}";
-		this.servletRequest.setContent(content.getBytes("UTF-8"));
-		this.servletRequest.setContentType("application/json");
+    @Test
+    public void resolveArgument() throws Exception {
+        String content = "{\"name\" : \"Jad\"}";
+        this.servletRequest.setContent(content.getBytes("UTF-8"));
+        this.servletRequest.setContentType("application/json");
 
-		List<HttpMessageConverter<?>> converters = new ArrayList<>();
-		converters.add(new MappingJackson2HttpMessageConverter());
-		HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(converters);
+        List<HttpMessageConverter<?>> converters = new ArrayList<>();
+        converters.add(new MappingJackson2HttpMessageConverter());
+        HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(converters);
 
-		@SuppressWarnings("unchecked")
-		HttpEntity<SimpleBean> result = (HttpEntity<SimpleBean>) processor.resolveArgument(
-				paramSimpleBean, mavContainer, webRequest, binderFactory);
+        @SuppressWarnings("unchecked")
+        HttpEntity<SimpleBean> result = (HttpEntity<SimpleBean>) processor.resolveArgument(
+                paramSimpleBean, mavContainer, webRequest, binderFactory);
 
-		assertNotNull(result);
-		assertEquals("Jad", result.getBody().getName());
-	}
+        assertNotNull(result);
+        assertEquals("Jad", result.getBody().getName());
+    }
 
-	@Test  // SPR-12861
-	public void resolveArgumentWithEmptyBody() throws Exception {
-		this.servletRequest.setContent(new byte[0]);
-		this.servletRequest.setContentType("application/json");
+    @Test  // SPR-12861
+    public void resolveArgumentWithEmptyBody() throws Exception {
+        this.servletRequest.setContent(new byte[0]);
+        this.servletRequest.setContentType("application/json");
 
-		List<HttpMessageConverter<?>> converters = new ArrayList<>();
-		converters.add(new MappingJackson2HttpMessageConverter());
-		HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(converters);
+        List<HttpMessageConverter<?>> converters = new ArrayList<>();
+        converters.add(new MappingJackson2HttpMessageConverter());
+        HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(converters);
 
-		HttpEntity<?> result = (HttpEntity<?>) processor.resolveArgument(this.paramSimpleBean,
-				this.mavContainer, this.webRequest, this.binderFactory);
+        HttpEntity<?> result = (HttpEntity<?>) processor.resolveArgument(this.paramSimpleBean,
+                this.mavContainer, this.webRequest, this.binderFactory);
 
-		assertNotNull(result);
-		assertNull(result.getBody());
-	}
+        assertNotNull(result);
+        assertNull(result.getBody());
+    }
 
-	@Test
-	public void resolveGenericArgument() throws Exception {
-		String content = "[{\"name\" : \"Jad\"}, {\"name\" : \"Robert\"}]";
-		this.servletRequest.setContent(content.getBytes("UTF-8"));
-		this.servletRequest.setContentType("application/json");
+    @Test
+    public void resolveGenericArgument() throws Exception {
+        String content = "[{\"name\" : \"Jad\"}, {\"name\" : \"Robert\"}]";
+        this.servletRequest.setContent(content.getBytes("UTF-8"));
+        this.servletRequest.setContentType("application/json");
 
-		List<HttpMessageConverter<?>> converters = new ArrayList<>();
-		converters.add(new MappingJackson2HttpMessageConverter());
-		HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(converters);
+        List<HttpMessageConverter<?>> converters = new ArrayList<>();
+        converters.add(new MappingJackson2HttpMessageConverter());
+        HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(converters);
 
-		@SuppressWarnings("unchecked")
-		HttpEntity<List<SimpleBean>> result = (HttpEntity<List<SimpleBean>>) processor.resolveArgument(
-				paramList, mavContainer, webRequest, binderFactory);
+        @SuppressWarnings("unchecked")
+        HttpEntity<List<SimpleBean>> result = (HttpEntity<List<SimpleBean>>) processor.resolveArgument(
+                paramList, mavContainer, webRequest, binderFactory);
 
-		assertNotNull(result);
-		assertEquals("Jad", result.getBody().get(0).getName());
-		assertEquals("Robert", result.getBody().get(1).getName());
-	}
+        assertNotNull(result);
+        assertEquals("Jad", result.getBody().get(0).getName());
+        assertEquals("Robert", result.getBody().get(1).getName());
+    }
 
-	@Test
-	public void resolveArgumentTypeVariable() throws Exception {
-		Method method = MySimpleParameterizedController.class.getMethod("handleDto", HttpEntity.class);
-		HandlerMethod handlerMethod = new HandlerMethod(new MySimpleParameterizedController(), method);
-		MethodParameter methodParam = handlerMethod.getMethodParameters()[0];
+    @Test
+    public void resolveArgumentTypeVariable() throws Exception {
+        Method method = MySimpleParameterizedController.class.getMethod("handleDto", HttpEntity.class);
+        HandlerMethod handlerMethod = new HandlerMethod(new MySimpleParameterizedController(), method);
+        MethodParameter methodParam = handlerMethod.getMethodParameters()[0];
 
-		String content = "{\"name\" : \"Jad\"}";
-		this.servletRequest.setContent(content.getBytes("UTF-8"));
-		this.servletRequest.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        String content = "{\"name\" : \"Jad\"}";
+        this.servletRequest.setContent(content.getBytes("UTF-8"));
+        this.servletRequest.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
-		List<HttpMessageConverter<?>> converters = new ArrayList<>();
-		converters.add(new MappingJackson2HttpMessageConverter());
-		HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(converters);
+        List<HttpMessageConverter<?>> converters = new ArrayList<>();
+        converters.add(new MappingJackson2HttpMessageConverter());
+        HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(converters);
 
-		@SuppressWarnings("unchecked")
-		HttpEntity<SimpleBean> result = (HttpEntity<SimpleBean>)
-				processor.resolveArgument(methodParam, mavContainer, webRequest, binderFactory);
+        @SuppressWarnings("unchecked")
+        HttpEntity<SimpleBean> result = (HttpEntity<SimpleBean>)
+                processor.resolveArgument(methodParam, mavContainer, webRequest, binderFactory);
 
-		assertNotNull(result);
-		assertEquals("Jad", result.getBody().getName());
-	}
+        assertNotNull(result);
+        assertEquals("Jad", result.getBody().getName());
+    }
 
-	@Test  // SPR-12811
-	public void jacksonTypeInfoList() throws Exception {
-		Method method = JacksonController.class.getMethod("handleList");
-		HandlerMethod handlerMethod = new HandlerMethod(new JacksonController(), method);
-		MethodParameter methodReturnType = handlerMethod.getReturnType();
+    @Test  // SPR-12811
+    public void jacksonTypeInfoList() throws Exception {
+        Method method = JacksonController.class.getMethod("handleList");
+        HandlerMethod handlerMethod = new HandlerMethod(new JacksonController(), method);
+        MethodParameter methodReturnType = handlerMethod.getReturnType();
 
-		List<HttpMessageConverter<?>> converters = new ArrayList<>();
-		converters.add(new MappingJackson2HttpMessageConverter());
-		HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(converters);
+        List<HttpMessageConverter<?>> converters = new ArrayList<>();
+        converters.add(new MappingJackson2HttpMessageConverter());
+        HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(converters);
 
-		Object returnValue = new JacksonController().handleList();
-		processor.handleReturnValue(returnValue, methodReturnType, this.mavContainer, this.webRequest);
+        Object returnValue = new JacksonController().handleList();
+        processor.handleReturnValue(returnValue, methodReturnType, this.mavContainer, this.webRequest);
 
-		String content = this.servletResponse.getContentAsString();
-		assertTrue(content.contains("\"type\":\"foo\""));
-		assertTrue(content.contains("\"type\":\"bar\""));
-	}
+        String content = this.servletResponse.getContentAsString();
+        assertTrue(content.contains("\"type\":\"foo\""));
+        assertTrue(content.contains("\"type\":\"bar\""));
+    }
 
-	@Test  // SPR-13423
-	public void handleReturnValueCharSequence() throws Exception {
-		List<HttpMessageConverter<?>>converters = new ArrayList<>();
-		converters.add(new ByteArrayHttpMessageConverter());
-		converters.add(new StringHttpMessageConverter());
+    @Test  // SPR-13423
+    public void handleReturnValueCharSequence() throws Exception {
+        List<HttpMessageConverter<?>> converters = new ArrayList<>();
+        converters.add(new ByteArrayHttpMessageConverter());
+        converters.add(new StringHttpMessageConverter());
 
-		Method method = getClass().getDeclaredMethod("handle");
-		MethodParameter returnType = new MethodParameter(method, -1);
-		ResponseEntity<StringBuilder> returnValue = ResponseEntity.ok(new StringBuilder("Foo"));
+        Method method = getClass().getDeclaredMethod("handle");
+        MethodParameter returnType = new MethodParameter(method, -1);
+        ResponseEntity<StringBuilder> returnValue = ResponseEntity.ok(new StringBuilder("Foo"));
 
-		HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(converters);
-		processor.handleReturnValue(returnValue, returnType, mavContainer, webRequest);
+        HttpEntityMethodProcessor processor = new HttpEntityMethodProcessor(converters);
+        processor.handleReturnValue(returnValue, returnType, mavContainer, webRequest);
 
-		assertEquals("text/plain;charset=ISO-8859-1", servletResponse.getHeader("Content-Type"));
-		assertEquals("Foo", servletResponse.getContentAsString());
-	}
+        assertEquals("text/plain;charset=ISO-8859-1", servletResponse.getHeader("Content-Type"));
+        assertEquals("Foo", servletResponse.getContentAsString());
+    }
 
 
-	@SuppressWarnings("unused")
-	private void handle(HttpEntity<List<SimpleBean>> arg1, HttpEntity<SimpleBean> arg2) {
-	}
+    @SuppressWarnings("unused")
+    private void handle(HttpEntity<List<SimpleBean>> arg1, HttpEntity<SimpleBean> arg2) {
+    }
 
-	private ResponseEntity<CharSequence> handle() {
-		return null;
-	}
+    private ResponseEntity<CharSequence> handle() {
+        return null;
+    }
 
 
-	@SuppressWarnings("unused")
-	private static abstract class MyParameterizedController<DTO extends Identifiable> {
+    @SuppressWarnings("unused")
+    private static abstract class MyParameterizedController<DTO extends Identifiable> {
 
-		public void handleDto(HttpEntity<DTO> dto) {
-		}
-	}
+        public void handleDto(HttpEntity<DTO> dto) {
+        }
+    }
 
 
-	@SuppressWarnings("unused")
-	private static class MySimpleParameterizedController extends MyParameterizedController<SimpleBean> {
-	}
+    @SuppressWarnings("unused")
+    private static class MySimpleParameterizedController extends MyParameterizedController<SimpleBean> {
+    }
 
 
-	private interface Identifiable extends Serializable {
+    private interface Identifiable extends Serializable {
 
-		Long getId();
+        Long getId();
 
-		void setId(Long id);
-	}
+        void setId(Long id);
+    }
 
 
-	@SuppressWarnings({ "serial" })
-	private static class SimpleBean implements Identifiable {
+    @SuppressWarnings({"serial"})
+    private static class SimpleBean implements Identifiable {
 
-		private Long id;
+        private Long id;
 
-		private String name;
+        private String name;
 
-		@Override
-		public Long getId() {
-			return id;
-		}
+        @Override
+        public Long getId() {
+            return id;
+        }
 
-		@Override
-		public void setId(Long id) {
-			this.id = id;
-		}
+        @Override
+        public void setId(Long id) {
+            this.id = id;
+        }
 
-		public String getName() {
-			return name;
-		}
+        public String getName() {
+            return name;
+        }
 
-		@SuppressWarnings("unused")
-		public void setName(String name) {
-			this.name = name;
-		}
-	}
+        @SuppressWarnings("unused")
+        public void setName(String name) {
+            this.name = name;
+        }
+    }
 
 
-	private final class ValidatingBinderFactory implements WebDataBinderFactory {
+    private final class ValidatingBinderFactory implements WebDataBinderFactory {
 
-		@Override
-		public WebDataBinder createBinder(NativeWebRequest webRequest, @Nullable Object target, String objectName) {
-			LocalValidatorFactoryBean validator = new LocalValidatorFactoryBean();
-			validator.afterPropertiesSet();
-			WebDataBinder dataBinder = new WebDataBinder(target, objectName);
-			dataBinder.setValidator(validator);
-			return dataBinder;
-		}
-	}
+        @Override
+        public WebDataBinder createBinder(NativeWebRequest webRequest, @Nullable Object target, String objectName) {
+            LocalValidatorFactoryBean validator = new LocalValidatorFactoryBean();
+            validator.afterPropertiesSet();
+            WebDataBinder dataBinder = new WebDataBinder(target, objectName);
+            dataBinder.setValidator(validator);
+            return dataBinder;
+        }
+    }
 
 
-	@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
-	private static class ParentClass {
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
+    private static class ParentClass {
 
-		private String parentProperty;
+        private String parentProperty;
 
-		public ParentClass() {
-		}
+        public ParentClass() {
+        }
 
-		public ParentClass(String parentProperty) {
-			this.parentProperty = parentProperty;
-		}
+        public ParentClass(String parentProperty) {
+            this.parentProperty = parentProperty;
+        }
 
-		public String getParentProperty() {
-			return parentProperty;
-		}
+        public String getParentProperty() {
+            return parentProperty;
+        }
 
-		public void setParentProperty(String parentProperty) {
-			this.parentProperty = parentProperty;
-		}
-	}
+        public void setParentProperty(String parentProperty) {
+            this.parentProperty = parentProperty;
+        }
+    }
 
 
-	@JsonTypeName("foo")
-	private static class Foo extends ParentClass {
+    @JsonTypeName("foo")
+    private static class Foo extends ParentClass {
 
-		public Foo() {
-		}
+        public Foo() {
+        }
 
-		public Foo(String parentProperty) {
-			super(parentProperty);
-		}
-	}
+        public Foo(String parentProperty) {
+            super(parentProperty);
+        }
+    }
 
 
-	@JsonTypeName("bar")
-	private static class Bar extends ParentClass {
+    @JsonTypeName("bar")
+    private static class Bar extends ParentClass {
 
-		public Bar() {
-		}
+        public Bar() {
+        }
 
-		public Bar(String parentProperty) {
-			super(parentProperty);
-		}
-	}
+        public Bar(String parentProperty) {
+            super(parentProperty);
+        }
+    }
 
 
-	private static class JacksonController {
+    private static class JacksonController {
 
-		@RequestMapping
-		@ResponseBody
-		public HttpEntity<List<ParentClass>> handleList() {
-			List<ParentClass> list = new ArrayList<>();
-			list.add(new Foo("foo"));
-			list.add(new Bar("bar"));
-			return new HttpEntity<>(list);
-		}
-	}
+        @RequestMapping
+        @ResponseBody
+        public HttpEntity<List<ParentClass>> handleList() {
+            List<ParentClass> list = new ArrayList<>();
+            list.add(new Foo("foo"));
+            list.add(new Bar("bar"));
+            return new HttpEntity<>(list);
+        }
+    }
 
 }

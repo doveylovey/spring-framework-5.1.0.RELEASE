@@ -51,156 +51,156 @@ import org.springframework.web.socket.messaging.SubProtocolWebSocketHandler;
  */
 public class WebSocketMessageBrokerStats {
 
-	private static final Log logger = LogFactory.getLog(WebSocketMessageBrokerStats.class);
+    private static final Log logger = LogFactory.getLog(WebSocketMessageBrokerStats.class);
 
 
-	@Nullable
-	private SubProtocolWebSocketHandler webSocketHandler;
+    @Nullable
+    private SubProtocolWebSocketHandler webSocketHandler;
 
-	@Nullable
-	private StompSubProtocolHandler stompSubProtocolHandler;
+    @Nullable
+    private StompSubProtocolHandler stompSubProtocolHandler;
 
-	@Nullable
-	private StompBrokerRelayMessageHandler stompBrokerRelay;
+    @Nullable
+    private StompBrokerRelayMessageHandler stompBrokerRelay;
 
-	@Nullable
-	private ThreadPoolExecutor inboundChannelExecutor;
+    @Nullable
+    private ThreadPoolExecutor inboundChannelExecutor;
 
-	@Nullable
-	private ThreadPoolExecutor outboundChannelExecutor;
+    @Nullable
+    private ThreadPoolExecutor outboundChannelExecutor;
 
-	@Nullable
-	private ScheduledThreadPoolExecutor sockJsTaskScheduler;
+    @Nullable
+    private ScheduledThreadPoolExecutor sockJsTaskScheduler;
 
-	@Nullable
-	private ScheduledFuture<?> loggingTask;
+    @Nullable
+    private ScheduledFuture<?> loggingTask;
 
-	private long loggingPeriod = TimeUnit.MINUTES.toMillis(30);
+    private long loggingPeriod = TimeUnit.MINUTES.toMillis(30);
 
 
-	public void setSubProtocolWebSocketHandler(SubProtocolWebSocketHandler webSocketHandler) {
-		this.webSocketHandler = webSocketHandler;
-		this.stompSubProtocolHandler = initStompSubProtocolHandler();
-	}
+    public void setSubProtocolWebSocketHandler(SubProtocolWebSocketHandler webSocketHandler) {
+        this.webSocketHandler = webSocketHandler;
+        this.stompSubProtocolHandler = initStompSubProtocolHandler();
+    }
 
-	@Nullable
-	private StompSubProtocolHandler initStompSubProtocolHandler() {
-		if (this.webSocketHandler == null) {
-			return null;
-		}
-		for (SubProtocolHandler handler : this.webSocketHandler.getProtocolHandlers()) {
-			if (handler instanceof StompSubProtocolHandler) {
-				return (StompSubProtocolHandler) handler;
-			}
-		}
-		SubProtocolHandler defaultHandler = this.webSocketHandler.getDefaultProtocolHandler();
-		if (defaultHandler != null && defaultHandler instanceof StompSubProtocolHandler) {
-			return (StompSubProtocolHandler) defaultHandler;
-		}
-		return null;
-	}
+    @Nullable
+    private StompSubProtocolHandler initStompSubProtocolHandler() {
+        if (this.webSocketHandler == null) {
+            return null;
+        }
+        for (SubProtocolHandler handler : this.webSocketHandler.getProtocolHandlers()) {
+            if (handler instanceof StompSubProtocolHandler) {
+                return (StompSubProtocolHandler) handler;
+            }
+        }
+        SubProtocolHandler defaultHandler = this.webSocketHandler.getDefaultProtocolHandler();
+        if (defaultHandler != null && defaultHandler instanceof StompSubProtocolHandler) {
+            return (StompSubProtocolHandler) defaultHandler;
+        }
+        return null;
+    }
 
-	public void setStompBrokerRelay(StompBrokerRelayMessageHandler stompBrokerRelay) {
-		this.stompBrokerRelay = stompBrokerRelay;
-	}
+    public void setStompBrokerRelay(StompBrokerRelayMessageHandler stompBrokerRelay) {
+        this.stompBrokerRelay = stompBrokerRelay;
+    }
 
-	public void setInboundChannelExecutor(ThreadPoolTaskExecutor inboundChannelExecutor) {
-		this.inboundChannelExecutor = inboundChannelExecutor.getThreadPoolExecutor();
-	}
+    public void setInboundChannelExecutor(ThreadPoolTaskExecutor inboundChannelExecutor) {
+        this.inboundChannelExecutor = inboundChannelExecutor.getThreadPoolExecutor();
+    }
 
-	public void setOutboundChannelExecutor(ThreadPoolTaskExecutor outboundChannelExecutor) {
-		this.outboundChannelExecutor = outboundChannelExecutor.getThreadPoolExecutor();
-	}
+    public void setOutboundChannelExecutor(ThreadPoolTaskExecutor outboundChannelExecutor) {
+        this.outboundChannelExecutor = outboundChannelExecutor.getThreadPoolExecutor();
+    }
 
-	public void setSockJsTaskScheduler(ThreadPoolTaskScheduler sockJsTaskScheduler) {
-		this.sockJsTaskScheduler = sockJsTaskScheduler.getScheduledThreadPoolExecutor();
-		this.loggingTask = initLoggingTask(TimeUnit.MINUTES.toMillis(1));
-	}
+    public void setSockJsTaskScheduler(ThreadPoolTaskScheduler sockJsTaskScheduler) {
+        this.sockJsTaskScheduler = sockJsTaskScheduler.getScheduledThreadPoolExecutor();
+        this.loggingTask = initLoggingTask(TimeUnit.MINUTES.toMillis(1));
+    }
 
-	@Nullable
-	private ScheduledFuture<?> initLoggingTask(long initialDelay) {
-		if (this.sockJsTaskScheduler != null && this.loggingPeriod > 0 && logger.isInfoEnabled()) {
-			return this.sockJsTaskScheduler.scheduleAtFixedRate(() ->
-							logger.info(WebSocketMessageBrokerStats.this.toString()),
-					initialDelay, this.loggingPeriod, TimeUnit.MILLISECONDS);
-		}
-		return null;
-	}
+    @Nullable
+    private ScheduledFuture<?> initLoggingTask(long initialDelay) {
+        if (this.sockJsTaskScheduler != null && this.loggingPeriod > 0 && logger.isInfoEnabled()) {
+            return this.sockJsTaskScheduler.scheduleAtFixedRate(() ->
+                            logger.info(WebSocketMessageBrokerStats.this.toString()),
+                    initialDelay, this.loggingPeriod, TimeUnit.MILLISECONDS);
+        }
+        return null;
+    }
 
-	/**
-	 * Set the frequency for logging information at INFO level in milliseconds.
-	 * If set 0 or less than 0, the logging task is cancelled.
-	 * <p>By default this property is set to 30 minutes (30 * 60 * 1000).
-	 */
-	public void setLoggingPeriod(long period) {
-		if (this.loggingTask != null) {
-			this.loggingTask.cancel(true);
-		}
-		this.loggingPeriod = period;
-		this.loggingTask = initLoggingTask(0);
-	}
+    /**
+     * Set the frequency for logging information at INFO level in milliseconds.
+     * If set 0 or less than 0, the logging task is cancelled.
+     * <p>By default this property is set to 30 minutes (30 * 60 * 1000).
+     */
+    public void setLoggingPeriod(long period) {
+        if (this.loggingTask != null) {
+            this.loggingTask.cancel(true);
+        }
+        this.loggingPeriod = period;
+        this.loggingTask = initLoggingTask(0);
+    }
 
-	/**
-	 * Return the configured logging period frequency in milliseconds.
-	 */
-	public long getLoggingPeriod() {
-		return this.loggingPeriod;
-	}
+    /**
+     * Return the configured logging period frequency in milliseconds.
+     */
+    public long getLoggingPeriod() {
+        return this.loggingPeriod;
+    }
 
-	/**
-	 * Get stats about WebSocket sessions.
-	 */
-	public String getWebSocketSessionStatsInfo() {
-		return (this.webSocketHandler != null ? this.webSocketHandler.getStatsInfo() : "null");
-	}
+    /**
+     * Get stats about WebSocket sessions.
+     */
+    public String getWebSocketSessionStatsInfo() {
+        return (this.webSocketHandler != null ? this.webSocketHandler.getStatsInfo() : "null");
+    }
 
-	/**
-	 * Get stats about STOMP-related WebSocket message processing.
-	 */
-	public String getStompSubProtocolStatsInfo() {
-		return (this.stompSubProtocolHandler != null ? this.stompSubProtocolHandler.getStatsInfo() : "null");
-	}
+    /**
+     * Get stats about STOMP-related WebSocket message processing.
+     */
+    public String getStompSubProtocolStatsInfo() {
+        return (this.stompSubProtocolHandler != null ? this.stompSubProtocolHandler.getStatsInfo() : "null");
+    }
 
-	/**
-	 * Get stats about STOMP broker relay (when using a full-featured STOMP broker).
-	 */
-	public String getStompBrokerRelayStatsInfo() {
-		return (this.stompBrokerRelay != null ? this.stompBrokerRelay.getStatsInfo() : "null");
-	}
+    /**
+     * Get stats about STOMP broker relay (when using a full-featured STOMP broker).
+     */
+    public String getStompBrokerRelayStatsInfo() {
+        return (this.stompBrokerRelay != null ? this.stompBrokerRelay.getStatsInfo() : "null");
+    }
 
-	/**
-	 * Get stats about the executor processing incoming messages from WebSocket clients.
-	 */
-	public String getClientInboundExecutorStatsInfo() {
-		return (this.inboundChannelExecutor != null ? getExecutorStatsInfo(this.inboundChannelExecutor) : "null");
-	}
+    /**
+     * Get stats about the executor processing incoming messages from WebSocket clients.
+     */
+    public String getClientInboundExecutorStatsInfo() {
+        return (this.inboundChannelExecutor != null ? getExecutorStatsInfo(this.inboundChannelExecutor) : "null");
+    }
 
-	/**
-	 * Get stats about the executor processing outgoing messages to WebSocket clients.
-	 */
-	public String getClientOutboundExecutorStatsInfo() {
-		return (this.outboundChannelExecutor != null ? getExecutorStatsInfo(this.outboundChannelExecutor) : "null");
-	}
+    /**
+     * Get stats about the executor processing outgoing messages to WebSocket clients.
+     */
+    public String getClientOutboundExecutorStatsInfo() {
+        return (this.outboundChannelExecutor != null ? getExecutorStatsInfo(this.outboundChannelExecutor) : "null");
+    }
 
-	/**
-	 * Get stats about the SockJS task scheduler.
-	 */
-	public String getSockJsTaskSchedulerStatsInfo() {
-		return (this.sockJsTaskScheduler != null ? getExecutorStatsInfo(this.sockJsTaskScheduler) : "null");
-	}
+    /**
+     * Get stats about the SockJS task scheduler.
+     */
+    public String getSockJsTaskSchedulerStatsInfo() {
+        return (this.sockJsTaskScheduler != null ? getExecutorStatsInfo(this.sockJsTaskScheduler) : "null");
+    }
 
-	private String getExecutorStatsInfo(Executor executor) {
-		String str = executor.toString();
-		return str.substring(str.indexOf("pool"), str.length() - 1);
-	}
+    private String getExecutorStatsInfo(Executor executor) {
+        String str = executor.toString();
+        return str.substring(str.indexOf("pool"), str.length() - 1);
+    }
 
-	public String toString() {
-		return "WebSocketSession[" + getWebSocketSessionStatsInfo() + "]" +
-				", stompSubProtocol[" + getStompSubProtocolStatsInfo() + "]" +
-				", stompBrokerRelay[" + getStompBrokerRelayStatsInfo() + "]" +
-				", inboundChannel[" + getClientInboundExecutorStatsInfo() + "]" +
-				", outboundChannel" + getClientOutboundExecutorStatsInfo() + "]" +
-				", sockJsScheduler[" + getSockJsTaskSchedulerStatsInfo() + "]";
-	}
+    public String toString() {
+        return "WebSocketSession[" + getWebSocketSessionStatsInfo() + "]" +
+                ", stompSubProtocol[" + getStompSubProtocolStatsInfo() + "]" +
+                ", stompBrokerRelay[" + getStompBrokerRelayStatsInfo() + "]" +
+                ", inboundChannel[" + getClientInboundExecutorStatsInfo() + "]" +
+                ", outboundChannel" + getClientOutboundExecutorStatsInfo() + "]" +
+                ", sockJsScheduler[" + getSockJsTaskSchedulerStatsInfo() + "]";
+    }
 
 }

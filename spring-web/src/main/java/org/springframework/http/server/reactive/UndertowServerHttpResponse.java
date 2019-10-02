@@ -50,233 +50,233 @@ import org.springframework.util.Assert;
  */
 class UndertowServerHttpResponse extends AbstractListenerServerHttpResponse implements ZeroCopyHttpOutputMessage {
 
-	private final HttpServerExchange exchange;
+    private final HttpServerExchange exchange;
 
-	private final UndertowServerHttpRequest request;
+    private final UndertowServerHttpRequest request;
 
-	@Nullable
-	private StreamSinkChannel responseChannel;
-
-
-	public UndertowServerHttpResponse(
-			HttpServerExchange exchange, DataBufferFactory bufferFactory, UndertowServerHttpRequest request) {
-
-		super(bufferFactory);
-		Assert.notNull(exchange, "HttpServerExchange must not be null");
-		this.exchange = exchange;
-		this.request = request;
-	}
+    @Nullable
+    private StreamSinkChannel responseChannel;
 
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public <T> T getNativeResponse() {
-		return (T) this.exchange;
-	}
+    public UndertowServerHttpResponse(
+            HttpServerExchange exchange, DataBufferFactory bufferFactory, UndertowServerHttpRequest request) {
+
+        super(bufferFactory);
+        Assert.notNull(exchange, "HttpServerExchange must not be null");
+        this.exchange = exchange;
+        this.request = request;
+    }
 
 
-	@Override
-	protected void applyStatusCode() {
-		Integer statusCode = getStatusCodeValue();
-		if (statusCode != null) {
-			this.exchange.setStatusCode(statusCode);
-		}
-	}
-
-	@Override
-	protected void applyHeaders() {
-		getHeaders().forEach((headerName, headerValues) ->
-				this.exchange.getResponseHeaders().addAll(HttpString.tryFromString(headerName), headerValues));
-	}
-
-	@Override
-	protected void applyCookies() {
-		for (String name : getCookies().keySet()) {
-			for (ResponseCookie httpCookie : getCookies().get(name)) {
-				Cookie cookie = new CookieImpl(name, httpCookie.getValue());
-				if (!httpCookie.getMaxAge().isNegative()) {
-					cookie.setMaxAge((int) httpCookie.getMaxAge().getSeconds());
-				}
-				if (httpCookie.getDomain() != null) {
-					cookie.setDomain(httpCookie.getDomain());
-				}
-				if (httpCookie.getPath() != null) {
-					cookie.setPath(httpCookie.getPath());
-				}
-				cookie.setSecure(httpCookie.isSecure());
-				cookie.setHttpOnly(httpCookie.isHttpOnly());
-				this.exchange.getResponseCookies().putIfAbsent(name, cookie);
-			}
-		}
-	}
-
-	@Override
-	public Mono<Void> writeWith(Path file, long position, long count) {
-		return doCommit(() ->
-				Mono.defer(() -> {
-					try (FileChannel source = FileChannel.open(file, StandardOpenOption.READ)) {
-						StreamSinkChannel destination = this.exchange.getResponseChannel();
-						Channels.transferBlocking(destination, source, position, count);
-						return Mono.empty();
-					}
-					catch (IOException ex) {
-						return Mono.error(ex);
-					}
-				}));
-	}
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> T getNativeResponse() {
+        return (T) this.exchange;
+    }
 
 
-	@Override
-	protected Processor<? super Publisher<? extends DataBuffer>, Void> createBodyFlushProcessor() {
-		return new ResponseBodyFlushProcessor();
-	}
+    @Override
+    protected void applyStatusCode() {
+        Integer statusCode = getStatusCodeValue();
+        if (statusCode != null) {
+            this.exchange.setStatusCode(statusCode);
+        }
+    }
 
-	private ResponseBodyProcessor createBodyProcessor() {
-		if (this.responseChannel == null) {
-			this.responseChannel = this.exchange.getResponseChannel();
-		}
-		return new ResponseBodyProcessor(this.responseChannel);
-	}
+    @Override
+    protected void applyHeaders() {
+        getHeaders().forEach((headerName, headerValues) ->
+                this.exchange.getResponseHeaders().addAll(HttpString.tryFromString(headerName), headerValues));
+    }
 
+    @Override
+    protected void applyCookies() {
+        for (String name : getCookies().keySet()) {
+            for (ResponseCookie httpCookie : getCookies().get(name)) {
+                Cookie cookie = new CookieImpl(name, httpCookie.getValue());
+                if (!httpCookie.getMaxAge().isNegative()) {
+                    cookie.setMaxAge((int) httpCookie.getMaxAge().getSeconds());
+                }
+                if (httpCookie.getDomain() != null) {
+                    cookie.setDomain(httpCookie.getDomain());
+                }
+                if (httpCookie.getPath() != null) {
+                    cookie.setPath(httpCookie.getPath());
+                }
+                cookie.setSecure(httpCookie.isSecure());
+                cookie.setHttpOnly(httpCookie.isHttpOnly());
+                this.exchange.getResponseCookies().putIfAbsent(name, cookie);
+            }
+        }
+    }
 
-	private class ResponseBodyProcessor extends AbstractListenerWriteProcessor<DataBuffer> {
-
-		private final StreamSinkChannel channel;
-
-		@Nullable
-		private volatile ByteBuffer byteBuffer;
-
-		/** Keep track of write listener calls, for {@link #writePossible}. */
-		private volatile boolean writePossible;
-
-
-		public ResponseBodyProcessor(StreamSinkChannel channel) {
-			super(request.getLogPrefix());
-			Assert.notNull(channel, "StreamSinkChannel must not be null");
-			this.channel = channel;
-			this.channel.getWriteSetter().set(c -> {
-				this.writePossible = true;
-				onWritePossible();
-			});
-			this.channel.suspendWrites();
-		}
-
-		@Override
-		protected boolean isWritePossible() {
-			this.channel.resumeWrites();
-			return this.writePossible;
-		}
-
-		@Override
-		protected boolean write(DataBuffer dataBuffer) throws IOException {
-			ByteBuffer buffer = this.byteBuffer;
-			if (buffer == null) {
-				return false;
-			}
-
-			// Track write listener calls from here on..
-			this.writePossible = false;
-
-			int total = buffer.remaining();
-			int written = writeByteBuffer(buffer);
-
-			if (logger.isTraceEnabled()) {
-				logger.trace(getLogPrefix() + "Wrote " + written + " of " + total + " bytes");
-			}
-			else if (rsWriteLogger.isTraceEnabled()) {
-				rsWriteLogger.trace(getLogPrefix() + "Wrote " + written + " of " + total + " bytes");
-			}
-			if (written != total) {
-				return false;
-			}
-
-			// We wrote all, so can still write more..
-			this.writePossible = true;
-
-			DataBufferUtils.release(dataBuffer);
-			this.byteBuffer = null;
-			return true;
-		}
-
-		private int writeByteBuffer(ByteBuffer byteBuffer) throws IOException {
-			int written;
-			int totalWritten = 0;
-			do {
-				written = this.channel.write(byteBuffer);
-				totalWritten += written;
-			}
-			while (byteBuffer.hasRemaining() && written > 0);
-			return totalWritten;
-		}
-
-		@Override
-		protected void dataReceived(DataBuffer dataBuffer) {
-			super.dataReceived(dataBuffer);
-			this.byteBuffer = dataBuffer.asByteBuffer();
-		}
-
-		@Override
-		protected boolean isDataEmpty(DataBuffer dataBuffer) {
-			return (dataBuffer.readableByteCount() == 0);
-		}
-
-		@Override
-		protected void writingComplete() {
-			this.channel.getWriteSetter().set(null);
-			this.channel.resumeWrites();
-		}
-
-		@Override
-		protected void writingFailed(Throwable ex) {
-			cancel();
-			onError(ex);
-		}
-	}
+    @Override
+    public Mono<Void> writeWith(Path file, long position, long count) {
+        return doCommit(() ->
+                Mono.defer(() -> {
+                    try (FileChannel source = FileChannel.open(file, StandardOpenOption.READ)) {
+                        StreamSinkChannel destination = this.exchange.getResponseChannel();
+                        Channels.transferBlocking(destination, source, position, count);
+                        return Mono.empty();
+                    } catch (IOException ex) {
+                        return Mono.error(ex);
+                    }
+                }));
+    }
 
 
-	private class ResponseBodyFlushProcessor extends AbstractListenerWriteFlushProcessor<DataBuffer> {
+    @Override
+    protected Processor<? super Publisher<? extends DataBuffer>, Void> createBodyFlushProcessor() {
+        return new ResponseBodyFlushProcessor();
+    }
 
-		public ResponseBodyFlushProcessor() {
-			super(request.getLogPrefix());
-		}
+    private ResponseBodyProcessor createBodyProcessor() {
+        if (this.responseChannel == null) {
+            this.responseChannel = this.exchange.getResponseChannel();
+        }
+        return new ResponseBodyProcessor(this.responseChannel);
+    }
 
-		@Override
-		protected Processor<? super DataBuffer, Void> createWriteProcessor() {
-			return UndertowServerHttpResponse.this.createBodyProcessor();
-		}
 
-		@Override
-		protected void flush() throws IOException {
-			StreamSinkChannel channel = UndertowServerHttpResponse.this.responseChannel;
-			if (channel != null) {
-				if (rsWriteFlushLogger.isTraceEnabled()) {
-					rsWriteFlushLogger.trace(getLogPrefix() + "flush");
-				}
-				channel.flush();
-			}
-		}
+    private class ResponseBodyProcessor extends AbstractListenerWriteProcessor<DataBuffer> {
 
-		@Override
-		protected void flushingFailed(Throwable t) {
-			cancel();
-			onError(t);
-		}
+        private final StreamSinkChannel channel;
 
-		@Override
-		protected boolean isWritePossible() {
-			StreamSinkChannel channel = UndertowServerHttpResponse.this.responseChannel;
-			if (channel != null) {
-				// We can always call flush, just ensure writes are on..
-				channel.resumeWrites();
-				return true;
-			}
-			return false;
-		}
+        @Nullable
+        private volatile ByteBuffer byteBuffer;
 
-		@Override
-		protected boolean isFlushPending() {
-			return false;
-		}
-	}
+        /**
+         * Keep track of write listener calls, for {@link #writePossible}.
+         */
+        private volatile boolean writePossible;
+
+
+        public ResponseBodyProcessor(StreamSinkChannel channel) {
+            super(request.getLogPrefix());
+            Assert.notNull(channel, "StreamSinkChannel must not be null");
+            this.channel = channel;
+            this.channel.getWriteSetter().set(c -> {
+                this.writePossible = true;
+                onWritePossible();
+            });
+            this.channel.suspendWrites();
+        }
+
+        @Override
+        protected boolean isWritePossible() {
+            this.channel.resumeWrites();
+            return this.writePossible;
+        }
+
+        @Override
+        protected boolean write(DataBuffer dataBuffer) throws IOException {
+            ByteBuffer buffer = this.byteBuffer;
+            if (buffer == null) {
+                return false;
+            }
+
+            // Track write listener calls from here on..
+            this.writePossible = false;
+
+            int total = buffer.remaining();
+            int written = writeByteBuffer(buffer);
+
+            if (logger.isTraceEnabled()) {
+                logger.trace(getLogPrefix() + "Wrote " + written + " of " + total + " bytes");
+            } else if (rsWriteLogger.isTraceEnabled()) {
+                rsWriteLogger.trace(getLogPrefix() + "Wrote " + written + " of " + total + " bytes");
+            }
+            if (written != total) {
+                return false;
+            }
+
+            // We wrote all, so can still write more..
+            this.writePossible = true;
+
+            DataBufferUtils.release(dataBuffer);
+            this.byteBuffer = null;
+            return true;
+        }
+
+        private int writeByteBuffer(ByteBuffer byteBuffer) throws IOException {
+            int written;
+            int totalWritten = 0;
+            do {
+                written = this.channel.write(byteBuffer);
+                totalWritten += written;
+            }
+            while (byteBuffer.hasRemaining() && written > 0);
+            return totalWritten;
+        }
+
+        @Override
+        protected void dataReceived(DataBuffer dataBuffer) {
+            super.dataReceived(dataBuffer);
+            this.byteBuffer = dataBuffer.asByteBuffer();
+        }
+
+        @Override
+        protected boolean isDataEmpty(DataBuffer dataBuffer) {
+            return (dataBuffer.readableByteCount() == 0);
+        }
+
+        @Override
+        protected void writingComplete() {
+            this.channel.getWriteSetter().set(null);
+            this.channel.resumeWrites();
+        }
+
+        @Override
+        protected void writingFailed(Throwable ex) {
+            cancel();
+            onError(ex);
+        }
+    }
+
+
+    private class ResponseBodyFlushProcessor extends AbstractListenerWriteFlushProcessor<DataBuffer> {
+
+        public ResponseBodyFlushProcessor() {
+            super(request.getLogPrefix());
+        }
+
+        @Override
+        protected Processor<? super DataBuffer, Void> createWriteProcessor() {
+            return UndertowServerHttpResponse.this.createBodyProcessor();
+        }
+
+        @Override
+        protected void flush() throws IOException {
+            StreamSinkChannel channel = UndertowServerHttpResponse.this.responseChannel;
+            if (channel != null) {
+                if (rsWriteFlushLogger.isTraceEnabled()) {
+                    rsWriteFlushLogger.trace(getLogPrefix() + "flush");
+                }
+                channel.flush();
+            }
+        }
+
+        @Override
+        protected void flushingFailed(Throwable t) {
+            cancel();
+            onError(t);
+        }
+
+        @Override
+        protected boolean isWritePossible() {
+            StreamSinkChannel channel = UndertowServerHttpResponse.this.responseChannel;
+            if (channel != null) {
+                // We can always call flush, just ensure writes are on..
+                channel.resumeWrites();
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        protected boolean isFlushPending() {
+            return false;
+        }
+    }
 
 }

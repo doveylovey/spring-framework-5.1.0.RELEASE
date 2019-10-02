@@ -27,9 +27,9 @@ import static org.mockito.Mockito.*;
  */
 public class RefreshableScriptTargetSourceTests {
 
-	@Test(expected = IllegalArgumentException.class)
-	public void createWithNullScriptSource() throws Exception {
-		new RefreshableScriptTargetSource(mock(BeanFactory.class), "a.bean", null, null, false);
-	}
+    @Test(expected = IllegalArgumentException.class)
+    public void createWithNullScriptSource() throws Exception {
+        new RefreshableScriptTargetSource(mock(BeanFactory.class), "a.bean", null, null, false);
+    }
 
 }

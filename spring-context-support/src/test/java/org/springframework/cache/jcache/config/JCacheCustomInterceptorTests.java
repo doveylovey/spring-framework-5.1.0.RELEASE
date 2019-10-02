@@ -45,118 +45,114 @@ import static org.junit.Assert.*;
  */
 public class JCacheCustomInterceptorTests {
 
-	protected ConfigurableApplicationContext ctx;
+    protected ConfigurableApplicationContext ctx;
 
-	protected JCacheableService<?> cs;
+    protected JCacheableService<?> cs;
 
-	protected Cache exceptionCache;
-
-
-	@Before
-	public void setup() {
-		ctx = new AnnotationConfigApplicationContext(EnableCachingConfig.class);
-		cs = ctx.getBean("service", JCacheableService.class);
-		exceptionCache = ctx.getBean("exceptionCache", Cache.class);
-	}
-
-	@After
-	public void tearDown() {
-		if (ctx != null) {
-			ctx.close();
-		}
-	}
+    protected Cache exceptionCache;
 
 
-	@Test
-	public void onlyOneInterceptorIsAvailable() {
-		Map<String, JCacheInterceptor> interceptors = ctx.getBeansOfType(JCacheInterceptor.class);
-		assertEquals("Only one interceptor should be defined", 1, interceptors.size());
-		JCacheInterceptor interceptor = interceptors.values().iterator().next();
-		assertEquals("Custom interceptor not defined", TestCacheInterceptor.class, interceptor.getClass());
-	}
+    @Before
+    public void setup() {
+        ctx = new AnnotationConfigApplicationContext(EnableCachingConfig.class);
+        cs = ctx.getBean("service", JCacheableService.class);
+        exceptionCache = ctx.getBean("exceptionCache", Cache.class);
+    }
 
-	@Test
-	public void customInterceptorAppliesWithRuntimeException() {
-		Object o = cs.cacheWithException("id", true);
-		assertEquals(55L, o); // See TestCacheInterceptor
-	}
-
-	@Test
-	public void customInterceptorAppliesWithCheckedException() {
-		try {
-			cs.cacheWithCheckedException("id", true);
-			fail("Should have failed");
-		}
-		catch (RuntimeException e) {
-			assertNotNull("missing original exception", e.getCause());
-			assertEquals(IOException.class, e.getCause().getClass());
-		}
-		catch (Exception e) {
-			fail("Wrong exception type " + e);
-		}
-	}
+    @After
+    public void tearDown() {
+        if (ctx != null) {
+            ctx.close();
+        }
+    }
 
 
-	@Configuration
-	@EnableCaching
-	static class EnableCachingConfig {
+    @Test
+    public void onlyOneInterceptorIsAvailable() {
+        Map<String, JCacheInterceptor> interceptors = ctx.getBeansOfType(JCacheInterceptor.class);
+        assertEquals("Only one interceptor should be defined", 1, interceptors.size());
+        JCacheInterceptor interceptor = interceptors.values().iterator().next();
+        assertEquals("Custom interceptor not defined", TestCacheInterceptor.class, interceptor.getClass());
+    }
 
-		@Bean
-		public CacheManager cacheManager() {
-			SimpleCacheManager cm = new SimpleCacheManager();
-			cm.setCaches(Arrays.asList(
-					defaultCache(),
-					exceptionCache()));
-			return cm;
-		}
+    @Test
+    public void customInterceptorAppliesWithRuntimeException() {
+        Object o = cs.cacheWithException("id", true);
+        assertEquals(55L, o); // See TestCacheInterceptor
+    }
 
-		@Bean
-		public JCacheableService<?> service() {
-			return new AnnotatedJCacheableService(defaultCache());
-		}
-
-		@Bean
-		public Cache defaultCache() {
-			return new ConcurrentMapCache("default");
-		}
-
-		@Bean
-		public Cache exceptionCache() {
-			return new ConcurrentMapCache("exception");
-		}
-
-		@Bean
-		public JCacheInterceptor jCacheInterceptor(JCacheOperationSource cacheOperationSource) {
-			JCacheInterceptor cacheInterceptor = new TestCacheInterceptor();
-			cacheInterceptor.setCacheOperationSource(cacheOperationSource);
-			return cacheInterceptor;
-		}
-	}
+    @Test
+    public void customInterceptorAppliesWithCheckedException() {
+        try {
+            cs.cacheWithCheckedException("id", true);
+            fail("Should have failed");
+        } catch (RuntimeException e) {
+            assertNotNull("missing original exception", e.getCause());
+            assertEquals(IOException.class, e.getCause().getClass());
+        } catch (Exception e) {
+            fail("Wrong exception type " + e);
+        }
+    }
 
 
-	/**
-	 * A test {@link org.springframework.cache.interceptor.CacheInterceptor} that handles special exception
-	 * types.
-	 */
-	@SuppressWarnings("serial")
-	static class TestCacheInterceptor extends JCacheInterceptor {
+    @Configuration
+    @EnableCaching
+    static class EnableCachingConfig {
 
-		@Override
-		protected Object invokeOperation(CacheOperationInvoker invoker) {
-			try {
-				return super.invokeOperation(invoker);
-			}
-			catch (CacheOperationInvoker.ThrowableWrapper e) {
-				Throwable original = e.getOriginal();
-				if (original.getClass() == UnsupportedOperationException.class) {
-					return 55L;
-				}
-				else {
-					throw new CacheOperationInvoker.ThrowableWrapper(
-							new RuntimeException("wrapping original", original));
-				}
-			}
-		}
-	}
+        @Bean
+        public CacheManager cacheManager() {
+            SimpleCacheManager cm = new SimpleCacheManager();
+            cm.setCaches(Arrays.asList(
+                    defaultCache(),
+                    exceptionCache()));
+            return cm;
+        }
+
+        @Bean
+        public JCacheableService<?> service() {
+            return new AnnotatedJCacheableService(defaultCache());
+        }
+
+        @Bean
+        public Cache defaultCache() {
+            return new ConcurrentMapCache("default");
+        }
+
+        @Bean
+        public Cache exceptionCache() {
+            return new ConcurrentMapCache("exception");
+        }
+
+        @Bean
+        public JCacheInterceptor jCacheInterceptor(JCacheOperationSource cacheOperationSource) {
+            JCacheInterceptor cacheInterceptor = new TestCacheInterceptor();
+            cacheInterceptor.setCacheOperationSource(cacheOperationSource);
+            return cacheInterceptor;
+        }
+    }
+
+
+    /**
+     * A test {@link org.springframework.cache.interceptor.CacheInterceptor} that handles special exception
+     * types.
+     */
+    @SuppressWarnings("serial")
+    static class TestCacheInterceptor extends JCacheInterceptor {
+
+        @Override
+        protected Object invokeOperation(CacheOperationInvoker invoker) {
+            try {
+                return super.invokeOperation(invoker);
+            } catch (CacheOperationInvoker.ThrowableWrapper e) {
+                Throwable original = e.getOriginal();
+                if (original.getClass() == UnsupportedOperationException.class) {
+                    return 55L;
+                } else {
+                    throw new CacheOperationInvoker.ThrowableWrapper(
+                            new RuntimeException("wrapping original", original));
+                }
+            }
+        }
+    }
 
 }

@@ -43,113 +43,114 @@ import static org.springframework.web.method.MvcAnnotationPredicates.matrixAttri
 
 /**
  * Test fixture with {@link MatrixVariableMethodArgumentResolver}.
+ *
  * @author Rossen Stoyanchev
  */
 public class MatrixVariablesMethodArgumentResolverTests {
 
-	private MatrixVariableMethodArgumentResolver resolver;
+    private MatrixVariableMethodArgumentResolver resolver;
 
-	private ModelAndViewContainer mavContainer;
+    private ModelAndViewContainer mavContainer;
 
-	private ServletWebRequest webRequest;
+    private ServletWebRequest webRequest;
 
-	private MockHttpServletRequest request;
+    private MockHttpServletRequest request;
 
-	private ResolvableMethod testMethod = ResolvableMethod.on(this.getClass()).named("handle").build();
-
-
-	@Before
-	public void setup() throws Exception {
-		this.resolver = new MatrixVariableMethodArgumentResolver();
-		this.mavContainer = new ModelAndViewContainer();
-		this.request = new MockHttpServletRequest();
-		this.webRequest = new ServletWebRequest(request, new MockHttpServletResponse());
-
-		Map<String, MultiValueMap<String, String>> params = new LinkedHashMap<>();
-		this.request.setAttribute(HandlerMapping.MATRIX_VARIABLES_ATTRIBUTE, params);
-	}
+    private ResolvableMethod testMethod = ResolvableMethod.on(this.getClass()).named("handle").build();
 
 
-	@Test
-	public void supportsParameter() {
+    @Before
+    public void setup() throws Exception {
+        this.resolver = new MatrixVariableMethodArgumentResolver();
+        this.mavContainer = new ModelAndViewContainer();
+        this.request = new MockHttpServletRequest();
+        this.webRequest = new ServletWebRequest(request, new MockHttpServletResponse());
 
-		assertFalse(this.resolver.supportsParameter(this.testMethod.arg(String.class)));
-
-		assertTrue(this.resolver.supportsParameter(
-				this.testMethod.annot(matrixAttribute().noName()).arg(List.class, String.class)));
-
-		assertTrue(this.resolver.supportsParameter(
-				this.testMethod.annot(matrixAttribute().name("year")).arg(int.class)));
-	}
-
-	@Test
-	public void resolveArgument() throws Exception {
-		MultiValueMap<String, String> params = getVariablesFor("cars");
-		params.add("colors", "red");
-		params.add("colors", "green");
-		params.add("colors", "blue");
-		MethodParameter param = this.testMethod.annot(matrixAttribute().noName()).arg(List.class, String.class);
-
-		assertEquals(Arrays.asList("red", "green", "blue"),
-				this.resolver.resolveArgument(param, this.mavContainer, this.webRequest, null));
-	}
-
-	@Test
-	public void resolveArgumentPathVariable() throws Exception {
-		getVariablesFor("cars").add("year", "2006");
-		getVariablesFor("bikes").add("year", "2005");
-		MethodParameter param = this.testMethod.annot(matrixAttribute().name("year")).arg(int.class);
-
-		assertEquals("2006", this.resolver.resolveArgument(param, this.mavContainer, this.webRequest, null));
-	}
-
-	@Test
-	public void resolveArgumentDefaultValue() throws Exception {
-		MethodParameter param = this.testMethod.annot(matrixAttribute().name("year")).arg(int.class);
-		assertEquals("2013", resolver.resolveArgument(param, this.mavContainer, this.webRequest, null));
-	}
-
-	@Test(expected = ServletRequestBindingException.class)
-	public void resolveArgumentMultipleMatches() throws Exception {
-		getVariablesFor("var1").add("colors", "red");
-		getVariablesFor("var2").add("colors", "green");
-		MethodParameter param = this.testMethod.annot(matrixAttribute().noName()).arg(List.class, String.class);
-
-		this.resolver.resolveArgument(param, this.mavContainer, this.webRequest, null);
-	}
-
-	@Test(expected = ServletRequestBindingException.class)
-	public void resolveArgumentRequired() throws Exception {
-		MethodParameter param = this.testMethod.annot(matrixAttribute().noName()).arg(List.class, String.class);
-		this.resolver.resolveArgument(param, this.mavContainer, this.webRequest, null);
-	}
-
-	@Test
-	public void resolveArgumentNoMatch() throws Exception {
-		MultiValueMap<String, String> params = getVariablesFor("cars");
-		params.add("anotherYear", "2012");
-		MethodParameter param = this.testMethod.annot(matrixAttribute().name("year")).arg(int.class);
-
-		assertEquals("2013", this.resolver.resolveArgument(param, this.mavContainer, this.webRequest, null));
-	}
+        Map<String, MultiValueMap<String, String>> params = new LinkedHashMap<>();
+        this.request.setAttribute(HandlerMapping.MATRIX_VARIABLES_ATTRIBUTE, params);
+    }
 
 
-	@SuppressWarnings("unchecked")
-	private MultiValueMap<String, String> getVariablesFor(String pathVarName) {
-		Map<String, MultiValueMap<String, String>> matrixVariables =
-				(Map<String, MultiValueMap<String, String>>) this.request.getAttribute(
-						HandlerMapping.MATRIX_VARIABLES_ATTRIBUTE);
+    @Test
+    public void supportsParameter() {
 
-		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-		matrixVariables.put(pathVarName, params);
-		return params;
-	}
+        assertFalse(this.resolver.supportsParameter(this.testMethod.arg(String.class)));
+
+        assertTrue(this.resolver.supportsParameter(
+                this.testMethod.annot(matrixAttribute().noName()).arg(List.class, String.class)));
+
+        assertTrue(this.resolver.supportsParameter(
+                this.testMethod.annot(matrixAttribute().name("year")).arg(int.class)));
+    }
+
+    @Test
+    public void resolveArgument() throws Exception {
+        MultiValueMap<String, String> params = getVariablesFor("cars");
+        params.add("colors", "red");
+        params.add("colors", "green");
+        params.add("colors", "blue");
+        MethodParameter param = this.testMethod.annot(matrixAttribute().noName()).arg(List.class, String.class);
+
+        assertEquals(Arrays.asList("red", "green", "blue"),
+                this.resolver.resolveArgument(param, this.mavContainer, this.webRequest, null));
+    }
+
+    @Test
+    public void resolveArgumentPathVariable() throws Exception {
+        getVariablesFor("cars").add("year", "2006");
+        getVariablesFor("bikes").add("year", "2005");
+        MethodParameter param = this.testMethod.annot(matrixAttribute().name("year")).arg(int.class);
+
+        assertEquals("2006", this.resolver.resolveArgument(param, this.mavContainer, this.webRequest, null));
+    }
+
+    @Test
+    public void resolveArgumentDefaultValue() throws Exception {
+        MethodParameter param = this.testMethod.annot(matrixAttribute().name("year")).arg(int.class);
+        assertEquals("2013", resolver.resolveArgument(param, this.mavContainer, this.webRequest, null));
+    }
+
+    @Test(expected = ServletRequestBindingException.class)
+    public void resolveArgumentMultipleMatches() throws Exception {
+        getVariablesFor("var1").add("colors", "red");
+        getVariablesFor("var2").add("colors", "green");
+        MethodParameter param = this.testMethod.annot(matrixAttribute().noName()).arg(List.class, String.class);
+
+        this.resolver.resolveArgument(param, this.mavContainer, this.webRequest, null);
+    }
+
+    @Test(expected = ServletRequestBindingException.class)
+    public void resolveArgumentRequired() throws Exception {
+        MethodParameter param = this.testMethod.annot(matrixAttribute().noName()).arg(List.class, String.class);
+        this.resolver.resolveArgument(param, this.mavContainer, this.webRequest, null);
+    }
+
+    @Test
+    public void resolveArgumentNoMatch() throws Exception {
+        MultiValueMap<String, String> params = getVariablesFor("cars");
+        params.add("anotherYear", "2012");
+        MethodParameter param = this.testMethod.annot(matrixAttribute().name("year")).arg(int.class);
+
+        assertEquals("2013", this.resolver.resolveArgument(param, this.mavContainer, this.webRequest, null));
+    }
 
 
-	public void handle(
-			String stringArg,
-			@MatrixVariable List<String> colors,
-			@MatrixVariable(name = "year", pathVar = "cars", required = false, defaultValue = "2013") int preferredYear) {
-	}
+    @SuppressWarnings("unchecked")
+    private MultiValueMap<String, String> getVariablesFor(String pathVarName) {
+        Map<String, MultiValueMap<String, String>> matrixVariables =
+                (Map<String, MultiValueMap<String, String>>) this.request.getAttribute(
+                        HandlerMapping.MATRIX_VARIABLES_ATTRIBUTE);
+
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        matrixVariables.put(pathVarName, params);
+        return params;
+    }
+
+
+    public void handle(
+            String stringArg,
+            @MatrixVariable List<String> colors,
+            @MatrixVariable(name = "year", pathVar = "cars", required = false, defaultValue = "2013") int preferredYear) {
+    }
 
 }

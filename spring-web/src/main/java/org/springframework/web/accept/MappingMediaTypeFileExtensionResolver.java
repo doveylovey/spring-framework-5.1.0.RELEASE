@@ -41,66 +41,67 @@ import org.springframework.util.MultiValueMap;
  */
 public class MappingMediaTypeFileExtensionResolver implements MediaTypeFileExtensionResolver {
 
-	private final ConcurrentMap<String, MediaType> mediaTypes = new ConcurrentHashMap<>(64);
+    private final ConcurrentMap<String, MediaType> mediaTypes = new ConcurrentHashMap<>(64);
 
-	private final MultiValueMap<MediaType, String> fileExtensions = new LinkedMultiValueMap<>();
+    private final MultiValueMap<MediaType, String> fileExtensions = new LinkedMultiValueMap<>();
 
-	private final List<String> allFileExtensions = new ArrayList<>();
-
-
-	/**
-	 * Create an instance with the given map of file extensions and media types.
-	 */
-	public MappingMediaTypeFileExtensionResolver(@Nullable Map<String, MediaType> mediaTypes) {
-		if (mediaTypes != null) {
-			mediaTypes.forEach((extension, mediaType) -> {
-				String lowerCaseExtension = extension.toLowerCase(Locale.ENGLISH);
-				this.mediaTypes.put(lowerCaseExtension, mediaType);
-				this.fileExtensions.add(mediaType, lowerCaseExtension);
-				this.allFileExtensions.add(lowerCaseExtension);
-			});
-		}
-	}
+    private final List<String> allFileExtensions = new ArrayList<>();
 
 
-	public Map<String, MediaType> getMediaTypes() {
-		return this.mediaTypes;
-	}
-
-	protected List<MediaType> getAllMediaTypes() {
-		return new ArrayList<>(this.mediaTypes.values());
-	}
-
-	/**
-	 * Map an extension to a MediaType. Ignore if extension already mapped.
-	 */
-	protected void addMapping(String extension, MediaType mediaType) {
-		MediaType previous = this.mediaTypes.putIfAbsent(extension, mediaType);
-		if (previous == null) {
-			this.fileExtensions.add(mediaType, extension);
-			this.allFileExtensions.add(extension);
-		}
-	}
+    /**
+     * Create an instance with the given map of file extensions and media types.
+     */
+    public MappingMediaTypeFileExtensionResolver(@Nullable Map<String, MediaType> mediaTypes) {
+        if (mediaTypes != null) {
+            mediaTypes.forEach((extension, mediaType) -> {
+                String lowerCaseExtension = extension.toLowerCase(Locale.ENGLISH);
+                this.mediaTypes.put(lowerCaseExtension, mediaType);
+                this.fileExtensions.add(mediaType, lowerCaseExtension);
+                this.allFileExtensions.add(lowerCaseExtension);
+            });
+        }
+    }
 
 
-	@Override
-	public List<String> resolveFileExtensions(MediaType mediaType) {
-		List<String> fileExtensions = this.fileExtensions.get(mediaType);
-		return (fileExtensions != null ? fileExtensions : Collections.emptyList());
-	}
+    public Map<String, MediaType> getMediaTypes() {
+        return this.mediaTypes;
+    }
 
-	@Override
-	public List<String> getAllFileExtensions() {
-		return Collections.unmodifiableList(this.allFileExtensions);
-	}
+    protected List<MediaType> getAllMediaTypes() {
+        return new ArrayList<>(this.mediaTypes.values());
+    }
 
-	/**
-	 * Use this method for a reverse lookup from extension to MediaType.
-	 * @return a MediaType for the key, or {@code null} if none found
-	 */
-	@Nullable
-	protected MediaType lookupMediaType(String extension) {
-		return this.mediaTypes.get(extension.toLowerCase(Locale.ENGLISH));
-	}
+    /**
+     * Map an extension to a MediaType. Ignore if extension already mapped.
+     */
+    protected void addMapping(String extension, MediaType mediaType) {
+        MediaType previous = this.mediaTypes.putIfAbsent(extension, mediaType);
+        if (previous == null) {
+            this.fileExtensions.add(mediaType, extension);
+            this.allFileExtensions.add(extension);
+        }
+    }
+
+
+    @Override
+    public List<String> resolveFileExtensions(MediaType mediaType) {
+        List<String> fileExtensions = this.fileExtensions.get(mediaType);
+        return (fileExtensions != null ? fileExtensions : Collections.emptyList());
+    }
+
+    @Override
+    public List<String> getAllFileExtensions() {
+        return Collections.unmodifiableList(this.allFileExtensions);
+    }
+
+    /**
+     * Use this method for a reverse lookup from extension to MediaType.
+     *
+     * @return a MediaType for the key, or {@code null} if none found
+     */
+    @Nullable
+    protected MediaType lookupMediaType(String extension) {
+        return this.mediaTypes.get(extension.toLowerCase(Locale.ENGLISH));
+    }
 
 }

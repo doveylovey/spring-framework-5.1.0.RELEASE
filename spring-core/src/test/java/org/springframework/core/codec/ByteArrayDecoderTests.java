@@ -36,63 +36,63 @@ import static org.junit.Assert.*;
  */
 public class ByteArrayDecoderTests extends AbstractDataBufferAllocatingTestCase {
 
-	private final ByteArrayDecoder decoder = new ByteArrayDecoder();
+    private final ByteArrayDecoder decoder = new ByteArrayDecoder();
 
 
-	@Test
-	public void canDecode() {
-		assertTrue(this.decoder.canDecode(ResolvableType.forClass(byte[].class),
-				MimeTypeUtils.TEXT_PLAIN));
-		assertFalse(this.decoder.canDecode(ResolvableType.forClass(Integer.class),
-				MimeTypeUtils.TEXT_PLAIN));
-		assertTrue(this.decoder.canDecode(ResolvableType.forClass(byte[].class),
-				MimeTypeUtils.APPLICATION_JSON));
-	}
+    @Test
+    public void canDecode() {
+        assertTrue(this.decoder.canDecode(ResolvableType.forClass(byte[].class),
+                MimeTypeUtils.TEXT_PLAIN));
+        assertFalse(this.decoder.canDecode(ResolvableType.forClass(Integer.class),
+                MimeTypeUtils.TEXT_PLAIN));
+        assertTrue(this.decoder.canDecode(ResolvableType.forClass(byte[].class),
+                MimeTypeUtils.APPLICATION_JSON));
+    }
 
-	@Test
-	public void decode() {
-		DataBuffer fooBuffer = stringBuffer("foo");
-		DataBuffer barBuffer = stringBuffer("bar");
-		Flux<DataBuffer> source = Flux.just(fooBuffer, barBuffer);
-		Flux<byte[]> output = this.decoder.decode(source,
-				ResolvableType.forClassWithGenerics(Publisher.class, byte[].class),
-				null, Collections.emptyMap());
+    @Test
+    public void decode() {
+        DataBuffer fooBuffer = stringBuffer("foo");
+        DataBuffer barBuffer = stringBuffer("bar");
+        Flux<DataBuffer> source = Flux.just(fooBuffer, barBuffer);
+        Flux<byte[]> output = this.decoder.decode(source,
+                ResolvableType.forClassWithGenerics(Publisher.class, byte[].class),
+                null, Collections.emptyMap());
 
-		StepVerifier.create(output)
-				.consumeNextWith(bytes -> assertArrayEquals("foo".getBytes(), bytes))
-				.consumeNextWith(bytes -> assertArrayEquals("bar".getBytes(), bytes))
-				.expectComplete()
-				.verify();
-	}
+        StepVerifier.create(output)
+                .consumeNextWith(bytes -> assertArrayEquals("foo".getBytes(), bytes))
+                .consumeNextWith(bytes -> assertArrayEquals("bar".getBytes(), bytes))
+                .expectComplete()
+                .verify();
+    }
 
-	@Test
-	public void decodeError() {
-		DataBuffer fooBuffer = stringBuffer("foo");
-		Flux<DataBuffer> source =
-				Flux.just(fooBuffer).concatWith(Flux.error(new RuntimeException()));
-		Flux<byte[]> output = this.decoder.decode(source,
-				ResolvableType.forClassWithGenerics(Publisher.class, byte[].class),
-				null, Collections.emptyMap());
+    @Test
+    public void decodeError() {
+        DataBuffer fooBuffer = stringBuffer("foo");
+        Flux<DataBuffer> source =
+                Flux.just(fooBuffer).concatWith(Flux.error(new RuntimeException()));
+        Flux<byte[]> output = this.decoder.decode(source,
+                ResolvableType.forClassWithGenerics(Publisher.class, byte[].class),
+                null, Collections.emptyMap());
 
-		StepVerifier.create(output)
-				.consumeNextWith(bytes -> assertArrayEquals("foo".getBytes(), bytes))
-				.expectError()
-				.verify();
-	}
+        StepVerifier.create(output)
+                .consumeNextWith(bytes -> assertArrayEquals("foo".getBytes(), bytes))
+                .expectError()
+                .verify();
+    }
 
-	@Test
-	public void decodeToMono() {
-		DataBuffer fooBuffer = stringBuffer("foo");
-		DataBuffer barBuffer = stringBuffer("bar");
-		Flux<DataBuffer> source = Flux.just(fooBuffer, barBuffer);
-		Mono<byte[]> output = this.decoder.decodeToMono(source,
-				ResolvableType.forClassWithGenerics(Publisher.class, byte[].class),
-				null, Collections.emptyMap());
+    @Test
+    public void decodeToMono() {
+        DataBuffer fooBuffer = stringBuffer("foo");
+        DataBuffer barBuffer = stringBuffer("bar");
+        Flux<DataBuffer> source = Flux.just(fooBuffer, barBuffer);
+        Mono<byte[]> output = this.decoder.decodeToMono(source,
+                ResolvableType.forClassWithGenerics(Publisher.class, byte[].class),
+                null, Collections.emptyMap());
 
-		StepVerifier.create(output)
-				.consumeNextWith(bytes -> assertArrayEquals("foobar".getBytes(), bytes))
-				.expectComplete()
-				.verify();
-	}
+        StepVerifier.create(output)
+                .consumeNextWith(bytes -> assertArrayEquals("foobar".getBytes(), bytes))
+                .expectComplete()
+                .verify();
+    }
 
 }

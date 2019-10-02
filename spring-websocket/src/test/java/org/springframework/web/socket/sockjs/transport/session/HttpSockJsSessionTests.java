@@ -45,115 +45,114 @@ import static org.mockito.Mockito.*;
  */
 public class HttpSockJsSessionTests extends AbstractSockJsSessionTests<TestAbstractHttpSockJsSession> {
 
-	protected ServerHttpRequest request;
+    protected ServerHttpRequest request;
 
-	protected ServerHttpResponse response;
+    protected ServerHttpResponse response;
 
-	protected MockHttpServletRequest servletRequest;
+    protected MockHttpServletRequest servletRequest;
 
-	protected MockHttpServletResponse servletResponse;
+    protected MockHttpServletResponse servletResponse;
 
-	private SockJsFrameFormat frameFormat;
-
-
-	@Override
-	protected TestAbstractHttpSockJsSession initSockJsSession() {
-		return new TestAbstractHttpSockJsSession(this.sockJsConfig, this.webSocketHandler, null);
-	}
-
-	@Before
-	public void setup() {
-
-		super.setUp();
-
-		this.frameFormat = new DefaultSockJsFrameFormat("%s");
-
-		this.servletResponse = new MockHttpServletResponse();
-		this.response = new ServletServerHttpResponse(this.servletResponse);
-
-		this.servletRequest = new MockHttpServletRequest();
-		this.servletRequest.setAsyncSupported(true);
-		this.request = new ServletServerHttpRequest(this.servletRequest);
-	}
-
-	@Test
-	public void handleInitialRequest() throws Exception {
-
-		this.session.handleInitialRequest(this.request, this.response, this.frameFormat);
-
-		assertEquals("hhh\no", this.servletResponse.getContentAsString());
-		assertTrue(this.servletRequest.isAsyncStarted());
-
-		verify(this.webSocketHandler).afterConnectionEstablished(this.session);
-	}
-
-	@Test
-	public void handleSuccessiveRequest() throws Exception {
-
-		this.session.getMessageCache().add("x");
-		this.session.handleSuccessiveRequest(this.request, this.response, this.frameFormat);
-
-		assertTrue(this.servletRequest.isAsyncStarted());
-		assertTrue(this.session.wasHeartbeatScheduled());
-		assertTrue(this.session.wasCacheFlushed());
-		assertEquals("hhh\n", this.servletResponse.getContentAsString());
-
-		verifyNoMoreInteractions(this.webSocketHandler);
-	}
+    private SockJsFrameFormat frameFormat;
 
 
-	static class TestAbstractHttpSockJsSession extends StreamingSockJsSession {
+    @Override
+    protected TestAbstractHttpSockJsSession initSockJsSession() {
+        return new TestAbstractHttpSockJsSession(this.sockJsConfig, this.webSocketHandler, null);
+    }
 
-		private IOException exceptionOnWriteFrame;
+    @Before
+    public void setup() {
 
-		private boolean cacheFlushed;
+        super.setUp();
 
-		private boolean heartbeatScheduled;
+        this.frameFormat = new DefaultSockJsFrameFormat("%s");
+
+        this.servletResponse = new MockHttpServletResponse();
+        this.response = new ServletServerHttpResponse(this.servletResponse);
+
+        this.servletRequest = new MockHttpServletRequest();
+        this.servletRequest.setAsyncSupported(true);
+        this.request = new ServletServerHttpRequest(this.servletRequest);
+    }
+
+    @Test
+    public void handleInitialRequest() throws Exception {
+
+        this.session.handleInitialRequest(this.request, this.response, this.frameFormat);
+
+        assertEquals("hhh\no", this.servletResponse.getContentAsString());
+        assertTrue(this.servletRequest.isAsyncStarted());
+
+        verify(this.webSocketHandler).afterConnectionEstablished(this.session);
+    }
+
+    @Test
+    public void handleSuccessiveRequest() throws Exception {
+
+        this.session.getMessageCache().add("x");
+        this.session.handleSuccessiveRequest(this.request, this.response, this.frameFormat);
+
+        assertTrue(this.servletRequest.isAsyncStarted());
+        assertTrue(this.session.wasHeartbeatScheduled());
+        assertTrue(this.session.wasCacheFlushed());
+        assertEquals("hhh\n", this.servletResponse.getContentAsString());
+
+        verifyNoMoreInteractions(this.webSocketHandler);
+    }
 
 
-		public TestAbstractHttpSockJsSession(SockJsServiceConfig config, WebSocketHandler handler,
-				Map<String, Object> attributes) {
+    static class TestAbstractHttpSockJsSession extends StreamingSockJsSession {
 
-			super("1", config, handler, attributes);
-		}
+        private IOException exceptionOnWriteFrame;
 
-		@Override
-		protected byte[] getPrelude(ServerHttpRequest request) {
-			return "hhh\n".getBytes();
-		}
+        private boolean cacheFlushed;
 
-		public boolean wasCacheFlushed() {
-			return this.cacheFlushed;
-		}
+        private boolean heartbeatScheduled;
 
-		public boolean wasHeartbeatScheduled() {
-			return this.heartbeatScheduled;
-		}
 
-		public void setExceptionOnWriteFrame(IOException exceptionOnWriteFrame) {
-			this.exceptionOnWriteFrame = exceptionOnWriteFrame;
-		}
+        public TestAbstractHttpSockJsSession(SockJsServiceConfig config, WebSocketHandler handler,
+                                             Map<String, Object> attributes) {
 
-		@Override
-		protected void flushCache() {
-			this.cacheFlushed = true;
-			scheduleHeartbeat();
-		}
+            super("1", config, handler, attributes);
+        }
 
-		@Override
-		protected void scheduleHeartbeat() {
-			this.heartbeatScheduled = true;
-		}
+        @Override
+        protected byte[] getPrelude(ServerHttpRequest request) {
+            return "hhh\n".getBytes();
+        }
 
-		@Override
-		protected synchronized void writeFrameInternal(SockJsFrame frame) throws IOException {
-			if (this.exceptionOnWriteFrame != null) {
-				throw this.exceptionOnWriteFrame;
-			}
-			else {
-				super.writeFrameInternal(frame);
-			}
-		}
-	}
+        public boolean wasCacheFlushed() {
+            return this.cacheFlushed;
+        }
+
+        public boolean wasHeartbeatScheduled() {
+            return this.heartbeatScheduled;
+        }
+
+        public void setExceptionOnWriteFrame(IOException exceptionOnWriteFrame) {
+            this.exceptionOnWriteFrame = exceptionOnWriteFrame;
+        }
+
+        @Override
+        protected void flushCache() {
+            this.cacheFlushed = true;
+            scheduleHeartbeat();
+        }
+
+        @Override
+        protected void scheduleHeartbeat() {
+            this.heartbeatScheduled = true;
+        }
+
+        @Override
+        protected synchronized void writeFrameInternal(SockJsFrame frame) throws IOException {
+            if (this.exceptionOnWriteFrame != null) {
+                throw this.exceptionOnWriteFrame;
+            } else {
+                super.writeFrameInternal(frame);
+            }
+        }
+    }
 
 }

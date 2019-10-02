@@ -32,100 +32,102 @@ import org.springframework.util.Assert;
  *
  * @author Rossen Stoyanchev
  * @author Juergen Hoeller
- * @since 3.1
  * @see MockHttpServletRequest#addPart
  * @see MockMultipartFile
+ * @since 3.1
  */
 public class MockPart implements Part {
 
-	private final String name;
+    private final String name;
 
-	private final String filename;
+    private final String filename;
 
-	private final byte[] content;
+    private final byte[] content;
 
-	private final HttpHeaders headers = new HttpHeaders();
-
-
-	/**
-	 * Constructor for a part with byte[] content only.
-	 * @see #getHeaders()
-	 */
-	public MockPart(String name, byte[] content) {
-		this(name, null, content);
-	}
-
-	/**
-	 * Constructor for a part with a filename and byte[] content.
-	 * @see #getHeaders()
-	 */
-	public MockPart(String name, String filename, byte[] content) {
-		Assert.hasLength(name, "'name' must not be empty");
-		this.name = name;
-		this.filename = filename;
-		this.content = (content != null ? content : new byte[0]);
-		this.headers.setContentDispositionFormData(name, filename);
-	}
+    private final HttpHeaders headers = new HttpHeaders();
 
 
-	@Override
-	public String getName() {
-		return this.name;
-	}
+    /**
+     * Constructor for a part with byte[] content only.
+     *
+     * @see #getHeaders()
+     */
+    public MockPart(String name, byte[] content) {
+        this(name, null, content);
+    }
 
-	@Override
-	public String getSubmittedFileName() {
-		return this.filename;
-	}
+    /**
+     * Constructor for a part with a filename and byte[] content.
+     *
+     * @see #getHeaders()
+     */
+    public MockPart(String name, String filename, byte[] content) {
+        Assert.hasLength(name, "'name' must not be empty");
+        this.name = name;
+        this.filename = filename;
+        this.content = (content != null ? content : new byte[0]);
+        this.headers.setContentDispositionFormData(name, filename);
+    }
 
-	@Override
-	public String getContentType() {
-		MediaType contentType = this.headers.getContentType();
-		return (contentType != null ? contentType.toString() : null);
-	}
 
-	@Override
-	public long getSize() {
-		return this.content.length;
-	}
+    @Override
+    public String getName() {
+        return this.name;
+    }
 
-	@Override
-	public InputStream getInputStream() throws IOException {
-		return new ByteArrayInputStream(this.content);
-	}
+    @Override
+    public String getSubmittedFileName() {
+        return this.filename;
+    }
 
-	@Override
-	public void write(String fileName) throws IOException {
-		throw new UnsupportedOperationException();
-	}
+    @Override
+    public String getContentType() {
+        MediaType contentType = this.headers.getContentType();
+        return (contentType != null ? contentType.toString() : null);
+    }
 
-	@Override
-	public void delete() throws IOException {
-		throw new UnsupportedOperationException();
-	}
+    @Override
+    public long getSize() {
+        return this.content.length;
+    }
 
-	@Override
-	public String getHeader(String name) {
-		return this.headers.getFirst(name);
-	}
+    @Override
+    public InputStream getInputStream() throws IOException {
+        return new ByteArrayInputStream(this.content);
+    }
 
-	@Override
-	public Collection<String> getHeaders(String name) {
-		Collection<String> headerValues = this.headers.get(name);
-		return (headerValues != null ? headerValues : Collections.emptyList());
-	}
+    @Override
+    public void write(String fileName) throws IOException {
+        throw new UnsupportedOperationException();
+    }
 
-	@Override
-	public Collection<String> getHeaderNames() {
-		return this.headers.keySet();
-	}
+    @Override
+    public void delete() throws IOException {
+        throw new UnsupportedOperationException();
+    }
 
-	/**
-	 * Return the {@link HttpHeaders} backing header related accessor methods,
-	 * allowing for populating selected header entries.
-	 */
-	public final HttpHeaders getHeaders() {
-		return this.headers;
-	}
+    @Override
+    public String getHeader(String name) {
+        return this.headers.getFirst(name);
+    }
+
+    @Override
+    public Collection<String> getHeaders(String name) {
+        Collection<String> headerValues = this.headers.get(name);
+        return (headerValues != null ? headerValues : Collections.emptyList());
+    }
+
+    @Override
+    public Collection<String> getHeaderNames() {
+        return this.headers.keySet();
+    }
+
+    /**
+     * Return the {@link HttpHeaders} backing header related accessor methods,
+     * allowing for populating selected header entries.
+     */
+    public final HttpHeaders getHeaders() {
+        return this.headers;
+    }
 
 }

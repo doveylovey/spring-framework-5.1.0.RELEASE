@@ -30,19 +30,19 @@ package org.apache.commons.logging;
 @Deprecated
 public class LogFactoryService extends LogFactory {
 
-	@Override
-	public Log getInstance(Class<?> clazz) {
-		return getInstance(clazz.getName());
-	}
+    @Override
+    public Log getInstance(Class<?> clazz) {
+        return getInstance(clazz.getName());
+    }
 
-	@Override
-	public Log getInstance(String name) {
-		return LogAdapter.createLog(name);
-	}
+    @Override
+    public Log getInstance(String name) {
+        return LogAdapter.createLog(name);
+    }
 
 
-	// Just in case some code happens to call Commons Logging's LogFactory.release()
-	public void release() {
-	}
+    // Just in case some code happens to call Commons Logging's LogFactory.release()
+    public void release() {
+    }
 
 }

@@ -62,64 +62,63 @@ import static org.junit.Assert.*;
  */
 public abstract class AbstractMBeanServerTests {
 
-	protected MBeanServer server;
+    protected MBeanServer server;
 
 
-	@Before
-	public final void setUp() throws Exception {
-		this.server = MBeanServerFactory.createMBeanServer();
-		try {
-			onSetUp();
-		}
-		catch (Exception ex) {
-			releaseServer();
-			throw ex;
-		}
-	}
+    @Before
+    public final void setUp() throws Exception {
+        this.server = MBeanServerFactory.createMBeanServer();
+        try {
+            onSetUp();
+        } catch (Exception ex) {
+            releaseServer();
+            throw ex;
+        }
+    }
 
-	protected ConfigurableApplicationContext loadContext(String configLocation) {
-		GenericApplicationContext ctx = new GenericApplicationContext();
-		new XmlBeanDefinitionReader(ctx).loadBeanDefinitions(configLocation);
-		ctx.getDefaultListableBeanFactory().registerSingleton("server", this.server);
-		ctx.refresh();
-		return ctx;
-	}
+    protected ConfigurableApplicationContext loadContext(String configLocation) {
+        GenericApplicationContext ctx = new GenericApplicationContext();
+        new XmlBeanDefinitionReader(ctx).loadBeanDefinitions(configLocation);
+        ctx.getDefaultListableBeanFactory().registerSingleton("server", this.server);
+        ctx.refresh();
+        return ctx;
+    }
 
-	@After
-	public void tearDown() throws Exception {
-		releaseServer();
-		onTearDown();
-	}
+    @After
+    public void tearDown() throws Exception {
+        releaseServer();
+        onTearDown();
+    }
 
-	private void releaseServer() throws Exception {
-		MBeanServerFactory.releaseMBeanServer(getServer());
-		MBeanTestUtils.resetMBeanServers();
-	}
+    private void releaseServer() throws Exception {
+        MBeanServerFactory.releaseMBeanServer(getServer());
+        MBeanTestUtils.resetMBeanServers();
+    }
 
-	protected void onTearDown() throws Exception {
-	}
+    protected void onTearDown() throws Exception {
+    }
 
-	protected void onSetUp() throws Exception {
-	}
+    protected void onSetUp() throws Exception {
+    }
 
-	public MBeanServer getServer() {
-		return this.server;
-	}
+    public MBeanServer getServer() {
+        return this.server;
+    }
 
-	/**
-	 * Start the specified {@link MBeanExporter}.
-	 */
-	protected void start(MBeanExporter exporter) {
-		exporter.afterPropertiesSet();
-		exporter.afterSingletonsInstantiated();
-	}
+    /**
+     * Start the specified {@link MBeanExporter}.
+     */
+    protected void start(MBeanExporter exporter) {
+        exporter.afterPropertiesSet();
+        exporter.afterSingletonsInstantiated();
+    }
 
-	protected void assertIsRegistered(String message, ObjectName objectName) {
-		assertTrue(message, getServer().isRegistered(objectName));
-	}
+    protected void assertIsRegistered(String message, ObjectName objectName) {
+        assertTrue(message, getServer().isRegistered(objectName));
+    }
 
-	protected void assertIsNotRegistered(String message, ObjectName objectName) {
-		assertFalse(message, getServer().isRegistered(objectName));
-	}
+    protected void assertIsNotRegistered(String message, ObjectName objectName) {
+        assertFalse(message, getServer().isRegistered(objectName));
+    }
 
 }

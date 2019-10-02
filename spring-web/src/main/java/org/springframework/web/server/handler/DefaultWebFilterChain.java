@@ -37,48 +37,47 @@ import org.springframework.web.server.WebHandler;
  */
 public class DefaultWebFilterChain implements WebFilterChain {
 
-	private final List<WebFilter> filters;
+    private final List<WebFilter> filters;
 
-	private final WebHandler handler;
+    private final WebHandler handler;
 
-	private final int index;
-
-
-	public DefaultWebFilterChain(WebHandler handler, WebFilter... filters) {
-		Assert.notNull(handler, "WebHandler is required");
-		this.filters = ObjectUtils.isEmpty(filters) ? Collections.emptyList() : Arrays.asList(filters);
-		this.handler = handler;
-		this.index = 0;
-	}
-
-	private DefaultWebFilterChain(DefaultWebFilterChain parent, int index) {
-		this.filters = parent.getFilters();
-		this.handler = parent.getHandler();
-		this.index = index;
-	}
+    private final int index;
 
 
-	public List<WebFilter> getFilters() {
-		return this.filters;
-	}
+    public DefaultWebFilterChain(WebHandler handler, WebFilter... filters) {
+        Assert.notNull(handler, "WebHandler is required");
+        this.filters = ObjectUtils.isEmpty(filters) ? Collections.emptyList() : Arrays.asList(filters);
+        this.handler = handler;
+        this.index = 0;
+    }
 
-	public WebHandler getHandler() {
-		return this.handler;
-	}
+    private DefaultWebFilterChain(DefaultWebFilterChain parent, int index) {
+        this.filters = parent.getFilters();
+        this.handler = parent.getHandler();
+        this.index = index;
+    }
 
 
-	@Override
-	public Mono<Void> filter(ServerWebExchange exchange) {
-		return Mono.defer(() -> {
-			if (this.index < this.filters.size()) {
-				WebFilter filter = this.filters.get(this.index);
-				WebFilterChain chain = new DefaultWebFilterChain(this, this.index + 1);
-				return filter.filter(exchange, chain);
-			}
-			else {
-				return this.handler.handle(exchange);
-			}
-		});
-	}
+    public List<WebFilter> getFilters() {
+        return this.filters;
+    }
+
+    public WebHandler getHandler() {
+        return this.handler;
+    }
+
+
+    @Override
+    public Mono<Void> filter(ServerWebExchange exchange) {
+        return Mono.defer(() -> {
+            if (this.index < this.filters.size()) {
+                WebFilter filter = this.filters.get(this.index);
+                WebFilterChain chain = new DefaultWebFilterChain(this, this.index + 1);
+                return filter.filter(exchange, chain);
+            } else {
+                return this.handler.handle(exchange);
+            }
+        });
+    }
 
 }

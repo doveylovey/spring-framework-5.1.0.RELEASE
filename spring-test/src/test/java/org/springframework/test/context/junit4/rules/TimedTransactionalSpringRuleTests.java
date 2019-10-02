@@ -41,35 +41,35 @@ import static org.springframework.test.transaction.TransactionTestUtils.*;
 @RunWith(JUnit4.class)
 public class TimedTransactionalSpringRuleTests extends TimedTransactionalSpringRunnerTests {
 
-	@ClassRule
-	public static final SpringClassRule springClassRule = new SpringClassRule();
+    @ClassRule
+    public static final SpringClassRule springClassRule = new SpringClassRule();
 
-	@Rule
-	public final SpringMethodRule springMethodRule = new SpringMethodRule();
+    @Rule
+    public final SpringMethodRule springMethodRule = new SpringMethodRule();
 
-	@Rule
-	public Timeout timeout = Timeout.builder().withTimeout(10, TimeUnit.SECONDS).build();
+    @Rule
+    public Timeout timeout = Timeout.builder().withTimeout(10, TimeUnit.SECONDS).build();
 
 
-	/**
-	 * Overridden since Spring's Rule-based JUnit support cannot properly
-	 * integrate with timed execution that is controlled by a third-party runner.
-	 */
-	@Test(timeout = 10000)
-	@Repeat(5)
-	@Override
-	public void transactionalWithJUnitTimeout() {
-		assertInTransaction(false);
-	}
+    /**
+     * Overridden since Spring's Rule-based JUnit support cannot properly
+     * integrate with timed execution that is controlled by a third-party runner.
+     */
+    @Test(timeout = 10000)
+    @Repeat(5)
+    @Override
+    public void transactionalWithJUnitTimeout() {
+        assertInTransaction(false);
+    }
 
-	/**
-	 * {@code timeout} explicitly not declared due to presence of Timeout rule.
-	 */
-	@Test
-	public void transactionalWithJUnitRuleBasedTimeout() {
-		assertInTransaction(true);
-	}
+    /**
+     * {@code timeout} explicitly not declared due to presence of Timeout rule.
+     */
+    @Test
+    public void transactionalWithJUnitRuleBasedTimeout() {
+        assertInTransaction(true);
+    }
 
-	// All other tests are in superclass.
+    // All other tests are in superclass.
 
 }

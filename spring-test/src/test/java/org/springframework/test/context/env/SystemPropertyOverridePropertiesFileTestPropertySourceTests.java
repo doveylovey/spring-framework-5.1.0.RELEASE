@@ -43,33 +43,33 @@ import static org.junit.Assert.*;
 @TestPropertySource("SystemPropertyOverridePropertiesFileTestPropertySourceTests.properties")
 public class SystemPropertyOverridePropertiesFileTestPropertySourceTests {
 
-	private static final String KEY = SystemPropertyOverridePropertiesFileTestPropertySourceTests.class.getSimpleName() + ".riddle";
+    private static final String KEY = SystemPropertyOverridePropertiesFileTestPropertySourceTests.class.getSimpleName() + ".riddle";
 
-	@Autowired
-	protected Environment env;
-
-
-	@BeforeClass
-	public static void setSystemProperty() {
-		System.setProperty(KEY, "override me!");
-	}
-
-	@AfterClass
-	public static void removeSystemProperty() {
-		System.setProperty(KEY, "");
-	}
-
-	@Test
-	public void verifyPropertiesAreAvailableInEnvironment() {
-		assertEquals("enigma", env.getProperty(KEY));
-	}
+    @Autowired
+    protected Environment env;
 
 
-	// -------------------------------------------------------------------
+    @BeforeClass
+    public static void setSystemProperty() {
+        System.setProperty(KEY, "override me!");
+    }
 
-	@Configuration
-	static class Config {
-		/* no user beans required for these tests */
-	}
+    @AfterClass
+    public static void removeSystemProperty() {
+        System.setProperty(KEY, "");
+    }
+
+    @Test
+    public void verifyPropertiesAreAvailableInEnvironment() {
+        assertEquals("enigma", env.getProperty(KEY));
+    }
+
+
+    // -------------------------------------------------------------------
+
+    @Configuration
+    static class Config {
+        /* no user beans required for these tests */
+    }
 
 }

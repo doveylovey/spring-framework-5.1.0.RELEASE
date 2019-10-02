@@ -35,34 +35,34 @@ import static org.junit.Assert.*;
  */
 public class DataBufferEncoderTests extends AbstractDataBufferAllocatingTestCase {
 
-	private final DataBufferEncoder encoder = new DataBufferEncoder();
+    private final DataBufferEncoder encoder = new DataBufferEncoder();
 
-	@Test
-	public void canEncode() {
-		assertTrue(this.encoder.canEncode(ResolvableType.forClass(DataBuffer.class),
-				MimeTypeUtils.TEXT_PLAIN));
-		assertFalse(this.encoder.canEncode(ResolvableType.forClass(Integer.class),
-				MimeTypeUtils.TEXT_PLAIN));
-		assertTrue(this.encoder.canEncode(ResolvableType.forClass(DataBuffer.class),
-				MimeTypeUtils.APPLICATION_JSON));
+    @Test
+    public void canEncode() {
+        assertTrue(this.encoder.canEncode(ResolvableType.forClass(DataBuffer.class),
+                MimeTypeUtils.TEXT_PLAIN));
+        assertFalse(this.encoder.canEncode(ResolvableType.forClass(Integer.class),
+                MimeTypeUtils.TEXT_PLAIN));
+        assertTrue(this.encoder.canEncode(ResolvableType.forClass(DataBuffer.class),
+                MimeTypeUtils.APPLICATION_JSON));
 
-		// SPR-15464
-		assertFalse(this.encoder.canEncode(ResolvableType.NONE, null));
-	}
+        // SPR-15464
+        assertFalse(this.encoder.canEncode(ResolvableType.NONE, null));
+    }
 
-	@Test
-	public void encode() {
-		DataBuffer fooBuffer = stringBuffer("foo");
-		DataBuffer barBuffer = stringBuffer("bar");
-		Flux<DataBuffer> source = Flux.just(fooBuffer, barBuffer);
+    @Test
+    public void encode() {
+        DataBuffer fooBuffer = stringBuffer("foo");
+        DataBuffer barBuffer = stringBuffer("bar");
+        Flux<DataBuffer> source = Flux.just(fooBuffer, barBuffer);
 
-		Flux<DataBuffer> output = this.encoder.encode(source, this.bufferFactory,
-				ResolvableType.forClassWithGenerics(Publisher.class, ByteBuffer.class),
-				null, Collections.emptyMap());
+        Flux<DataBuffer> output = this.encoder.encode(source, this.bufferFactory,
+                ResolvableType.forClassWithGenerics(Publisher.class, ByteBuffer.class),
+                null, Collections.emptyMap());
 
-		assertSame(source, output);
+        assertSame(source, output);
 
-		release(fooBuffer, barBuffer);
-	}
+        release(fooBuffer, barBuffer);
+    }
 
 }

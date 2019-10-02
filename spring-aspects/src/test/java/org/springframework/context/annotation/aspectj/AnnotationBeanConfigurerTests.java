@@ -35,19 +35,19 @@ import static org.junit.Assert.*;
  */
 public class AnnotationBeanConfigurerTests {
 
-	@Test
-	public void injection() {
-		try (AnnotationConfigApplicationContext context = new  AnnotationConfigApplicationContext(Config.class)) {
-			ShouldBeConfiguredBySpring myObject = new ShouldBeConfiguredBySpring();
-			assertEquals("Rod", myObject.getName());
-		}
-	}
+    @Test
+    public void injection() {
+        try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(Config.class)) {
+            ShouldBeConfiguredBySpring myObject = new ShouldBeConfiguredBySpring();
+            assertEquals("Rod", myObject.getName());
+        }
+    }
 
 
-	@Configuration
-	@ImportResource("org/springframework/beans/factory/aspectj/beanConfigurerTests-beans.xml")
-	@EnableSpringConfigured
-	static class Config {
-	}
+    @Configuration
+    @ImportResource("org/springframework/beans/factory/aspectj/beanConfigurerTests-beans.xml")
+    @EnableSpringConfigured
+    static class Config {
+    }
 
 }

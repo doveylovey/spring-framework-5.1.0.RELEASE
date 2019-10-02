@@ -31,43 +31,43 @@ import static org.junit.Assert.assertArrayEquals;
 
 public class EchoHandlerIntegrationTests extends AbstractHttpHandlerIntegrationTests {
 
-	private static final int REQUEST_SIZE = 4096 * 3;
+    private static final int REQUEST_SIZE = 4096 * 3;
 
-	private Random rnd = new Random();
-
-
-	@Override
-	protected EchoHandler createHttpHandler() {
-		return new EchoHandler();
-	}
+    private Random rnd = new Random();
 
 
-	@Test
-	public void echo() throws Exception {
-		RestTemplate restTemplate = new RestTemplate();
-
-		byte[] body = randomBytes();
-		RequestEntity<byte[]> request = RequestEntity.post(new URI("http://localhost:" + port)).body(body);
-		ResponseEntity<byte[]> response = restTemplate.exchange(request, byte[].class);
-
-		assertArrayEquals(body, response.getBody());
-	}
+    @Override
+    protected EchoHandler createHttpHandler() {
+        return new EchoHandler();
+    }
 
 
-	private byte[] randomBytes() {
-		byte[] buffer = new byte[REQUEST_SIZE];
-		rnd.nextBytes(buffer);
-		return buffer;
-	}
+    @Test
+    public void echo() throws Exception {
+        RestTemplate restTemplate = new RestTemplate();
 
-	/**
-	 * @author Arjen Poutsma
-	 */
-	public static class EchoHandler implements HttpHandler {
+        byte[] body = randomBytes();
+        RequestEntity<byte[]> request = RequestEntity.post(new URI("http://localhost:" + port)).body(body);
+        ResponseEntity<byte[]> response = restTemplate.exchange(request, byte[].class);
 
-		@Override
-		public Mono<Void> handle(ServerHttpRequest request, ServerHttpResponse response) {
-			return response.writeWith(request.getBody());
-		}
-	}
+        assertArrayEquals(body, response.getBody());
+    }
+
+
+    private byte[] randomBytes() {
+        byte[] buffer = new byte[REQUEST_SIZE];
+        rnd.nextBytes(buffer);
+        return buffer;
+    }
+
+    /**
+     * @author Arjen Poutsma
+     */
+    public static class EchoHandler implements HttpHandler {
+
+        @Override
+        public Mono<Void> handle(ServerHttpRequest request, ServerHttpResponse response) {
+            return response.writeWith(request.getBody());
+        }
+    }
 }

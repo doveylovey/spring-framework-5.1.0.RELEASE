@@ -35,20 +35,20 @@ import static org.junit.Assert.*;
  * @since 3.0
  */
 @RunWith(SpringRunner.class)
-@TestExecutionListeners( {})
+@TestExecutionListeners({})
 public class SpringJUnit47ClassRunnerRuleTests {
 
-	@Rule
-	public TestName name = new TestName();
+    @Rule
+    public TestName name = new TestName();
 
 
-	@Test
-	public void testA() {
-		assertEquals("testA", name.getMethodName());
-	}
+    @Test
+    public void testA() {
+        assertEquals("testA", name.getMethodName());
+    }
 
-	@Test
-	public void testB() {
-		assertEquals("testB", name.getMethodName());
-	}
+    @Test
+    public void testB() {
+        assertEquals("testB", name.getMethodName());
+    }
 }

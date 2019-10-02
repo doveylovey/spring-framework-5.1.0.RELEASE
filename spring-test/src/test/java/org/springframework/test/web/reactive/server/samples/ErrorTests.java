@@ -31,33 +31,33 @@ import org.springframework.web.bind.annotation.RestController;
  */
 public class ErrorTests {
 
-	private final WebTestClient client = WebTestClient.bindToController(new TestController()).build();
+    private final WebTestClient client = WebTestClient.bindToController(new TestController()).build();
 
 
-	@Test
-	public void notFound() throws Exception {
-		this.client.get().uri("/invalid")
-				.exchange()
-				.expectStatus().isNotFound()
-				.expectBody(Void.class);
-	}
+    @Test
+    public void notFound() throws Exception {
+        this.client.get().uri("/invalid")
+                .exchange()
+                .expectStatus().isNotFound()
+                .expectBody(Void.class);
+    }
 
-	@Test
-	public void serverException() throws Exception {
-		this.client.get().uri("/server-error")
-				.exchange()
-				.expectStatus().isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR)
-				.expectBody(Void.class);
-	}
+    @Test
+    public void serverException() throws Exception {
+        this.client.get().uri("/server-error")
+                .exchange()
+                .expectStatus().isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR)
+                .expectBody(Void.class);
+    }
 
 
-	@RestController
-	static class TestController {
+    @RestController
+    static class TestController {
 
-		@GetMapping("/server-error")
-		void handleAndThrowException() {
-			throw new IllegalStateException("server error");
-		}
-	}
+        @GetMapping("/server-error")
+        void handleAndThrowException() {
+            throw new IllegalStateException("server error");
+        }
+    }
 
 }

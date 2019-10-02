@@ -39,53 +39,52 @@ import static org.springframework.core.ResolvableType.forClass;
  */
 public class ResourceDecoderTests extends AbstractDataBufferAllocatingTestCase {
 
-	private final ResourceDecoder decoder = new ResourceDecoder();
+    private final ResourceDecoder decoder = new ResourceDecoder();
 
-	@Test
-	public void canDecode() {
-		assertTrue(this.decoder.canDecode(forClass(InputStreamResource.class), MimeTypeUtils.TEXT_PLAIN));
-		assertTrue(this.decoder.canDecode(forClass(ByteArrayResource.class), MimeTypeUtils.TEXT_PLAIN));
-		assertTrue(this.decoder.canDecode(forClass(Resource.class), MimeTypeUtils.TEXT_PLAIN));
-		assertTrue(this.decoder.canDecode(forClass(InputStreamResource.class), MimeTypeUtils.APPLICATION_JSON));
-		assertFalse(this.decoder.canDecode(forClass(Object.class), MimeTypeUtils.APPLICATION_JSON));
-	}
+    @Test
+    public void canDecode() {
+        assertTrue(this.decoder.canDecode(forClass(InputStreamResource.class), MimeTypeUtils.TEXT_PLAIN));
+        assertTrue(this.decoder.canDecode(forClass(ByteArrayResource.class), MimeTypeUtils.TEXT_PLAIN));
+        assertTrue(this.decoder.canDecode(forClass(Resource.class), MimeTypeUtils.TEXT_PLAIN));
+        assertTrue(this.decoder.canDecode(forClass(InputStreamResource.class), MimeTypeUtils.APPLICATION_JSON));
+        assertFalse(this.decoder.canDecode(forClass(Object.class), MimeTypeUtils.APPLICATION_JSON));
+    }
 
-	@Test
-	public void decode() {
-		DataBuffer fooBuffer = stringBuffer("foo");
-		DataBuffer barBuffer = stringBuffer("bar");
-		Flux<DataBuffer> source = Flux.just(fooBuffer, barBuffer);
+    @Test
+    public void decode() {
+        DataBuffer fooBuffer = stringBuffer("foo");
+        DataBuffer barBuffer = stringBuffer("bar");
+        Flux<DataBuffer> source = Flux.just(fooBuffer, barBuffer);
 
-		Flux<Resource> result = this.decoder
-				.decode(source, forClass(Resource.class), null, Collections.emptyMap());
+        Flux<Resource> result = this.decoder
+                .decode(source, forClass(Resource.class), null, Collections.emptyMap());
 
-		StepVerifier.create(result)
-				.consumeNextWith(resource -> {
-					try {
-						byte[] bytes = StreamUtils.copyToByteArray(resource.getInputStream());
-						assertEquals("foobar", new String(bytes));
-					}
-					catch (IOException e) {
-						fail(e.getMessage());
-					}
-				})
-				.expectComplete()
-				.verify();
-	}
+        StepVerifier.create(result)
+                .consumeNextWith(resource -> {
+                    try {
+                        byte[] bytes = StreamUtils.copyToByteArray(resource.getInputStream());
+                        assertEquals("foobar", new String(bytes));
+                    } catch (IOException e) {
+                        fail(e.getMessage());
+                    }
+                })
+                .expectComplete()
+                .verify();
+    }
 
-	@Test
-	public void decodeError() {
-		DataBuffer fooBuffer = stringBuffer("foo");
-		Flux<DataBuffer> source =
-				Flux.just(fooBuffer).concatWith(Flux.error(new RuntimeException()));
+    @Test
+    public void decodeError() {
+        DataBuffer fooBuffer = stringBuffer("foo");
+        Flux<DataBuffer> source =
+                Flux.just(fooBuffer).concatWith(Flux.error(new RuntimeException()));
 
 
-		Flux<Resource> result = this.decoder
-				.decode(source, forClass(Resource.class), null, Collections.emptyMap());
+        Flux<Resource> result = this.decoder
+                .decode(source, forClass(Resource.class), null, Collections.emptyMap());
 
-		StepVerifier.create(result)
-				.expectError()
-				.verify();
-	}
+        StepVerifier.create(result)
+                .expectError()
+                .verify();
+    }
 
 }

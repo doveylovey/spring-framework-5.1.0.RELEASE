@@ -35,35 +35,35 @@ import static org.junit.Assert.*;
  * {@link DelegatingSmartContextLoader}.
  *
  * @author Sam Brannen
- * @since 3.1
  * @see DefaultConfigClassesBaseTests
+ * @since 3.1
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
 public class DefaultLoaderDefaultConfigClassesBaseTests {
 
-	@Configuration
-	static class Config {
+    @Configuration
+    static class Config {
 
-		@Bean
-		public Employee employee() {
-			Employee employee = new Employee();
-			employee.setName("John Smith");
-			employee.setAge(42);
-			employee.setCompany("Acme Widgets, Inc.");
-			return employee;
-		}
-	}
-
-
-	@Autowired
-	protected Employee employee;
+        @Bean
+        public Employee employee() {
+            Employee employee = new Employee();
+            employee.setName("John Smith");
+            employee.setAge(42);
+            employee.setCompany("Acme Widgets, Inc.");
+            return employee;
+        }
+    }
 
 
-	@Test
-	public void verifyEmployeeSetFromBaseContextConfig() {
-		assertNotNull("The employee field should have been autowired.", this.employee);
-		assertEquals("John Smith", this.employee.getName());
-	}
+    @Autowired
+    protected Employee employee;
+
+
+    @Test
+    public void verifyEmployeeSetFromBaseContextConfig() {
+        assertNotNull("The employee field should have been autowired.", this.employee);
+        assertEquals("John Smith", this.employee.getName());
+    }
 
 }

@@ -37,40 +37,40 @@ import static org.springframework.web.reactive.function.server.RouterFunctions.r
  */
 public class HttpServerTests {
 
-	private ReactorHttpServer server;
+    private ReactorHttpServer server;
 
-	private WebTestClient client;
-
-
-	@Before
-	public void setUp() throws Exception {
-
-		HttpHandler httpHandler = RouterFunctions.toHttpHandler(
-				route(GET("/test"), request ->
-						ServerResponse.ok().syncBody("It works!")));
-
-		this.server = new ReactorHttpServer();
-		this.server.setHandler(httpHandler);
-		this.server.afterPropertiesSet();
-		this.server.start();
-
-		this.client = WebTestClient.bindToServer()
-				.baseUrl("http://localhost:" + this.server.getPort())
-				.build();
-	}
-
-	@After
-	public void tearDown() throws Exception {
-		this.server.stop();
-	}
+    private WebTestClient client;
 
 
-	@Test
-	public void test() throws Exception {
-		this.client.get().uri("/test")
-				.exchange()
-				.expectStatus().isOk()
-				.expectBody(String.class).isEqualTo("It works!");
-	}
+    @Before
+    public void setUp() throws Exception {
+
+        HttpHandler httpHandler = RouterFunctions.toHttpHandler(
+                route(GET("/test"), request ->
+                        ServerResponse.ok().syncBody("It works!")));
+
+        this.server = new ReactorHttpServer();
+        this.server.setHandler(httpHandler);
+        this.server.afterPropertiesSet();
+        this.server.start();
+
+        this.client = WebTestClient.bindToServer()
+                .baseUrl("http://localhost:" + this.server.getPort())
+                .build();
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        this.server.stop();
+    }
+
+
+    @Test
+    public void test() throws Exception {
+        this.client.get().uri("/test")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(String.class).isEqualTo("It works!");
+    }
 
 }

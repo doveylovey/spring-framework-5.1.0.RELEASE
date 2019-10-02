@@ -35,31 +35,31 @@ import static org.junit.Assert.*;
 @RunWith(SpringRunner.class)
 public class ActiveProfilesInterfaceTests implements ActiveProfilesTestInterface {
 
-	@Autowired
-	Employee employee;
+    @Autowired
+    Employee employee;
 
 
-	@Test
-	public void profileFromTestInterface() {
-		assertNotNull(employee);
-		assertEquals("dev", employee.getName());
-	}
+    @Test
+    public void profileFromTestInterface() {
+        assertNotNull(employee);
+        assertEquals("dev", employee.getName());
+    }
 
 
-	@Configuration
-	static class Config {
+    @Configuration
+    static class Config {
 
-		@Bean
-		@Profile("dev")
-		Employee employee1() {
-			return new Employee("dev");
-		}
+        @Bean
+        @Profile("dev")
+        Employee employee1() {
+            return new Employee("dev");
+        }
 
-		@Bean
-		@Profile("prod")
-		Employee employee2() {
-			return new Employee("prod");
-		}
-	}
+        @Bean
+        @Profile("prod")
+        Employee employee2() {
+            return new Employee("prod");
+        }
+    }
 
 }

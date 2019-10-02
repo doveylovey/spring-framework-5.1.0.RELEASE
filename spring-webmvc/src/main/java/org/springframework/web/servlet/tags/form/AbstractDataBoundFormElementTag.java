@@ -45,216 +45,221 @@ import org.springframework.web.servlet.tags.NestedPathTag;
 @SuppressWarnings("serial")
 public abstract class AbstractDataBoundFormElementTag extends AbstractFormTag implements EditorAwareTag {
 
-	/**
-	 * Name of the exposed path variable within the scope of this tag: "nestedPath".
-	 * Same value as {@link org.springframework.web.servlet.tags.NestedPathTag#NESTED_PATH_VARIABLE_NAME}.
-	 */
-	protected static final String NESTED_PATH_VARIABLE_NAME = NestedPathTag.NESTED_PATH_VARIABLE_NAME;
+    /**
+     * Name of the exposed path variable within the scope of this tag: "nestedPath".
+     * Same value as {@link org.springframework.web.servlet.tags.NestedPathTag#NESTED_PATH_VARIABLE_NAME}.
+     */
+    protected static final String NESTED_PATH_VARIABLE_NAME = NestedPathTag.NESTED_PATH_VARIABLE_NAME;
 
 
-	/**
-	 * The property path from the {@link FormTag#setModelAttribute form object}.
-	 */
-	@Nullable
-	private String path;
+    /**
+     * The property path from the {@link FormTag#setModelAttribute form object}.
+     */
+    @Nullable
+    private String path;
 
-	/**
-	 * The value of the '{@code id}' attribute.
-	 */
-	@Nullable
-	private String id;
+    /**
+     * The value of the '{@code id}' attribute.
+     */
+    @Nullable
+    private String id;
 
-	/**
-	 * The {@link BindStatus} of this tag.
-	 */
-	@Nullable
-	private BindStatus bindStatus;
-
-
-	/**
-	 * Set the property path from the {@link FormTag#setModelAttribute form object}.
-	 * May be a runtime expression.
-	 */
-	public void setPath(String path) {
-		this.path = path;
-	}
-
-	/**
-	 * Get the {@link #evaluate resolved} property path for the
-	 * {@link FormTag#setModelAttribute form object}.
-	 */
-	protected final String getPath() throws JspException {
-		String resolvedPath = (String) evaluate("path", this.path);
-		return (resolvedPath != null ? resolvedPath : "");
-	}
-
-	/**
-	 * Set the value of the '{@code id}' attribute.
-	 * <p>May be a runtime expression; defaults to the value of {@link #getName()}.
-	 * Note that the default value may not be valid for certain tags.
-	 */
-	@Override
-	public void setId(@Nullable String id) {
-		this.id = id;
-	}
-
-	/**
-	 * Get the value of the '{@code id}' attribute.
-	 */
-	@Override
-	@Nullable
-	public String getId() {
-		return this.id;
-	}
+    /**
+     * The {@link BindStatus} of this tag.
+     */
+    @Nullable
+    private BindStatus bindStatus;
 
 
-	/**
-	 * Writes the default set of attributes to the supplied {@link TagWriter}.
-	 * Further abstract sub-classes should override this method to add in
-	 * any additional default attributes but <strong>must</strong> remember
-	 * to call the {@code super} method.
-	 * <p>Concrete sub-classes should call this method when/if they want
-	 * to render default attributes.
-	 * @param tagWriter the {@link TagWriter} to which any attributes are to be written
-	 */
-	protected void writeDefaultAttributes(TagWriter tagWriter) throws JspException {
-		writeOptionalAttribute(tagWriter, "id", resolveId());
-		writeOptionalAttribute(tagWriter, "name", getName());
-	}
+    /**
+     * Set the property path from the {@link FormTag#setModelAttribute form object}.
+     * May be a runtime expression.
+     */
+    public void setPath(String path) {
+        this.path = path;
+    }
 
-	/**
-	 * Determine the '{@code id}' attribute value for this tag,
-	 * autogenerating one if none specified.
-	 * @see #getId()
-	 * @see #autogenerateId()
-	 */
-	@Nullable
-	protected String resolveId() throws JspException {
-		Object id = evaluate("id", getId());
-		if (id != null) {
-			String idString = id.toString();
-			return (StringUtils.hasText(idString) ? idString : null);
-		}
-		return autogenerateId();
-	}
+    /**
+     * Get the {@link #evaluate resolved} property path for the
+     * {@link FormTag#setModelAttribute form object}.
+     */
+    protected final String getPath() throws JspException {
+        String resolvedPath = (String) evaluate("path", this.path);
+        return (resolvedPath != null ? resolvedPath : "");
+    }
 
-	/**
-	 * Autogenerate the '{@code id}' attribute value for this tag.
-	 * <p>The default implementation simply delegates to {@link #getName()},
-	 * deleting invalid characters (such as "[" or "]").
-	 */
-	@Nullable
-	protected String autogenerateId() throws JspException {
-		String name = getName();
-		return (name != null ? StringUtils.deleteAny(name, "[]") : null);
-	}
+    /**
+     * Set the value of the '{@code id}' attribute.
+     * <p>May be a runtime expression; defaults to the value of {@link #getName()}.
+     * Note that the default value may not be valid for certain tags.
+     */
+    @Override
+    public void setId(@Nullable String id) {
+        this.id = id;
+    }
 
-	/**
-	 * Get the value for the HTML '{@code name}' attribute.
-	 * <p>The default implementation simply delegates to
-	 * {@link #getPropertyPath()} to use the property path as the name.
-	 * For the most part this is desirable as it links with the server-side
-	 * expectation for data binding. However, some subclasses may wish to change
-	 * the value of the '{@code name}' attribute without changing the bind path.
-	 * @return the value for the HTML '{@code name}' attribute
-	 */
-	@Nullable
-	protected String getName() throws JspException {
-		return getPropertyPath();
-	}
+    /**
+     * Get the value of the '{@code id}' attribute.
+     */
+    @Override
+    @Nullable
+    public String getId() {
+        return this.id;
+    }
 
-	/**
-	 * Get the {@link BindStatus} for this tag.
-	 */
-	protected BindStatus getBindStatus() throws JspException {
-		if (this.bindStatus == null) {
-			// HTML escaping in tags is performed by the ValueFormatter class.
-			String nestedPath = getNestedPath();
-			String pathToUse = (nestedPath != null ? nestedPath + getPath() : getPath());
-			if (pathToUse.endsWith(PropertyAccessor.NESTED_PROPERTY_SEPARATOR)) {
-				pathToUse = pathToUse.substring(0, pathToUse.length() - 1);
-			}
-			this.bindStatus = new BindStatus(getRequestContext(), pathToUse, false);
-		}
-		return this.bindStatus;
-	}
 
-	/**
-	 * Get the value of the nested path that may have been exposed by the
-	 * {@link NestedPathTag}.
-	 */
-	@Nullable
-	protected String getNestedPath() {
-		return (String) this.pageContext.getAttribute(NESTED_PATH_VARIABLE_NAME, PageContext.REQUEST_SCOPE);
-	}
+    /**
+     * Writes the default set of attributes to the supplied {@link TagWriter}.
+     * Further abstract sub-classes should override this method to add in
+     * any additional default attributes but <strong>must</strong> remember
+     * to call the {@code super} method.
+     * <p>Concrete sub-classes should call this method when/if they want
+     * to render default attributes.
+     *
+     * @param tagWriter the {@link TagWriter} to which any attributes are to be written
+     */
+    protected void writeDefaultAttributes(TagWriter tagWriter) throws JspException {
+        writeOptionalAttribute(tagWriter, "id", resolveId());
+        writeOptionalAttribute(tagWriter, "name", getName());
+    }
 
-	/**
-	 * Build the property path for this tag, including the nested path
-	 * but <i>not</i> prefixed with the name of the form attribute.
-	 * @see #getNestedPath()
-	 * @see #getPath()
-	 */
-	protected String getPropertyPath() throws JspException {
-		String expression = getBindStatus().getExpression();
-		return (expression != null ? expression : "");
-	}
+    /**
+     * Determine the '{@code id}' attribute value for this tag,
+     * autogenerating one if none specified.
+     *
+     * @see #getId()
+     * @see #autogenerateId()
+     */
+    @Nullable
+    protected String resolveId() throws JspException {
+        Object id = evaluate("id", getId());
+        if (id != null) {
+            String idString = id.toString();
+            return (StringUtils.hasText(idString) ? idString : null);
+        }
+        return autogenerateId();
+    }
 
-	/**
-	 * Get the bound value.
-	 * @see #getBindStatus()
-	 */
-	@Nullable
-	protected final Object getBoundValue() throws JspException {
-		return getBindStatus().getValue();
-	}
+    /**
+     * Autogenerate the '{@code id}' attribute value for this tag.
+     * <p>The default implementation simply delegates to {@link #getName()},
+     * deleting invalid characters (such as "[" or "]").
+     */
+    @Nullable
+    protected String autogenerateId() throws JspException {
+        String name = getName();
+        return (name != null ? StringUtils.deleteAny(name, "[]") : null);
+    }
 
-	/**
-	 * Get the {@link PropertyEditor}, if any, in use for value bound to this tag.
-	 */
-	@Nullable
-	protected PropertyEditor getPropertyEditor() throws JspException {
-		return getBindStatus().getEditor();
-	}
+    /**
+     * Get the value for the HTML '{@code name}' attribute.
+     * <p>The default implementation simply delegates to
+     * {@link #getPropertyPath()} to use the property path as the name.
+     * For the most part this is desirable as it links with the server-side
+     * expectation for data binding. However, some subclasses may wish to change
+     * the value of the '{@code name}' attribute without changing the bind path.
+     *
+     * @return the value for the HTML '{@code name}' attribute
+     */
+    @Nullable
+    protected String getName() throws JspException {
+        return getPropertyPath();
+    }
 
-	/**
-	 * Exposes the {@link PropertyEditor} for {@link EditorAwareTag}.
-	 * <p>Use {@link #getPropertyEditor()} for internal rendering purposes.
-	 */
-	@Override
-	@Nullable
-	public final PropertyEditor getEditor() throws JspException {
-		return getPropertyEditor();
-	}
+    /**
+     * Get the {@link BindStatus} for this tag.
+     */
+    protected BindStatus getBindStatus() throws JspException {
+        if (this.bindStatus == null) {
+            // HTML escaping in tags is performed by the ValueFormatter class.
+            String nestedPath = getNestedPath();
+            String pathToUse = (nestedPath != null ? nestedPath + getPath() : getPath());
+            if (pathToUse.endsWith(PropertyAccessor.NESTED_PROPERTY_SEPARATOR)) {
+                pathToUse = pathToUse.substring(0, pathToUse.length() - 1);
+            }
+            this.bindStatus = new BindStatus(getRequestContext(), pathToUse, false);
+        }
+        return this.bindStatus;
+    }
 
-	/**
-	 * Get a display String for the given value, converted by a PropertyEditor
-	 * that the BindStatus may have registered for the value's Class.
-	 */
-	protected String convertToDisplayString(@Nullable Object value) throws JspException {
-		PropertyEditor editor = (value != null ? getBindStatus().findEditor(value.getClass()) : null);
-		return getDisplayString(value, editor);
-	}
+    /**
+     * Get the value of the nested path that may have been exposed by the
+     * {@link NestedPathTag}.
+     */
+    @Nullable
+    protected String getNestedPath() {
+        return (String) this.pageContext.getAttribute(NESTED_PATH_VARIABLE_NAME, PageContext.REQUEST_SCOPE);
+    }
 
-	/**
-	 * Process the given form field through a {@link RequestDataValueProcessor}
-	 * instance if one is configured or otherwise returns the same value.
-	 */
-	protected final String processFieldValue(@Nullable String name, String value, String type) {
-		RequestDataValueProcessor processor = getRequestContext().getRequestDataValueProcessor();
-		ServletRequest request = this.pageContext.getRequest();
-		if (processor != null && request instanceof HttpServletRequest) {
-			value = processor.processFormFieldValue((HttpServletRequest) request, name, value, type);
-		}
-		return value;
-	}
+    /**
+     * Build the property path for this tag, including the nested path
+     * but <i>not</i> prefixed with the name of the form attribute.
+     *
+     * @see #getNestedPath()
+     * @see #getPath()
+     */
+    protected String getPropertyPath() throws JspException {
+        String expression = getBindStatus().getExpression();
+        return (expression != null ? expression : "");
+    }
 
-	/**
-	 * Disposes of the {@link BindStatus} instance.
-	 */
-	@Override
-	public void doFinally() {
-		super.doFinally();
-		this.bindStatus = null;
-	}
+    /**
+     * Get the bound value.
+     *
+     * @see #getBindStatus()
+     */
+    @Nullable
+    protected final Object getBoundValue() throws JspException {
+        return getBindStatus().getValue();
+    }
+
+    /**
+     * Get the {@link PropertyEditor}, if any, in use for value bound to this tag.
+     */
+    @Nullable
+    protected PropertyEditor getPropertyEditor() throws JspException {
+        return getBindStatus().getEditor();
+    }
+
+    /**
+     * Exposes the {@link PropertyEditor} for {@link EditorAwareTag}.
+     * <p>Use {@link #getPropertyEditor()} for internal rendering purposes.
+     */
+    @Override
+    @Nullable
+    public final PropertyEditor getEditor() throws JspException {
+        return getPropertyEditor();
+    }
+
+    /**
+     * Get a display String for the given value, converted by a PropertyEditor
+     * that the BindStatus may have registered for the value's Class.
+     */
+    protected String convertToDisplayString(@Nullable Object value) throws JspException {
+        PropertyEditor editor = (value != null ? getBindStatus().findEditor(value.getClass()) : null);
+        return getDisplayString(value, editor);
+    }
+
+    /**
+     * Process the given form field through a {@link RequestDataValueProcessor}
+     * instance if one is configured or otherwise returns the same value.
+     */
+    protected final String processFieldValue(@Nullable String name, String value, String type) {
+        RequestDataValueProcessor processor = getRequestContext().getRequestDataValueProcessor();
+        ServletRequest request = this.pageContext.getRequest();
+        if (processor != null && request instanceof HttpServletRequest) {
+            value = processor.processFormFieldValue((HttpServletRequest) request, name, value, type);
+        }
+        return value;
+    }
+
+    /**
+     * Disposes of the {@link BindStatus} instance.
+     */
+    @Override
+    public void doFinally() {
+        super.doFinally();
+        this.bindStatus = null;
+    }
 
 }

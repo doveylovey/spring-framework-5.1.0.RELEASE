@@ -42,36 +42,37 @@ import org.springframework.util.Assert;
  */
 public class MappingJackson2XmlHttpMessageConverter extends AbstractJackson2HttpMessageConverter {
 
-	/**
-	 * Construct a new {@code MappingJackson2XmlHttpMessageConverter} using default configuration
-	 * provided by {@code Jackson2ObjectMapperBuilder}.
-	 */
-	public MappingJackson2XmlHttpMessageConverter() {
-		this(Jackson2ObjectMapperBuilder.xml().build());
-	}
+    /**
+     * Construct a new {@code MappingJackson2XmlHttpMessageConverter} using default configuration
+     * provided by {@code Jackson2ObjectMapperBuilder}.
+     */
+    public MappingJackson2XmlHttpMessageConverter() {
+        this(Jackson2ObjectMapperBuilder.xml().build());
+    }
 
-	/**
-	 * Construct a new {@code MappingJackson2XmlHttpMessageConverter} with a custom {@link ObjectMapper}
-	 * (must be a {@link XmlMapper} instance).
-	 * You can use {@link Jackson2ObjectMapperBuilder} to build it easily.
-	 * @see Jackson2ObjectMapperBuilder#xml()
-	 */
-	public MappingJackson2XmlHttpMessageConverter(ObjectMapper objectMapper) {
-		super(objectMapper, new MediaType("application", "xml"),
-				new MediaType("text", "xml"),
-				new MediaType("application", "*+xml"));
-		Assert.isInstanceOf(XmlMapper.class, objectMapper, "XmlMapper required");
-	}
+    /**
+     * Construct a new {@code MappingJackson2XmlHttpMessageConverter} with a custom {@link ObjectMapper}
+     * (must be a {@link XmlMapper} instance).
+     * You can use {@link Jackson2ObjectMapperBuilder} to build it easily.
+     *
+     * @see Jackson2ObjectMapperBuilder#xml()
+     */
+    public MappingJackson2XmlHttpMessageConverter(ObjectMapper objectMapper) {
+        super(objectMapper, new MediaType("application", "xml"),
+                new MediaType("text", "xml"),
+                new MediaType("application", "*+xml"));
+        Assert.isInstanceOf(XmlMapper.class, objectMapper, "XmlMapper required");
+    }
 
 
-	/**
-	 * {@inheritDoc}
-	 * The {@code ObjectMapper} parameter must be a {@link XmlMapper} instance.
-	 */
-	@Override
-	public void setObjectMapper(ObjectMapper objectMapper) {
-		Assert.isInstanceOf(XmlMapper.class, objectMapper, "XmlMapper required");
-		super.setObjectMapper(objectMapper);
-	}
+    /**
+     * {@inheritDoc}
+     * The {@code ObjectMapper} parameter must be a {@link XmlMapper} instance.
+     */
+    @Override
+    public void setObjectMapper(ObjectMapper objectMapper) {
+        Assert.isInstanceOf(XmlMapper.class, objectMapper, "XmlMapper required");
+        super.setObjectMapper(objectMapper);
+    }
 
 }

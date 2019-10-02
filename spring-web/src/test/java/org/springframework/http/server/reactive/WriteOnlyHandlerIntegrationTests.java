@@ -40,47 +40,47 @@ import reactor.core.publisher.Mono;
  */
 public class WriteOnlyHandlerIntegrationTests extends AbstractHttpHandlerIntegrationTests {
 
-	private static final int REQUEST_SIZE = 4096 * 3;
+    private static final int REQUEST_SIZE = 4096 * 3;
 
-	private Random rnd = new Random();
+    private Random rnd = new Random();
 
-	private byte[] body;
-
-
-	@Override
-	protected WriteOnlyHandler createHttpHandler() {
-		return new WriteOnlyHandler();
-	}
+    private byte[] body;
 
 
-	@Test
-	public void writeOnly() throws Exception {
-		RestTemplate restTemplate = new RestTemplate();
-
-		this.body = randomBytes();
-		RequestEntity<byte[]> request = RequestEntity.post(
-				new URI("http://localhost:" + port)).body(
-						"".getBytes(StandardCharsets.UTF_8));
-		ResponseEntity<byte[]> response = restTemplate.exchange(request, byte[].class);
-
-		assertArrayEquals(body, response.getBody());
-	}
+    @Override
+    protected WriteOnlyHandler createHttpHandler() {
+        return new WriteOnlyHandler();
+    }
 
 
-	private byte[] randomBytes() {
-		byte[] buffer = new byte[REQUEST_SIZE];
-		rnd.nextBytes(buffer);
-		return buffer;
-	}
+    @Test
+    public void writeOnly() throws Exception {
+        RestTemplate restTemplate = new RestTemplate();
+
+        this.body = randomBytes();
+        RequestEntity<byte[]> request = RequestEntity.post(
+                new URI("http://localhost:" + port)).body(
+                "".getBytes(StandardCharsets.UTF_8));
+        ResponseEntity<byte[]> response = restTemplate.exchange(request, byte[].class);
+
+        assertArrayEquals(body, response.getBody());
+    }
 
 
-	public class WriteOnlyHandler implements HttpHandler {
+    private byte[] randomBytes() {
+        byte[] buffer = new byte[REQUEST_SIZE];
+        rnd.nextBytes(buffer);
+        return buffer;
+    }
 
-		@Override
-		public Mono<Void> handle(ServerHttpRequest request, ServerHttpResponse response) {
-			DataBuffer buffer = response.bufferFactory().allocateBuffer(body.length);
-			buffer.write(body);
-			return response.writeAndFlushWith(Flux.just(Flux.just(buffer)));
-		}
-	}
+
+    public class WriteOnlyHandler implements HttpHandler {
+
+        @Override
+        public Mono<Void> handle(ServerHttpRequest request, ServerHttpResponse response) {
+            DataBuffer buffer = response.bufferFactory().allocateBuffer(body.length);
+            buffer.write(body);
+            return response.writeAndFlushWith(Flux.just(Flux.just(buffer)));
+        }
+    }
 }

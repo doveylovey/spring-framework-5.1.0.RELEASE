@@ -47,146 +47,146 @@ import static org.mockito.Mockito.when;
  */
 public class ResourceUrlProviderTests {
 
-	private final List<Resource> locations = new ArrayList<>();
+    private final List<Resource> locations = new ArrayList<>();
 
-	private final ResourceHttpRequestHandler handler = new ResourceHttpRequestHandler();
+    private final ResourceHttpRequestHandler handler = new ResourceHttpRequestHandler();
 
-	private final Map<String, ResourceHttpRequestHandler> handlerMap = new HashMap<>();
+    private final Map<String, ResourceHttpRequestHandler> handlerMap = new HashMap<>();
 
-	private final ResourceUrlProvider urlProvider = new ResourceUrlProvider();
-
-
-	@Before
-	public void setUp() throws Exception {
-		this.locations.add(new ClassPathResource("test/", getClass()));
-		this.locations.add(new ClassPathResource("testalternatepath/", getClass()));
-		this.handler.setServletContext(new MockServletContext());
-		this.handler.setLocations(locations);
-		this.handler.afterPropertiesSet();
-		this.handlerMap.put("/resources/**", this.handler);
-		this.urlProvider.setHandlerMap(this.handlerMap);
-	}
+    private final ResourceUrlProvider urlProvider = new ResourceUrlProvider();
 
 
-	@Test
-	public void getStaticResourceUrl() {
-		String url = this.urlProvider.getForLookupPath("/resources/foo.css");
-		assertEquals("/resources/foo.css", url);
-	}
-
-	@Test // SPR-13374
-	public void getStaticResourceUrlRequestWithQueryOrHash() {
-		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.setContextPath("/");
-		request.setRequestURI("/");
-
-		String url = "/resources/foo.css?foo=bar&url=http://example.org";
-		String resolvedUrl = this.urlProvider.getForRequestUrl(request, url);
-		assertEquals("/resources/foo.css?foo=bar&url=http://example.org", resolvedUrl);
-
-		url = "/resources/foo.css#hash";
-		resolvedUrl = this.urlProvider.getForRequestUrl(request, url);
-		assertEquals("/resources/foo.css#hash", resolvedUrl);
-	}
-
-	@Test // SPR-16526
-	public void getStaticResourceWithMissingContextPath() {
-		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.setContextPath("/contextpath-longer-than-request-path");
-		request.setRequestURI("/contextpath-longer-than-request-path/style.css");
-		String url = "/resources/foo.css";
-		String resolvedUrl = this.urlProvider.getForRequestUrl(request, url);
-		assertNull(resolvedUrl);
-	}
-
-	@Test
-	public void getFingerprintedResourceUrl() {
-		Map<String, VersionStrategy> versionStrategyMap = new HashMap<>();
-		versionStrategyMap.put("/**", new ContentVersionStrategy());
-		VersionResourceResolver versionResolver = new VersionResourceResolver();
-		versionResolver.setStrategyMap(versionStrategyMap);
-
-		List<ResourceResolver> resolvers = new ArrayList<>();
-		resolvers.add(versionResolver);
-		resolvers.add(new PathResourceResolver());
-		this.handler.setResourceResolvers(resolvers);
-
-		String url = this.urlProvider.getForLookupPath("/resources/foo.css");
-		assertEquals("/resources/foo-e36d2e05253c6c7085a91522ce43a0b4.css", url);
-	}
-
-	@Test // SPR-12647
-	public void bestPatternMatch() throws Exception {
-		ResourceHttpRequestHandler otherHandler = new ResourceHttpRequestHandler();
-		otherHandler.setLocations(this.locations);
-		Map<String, VersionStrategy> versionStrategyMap = new HashMap<>();
-		versionStrategyMap.put("/**", new ContentVersionStrategy());
-		VersionResourceResolver versionResolver = new VersionResourceResolver();
-		versionResolver.setStrategyMap(versionStrategyMap);
-
-		List<ResourceResolver> resolvers = new ArrayList<>();
-		resolvers.add(versionResolver);
-		resolvers.add(new PathResourceResolver());
-		otherHandler.setResourceResolvers(resolvers);
-
-		this.handlerMap.put("/resources/*.css", otherHandler);
-		this.urlProvider.setHandlerMap(this.handlerMap);
-
-		String url = this.urlProvider.getForLookupPath("/resources/foo.css");
-		assertEquals("/resources/foo-e36d2e05253c6c7085a91522ce43a0b4.css", url);
-	}
-
-	@Test // SPR-12592
-	@SuppressWarnings("resource")
-	public void initializeOnce() throws Exception {
-		AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
-		context.setServletContext(new MockServletContext());
-		context.register(HandlerMappingConfiguration.class);
-		context.refresh();
-
-		ResourceUrlProvider urlProviderBean = context.getBean(ResourceUrlProvider.class);
-		assertThat(urlProviderBean.getHandlerMap(), Matchers.hasKey("/resources/**"));
-		assertFalse(urlProviderBean.isAutodetect());
-	}
-
-	@Test // SPR-16296
-	public void getForLookupPathShouldNotFailIfPathContainsDoubleSlashes() {
-		// given
-		ResourceResolver mockResourceResolver = mock(ResourceResolver.class);
-		when(mockResourceResolver.resolveUrlPath(any(), any(), any())).thenReturn("some-path");
-
-		ResourceHttpRequestHandler handler = new ResourceHttpRequestHandler();
-		handler.getResourceResolvers().add(mockResourceResolver);
-
-		ResourceUrlProvider provider = new ResourceUrlProvider();
-		provider.getHandlerMap().put("/some-pattern/**", handler);
-
-		// when
-		String lookupForPath = provider.getForLookupPath("/some-pattern/some-lib//some-resource");
-
-		// then
-		assertEquals("/some-pattern/some-path", lookupForPath);
-	}
+    @Before
+    public void setUp() throws Exception {
+        this.locations.add(new ClassPathResource("test/", getClass()));
+        this.locations.add(new ClassPathResource("testalternatepath/", getClass()));
+        this.handler.setServletContext(new MockServletContext());
+        this.handler.setLocations(locations);
+        this.handler.afterPropertiesSet();
+        this.handlerMap.put("/resources/**", this.handler);
+        this.urlProvider.setHandlerMap(this.handlerMap);
+    }
 
 
-	@Configuration
-	@SuppressWarnings({"unused", "WeakerAccess"})
-	static class HandlerMappingConfiguration {
+    @Test
+    public void getStaticResourceUrl() {
+        String url = this.urlProvider.getForLookupPath("/resources/foo.css");
+        assertEquals("/resources/foo.css", url);
+    }
 
-		@Bean
-		public SimpleUrlHandlerMapping simpleUrlHandlerMapping() {
-			ResourceHttpRequestHandler handler = new ResourceHttpRequestHandler();
-			HashMap<String, ResourceHttpRequestHandler> handlerMap = new HashMap<>();
-			handlerMap.put("/resources/**", handler);
-			SimpleUrlHandlerMapping hm = new SimpleUrlHandlerMapping();
-			hm.setUrlMap(handlerMap);
-			return hm;
-		}
+    @Test // SPR-13374
+    public void getStaticResourceUrlRequestWithQueryOrHash() {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setContextPath("/");
+        request.setRequestURI("/");
 
-		@Bean
-		public ResourceUrlProvider resourceUrlProvider() {
-			return new ResourceUrlProvider();
-		}
-	}
+        String url = "/resources/foo.css?foo=bar&url=http://example.org";
+        String resolvedUrl = this.urlProvider.getForRequestUrl(request, url);
+        assertEquals("/resources/foo.css?foo=bar&url=http://example.org", resolvedUrl);
+
+        url = "/resources/foo.css#hash";
+        resolvedUrl = this.urlProvider.getForRequestUrl(request, url);
+        assertEquals("/resources/foo.css#hash", resolvedUrl);
+    }
+
+    @Test // SPR-16526
+    public void getStaticResourceWithMissingContextPath() {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setContextPath("/contextpath-longer-than-request-path");
+        request.setRequestURI("/contextpath-longer-than-request-path/style.css");
+        String url = "/resources/foo.css";
+        String resolvedUrl = this.urlProvider.getForRequestUrl(request, url);
+        assertNull(resolvedUrl);
+    }
+
+    @Test
+    public void getFingerprintedResourceUrl() {
+        Map<String, VersionStrategy> versionStrategyMap = new HashMap<>();
+        versionStrategyMap.put("/**", new ContentVersionStrategy());
+        VersionResourceResolver versionResolver = new VersionResourceResolver();
+        versionResolver.setStrategyMap(versionStrategyMap);
+
+        List<ResourceResolver> resolvers = new ArrayList<>();
+        resolvers.add(versionResolver);
+        resolvers.add(new PathResourceResolver());
+        this.handler.setResourceResolvers(resolvers);
+
+        String url = this.urlProvider.getForLookupPath("/resources/foo.css");
+        assertEquals("/resources/foo-e36d2e05253c6c7085a91522ce43a0b4.css", url);
+    }
+
+    @Test // SPR-12647
+    public void bestPatternMatch() throws Exception {
+        ResourceHttpRequestHandler otherHandler = new ResourceHttpRequestHandler();
+        otherHandler.setLocations(this.locations);
+        Map<String, VersionStrategy> versionStrategyMap = new HashMap<>();
+        versionStrategyMap.put("/**", new ContentVersionStrategy());
+        VersionResourceResolver versionResolver = new VersionResourceResolver();
+        versionResolver.setStrategyMap(versionStrategyMap);
+
+        List<ResourceResolver> resolvers = new ArrayList<>();
+        resolvers.add(versionResolver);
+        resolvers.add(new PathResourceResolver());
+        otherHandler.setResourceResolvers(resolvers);
+
+        this.handlerMap.put("/resources/*.css", otherHandler);
+        this.urlProvider.setHandlerMap(this.handlerMap);
+
+        String url = this.urlProvider.getForLookupPath("/resources/foo.css");
+        assertEquals("/resources/foo-e36d2e05253c6c7085a91522ce43a0b4.css", url);
+    }
+
+    @Test // SPR-12592
+    @SuppressWarnings("resource")
+    public void initializeOnce() throws Exception {
+        AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
+        context.setServletContext(new MockServletContext());
+        context.register(HandlerMappingConfiguration.class);
+        context.refresh();
+
+        ResourceUrlProvider urlProviderBean = context.getBean(ResourceUrlProvider.class);
+        assertThat(urlProviderBean.getHandlerMap(), Matchers.hasKey("/resources/**"));
+        assertFalse(urlProviderBean.isAutodetect());
+    }
+
+    @Test // SPR-16296
+    public void getForLookupPathShouldNotFailIfPathContainsDoubleSlashes() {
+        // given
+        ResourceResolver mockResourceResolver = mock(ResourceResolver.class);
+        when(mockResourceResolver.resolveUrlPath(any(), any(), any())).thenReturn("some-path");
+
+        ResourceHttpRequestHandler handler = new ResourceHttpRequestHandler();
+        handler.getResourceResolvers().add(mockResourceResolver);
+
+        ResourceUrlProvider provider = new ResourceUrlProvider();
+        provider.getHandlerMap().put("/some-pattern/**", handler);
+
+        // when
+        String lookupForPath = provider.getForLookupPath("/some-pattern/some-lib//some-resource");
+
+        // then
+        assertEquals("/some-pattern/some-path", lookupForPath);
+    }
+
+
+    @Configuration
+    @SuppressWarnings({"unused", "WeakerAccess"})
+    static class HandlerMappingConfiguration {
+
+        @Bean
+        public SimpleUrlHandlerMapping simpleUrlHandlerMapping() {
+            ResourceHttpRequestHandler handler = new ResourceHttpRequestHandler();
+            HashMap<String, ResourceHttpRequestHandler> handlerMap = new HashMap<>();
+            handlerMap.put("/resources/**", handler);
+            SimpleUrlHandlerMapping hm = new SimpleUrlHandlerMapping();
+            hm.setUrlMap(handlerMap);
+            return hm;
+        }
+
+        @Bean
+        public ResourceUrlProvider resourceUrlProvider() {
+            return new ResourceUrlProvider();
+        }
+    }
 
 }

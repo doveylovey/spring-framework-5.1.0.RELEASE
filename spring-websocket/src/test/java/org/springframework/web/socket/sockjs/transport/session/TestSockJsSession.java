@@ -36,181 +36,181 @@ import org.springframework.web.socket.sockjs.transport.SockJsServiceConfig;
  */
 public class TestSockJsSession extends AbstractSockJsSession {
 
-	private URI uri;
+    private URI uri;
 
-	private HttpHeaders headers;
+    private HttpHeaders headers;
 
-	private Principal principal;
+    private Principal principal;
 
-	private InetSocketAddress localAddress;
+    private InetSocketAddress localAddress;
 
-	private InetSocketAddress remoteAddress;
+    private InetSocketAddress remoteAddress;
 
-	private boolean active;
+    private boolean active;
 
-	private final List<SockJsFrame> sockJsFrames = new ArrayList<>();
+    private final List<SockJsFrame> sockJsFrames = new ArrayList<>();
 
-	private CloseStatus closeStatus;
+    private CloseStatus closeStatus;
 
-	private IOException exceptionOnWrite;
+    private IOException exceptionOnWrite;
 
-	private int numberOfLastActiveTimeUpdates;
+    private int numberOfLastActiveTimeUpdates;
 
-	private boolean cancelledHeartbeat;
+    private boolean cancelledHeartbeat;
 
-	private String subProtocol;
+    private String subProtocol;
 
-	private List<WebSocketExtension> extensions = new ArrayList<>();
-
-
-	public TestSockJsSession(String sessionId, SockJsServiceConfig config,
-			WebSocketHandler wsHandler, Map<String, Object> attributes) {
-
-		super(sessionId, config, wsHandler, attributes);
-	}
+    private List<WebSocketExtension> extensions = new ArrayList<>();
 
 
-	public void setUri(URI uri) {
-		this.uri = uri;
-	}
+    public TestSockJsSession(String sessionId, SockJsServiceConfig config,
+                             WebSocketHandler wsHandler, Map<String, Object> attributes) {
 
-	@Override
-	public URI getUri() {
-		return this.uri;
-	}
+        super(sessionId, config, wsHandler, attributes);
+    }
 
-	@Override
-	public HttpHeaders getHandshakeHeaders() {
-		return this.headers;
-	}
 
-	public HttpHeaders getHeaders() {
-		return this.headers;
-	}
+    public void setUri(URI uri) {
+        this.uri = uri;
+    }
 
-	public void setHeaders(HttpHeaders headers) {
-		this.headers = headers;
-	}
+    @Override
+    public URI getUri() {
+        return this.uri;
+    }
 
-	@Override
-	public Principal getPrincipal() {
-		return this.principal;
-	}
+    @Override
+    public HttpHeaders getHandshakeHeaders() {
+        return this.headers;
+    }
 
-	public void setPrincipal(Principal principal) {
-		this.principal = principal;
-	}
+    public HttpHeaders getHeaders() {
+        return this.headers;
+    }
 
-	@Override
-	public InetSocketAddress getLocalAddress() {
-		return this.localAddress;
-	}
+    public void setHeaders(HttpHeaders headers) {
+        this.headers = headers;
+    }
 
-	public void setLocalAddress(InetSocketAddress localAddress) {
-		this.localAddress = localAddress;
-	}
+    @Override
+    public Principal getPrincipal() {
+        return this.principal;
+    }
 
-	@Override
-	public InetSocketAddress getRemoteAddress() {
-		return this.remoteAddress;
-	}
+    public void setPrincipal(Principal principal) {
+        this.principal = principal;
+    }
 
-	public void setRemoteAddress(InetSocketAddress remoteAddress) {
-		this.remoteAddress = remoteAddress;
-	}
+    @Override
+    public InetSocketAddress getLocalAddress() {
+        return this.localAddress;
+    }
 
-	@Override
-	public String getAcceptedProtocol() {
-		return this.subProtocol;
-	}
+    public void setLocalAddress(InetSocketAddress localAddress) {
+        this.localAddress = localAddress;
+    }
 
-	public void setAcceptedProtocol(String protocol) {
-		this.subProtocol = protocol;
-	}
+    @Override
+    public InetSocketAddress getRemoteAddress() {
+        return this.remoteAddress;
+    }
 
-	@Override
-	public void setTextMessageSizeLimit(int messageSizeLimit) {
-	}
+    public void setRemoteAddress(InetSocketAddress remoteAddress) {
+        this.remoteAddress = remoteAddress;
+    }
 
-	@Override
-	public int getTextMessageSizeLimit() {
-		return 0;
-	}
+    @Override
+    public String getAcceptedProtocol() {
+        return this.subProtocol;
+    }
 
-	@Override
-	public void setBinaryMessageSizeLimit(int messageSizeLimit) {
-	}
+    public void setAcceptedProtocol(String protocol) {
+        this.subProtocol = protocol;
+    }
 
-	@Override
-	public int getBinaryMessageSizeLimit() {
-		return 0;
-	}
+    @Override
+    public void setTextMessageSizeLimit(int messageSizeLimit) {
+    }
 
-	@Override
-	public List<WebSocketExtension> getExtensions() {
-		return this.extensions;
-	}
+    @Override
+    public int getTextMessageSizeLimit() {
+        return 0;
+    }
 
-	public void setExtensions(List<WebSocketExtension> extensions) {
-		this.extensions = extensions;
-	}
+    @Override
+    public void setBinaryMessageSizeLimit(int messageSizeLimit) {
+    }
 
-	public CloseStatus getCloseStatus() {
-		return this.closeStatus;
-	}
+    @Override
+    public int getBinaryMessageSizeLimit() {
+        return 0;
+    }
 
-	@Override
-	public boolean isActive() {
-		return this.active;
-	}
+    @Override
+    public List<WebSocketExtension> getExtensions() {
+        return this.extensions;
+    }
 
-	public void setActive(boolean active) {
-		this.active = active;
-	}
+    public void setExtensions(List<WebSocketExtension> extensions) {
+        this.extensions = extensions;
+    }
 
-	public List<SockJsFrame> getSockJsFramesWritten() {
-		return this.sockJsFrames;
-	}
+    public CloseStatus getCloseStatus() {
+        return this.closeStatus;
+    }
 
-	public void setExceptionOnWrite(IOException exceptionOnWrite) {
-		this.exceptionOnWrite = exceptionOnWrite;
-	}
+    @Override
+    public boolean isActive() {
+        return this.active;
+    }
 
-	public int getNumberOfLastActiveTimeUpdates() {
-		return this.numberOfLastActiveTimeUpdates;
-	}
+    public void setActive(boolean active) {
+        this.active = active;
+    }
 
-	public boolean didCancelHeartbeat() {
-		return this.cancelledHeartbeat;
-	}
+    public List<SockJsFrame> getSockJsFramesWritten() {
+        return this.sockJsFrames;
+    }
 
-	@Override
-	protected void updateLastActiveTime() {
-		this.numberOfLastActiveTimeUpdates++;
-		super.updateLastActiveTime();
-	}
+    public void setExceptionOnWrite(IOException exceptionOnWrite) {
+        this.exceptionOnWrite = exceptionOnWrite;
+    }
 
-	@Override
-	protected void cancelHeartbeat() {
-		this.cancelledHeartbeat = true;
-		super.cancelHeartbeat();
-	}
+    public int getNumberOfLastActiveTimeUpdates() {
+        return this.numberOfLastActiveTimeUpdates;
+    }
 
-	@Override
-	protected void sendMessageInternal(String message) {
-	}
+    public boolean didCancelHeartbeat() {
+        return this.cancelledHeartbeat;
+    }
 
-	@Override
-	protected void writeFrameInternal(SockJsFrame frame) throws IOException {
-		this.sockJsFrames.add(frame);
-		if (this.exceptionOnWrite != null) {
-			throw this.exceptionOnWrite;
-		}
-	}
+    @Override
+    protected void updateLastActiveTime() {
+        this.numberOfLastActiveTimeUpdates++;
+        super.updateLastActiveTime();
+    }
 
-	@Override
-	protected void disconnect(CloseStatus status) throws IOException {
-		this.closeStatus = status;
-	}
+    @Override
+    protected void cancelHeartbeat() {
+        this.cancelledHeartbeat = true;
+        super.cancelHeartbeat();
+    }
+
+    @Override
+    protected void sendMessageInternal(String message) {
+    }
+
+    @Override
+    protected void writeFrameInternal(SockJsFrame frame) throws IOException {
+        this.sockJsFrames.add(frame);
+        if (this.exceptionOnWrite != null) {
+            throw this.exceptionOnWrite;
+        }
+    }
+
+    @Override
+    protected void disconnect(CloseStatus status) throws IOException {
+        this.closeStatus = status;
+    }
 
 }

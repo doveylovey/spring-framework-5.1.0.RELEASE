@@ -42,34 +42,34 @@ import static org.junit.jupiter.api.Assertions.*;
  * Platform, simply run {@link SpringJUnitJupiterTestSuite} as a JUnit 4 test.
  *
  * @author Sam Brannen
- * @since 5.0
  * @see SpringExtension
  * @see SpringJUnitConfig
  * @see SpringExtensionTests
+ * @since 5.0
  */
 @SpringJUnitConfig(TestConfig.class)
 @DisplayName("@SpringJUnitConfig Tests")
 class ComposedSpringExtensionTests {
 
-	@Autowired
-	Person dilbert;
+    @Autowired
+    Person dilbert;
 
-	@Autowired
-	List<Person> people;
+    @Autowired
+    List<Person> people;
 
-	@Test
-	@DisplayName("ApplicationContext injected into method")
-	void applicationContextInjected(ApplicationContext applicationContext) {
-		assertNotNull(applicationContext, "ApplicationContext should have been injected into method by Spring");
-		assertEquals(dilbert, applicationContext.getBean("dilbert", Person.class));
-	}
+    @Test
+    @DisplayName("ApplicationContext injected into method")
+    void applicationContextInjected(ApplicationContext applicationContext) {
+        assertNotNull(applicationContext, "ApplicationContext should have been injected into method by Spring");
+        assertEquals(dilbert, applicationContext.getBean("dilbert", Person.class));
+    }
 
-	@Test
-	@DisplayName("Spring @Beans injected into fields")
-	void springBeansInjected() {
-		assertNotNull(dilbert, "Person should have been @Autowired by Spring");
-		assertEquals("Dilbert", dilbert.getName(), "Person's name");
-		assertEquals(2, people.size(), "Number of Person objects in context");
-	}
+    @Test
+    @DisplayName("Spring @Beans injected into fields")
+    void springBeansInjected() {
+        assertNotNull(dilbert, "Person should have been @Autowired by Spring");
+        assertEquals("Dilbert", dilbert.getName(), "Person's name");
+        assertEquals(2, people.size(), "Number of Person objects in context");
+    }
 
 }

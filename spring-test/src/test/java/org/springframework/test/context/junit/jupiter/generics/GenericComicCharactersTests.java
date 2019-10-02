@@ -43,27 +43,27 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringJUnitConfig(TestConfig.class)
 abstract class GenericComicCharactersTests<T extends Character> {
 
-	@Autowired
-	T character;
+    @Autowired
+    T character;
 
-	@Autowired
-	List<T> characters;
+    @Autowired
+    List<T> characters;
 
-	@Test
-	void autowiredFields() {
-		assertNotNull(this.character, "Character should have been @Autowired by Spring");
-		assertEquals(getExpectedName(), character.getName(), "character's name");
-		assertEquals(getExpectedNumCharacters(), this.characters.size(), "Number of characters in context");
-	}
+    @Test
+    void autowiredFields() {
+        assertNotNull(this.character, "Character should have been @Autowired by Spring");
+        assertEquals(getExpectedName(), character.getName(), "character's name");
+        assertEquals(getExpectedNumCharacters(), this.characters.size(), "Number of characters in context");
+    }
 
-	@Test
-	void autowiredParameterByTypeForSingleGenericBean(@Autowired T character) {
-		assertNotNull(character, "Character should have been @Autowired by Spring");
-		assertEquals(getExpectedName(), character.getName(), "character's name");
-	}
+    @Test
+    void autowiredParameterByTypeForSingleGenericBean(@Autowired T character) {
+        assertNotNull(character, "Character should have been @Autowired by Spring");
+        assertEquals(getExpectedName(), character.getName(), "character's name");
+    }
 
-	abstract int getExpectedNumCharacters();
+    abstract int getExpectedNumCharacters();
 
-	abstract String getExpectedName();
+    abstract String getExpectedName();
 
 }

@@ -66,484 +66,485 @@ import static org.junit.Assert.*;
  */
 public class ClassPathScanningCandidateComponentProviderTests {
 
-	private static final String TEST_BASE_PACKAGE = "example.scannable";
-	private static final String TEST_PROFILE_PACKAGE = "example.profilescan";
-	private static final String TEST_DEFAULT_PROFILE_NAME = "testDefault";
+    private static final String TEST_BASE_PACKAGE = "example.scannable";
+    private static final String TEST_PROFILE_PACKAGE = "example.profilescan";
+    private static final String TEST_DEFAULT_PROFILE_NAME = "testDefault";
 
-	private static final ClassLoader TEST_BASE_CLASSLOADER = CandidateComponentsTestClassLoader.index(
-			ClassPathScanningCandidateComponentProviderTests.class.getClassLoader(),
-			new ClassPathResource("spring.components", NamedComponent.class));
-
-
-	@Test
-	public void defaultsWithScan() {
-		ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(true);
-		provider.setResourceLoader(new DefaultResourceLoader(
-				CandidateComponentsTestClassLoader.disableIndex(getClass().getClassLoader())));
-		testDefault(provider, ScannedGenericBeanDefinition.class);
-	}
-
-	@Test
-	public void defaultsWithIndex() {
-		ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(true);
-		provider.setResourceLoader(new DefaultResourceLoader(TEST_BASE_CLASSLOADER));
-		testDefault(provider, AnnotatedGenericBeanDefinition.class);
-	}
-
-	private void testDefault(ClassPathScanningCandidateComponentProvider provider,
-			Class<? extends BeanDefinition> expectedBeanDefinitionType) {
-		Set<BeanDefinition> candidates = provider.findCandidateComponents(TEST_BASE_PACKAGE);
-		assertTrue(containsBeanClass(candidates, DefaultNamedComponent.class));
-		assertTrue(containsBeanClass(candidates, NamedComponent.class));
-		assertTrue(containsBeanClass(candidates, FooServiceImpl.class));
-		assertTrue(containsBeanClass(candidates, StubFooDao.class));
-		assertTrue(containsBeanClass(candidates, NamedStubDao.class));
-		assertTrue(containsBeanClass(candidates, ServiceInvocationCounter.class));
-		assertTrue(containsBeanClass(candidates, BarComponent.class));
-		assertEquals(7, candidates.size());
-		assertBeanDefinitionType(candidates, expectedBeanDefinitionType);
-	}
-
-	@Test
-	public void antStylePackageWithScan() {
-		ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(true);
-		provider.setResourceLoader(new DefaultResourceLoader(
-				CandidateComponentsTestClassLoader.disableIndex(getClass().getClassLoader())));
-		testAntStyle(provider, ScannedGenericBeanDefinition.class);
-	}
-
-	@Test
-	public void antStylePackageWithIndex() {
-		ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(true);
-		provider.setResourceLoader(new DefaultResourceLoader(TEST_BASE_CLASSLOADER));
-		testAntStyle(provider, AnnotatedGenericBeanDefinition.class);
-	}
-
-	private void testAntStyle(ClassPathScanningCandidateComponentProvider provider,
-			Class<? extends BeanDefinition> expectedBeanDefinitionType) {
-		Set<BeanDefinition> candidates = provider.findCandidateComponents(TEST_BASE_PACKAGE + ".**.sub");
-		assertTrue(containsBeanClass(candidates, BarComponent.class));
-		assertEquals(1, candidates.size());
-		assertBeanDefinitionType(candidates, expectedBeanDefinitionType);
-	}
-
-	@Test
-	public void bogusPackageWithScan() {
-		ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(true);
-		provider.setResourceLoader(new DefaultResourceLoader(
-				CandidateComponentsTestClassLoader.disableIndex(getClass().getClassLoader())));
-		Set<BeanDefinition> candidates = provider.findCandidateComponents("bogus");
-		assertEquals(0, candidates.size());
-	}
-
-	@Test
-	public void bogusPackageWithIndex() {
-		ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(true);
-		provider.setResourceLoader(new DefaultResourceLoader(TEST_BASE_CLASSLOADER));
-		Set<BeanDefinition> candidates = provider.findCandidateComponents("bogus");
-		assertEquals(0, candidates.size());
-	}
-
-	@Test
-	public void customFiltersFollowedByResetUseIndex() {
-		ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);
-		provider.setResourceLoader(new DefaultResourceLoader(TEST_BASE_CLASSLOADER));
-		provider.addIncludeFilter(new AnnotationTypeFilter(Component.class));
-		provider.resetFilters(true);
-		Set<BeanDefinition> candidates = provider.findCandidateComponents(TEST_BASE_PACKAGE);
-		assertBeanDefinitionType(candidates, AnnotatedGenericBeanDefinition.class);
-	}
-
-	@Test
-	public void customAnnotationTypeIncludeFilterWithScan() {
-		ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);
-		provider.setResourceLoader(new DefaultResourceLoader(
-				CandidateComponentsTestClassLoader.disableIndex(getClass().getClassLoader())));
-		testCustomAnnotationTypeIncludeFilter(provider, ScannedGenericBeanDefinition.class);
-	}
-
-	@Test
-	public void customAnnotationTypeIncludeFilterWithIndex() {
-		ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);
-		provider.setResourceLoader(new DefaultResourceLoader(TEST_BASE_CLASSLOADER));
-		testCustomAnnotationTypeIncludeFilter(provider, AnnotatedGenericBeanDefinition.class);
-	}
-
-	private void testCustomAnnotationTypeIncludeFilter(ClassPathScanningCandidateComponentProvider provider,
-			Class<? extends BeanDefinition> expectedBeanDefinitionType) {
-		provider.addIncludeFilter(new AnnotationTypeFilter(Component.class));
-		testDefault(provider, expectedBeanDefinitionType);
-	}
-
-	@Test
-	public void customAssignableTypeIncludeFilterWithScan() {
-		ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);
-		provider.setResourceLoader(new DefaultResourceLoader(
-				CandidateComponentsTestClassLoader.disableIndex(getClass().getClassLoader())));
-		testCustomAssignableTypeIncludeFilter(provider, ScannedGenericBeanDefinition.class);
-	}
-
-	@Test
-	public void customAssignableTypeIncludeFilterWithIndex() {
-		ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);
-		provider.setResourceLoader(new DefaultResourceLoader(TEST_BASE_CLASSLOADER));
-		testCustomAssignableTypeIncludeFilter(provider, AnnotatedGenericBeanDefinition.class);
-	}
-
-	private void testCustomAssignableTypeIncludeFilter(ClassPathScanningCandidateComponentProvider provider,
-			Class<? extends BeanDefinition> expectedBeanDefinitionType) {
-		provider.addIncludeFilter(new AssignableTypeFilter(FooService.class));
-		Set<BeanDefinition> candidates = provider.findCandidateComponents(TEST_BASE_PACKAGE);
-		// Interfaces/Abstract class are filtered out automatically.
-		assertTrue(containsBeanClass(candidates, AutowiredQualifierFooService.class));
-		assertTrue(containsBeanClass(candidates, FooServiceImpl.class));
-		assertTrue(containsBeanClass(candidates, ScopedProxyTestBean.class));
-		assertEquals(3, candidates.size());
-		assertBeanDefinitionType(candidates, expectedBeanDefinitionType);
-	}
-
-	@Test
-	public void customSupportedIncludeAndExcludedFilterWithScan() {
-		ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);
-		provider.setResourceLoader(new DefaultResourceLoader(
-				CandidateComponentsTestClassLoader.disableIndex(getClass().getClassLoader())));
-		testCustomSupportedIncludeAndExcludeFilter(provider, ScannedGenericBeanDefinition.class);
-	}
-
-	@Test
-	public void customSupportedIncludeAndExcludeFilterWithIndex() {
-		ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);
-		provider.setResourceLoader(new DefaultResourceLoader(TEST_BASE_CLASSLOADER));
-		testCustomSupportedIncludeAndExcludeFilter(provider, AnnotatedGenericBeanDefinition.class);
-	}
-
-	private void testCustomSupportedIncludeAndExcludeFilter(ClassPathScanningCandidateComponentProvider provider,
-			Class<? extends BeanDefinition> expectedBeanDefinitionType) {
-		provider.addIncludeFilter(new AnnotationTypeFilter(Component.class));
-		provider.addExcludeFilter(new AnnotationTypeFilter(Service.class));
-		provider.addExcludeFilter(new AnnotationTypeFilter(Repository.class));
-		Set<BeanDefinition> candidates = provider.findCandidateComponents(TEST_BASE_PACKAGE);
-		assertTrue(containsBeanClass(candidates, NamedComponent.class));
-		assertTrue(containsBeanClass(candidates, ServiceInvocationCounter.class));
-		assertTrue(containsBeanClass(candidates, BarComponent.class));
-		assertEquals(3, candidates.size());
-		assertBeanDefinitionType(candidates, expectedBeanDefinitionType);
-	}
-
-	@Test
-	public void customSupportIncludeFilterWithNonIndexedTypeUseScan() {
-		ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);
-		provider.setResourceLoader(new DefaultResourceLoader(TEST_BASE_CLASSLOADER));
-		// This annotation type is not directly annotated with Indexed so we can use
-		// the index to find candidates
-		provider.addIncludeFilter(new AnnotationTypeFilter(CustomStereotype.class));
-		Set<BeanDefinition> candidates = provider.findCandidateComponents(TEST_BASE_PACKAGE);
-		assertTrue(containsBeanClass(candidates, DefaultNamedComponent.class));
-		assertEquals(1, candidates.size());
-		assertBeanDefinitionType(candidates, ScannedGenericBeanDefinition.class);
-	}
-
-	@Test
-	public void customNotSupportedIncludeFilterUseScan() {
-		ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);
-		provider.setResourceLoader(new DefaultResourceLoader(TEST_BASE_CLASSLOADER));
-		provider.addIncludeFilter(new AssignableTypeFilter(FooDao.class));
-		Set<BeanDefinition> candidates = provider.findCandidateComponents(TEST_BASE_PACKAGE);
-		assertTrue(containsBeanClass(candidates, StubFooDao.class));
-		assertEquals(1, candidates.size());
-		assertBeanDefinitionType(candidates, ScannedGenericBeanDefinition.class);
-	}
-
-	@Test
-	public void excludeFilterWithScan() {
-		ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(true);
-		provider.setResourceLoader(new DefaultResourceLoader(
-				CandidateComponentsTestClassLoader.disableIndex(getClass().getClassLoader())));
-		provider.addExcludeFilter(new RegexPatternTypeFilter(Pattern.compile(TEST_BASE_PACKAGE + ".*Named.*")));
-		testExclude(provider, ScannedGenericBeanDefinition.class);
-	}
-
-	@Test
-	public void excludeFilterWithIndex() {
-		ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(true);
-		provider.setResourceLoader(new DefaultResourceLoader(TEST_BASE_CLASSLOADER));
-		provider.addExcludeFilter(new RegexPatternTypeFilter(Pattern.compile(TEST_BASE_PACKAGE + ".*Named.*")));
-		testExclude(provider, AnnotatedGenericBeanDefinition.class);
-	}
-
-	private void testExclude(ClassPathScanningCandidateComponentProvider provider,
-			Class<? extends BeanDefinition> expectedBeanDefinitionType) {
-		Set<BeanDefinition> candidates = provider.findCandidateComponents(TEST_BASE_PACKAGE);
-		assertTrue(containsBeanClass(candidates, FooServiceImpl.class));
-		assertTrue(containsBeanClass(candidates, StubFooDao.class));
-		assertTrue(containsBeanClass(candidates, ServiceInvocationCounter.class));
-		assertTrue(containsBeanClass(candidates, BarComponent.class));
-		assertEquals(4, candidates.size());
-		assertBeanDefinitionType(candidates, expectedBeanDefinitionType);
-	}
-
-	@Test
-	public void testWithNoFilters() {
-		ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);
-		Set<BeanDefinition> candidates = provider.findCandidateComponents(TEST_BASE_PACKAGE);
-		assertEquals(0, candidates.size());
-	}
-
-	@Test
-	public void testWithComponentAnnotationOnly() {
-		ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);
-		provider.addIncludeFilter(new AnnotationTypeFilter(Component.class));
-		provider.addExcludeFilter(new AnnotationTypeFilter(Repository.class));
-		provider.addExcludeFilter(new AnnotationTypeFilter(Service.class));
-		provider.addExcludeFilter(new AnnotationTypeFilter(Controller.class));
-		Set<BeanDefinition> candidates = provider.findCandidateComponents(TEST_BASE_PACKAGE);
-		assertEquals(3, candidates.size());
-		assertTrue(containsBeanClass(candidates, NamedComponent.class));
-		assertTrue(containsBeanClass(candidates, ServiceInvocationCounter.class));
-		assertTrue(containsBeanClass(candidates, BarComponent.class));
-		assertFalse(containsBeanClass(candidates, FooServiceImpl.class));
-		assertFalse(containsBeanClass(candidates, StubFooDao.class));
-		assertFalse(containsBeanClass(candidates, NamedStubDao.class));
-	}
-
-	@Test
-	public void testWithAspectAnnotationOnly() throws Exception {
-		ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);
-		provider.addIncludeFilter(new AnnotationTypeFilter(Aspect.class));
-		Set<BeanDefinition> candidates = provider.findCandidateComponents(TEST_BASE_PACKAGE);
-		assertEquals(1, candidates.size());
-		assertTrue(containsBeanClass(candidates, ServiceInvocationCounter.class));
-	}
-
-	@Test
-	public void testWithInterfaceType() {
-		ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);
-		provider.addIncludeFilter(new AssignableTypeFilter(FooDao.class));
-		Set<BeanDefinition> candidates = provider.findCandidateComponents(TEST_BASE_PACKAGE);
-		assertEquals(1, candidates.size());
-		assertTrue(containsBeanClass(candidates, StubFooDao.class));
-	}
-
-	@Test
-	public void testWithClassType() {
-		ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);
-		provider.addIncludeFilter(new AssignableTypeFilter(MessageBean.class));
-		Set<BeanDefinition> candidates = provider.findCandidateComponents(TEST_BASE_PACKAGE);
-		assertEquals(1, candidates.size());
-		assertTrue(containsBeanClass(candidates, MessageBean.class));
-	}
-
-	@Test
-	public void testWithMultipleMatchingFilters() {
-		ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);
-		provider.addIncludeFilter(new AnnotationTypeFilter(Component.class));
-		provider.addIncludeFilter(new AssignableTypeFilter(FooServiceImpl.class));
-		Set<BeanDefinition> candidates = provider.findCandidateComponents(TEST_BASE_PACKAGE);
-		assertEquals(7, candidates.size());
-		assertTrue(containsBeanClass(candidates, NamedComponent.class));
-		assertTrue(containsBeanClass(candidates, ServiceInvocationCounter.class));
-		assertTrue(containsBeanClass(candidates, FooServiceImpl.class));
-		assertTrue(containsBeanClass(candidates, BarComponent.class));
-	}
-
-	@Test
-	public void testExcludeTakesPrecedence() {
-		ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);
-		provider.addIncludeFilter(new AnnotationTypeFilter(Component.class));
-		provider.addIncludeFilter(new AssignableTypeFilter(FooServiceImpl.class));
-		provider.addExcludeFilter(new AssignableTypeFilter(FooService.class));
-		Set<BeanDefinition> candidates = provider.findCandidateComponents(TEST_BASE_PACKAGE);
-		assertEquals(6, candidates.size());
-		assertTrue(containsBeanClass(candidates, NamedComponent.class));
-		assertTrue(containsBeanClass(candidates, ServiceInvocationCounter.class));
-		assertTrue(containsBeanClass(candidates, BarComponent.class));
-		assertFalse(containsBeanClass(candidates, FooServiceImpl.class));
-	}
-
-	@Test
-	public void testWithNullEnvironment() {
-		ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(true);
-		Set<BeanDefinition> candidates = provider.findCandidateComponents(TEST_PROFILE_PACKAGE);
-		assertThat(containsBeanClass(candidates, ProfileAnnotatedComponent.class), is(false));
-	}
-
-	@Test
-	public void testWithInactiveProfile() {
-		ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(true);
-		ConfigurableEnvironment env = new StandardEnvironment();
-		env.setActiveProfiles("other");
-		provider.setEnvironment(env);
-		Set<BeanDefinition> candidates = provider.findCandidateComponents(TEST_PROFILE_PACKAGE);
-		assertThat(containsBeanClass(candidates, ProfileAnnotatedComponent.class), is(false));
-	}
-
-	@Test
-	public void testWithActiveProfile() {
-		ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(true);
-		ConfigurableEnvironment env = new StandardEnvironment();
-		env.setActiveProfiles(ProfileAnnotatedComponent.PROFILE_NAME);
-		provider.setEnvironment(env);
-		Set<BeanDefinition> candidates = provider.findCandidateComponents(TEST_PROFILE_PACKAGE);
-		assertThat(containsBeanClass(candidates, ProfileAnnotatedComponent.class), is(true));
-	}
-
-	@Test
-	public void testIntegrationWithAnnotationConfigApplicationContext_noProfile() {
-		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
-		ctx.register(ProfileAnnotatedComponent.class);
-		ctx.refresh();
-		assertThat(ctx.containsBean(ProfileAnnotatedComponent.BEAN_NAME), is(false));
-	}
-
-	@Test
-	public void testIntegrationWithAnnotationConfigApplicationContext_validProfile() {
-		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
-		ctx.getEnvironment().setActiveProfiles(ProfileAnnotatedComponent.PROFILE_NAME);
-		ctx.register(ProfileAnnotatedComponent.class);
-		ctx.refresh();
-		assertThat(ctx.containsBean(ProfileAnnotatedComponent.BEAN_NAME), is(true));
-	}
-
-	@Test
-	public void testIntegrationWithAnnotationConfigApplicationContext_validMetaAnnotatedProfile() {
-		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
-		ctx.getEnvironment().setActiveProfiles(DevComponent.PROFILE_NAME);
-		ctx.register(ProfileMetaAnnotatedComponent.class);
-		ctx.refresh();
-		assertThat(ctx.containsBean(ProfileMetaAnnotatedComponent.BEAN_NAME), is(true));
-	}
-
-	@Test
-	public void testIntegrationWithAnnotationConfigApplicationContext_invalidProfile() {
-		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
-		ctx.getEnvironment().setActiveProfiles("other");
-		ctx.register(ProfileAnnotatedComponent.class);
-		ctx.refresh();
-		assertThat(ctx.containsBean(ProfileAnnotatedComponent.BEAN_NAME), is(false));
-	}
-
-	@Test
-	public void testIntegrationWithAnnotationConfigApplicationContext_invalidMetaAnnotatedProfile() {
-		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
-		ctx.getEnvironment().setActiveProfiles("other");
-		ctx.register(ProfileMetaAnnotatedComponent.class);
-		ctx.refresh();
-		assertThat(ctx.containsBean(ProfileMetaAnnotatedComponent.BEAN_NAME), is(false));
-	}
-
-	@Test
-	public void testIntegrationWithAnnotationConfigApplicationContext_defaultProfile() {
-		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
-		ctx.getEnvironment().setDefaultProfiles(TEST_DEFAULT_PROFILE_NAME);
-		// no active profiles are set
-		ctx.register(DefaultProfileAnnotatedComponent.class);
-		ctx.refresh();
-		assertThat(ctx.containsBean(DefaultProfileAnnotatedComponent.BEAN_NAME), is(true));
-	}
-
-	@Test
-	public void testIntegrationWithAnnotationConfigApplicationContext_defaultAndDevProfile() {
-		Class<?> beanClass = DefaultAndDevProfileAnnotatedComponent.class;
-		String beanName = DefaultAndDevProfileAnnotatedComponent.BEAN_NAME;
-		{
-			AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
-			ctx.getEnvironment().setDefaultProfiles(TEST_DEFAULT_PROFILE_NAME);
-			// no active profiles are set
-			ctx.register(beanClass);
-			ctx.refresh();
-			assertThat(ctx.containsBean(beanName), is(true));
-		}
-		{
-			AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
-			ctx.getEnvironment().setDefaultProfiles(TEST_DEFAULT_PROFILE_NAME);
-			ctx.getEnvironment().setActiveProfiles("dev");
-			ctx.register(beanClass);
-			ctx.refresh();
-			assertThat(ctx.containsBean(beanName), is(true));
-		}
-		{
-			AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
-			ctx.getEnvironment().setDefaultProfiles(TEST_DEFAULT_PROFILE_NAME);
-			ctx.getEnvironment().setActiveProfiles("other");
-			ctx.register(beanClass);
-			ctx.refresh();
-			assertThat(ctx.containsBean(beanName), is(false));
-		}
-	}
-
-	@Test
-	public void testIntegrationWithAnnotationConfigApplicationContext_metaProfile() {
-		Class<?> beanClass = MetaProfileAnnotatedComponent.class;
-		String beanName = MetaProfileAnnotatedComponent.BEAN_NAME;
-		{
-			AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
-			ctx.getEnvironment().setDefaultProfiles(TEST_DEFAULT_PROFILE_NAME);
-			// no active profiles are set
-			ctx.register(beanClass);
-			ctx.refresh();
-			assertThat(ctx.containsBean(beanName), is(true));
-		}
-		{
-			AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
-			ctx.getEnvironment().setDefaultProfiles(TEST_DEFAULT_PROFILE_NAME);
-			ctx.getEnvironment().setActiveProfiles("dev");
-			ctx.register(beanClass);
-			ctx.refresh();
-			assertThat(ctx.containsBean(beanName), is(true));
-		}
-		{
-			AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
-			ctx.getEnvironment().setDefaultProfiles(TEST_DEFAULT_PROFILE_NAME);
-			ctx.getEnvironment().setActiveProfiles("other");
-			ctx.register(beanClass);
-			ctx.refresh();
-			assertThat(ctx.containsBean(beanName), is(false));
-		}
-	}
-
-	private boolean containsBeanClass(Set<BeanDefinition> candidates, Class<?> beanClass) {
-		for (BeanDefinition candidate : candidates) {
-			if (beanClass.getName().equals(candidate.getBeanClassName())) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	private void assertBeanDefinitionType(Set<BeanDefinition> candidates,
-			Class<? extends BeanDefinition> expectedType) {
-		candidates.forEach(c -> {
-			assertThat(c, is(instanceOf(expectedType)));
-		});
-	}
+    private static final ClassLoader TEST_BASE_CLASSLOADER = CandidateComponentsTestClassLoader.index(
+            ClassPathScanningCandidateComponentProviderTests.class.getClassLoader(),
+            new ClassPathResource("spring.components", NamedComponent.class));
 
 
-	@Profile(TEST_DEFAULT_PROFILE_NAME)
-	@Component(DefaultProfileAnnotatedComponent.BEAN_NAME)
-	private static class DefaultProfileAnnotatedComponent {
-		static final String BEAN_NAME = "defaultProfileAnnotatedComponent";
-	}
+    @Test
+    public void defaultsWithScan() {
+        ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(true);
+        provider.setResourceLoader(new DefaultResourceLoader(
+                CandidateComponentsTestClassLoader.disableIndex(getClass().getClassLoader())));
+        testDefault(provider, ScannedGenericBeanDefinition.class);
+    }
 
-	@Profile({TEST_DEFAULT_PROFILE_NAME, "dev"})
-	@Component(DefaultAndDevProfileAnnotatedComponent.BEAN_NAME)
-	private static class DefaultAndDevProfileAnnotatedComponent {
-		static final String BEAN_NAME = "defaultAndDevProfileAnnotatedComponent";
-	}
+    @Test
+    public void defaultsWithIndex() {
+        ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(true);
+        provider.setResourceLoader(new DefaultResourceLoader(TEST_BASE_CLASSLOADER));
+        testDefault(provider, AnnotatedGenericBeanDefinition.class);
+    }
 
-	@DefaultProfile @DevProfile
-	@Component(MetaProfileAnnotatedComponent.BEAN_NAME)
-	private static class MetaProfileAnnotatedComponent {
-		static final String BEAN_NAME = "metaProfileAnnotatedComponent";
-	}
+    private void testDefault(ClassPathScanningCandidateComponentProvider provider,
+                             Class<? extends BeanDefinition> expectedBeanDefinitionType) {
+        Set<BeanDefinition> candidates = provider.findCandidateComponents(TEST_BASE_PACKAGE);
+        assertTrue(containsBeanClass(candidates, DefaultNamedComponent.class));
+        assertTrue(containsBeanClass(candidates, NamedComponent.class));
+        assertTrue(containsBeanClass(candidates, FooServiceImpl.class));
+        assertTrue(containsBeanClass(candidates, StubFooDao.class));
+        assertTrue(containsBeanClass(candidates, NamedStubDao.class));
+        assertTrue(containsBeanClass(candidates, ServiceInvocationCounter.class));
+        assertTrue(containsBeanClass(candidates, BarComponent.class));
+        assertEquals(7, candidates.size());
+        assertBeanDefinitionType(candidates, expectedBeanDefinitionType);
+    }
 
-	@Profile(TEST_DEFAULT_PROFILE_NAME)
-	@Retention(RetentionPolicy.RUNTIME)
-	public @interface DefaultProfile {
-	}
+    @Test
+    public void antStylePackageWithScan() {
+        ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(true);
+        provider.setResourceLoader(new DefaultResourceLoader(
+                CandidateComponentsTestClassLoader.disableIndex(getClass().getClassLoader())));
+        testAntStyle(provider, ScannedGenericBeanDefinition.class);
+    }
 
-	@Profile("dev")
-	@Retention(RetentionPolicy.RUNTIME)
-	public @interface DevProfile {
-	}
+    @Test
+    public void antStylePackageWithIndex() {
+        ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(true);
+        provider.setResourceLoader(new DefaultResourceLoader(TEST_BASE_CLASSLOADER));
+        testAntStyle(provider, AnnotatedGenericBeanDefinition.class);
+    }
+
+    private void testAntStyle(ClassPathScanningCandidateComponentProvider provider,
+                              Class<? extends BeanDefinition> expectedBeanDefinitionType) {
+        Set<BeanDefinition> candidates = provider.findCandidateComponents(TEST_BASE_PACKAGE + ".**.sub");
+        assertTrue(containsBeanClass(candidates, BarComponent.class));
+        assertEquals(1, candidates.size());
+        assertBeanDefinitionType(candidates, expectedBeanDefinitionType);
+    }
+
+    @Test
+    public void bogusPackageWithScan() {
+        ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(true);
+        provider.setResourceLoader(new DefaultResourceLoader(
+                CandidateComponentsTestClassLoader.disableIndex(getClass().getClassLoader())));
+        Set<BeanDefinition> candidates = provider.findCandidateComponents("bogus");
+        assertEquals(0, candidates.size());
+    }
+
+    @Test
+    public void bogusPackageWithIndex() {
+        ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(true);
+        provider.setResourceLoader(new DefaultResourceLoader(TEST_BASE_CLASSLOADER));
+        Set<BeanDefinition> candidates = provider.findCandidateComponents("bogus");
+        assertEquals(0, candidates.size());
+    }
+
+    @Test
+    public void customFiltersFollowedByResetUseIndex() {
+        ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);
+        provider.setResourceLoader(new DefaultResourceLoader(TEST_BASE_CLASSLOADER));
+        provider.addIncludeFilter(new AnnotationTypeFilter(Component.class));
+        provider.resetFilters(true);
+        Set<BeanDefinition> candidates = provider.findCandidateComponents(TEST_BASE_PACKAGE);
+        assertBeanDefinitionType(candidates, AnnotatedGenericBeanDefinition.class);
+    }
+
+    @Test
+    public void customAnnotationTypeIncludeFilterWithScan() {
+        ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);
+        provider.setResourceLoader(new DefaultResourceLoader(
+                CandidateComponentsTestClassLoader.disableIndex(getClass().getClassLoader())));
+        testCustomAnnotationTypeIncludeFilter(provider, ScannedGenericBeanDefinition.class);
+    }
+
+    @Test
+    public void customAnnotationTypeIncludeFilterWithIndex() {
+        ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);
+        provider.setResourceLoader(new DefaultResourceLoader(TEST_BASE_CLASSLOADER));
+        testCustomAnnotationTypeIncludeFilter(provider, AnnotatedGenericBeanDefinition.class);
+    }
+
+    private void testCustomAnnotationTypeIncludeFilter(ClassPathScanningCandidateComponentProvider provider,
+                                                       Class<? extends BeanDefinition> expectedBeanDefinitionType) {
+        provider.addIncludeFilter(new AnnotationTypeFilter(Component.class));
+        testDefault(provider, expectedBeanDefinitionType);
+    }
+
+    @Test
+    public void customAssignableTypeIncludeFilterWithScan() {
+        ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);
+        provider.setResourceLoader(new DefaultResourceLoader(
+                CandidateComponentsTestClassLoader.disableIndex(getClass().getClassLoader())));
+        testCustomAssignableTypeIncludeFilter(provider, ScannedGenericBeanDefinition.class);
+    }
+
+    @Test
+    public void customAssignableTypeIncludeFilterWithIndex() {
+        ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);
+        provider.setResourceLoader(new DefaultResourceLoader(TEST_BASE_CLASSLOADER));
+        testCustomAssignableTypeIncludeFilter(provider, AnnotatedGenericBeanDefinition.class);
+    }
+
+    private void testCustomAssignableTypeIncludeFilter(ClassPathScanningCandidateComponentProvider provider,
+                                                       Class<? extends BeanDefinition> expectedBeanDefinitionType) {
+        provider.addIncludeFilter(new AssignableTypeFilter(FooService.class));
+        Set<BeanDefinition> candidates = provider.findCandidateComponents(TEST_BASE_PACKAGE);
+        // Interfaces/Abstract class are filtered out automatically.
+        assertTrue(containsBeanClass(candidates, AutowiredQualifierFooService.class));
+        assertTrue(containsBeanClass(candidates, FooServiceImpl.class));
+        assertTrue(containsBeanClass(candidates, ScopedProxyTestBean.class));
+        assertEquals(3, candidates.size());
+        assertBeanDefinitionType(candidates, expectedBeanDefinitionType);
+    }
+
+    @Test
+    public void customSupportedIncludeAndExcludedFilterWithScan() {
+        ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);
+        provider.setResourceLoader(new DefaultResourceLoader(
+                CandidateComponentsTestClassLoader.disableIndex(getClass().getClassLoader())));
+        testCustomSupportedIncludeAndExcludeFilter(provider, ScannedGenericBeanDefinition.class);
+    }
+
+    @Test
+    public void customSupportedIncludeAndExcludeFilterWithIndex() {
+        ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);
+        provider.setResourceLoader(new DefaultResourceLoader(TEST_BASE_CLASSLOADER));
+        testCustomSupportedIncludeAndExcludeFilter(provider, AnnotatedGenericBeanDefinition.class);
+    }
+
+    private void testCustomSupportedIncludeAndExcludeFilter(ClassPathScanningCandidateComponentProvider provider,
+                                                            Class<? extends BeanDefinition> expectedBeanDefinitionType) {
+        provider.addIncludeFilter(new AnnotationTypeFilter(Component.class));
+        provider.addExcludeFilter(new AnnotationTypeFilter(Service.class));
+        provider.addExcludeFilter(new AnnotationTypeFilter(Repository.class));
+        Set<BeanDefinition> candidates = provider.findCandidateComponents(TEST_BASE_PACKAGE);
+        assertTrue(containsBeanClass(candidates, NamedComponent.class));
+        assertTrue(containsBeanClass(candidates, ServiceInvocationCounter.class));
+        assertTrue(containsBeanClass(candidates, BarComponent.class));
+        assertEquals(3, candidates.size());
+        assertBeanDefinitionType(candidates, expectedBeanDefinitionType);
+    }
+
+    @Test
+    public void customSupportIncludeFilterWithNonIndexedTypeUseScan() {
+        ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);
+        provider.setResourceLoader(new DefaultResourceLoader(TEST_BASE_CLASSLOADER));
+        // This annotation type is not directly annotated with Indexed so we can use
+        // the index to find candidates
+        provider.addIncludeFilter(new AnnotationTypeFilter(CustomStereotype.class));
+        Set<BeanDefinition> candidates = provider.findCandidateComponents(TEST_BASE_PACKAGE);
+        assertTrue(containsBeanClass(candidates, DefaultNamedComponent.class));
+        assertEquals(1, candidates.size());
+        assertBeanDefinitionType(candidates, ScannedGenericBeanDefinition.class);
+    }
+
+    @Test
+    public void customNotSupportedIncludeFilterUseScan() {
+        ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);
+        provider.setResourceLoader(new DefaultResourceLoader(TEST_BASE_CLASSLOADER));
+        provider.addIncludeFilter(new AssignableTypeFilter(FooDao.class));
+        Set<BeanDefinition> candidates = provider.findCandidateComponents(TEST_BASE_PACKAGE);
+        assertTrue(containsBeanClass(candidates, StubFooDao.class));
+        assertEquals(1, candidates.size());
+        assertBeanDefinitionType(candidates, ScannedGenericBeanDefinition.class);
+    }
+
+    @Test
+    public void excludeFilterWithScan() {
+        ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(true);
+        provider.setResourceLoader(new DefaultResourceLoader(
+                CandidateComponentsTestClassLoader.disableIndex(getClass().getClassLoader())));
+        provider.addExcludeFilter(new RegexPatternTypeFilter(Pattern.compile(TEST_BASE_PACKAGE + ".*Named.*")));
+        testExclude(provider, ScannedGenericBeanDefinition.class);
+    }
+
+    @Test
+    public void excludeFilterWithIndex() {
+        ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(true);
+        provider.setResourceLoader(new DefaultResourceLoader(TEST_BASE_CLASSLOADER));
+        provider.addExcludeFilter(new RegexPatternTypeFilter(Pattern.compile(TEST_BASE_PACKAGE + ".*Named.*")));
+        testExclude(provider, AnnotatedGenericBeanDefinition.class);
+    }
+
+    private void testExclude(ClassPathScanningCandidateComponentProvider provider,
+                             Class<? extends BeanDefinition> expectedBeanDefinitionType) {
+        Set<BeanDefinition> candidates = provider.findCandidateComponents(TEST_BASE_PACKAGE);
+        assertTrue(containsBeanClass(candidates, FooServiceImpl.class));
+        assertTrue(containsBeanClass(candidates, StubFooDao.class));
+        assertTrue(containsBeanClass(candidates, ServiceInvocationCounter.class));
+        assertTrue(containsBeanClass(candidates, BarComponent.class));
+        assertEquals(4, candidates.size());
+        assertBeanDefinitionType(candidates, expectedBeanDefinitionType);
+    }
+
+    @Test
+    public void testWithNoFilters() {
+        ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);
+        Set<BeanDefinition> candidates = provider.findCandidateComponents(TEST_BASE_PACKAGE);
+        assertEquals(0, candidates.size());
+    }
+
+    @Test
+    public void testWithComponentAnnotationOnly() {
+        ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);
+        provider.addIncludeFilter(new AnnotationTypeFilter(Component.class));
+        provider.addExcludeFilter(new AnnotationTypeFilter(Repository.class));
+        provider.addExcludeFilter(new AnnotationTypeFilter(Service.class));
+        provider.addExcludeFilter(new AnnotationTypeFilter(Controller.class));
+        Set<BeanDefinition> candidates = provider.findCandidateComponents(TEST_BASE_PACKAGE);
+        assertEquals(3, candidates.size());
+        assertTrue(containsBeanClass(candidates, NamedComponent.class));
+        assertTrue(containsBeanClass(candidates, ServiceInvocationCounter.class));
+        assertTrue(containsBeanClass(candidates, BarComponent.class));
+        assertFalse(containsBeanClass(candidates, FooServiceImpl.class));
+        assertFalse(containsBeanClass(candidates, StubFooDao.class));
+        assertFalse(containsBeanClass(candidates, NamedStubDao.class));
+    }
+
+    @Test
+    public void testWithAspectAnnotationOnly() throws Exception {
+        ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);
+        provider.addIncludeFilter(new AnnotationTypeFilter(Aspect.class));
+        Set<BeanDefinition> candidates = provider.findCandidateComponents(TEST_BASE_PACKAGE);
+        assertEquals(1, candidates.size());
+        assertTrue(containsBeanClass(candidates, ServiceInvocationCounter.class));
+    }
+
+    @Test
+    public void testWithInterfaceType() {
+        ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);
+        provider.addIncludeFilter(new AssignableTypeFilter(FooDao.class));
+        Set<BeanDefinition> candidates = provider.findCandidateComponents(TEST_BASE_PACKAGE);
+        assertEquals(1, candidates.size());
+        assertTrue(containsBeanClass(candidates, StubFooDao.class));
+    }
+
+    @Test
+    public void testWithClassType() {
+        ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);
+        provider.addIncludeFilter(new AssignableTypeFilter(MessageBean.class));
+        Set<BeanDefinition> candidates = provider.findCandidateComponents(TEST_BASE_PACKAGE);
+        assertEquals(1, candidates.size());
+        assertTrue(containsBeanClass(candidates, MessageBean.class));
+    }
+
+    @Test
+    public void testWithMultipleMatchingFilters() {
+        ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);
+        provider.addIncludeFilter(new AnnotationTypeFilter(Component.class));
+        provider.addIncludeFilter(new AssignableTypeFilter(FooServiceImpl.class));
+        Set<BeanDefinition> candidates = provider.findCandidateComponents(TEST_BASE_PACKAGE);
+        assertEquals(7, candidates.size());
+        assertTrue(containsBeanClass(candidates, NamedComponent.class));
+        assertTrue(containsBeanClass(candidates, ServiceInvocationCounter.class));
+        assertTrue(containsBeanClass(candidates, FooServiceImpl.class));
+        assertTrue(containsBeanClass(candidates, BarComponent.class));
+    }
+
+    @Test
+    public void testExcludeTakesPrecedence() {
+        ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);
+        provider.addIncludeFilter(new AnnotationTypeFilter(Component.class));
+        provider.addIncludeFilter(new AssignableTypeFilter(FooServiceImpl.class));
+        provider.addExcludeFilter(new AssignableTypeFilter(FooService.class));
+        Set<BeanDefinition> candidates = provider.findCandidateComponents(TEST_BASE_PACKAGE);
+        assertEquals(6, candidates.size());
+        assertTrue(containsBeanClass(candidates, NamedComponent.class));
+        assertTrue(containsBeanClass(candidates, ServiceInvocationCounter.class));
+        assertTrue(containsBeanClass(candidates, BarComponent.class));
+        assertFalse(containsBeanClass(candidates, FooServiceImpl.class));
+    }
+
+    @Test
+    public void testWithNullEnvironment() {
+        ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(true);
+        Set<BeanDefinition> candidates = provider.findCandidateComponents(TEST_PROFILE_PACKAGE);
+        assertThat(containsBeanClass(candidates, ProfileAnnotatedComponent.class), is(false));
+    }
+
+    @Test
+    public void testWithInactiveProfile() {
+        ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(true);
+        ConfigurableEnvironment env = new StandardEnvironment();
+        env.setActiveProfiles("other");
+        provider.setEnvironment(env);
+        Set<BeanDefinition> candidates = provider.findCandidateComponents(TEST_PROFILE_PACKAGE);
+        assertThat(containsBeanClass(candidates, ProfileAnnotatedComponent.class), is(false));
+    }
+
+    @Test
+    public void testWithActiveProfile() {
+        ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(true);
+        ConfigurableEnvironment env = new StandardEnvironment();
+        env.setActiveProfiles(ProfileAnnotatedComponent.PROFILE_NAME);
+        provider.setEnvironment(env);
+        Set<BeanDefinition> candidates = provider.findCandidateComponents(TEST_PROFILE_PACKAGE);
+        assertThat(containsBeanClass(candidates, ProfileAnnotatedComponent.class), is(true));
+    }
+
+    @Test
+    public void testIntegrationWithAnnotationConfigApplicationContext_noProfile() {
+        AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+        ctx.register(ProfileAnnotatedComponent.class);
+        ctx.refresh();
+        assertThat(ctx.containsBean(ProfileAnnotatedComponent.BEAN_NAME), is(false));
+    }
+
+    @Test
+    public void testIntegrationWithAnnotationConfigApplicationContext_validProfile() {
+        AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+        ctx.getEnvironment().setActiveProfiles(ProfileAnnotatedComponent.PROFILE_NAME);
+        ctx.register(ProfileAnnotatedComponent.class);
+        ctx.refresh();
+        assertThat(ctx.containsBean(ProfileAnnotatedComponent.BEAN_NAME), is(true));
+    }
+
+    @Test
+    public void testIntegrationWithAnnotationConfigApplicationContext_validMetaAnnotatedProfile() {
+        AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+        ctx.getEnvironment().setActiveProfiles(DevComponent.PROFILE_NAME);
+        ctx.register(ProfileMetaAnnotatedComponent.class);
+        ctx.refresh();
+        assertThat(ctx.containsBean(ProfileMetaAnnotatedComponent.BEAN_NAME), is(true));
+    }
+
+    @Test
+    public void testIntegrationWithAnnotationConfigApplicationContext_invalidProfile() {
+        AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+        ctx.getEnvironment().setActiveProfiles("other");
+        ctx.register(ProfileAnnotatedComponent.class);
+        ctx.refresh();
+        assertThat(ctx.containsBean(ProfileAnnotatedComponent.BEAN_NAME), is(false));
+    }
+
+    @Test
+    public void testIntegrationWithAnnotationConfigApplicationContext_invalidMetaAnnotatedProfile() {
+        AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+        ctx.getEnvironment().setActiveProfiles("other");
+        ctx.register(ProfileMetaAnnotatedComponent.class);
+        ctx.refresh();
+        assertThat(ctx.containsBean(ProfileMetaAnnotatedComponent.BEAN_NAME), is(false));
+    }
+
+    @Test
+    public void testIntegrationWithAnnotationConfigApplicationContext_defaultProfile() {
+        AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+        ctx.getEnvironment().setDefaultProfiles(TEST_DEFAULT_PROFILE_NAME);
+        // no active profiles are set
+        ctx.register(DefaultProfileAnnotatedComponent.class);
+        ctx.refresh();
+        assertThat(ctx.containsBean(DefaultProfileAnnotatedComponent.BEAN_NAME), is(true));
+    }
+
+    @Test
+    public void testIntegrationWithAnnotationConfigApplicationContext_defaultAndDevProfile() {
+        Class<?> beanClass = DefaultAndDevProfileAnnotatedComponent.class;
+        String beanName = DefaultAndDevProfileAnnotatedComponent.BEAN_NAME;
+        {
+            AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+            ctx.getEnvironment().setDefaultProfiles(TEST_DEFAULT_PROFILE_NAME);
+            // no active profiles are set
+            ctx.register(beanClass);
+            ctx.refresh();
+            assertThat(ctx.containsBean(beanName), is(true));
+        }
+        {
+            AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+            ctx.getEnvironment().setDefaultProfiles(TEST_DEFAULT_PROFILE_NAME);
+            ctx.getEnvironment().setActiveProfiles("dev");
+            ctx.register(beanClass);
+            ctx.refresh();
+            assertThat(ctx.containsBean(beanName), is(true));
+        }
+        {
+            AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+            ctx.getEnvironment().setDefaultProfiles(TEST_DEFAULT_PROFILE_NAME);
+            ctx.getEnvironment().setActiveProfiles("other");
+            ctx.register(beanClass);
+            ctx.refresh();
+            assertThat(ctx.containsBean(beanName), is(false));
+        }
+    }
+
+    @Test
+    public void testIntegrationWithAnnotationConfigApplicationContext_metaProfile() {
+        Class<?> beanClass = MetaProfileAnnotatedComponent.class;
+        String beanName = MetaProfileAnnotatedComponent.BEAN_NAME;
+        {
+            AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+            ctx.getEnvironment().setDefaultProfiles(TEST_DEFAULT_PROFILE_NAME);
+            // no active profiles are set
+            ctx.register(beanClass);
+            ctx.refresh();
+            assertThat(ctx.containsBean(beanName), is(true));
+        }
+        {
+            AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+            ctx.getEnvironment().setDefaultProfiles(TEST_DEFAULT_PROFILE_NAME);
+            ctx.getEnvironment().setActiveProfiles("dev");
+            ctx.register(beanClass);
+            ctx.refresh();
+            assertThat(ctx.containsBean(beanName), is(true));
+        }
+        {
+            AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+            ctx.getEnvironment().setDefaultProfiles(TEST_DEFAULT_PROFILE_NAME);
+            ctx.getEnvironment().setActiveProfiles("other");
+            ctx.register(beanClass);
+            ctx.refresh();
+            assertThat(ctx.containsBean(beanName), is(false));
+        }
+    }
+
+    private boolean containsBeanClass(Set<BeanDefinition> candidates, Class<?> beanClass) {
+        for (BeanDefinition candidate : candidates) {
+            if (beanClass.getName().equals(candidate.getBeanClassName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void assertBeanDefinitionType(Set<BeanDefinition> candidates,
+                                          Class<? extends BeanDefinition> expectedType) {
+        candidates.forEach(c -> {
+            assertThat(c, is(instanceOf(expectedType)));
+        });
+    }
+
+
+    @Profile(TEST_DEFAULT_PROFILE_NAME)
+    @Component(DefaultProfileAnnotatedComponent.BEAN_NAME)
+    private static class DefaultProfileAnnotatedComponent {
+        static final String BEAN_NAME = "defaultProfileAnnotatedComponent";
+    }
+
+    @Profile({TEST_DEFAULT_PROFILE_NAME, "dev"})
+    @Component(DefaultAndDevProfileAnnotatedComponent.BEAN_NAME)
+    private static class DefaultAndDevProfileAnnotatedComponent {
+        static final String BEAN_NAME = "defaultAndDevProfileAnnotatedComponent";
+    }
+
+    @DefaultProfile
+    @DevProfile
+    @Component(MetaProfileAnnotatedComponent.BEAN_NAME)
+    private static class MetaProfileAnnotatedComponent {
+        static final String BEAN_NAME = "metaProfileAnnotatedComponent";
+    }
+
+    @Profile(TEST_DEFAULT_PROFILE_NAME)
+    @Retention(RetentionPolicy.RUNTIME)
+    public @interface DefaultProfile {
+    }
+
+    @Profile("dev")
+    @Retention(RetentionPolicy.RUNTIME)
+    public @interface DevProfile {
+    }
 
 }

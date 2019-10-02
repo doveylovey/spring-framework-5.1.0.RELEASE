@@ -43,42 +43,42 @@ import static org.junit.Assert.*;
 @ContextConfiguration(initializers = PropertySourcesInitializerTests.PropertySourceInitializer.class)
 public class PropertySourcesInitializerTests {
 
-	@Configuration
-	static class Config {
+    @Configuration
+    static class Config {
 
-		@Value("${enigma}")
-		// The following can also be used to directly access the
-		// environment instead of relying on placeholder replacement.
-		// @Value("#{ environment['enigma'] }")
-		private String enigma;
-
-
-		@Bean
-		public String enigma() {
-			return enigma;
-		}
-
-	}
+        @Value("${enigma}")
+        // The following can also be used to directly access the
+        // environment instead of relying on placeholder replacement.
+        // @Value("#{ environment['enigma'] }")
+        private String enigma;
 
 
-	@Autowired
-	private String enigma;
+        @Bean
+        public String enigma() {
+            return enigma;
+        }
+
+    }
 
 
-	@Test
-	public void customPropertySourceConfiguredViaContextInitializer() {
-		assertEquals("foo", enigma);
-	}
+    @Autowired
+    private String enigma;
 
 
-	public static class PropertySourceInitializer implements
-			ApplicationContextInitializer<ConfigurableApplicationContext> {
+    @Test
+    public void customPropertySourceConfiguredViaContextInitializer() {
+        assertEquals("foo", enigma);
+    }
 
-		@Override
-		public void initialize(ConfigurableApplicationContext applicationContext) {
-			applicationContext.getEnvironment().getPropertySources().addFirst(
-				new MockPropertySource().withProperty("enigma", "foo"));
-		}
-	}
+
+    public static class PropertySourceInitializer implements
+            ApplicationContextInitializer<ConfigurableApplicationContext> {
+
+        @Override
+        public void initialize(ConfigurableApplicationContext applicationContext) {
+            applicationContext.getEnvironment().getPropertySources().addFirst(
+                    new MockPropertySource().withProperty("enigma", "foo"));
+        }
+    }
 
 }

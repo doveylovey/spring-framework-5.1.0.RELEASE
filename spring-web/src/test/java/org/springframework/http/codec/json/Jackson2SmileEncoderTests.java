@@ -47,75 +47,74 @@ import static org.springframework.http.MediaType.APPLICATION_XML;
  */
 public class Jackson2SmileEncoderTests extends AbstractDataBufferAllocatingTestCase {
 
-	private final static MimeType SMILE_MIME_TYPE = new MimeType("application", "x-jackson-smile");
-	private final static MimeType STREAM_SMILE_MIME_TYPE = new MimeType("application", "stream+x-jackson-smile");
+    private final static MimeType SMILE_MIME_TYPE = new MimeType("application", "x-jackson-smile");
+    private final static MimeType STREAM_SMILE_MIME_TYPE = new MimeType("application", "stream+x-jackson-smile");
 
-	private final Jackson2SmileEncoder encoder = new Jackson2SmileEncoder();
+    private final Jackson2SmileEncoder encoder = new Jackson2SmileEncoder();
 
 
-	@Test
-	public void canEncode() {
-		ResolvableType pojoType = ResolvableType.forClass(Pojo.class);
-		assertTrue(this.encoder.canEncode(pojoType, SMILE_MIME_TYPE));
-		assertTrue(this.encoder.canEncode(pojoType, STREAM_SMILE_MIME_TYPE));
-		assertTrue(this.encoder.canEncode(pojoType, null));
+    @Test
+    public void canEncode() {
+        ResolvableType pojoType = ResolvableType.forClass(Pojo.class);
+        assertTrue(this.encoder.canEncode(pojoType, SMILE_MIME_TYPE));
+        assertTrue(this.encoder.canEncode(pojoType, STREAM_SMILE_MIME_TYPE));
+        assertTrue(this.encoder.canEncode(pojoType, null));
 
-		// SPR-15464
-		assertTrue(this.encoder.canEncode(ResolvableType.NONE, null));
-	}
+        // SPR-15464
+        assertTrue(this.encoder.canEncode(ResolvableType.NONE, null));
+    }
 
-	@Test
-	public void canNotEncode() {
-		assertFalse(this.encoder.canEncode(ResolvableType.forClass(String.class), null));
-		assertFalse(this.encoder.canEncode(ResolvableType.forClass(Pojo.class), APPLICATION_XML));
+    @Test
+    public void canNotEncode() {
+        assertFalse(this.encoder.canEncode(ResolvableType.forClass(String.class), null));
+        assertFalse(this.encoder.canEncode(ResolvableType.forClass(Pojo.class), APPLICATION_XML));
 
-		ResolvableType sseType = ResolvableType.forClass(ServerSentEvent.class);
-		assertFalse(this.encoder.canEncode(sseType, SMILE_MIME_TYPE));
-	}
+        ResolvableType sseType = ResolvableType.forClass(ServerSentEvent.class);
+        assertFalse(this.encoder.canEncode(sseType, SMILE_MIME_TYPE));
+    }
 
-	@Test
-	public void encode() throws Exception {
-		Flux<Pojo> source = Flux.just(
-				new Pojo("foo", "bar"),
-				new Pojo("foofoo", "barbar"),
-				new Pojo("foofoofoo", "barbarbar")
-		);
-		ResolvableType type = ResolvableType.forClass(Pojo.class);
-		Flux<DataBuffer> output = this.encoder.encode(source, this.bufferFactory, type, null, emptyMap());
+    @Test
+    public void encode() throws Exception {
+        Flux<Pojo> source = Flux.just(
+                new Pojo("foo", "bar"),
+                new Pojo("foofoo", "barbar"),
+                new Pojo("foofoofoo", "barbarbar")
+        );
+        ResolvableType type = ResolvableType.forClass(Pojo.class);
+        Flux<DataBuffer> output = this.encoder.encode(source, this.bufferFactory, type, null, emptyMap());
 
-		ObjectMapper mapper = Jackson2ObjectMapperBuilder.smile().build();
-		StepVerifier.create(output)
-				.consumeNextWith(dataBuffer -> readPojo(mapper, List.class, dataBuffer))
-				.verifyComplete();
-	}
+        ObjectMapper mapper = Jackson2ObjectMapperBuilder.smile().build();
+        StepVerifier.create(output)
+                .consumeNextWith(dataBuffer -> readPojo(mapper, List.class, dataBuffer))
+                .verifyComplete();
+    }
 
-	@Test
-	public void encodeAsStream() throws Exception {
-		Flux<Pojo> source = Flux.just(
-				new Pojo("foo", "bar"),
-				new Pojo("foofoo", "barbar"),
-				new Pojo("foofoofoo", "barbarbar")
-		);
-		ResolvableType type = ResolvableType.forClass(Pojo.class);
-		Flux<DataBuffer> output = this.encoder.encode(source, this.bufferFactory, type, STREAM_SMILE_MIME_TYPE, emptyMap());
+    @Test
+    public void encodeAsStream() throws Exception {
+        Flux<Pojo> source = Flux.just(
+                new Pojo("foo", "bar"),
+                new Pojo("foofoo", "barbar"),
+                new Pojo("foofoofoo", "barbarbar")
+        );
+        ResolvableType type = ResolvableType.forClass(Pojo.class);
+        Flux<DataBuffer> output = this.encoder.encode(source, this.bufferFactory, type, STREAM_SMILE_MIME_TYPE, emptyMap());
 
-		ObjectMapper mapper = Jackson2ObjectMapperBuilder.smile().build();
-		StepVerifier.create(output)
-				.consumeNextWith(dataBuffer -> readPojo(mapper, Pojo.class, dataBuffer))
-				.consumeNextWith(dataBuffer -> readPojo(mapper, Pojo.class, dataBuffer))
-				.consumeNextWith(dataBuffer -> readPojo(mapper, Pojo.class, dataBuffer))
-				.verifyComplete();
-	}
+        ObjectMapper mapper = Jackson2ObjectMapperBuilder.smile().build();
+        StepVerifier.create(output)
+                .consumeNextWith(dataBuffer -> readPojo(mapper, Pojo.class, dataBuffer))
+                .consumeNextWith(dataBuffer -> readPojo(mapper, Pojo.class, dataBuffer))
+                .consumeNextWith(dataBuffer -> readPojo(mapper, Pojo.class, dataBuffer))
+                .verifyComplete();
+    }
 
-	public <T> T readPojo(ObjectMapper mapper, Class<T> valueType, DataBuffer dataBuffer) {
-		try {
-			T value = mapper.reader().forType(valueType).readValue(DataBufferTestUtils.dumpBytes(dataBuffer));
-			DataBufferUtils.release(dataBuffer);
-			return value;
-		}
-		catch (IOException ex) {
-			throw new UncheckedIOException(ex);
-		}
-	}
+    public <T> T readPojo(ObjectMapper mapper, Class<T> valueType, DataBuffer dataBuffer) {
+        try {
+            T value = mapper.reader().forType(valueType).readValue(DataBufferTestUtils.dumpBytes(dataBuffer));
+            DataBufferUtils.release(dataBuffer);
+            return value;
+        } catch (IOException ex) {
+            throw new UncheckedIOException(ex);
+        }
+    }
 
 }

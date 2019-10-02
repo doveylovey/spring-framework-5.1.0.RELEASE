@@ -61,7 +61,6 @@ import org.springframework.remoting.support.RemoteInvocationResult;
  * In general, we strongly recommend any other message format (e.g. JSON) instead.
  *
  * @author Juergen Hoeller
- * @since 1.1
  * @see #setServiceUrl
  * @see #setCodebaseUrl
  * @see #setRemoteInvocationFactory
@@ -69,170 +68,173 @@ import org.springframework.remoting.support.RemoteInvocationResult;
  * @see HttpInvokerServiceExporter
  * @see HttpInvokerProxyFactoryBean
  * @see java.rmi.server.RMIClassLoader
+ * @since 1.1
  */
 public class HttpInvokerClientInterceptor extends RemoteInvocationBasedAccessor
-		implements MethodInterceptor, HttpInvokerClientConfiguration {
+        implements MethodInterceptor, HttpInvokerClientConfiguration {
 
-	@Nullable
-	private String codebaseUrl;
+    @Nullable
+    private String codebaseUrl;
 
-	@Nullable
-	private HttpInvokerRequestExecutor httpInvokerRequestExecutor;
-
-
-	/**
-	 * Set the codebase URL to download classes from if not found locally.
-	 * Can consists of multiple URLs, separated by spaces.
-	 * <p>Follows RMI's codebase conventions for dynamic class download.
-	 * In contrast to RMI, where the server determines the URL for class download
-	 * (via the "java.rmi.server.codebase" system property), it's the client
-	 * that determines the codebase URL here. The server will usually be the
-	 * same as for the service URL, just pointing to a different path there.
-	 * @see #setServiceUrl
-	 * @see org.springframework.remoting.rmi.CodebaseAwareObjectInputStream
-	 * @see java.rmi.server.RMIClassLoader
-	 */
-	public void setCodebaseUrl(@Nullable String codebaseUrl) {
-		this.codebaseUrl = codebaseUrl;
-	}
-
-	/**
-	 * Return the codebase URL to download classes from if not found locally.
-	 */
-	@Override
-	@Nullable
-	public String getCodebaseUrl() {
-		return this.codebaseUrl;
-	}
-
-	/**
-	 * Set the HttpInvokerRequestExecutor implementation to use for executing
-	 * remote invocations.
-	 * <p>Default is {@link SimpleHttpInvokerRequestExecutor}. Alternatively,
-	 * consider using {@link HttpComponentsHttpInvokerRequestExecutor} for more
-	 * sophisticated needs.
-	 * @see SimpleHttpInvokerRequestExecutor
-	 * @see HttpComponentsHttpInvokerRequestExecutor
-	 */
-	public void setHttpInvokerRequestExecutor(HttpInvokerRequestExecutor httpInvokerRequestExecutor) {
-		this.httpInvokerRequestExecutor = httpInvokerRequestExecutor;
-	}
-
-	/**
-	 * Return the HttpInvokerRequestExecutor used by this remote accessor.
-	 * <p>Creates a default SimpleHttpInvokerRequestExecutor if no executor
-	 * has been initialized already.
-	 */
-	public HttpInvokerRequestExecutor getHttpInvokerRequestExecutor() {
-		if (this.httpInvokerRequestExecutor == null) {
-			SimpleHttpInvokerRequestExecutor executor = new SimpleHttpInvokerRequestExecutor();
-			executor.setBeanClassLoader(getBeanClassLoader());
-			this.httpInvokerRequestExecutor = executor;
-		}
-		return this.httpInvokerRequestExecutor;
-	}
-
-	@Override
-	public void afterPropertiesSet() {
-		super.afterPropertiesSet();
-
-		// Eagerly initialize the default HttpInvokerRequestExecutor, if needed.
-		getHttpInvokerRequestExecutor();
-	}
+    @Nullable
+    private HttpInvokerRequestExecutor httpInvokerRequestExecutor;
 
 
-	@Override
-	public Object invoke(MethodInvocation methodInvocation) throws Throwable {
-		if (AopUtils.isToStringMethod(methodInvocation.getMethod())) {
-			return "HTTP invoker proxy for service URL [" + getServiceUrl() + "]";
-		}
+    /**
+     * Set the codebase URL to download classes from if not found locally.
+     * Can consists of multiple URLs, separated by spaces.
+     * <p>Follows RMI's codebase conventions for dynamic class download.
+     * In contrast to RMI, where the server determines the URL for class download
+     * (via the "java.rmi.server.codebase" system property), it's the client
+     * that determines the codebase URL here. The server will usually be the
+     * same as for the service URL, just pointing to a different path there.
+     *
+     * @see #setServiceUrl
+     * @see org.springframework.remoting.rmi.CodebaseAwareObjectInputStream
+     * @see java.rmi.server.RMIClassLoader
+     */
+    public void setCodebaseUrl(@Nullable String codebaseUrl) {
+        this.codebaseUrl = codebaseUrl;
+    }
 
-		RemoteInvocation invocation = createRemoteInvocation(methodInvocation);
-		RemoteInvocationResult result;
+    /**
+     * Return the codebase URL to download classes from if not found locally.
+     */
+    @Override
+    @Nullable
+    public String getCodebaseUrl() {
+        return this.codebaseUrl;
+    }
 
-		try {
-			result = executeRequest(invocation, methodInvocation);
-		}
-		catch (Throwable ex) {
-			RemoteAccessException rae = convertHttpInvokerAccessException(ex);
-			throw (rae != null ? rae : ex);
-		}
+    /**
+     * Set the HttpInvokerRequestExecutor implementation to use for executing
+     * remote invocations.
+     * <p>Default is {@link SimpleHttpInvokerRequestExecutor}. Alternatively,
+     * consider using {@link HttpComponentsHttpInvokerRequestExecutor} for more
+     * sophisticated needs.
+     *
+     * @see SimpleHttpInvokerRequestExecutor
+     * @see HttpComponentsHttpInvokerRequestExecutor
+     */
+    public void setHttpInvokerRequestExecutor(HttpInvokerRequestExecutor httpInvokerRequestExecutor) {
+        this.httpInvokerRequestExecutor = httpInvokerRequestExecutor;
+    }
 
-		try {
-			return recreateRemoteInvocationResult(result);
-		}
-		catch (Throwable ex) {
-			if (result.hasInvocationTargetException()) {
-				throw ex;
-			}
-			else {
-				throw new RemoteInvocationFailureException("Invocation of method [" + methodInvocation.getMethod() +
-						"] failed in HTTP invoker remote service at [" + getServiceUrl() + "]", ex);
-			}
-		}
-	}
+    /**
+     * Return the HttpInvokerRequestExecutor used by this remote accessor.
+     * <p>Creates a default SimpleHttpInvokerRequestExecutor if no executor
+     * has been initialized already.
+     */
+    public HttpInvokerRequestExecutor getHttpInvokerRequestExecutor() {
+        if (this.httpInvokerRequestExecutor == null) {
+            SimpleHttpInvokerRequestExecutor executor = new SimpleHttpInvokerRequestExecutor();
+            executor.setBeanClassLoader(getBeanClassLoader());
+            this.httpInvokerRequestExecutor = executor;
+        }
+        return this.httpInvokerRequestExecutor;
+    }
 
-	/**
-	 * Execute the given remote invocation via the {@link HttpInvokerRequestExecutor}.
-	 * <p>This implementation delegates to {@link #executeRequest(RemoteInvocation)}.
-	 * Can be overridden to react to the specific original MethodInvocation.
-	 * @param invocation the RemoteInvocation to execute
-	 * @param originalInvocation the original MethodInvocation (can e.g. be cast
-	 * to the ProxyMethodInvocation interface for accessing user attributes)
-	 * @return the RemoteInvocationResult object
-	 * @throws Exception in case of errors
-	 */
-	protected RemoteInvocationResult executeRequest(
-			RemoteInvocation invocation, MethodInvocation originalInvocation) throws Exception {
+    @Override
+    public void afterPropertiesSet() {
+        super.afterPropertiesSet();
 
-		return executeRequest(invocation);
-	}
+        // Eagerly initialize the default HttpInvokerRequestExecutor, if needed.
+        getHttpInvokerRequestExecutor();
+    }
 
-	/**
-	 * Execute the given remote invocation via the {@link HttpInvokerRequestExecutor}.
-	 * <p>Can be overridden in subclasses to pass a different configuration object
-	 * to the executor. Alternatively, add further configuration properties in a
-	 * subclass of this accessor: By default, the accessor passed itself as
-	 * configuration object to the executor.
-	 * @param invocation the RemoteInvocation to execute
-	 * @return the RemoteInvocationResult object
-	 * @throws IOException if thrown by I/O operations
-	 * @throws ClassNotFoundException if thrown during deserialization
-	 * @throws Exception in case of general errors
-	 * @see #getHttpInvokerRequestExecutor
-	 * @see HttpInvokerClientConfiguration
-	 */
-	protected RemoteInvocationResult executeRequest(RemoteInvocation invocation) throws Exception {
-		return getHttpInvokerRequestExecutor().executeRequest(this, invocation);
-	}
 
-	/**
-	 * Convert the given HTTP invoker access exception to an appropriate
-	 * Spring {@link RemoteAccessException}.
-	 * @param ex the exception to convert
-	 * @return the RemoteAccessException to throw, or {@code null} to have the
-	 * original exception propagated to the caller
-	 */
-	@Nullable
-	protected RemoteAccessException convertHttpInvokerAccessException(Throwable ex) {
-		if (ex instanceof ConnectException) {
-			return new RemoteConnectFailureException(
-					"Could not connect to HTTP invoker remote service at [" + getServiceUrl() + "]", ex);
-		}
+    @Override
+    public Object invoke(MethodInvocation methodInvocation) throws Throwable {
+        if (AopUtils.isToStringMethod(methodInvocation.getMethod())) {
+            return "HTTP invoker proxy for service URL [" + getServiceUrl() + "]";
+        }
 
-		if (ex instanceof ClassNotFoundException || ex instanceof NoClassDefFoundError ||
-				ex instanceof InvalidClassException) {
-			return new RemoteAccessException(
-					"Could not deserialize result from HTTP invoker remote service [" + getServiceUrl() + "]", ex);
-		}
+        RemoteInvocation invocation = createRemoteInvocation(methodInvocation);
+        RemoteInvocationResult result;
 
-		if (ex instanceof Exception) {
-			return new RemoteAccessException(
-					"Could not access HTTP invoker remote service at [" + getServiceUrl() + "]", ex);
-		}
+        try {
+            result = executeRequest(invocation, methodInvocation);
+        } catch (Throwable ex) {
+            RemoteAccessException rae = convertHttpInvokerAccessException(ex);
+            throw (rae != null ? rae : ex);
+        }
 
-		// For any other Throwable, e.g. OutOfMemoryError: let it get propagated as-is.
-		return null;
-	}
+        try {
+            return recreateRemoteInvocationResult(result);
+        } catch (Throwable ex) {
+            if (result.hasInvocationTargetException()) {
+                throw ex;
+            } else {
+                throw new RemoteInvocationFailureException("Invocation of method [" + methodInvocation.getMethod() +
+                        "] failed in HTTP invoker remote service at [" + getServiceUrl() + "]", ex);
+            }
+        }
+    }
+
+    /**
+     * Execute the given remote invocation via the {@link HttpInvokerRequestExecutor}.
+     * <p>This implementation delegates to {@link #executeRequest(RemoteInvocation)}.
+     * Can be overridden to react to the specific original MethodInvocation.
+     *
+     * @param invocation         the RemoteInvocation to execute
+     * @param originalInvocation the original MethodInvocation (can e.g. be cast
+     *                           to the ProxyMethodInvocation interface for accessing user attributes)
+     * @return the RemoteInvocationResult object
+     * @throws Exception in case of errors
+     */
+    protected RemoteInvocationResult executeRequest(
+            RemoteInvocation invocation, MethodInvocation originalInvocation) throws Exception {
+
+        return executeRequest(invocation);
+    }
+
+    /**
+     * Execute the given remote invocation via the {@link HttpInvokerRequestExecutor}.
+     * <p>Can be overridden in subclasses to pass a different configuration object
+     * to the executor. Alternatively, add further configuration properties in a
+     * subclass of this accessor: By default, the accessor passed itself as
+     * configuration object to the executor.
+     *
+     * @param invocation the RemoteInvocation to execute
+     * @return the RemoteInvocationResult object
+     * @throws IOException            if thrown by I/O operations
+     * @throws ClassNotFoundException if thrown during deserialization
+     * @throws Exception              in case of general errors
+     * @see #getHttpInvokerRequestExecutor
+     * @see HttpInvokerClientConfiguration
+     */
+    protected RemoteInvocationResult executeRequest(RemoteInvocation invocation) throws Exception {
+        return getHttpInvokerRequestExecutor().executeRequest(this, invocation);
+    }
+
+    /**
+     * Convert the given HTTP invoker access exception to an appropriate
+     * Spring {@link RemoteAccessException}.
+     *
+     * @param ex the exception to convert
+     * @return the RemoteAccessException to throw, or {@code null} to have the
+     * original exception propagated to the caller
+     */
+    @Nullable
+    protected RemoteAccessException convertHttpInvokerAccessException(Throwable ex) {
+        if (ex instanceof ConnectException) {
+            return new RemoteConnectFailureException(
+                    "Could not connect to HTTP invoker remote service at [" + getServiceUrl() + "]", ex);
+        }
+
+        if (ex instanceof ClassNotFoundException || ex instanceof NoClassDefFoundError ||
+                ex instanceof InvalidClassException) {
+            return new RemoteAccessException(
+                    "Could not deserialize result from HTTP invoker remote service [" + getServiceUrl() + "]", ex);
+        }
+
+        if (ex instanceof Exception) {
+            return new RemoteAccessException(
+                    "Could not access HTTP invoker remote service at [" + getServiceUrl() + "]", ex);
+        }
+
+        // For any other Throwable, e.g. OutOfMemoryError: let it get propagated as-is.
+        return null;
+    }
 
 }

@@ -49,153 +49,153 @@ import static org.junit.Assert.*;
  */
 public class WebRequestDataBinderIntegrationTests {
 
-	private static Server jettyServer;
+    private static Server jettyServer;
 
-	private static final PartsServlet partsServlet = new PartsServlet();
+    private static final PartsServlet partsServlet = new PartsServlet();
 
-	private static final PartListServlet partListServlet = new PartListServlet();
+    private static final PartListServlet partListServlet = new PartListServlet();
 
-	private final RestTemplate template = new RestTemplate(new HttpComponentsClientHttpRequestFactory());
+    private final RestTemplate template = new RestTemplate(new HttpComponentsClientHttpRequestFactory());
 
-	protected static String baseUrl;
+    protected static String baseUrl;
 
-	protected static MediaType contentType;
-
-
-	@BeforeClass
-	public static void startJettyServer() throws Exception {
-		// Let server pick its own random, available port.
-		jettyServer = new Server(0);
-
-		ServletContextHandler handler = new ServletContextHandler();
-
-		MultipartConfigElement multipartConfig = new MultipartConfigElement("");
-
-		ServletHolder holder = new ServletHolder(partsServlet);
-		holder.getRegistration().setMultipartConfig(multipartConfig);
-		handler.addServlet(holder, "/parts");
-
-		holder = new ServletHolder(partListServlet);
-		holder.getRegistration().setMultipartConfig(multipartConfig);
-		handler.addServlet(holder, "/partlist");
-
-		jettyServer.setHandler(handler);
-		jettyServer.start();
-
-		Connector[] connectors = jettyServer.getConnectors();
-		NetworkConnector connector = (NetworkConnector) connectors[0];
-		baseUrl = "http://localhost:" + connector.getLocalPort();
-	}
-
-	@AfterClass
-	public static void stopJettyServer() throws Exception {
-		if (jettyServer != null) {
-			jettyServer.stop();
-		}
-	}
+    protected static MediaType contentType;
 
 
-	@Test
-	public void partsBinding() {
-		PartsBean bean = new PartsBean();
-		partsServlet.setBean(bean);
+    @BeforeClass
+    public static void startJettyServer() throws Exception {
+        // Let server pick its own random, available port.
+        jettyServer = new Server(0);
 
-		MultiValueMap<String, Object> parts = new LinkedMultiValueMap<>();
-		Resource firstPart = new ClassPathResource("/org/springframework/http/converter/logo.jpg");
-		parts.add("firstPart", firstPart);
-		parts.add("secondPart", "secondValue");
+        ServletContextHandler handler = new ServletContextHandler();
 
-		template.postForLocation(baseUrl + "/parts", parts);
+        MultipartConfigElement multipartConfig = new MultipartConfigElement("");
 
-		assertNotNull(bean.getFirstPart());
-		assertNotNull(bean.getSecondPart());
-	}
+        ServletHolder holder = new ServletHolder(partsServlet);
+        holder.getRegistration().setMultipartConfig(multipartConfig);
+        handler.addServlet(holder, "/parts");
 
-	@Test
-	public void partListBinding() {
-		PartListBean bean = new PartListBean();
-		partListServlet.setBean(bean);
+        holder = new ServletHolder(partListServlet);
+        holder.getRegistration().setMultipartConfig(multipartConfig);
+        handler.addServlet(holder, "/partlist");
 
-		MultiValueMap<String, Object> parts = new LinkedMultiValueMap<>();
-		parts.add("partList", "first value");
-		parts.add("partList", "second value");
-		Resource logo = new ClassPathResource("/org/springframework/http/converter/logo.jpg");
-		parts.add("partList", logo);
+        jettyServer.setHandler(handler);
+        jettyServer.start();
 
-		template.postForLocation(baseUrl + "/partlist", parts);
+        Connector[] connectors = jettyServer.getConnectors();
+        NetworkConnector connector = (NetworkConnector) connectors[0];
+        baseUrl = "http://localhost:" + connector.getLocalPort();
+    }
 
-		assertNotNull(bean.getPartList());
-		assertEquals(parts.get("partList").size(), bean.getPartList().size());
-	}
-
-
-	@SuppressWarnings("serial")
-	private abstract static class AbstractStandardMultipartServlet<T> extends HttpServlet {
-
-		private T bean;
-
-		@Override
-		public void service(HttpServletRequest request, HttpServletResponse response) {
-			WebRequestDataBinder binder = new WebRequestDataBinder(bean);
-			ServletWebRequest webRequest = new ServletWebRequest(request, response);
-			binder.bind(webRequest);
-			response.setStatus(HttpServletResponse.SC_OK);
-		}
-
-		public void setBean(T bean) {
-			this.bean = bean;
-		}
-	}
+    @AfterClass
+    public static void stopJettyServer() throws Exception {
+        if (jettyServer != null) {
+            jettyServer.stop();
+        }
+    }
 
 
-	private static class PartsBean {
+    @Test
+    public void partsBinding() {
+        PartsBean bean = new PartsBean();
+        partsServlet.setBean(bean);
 
-		public Part firstPart;
+        MultiValueMap<String, Object> parts = new LinkedMultiValueMap<>();
+        Resource firstPart = new ClassPathResource("/org/springframework/http/converter/logo.jpg");
+        parts.add("firstPart", firstPart);
+        parts.add("secondPart", "secondValue");
 
-		public Part secondPart;
+        template.postForLocation(baseUrl + "/parts", parts);
 
-		public Part getFirstPart() {
-			return firstPart;
-		}
+        assertNotNull(bean.getFirstPart());
+        assertNotNull(bean.getSecondPart());
+    }
 
-		@SuppressWarnings("unused")
-		public void setFirstPart(Part firstPart) {
-			this.firstPart = firstPart;
-		}
+    @Test
+    public void partListBinding() {
+        PartListBean bean = new PartListBean();
+        partListServlet.setBean(bean);
 
-		public Part getSecondPart() {
-			return secondPart;
-		}
+        MultiValueMap<String, Object> parts = new LinkedMultiValueMap<>();
+        parts.add("partList", "first value");
+        parts.add("partList", "second value");
+        Resource logo = new ClassPathResource("/org/springframework/http/converter/logo.jpg");
+        parts.add("partList", logo);
 
-		@SuppressWarnings("unused")
-		public void setSecondPart(Part secondPart) {
-			this.secondPart = secondPart;
-		}
-	}
+        template.postForLocation(baseUrl + "/partlist", parts);
 
-
-	@SuppressWarnings("serial")
-	private static class PartsServlet extends AbstractStandardMultipartServlet<PartsBean> {
-	}
-
-
-	private static class PartListBean {
-
-		public List<Part> partList;
-
-		public List<Part> getPartList() {
-			return partList;
-		}
-
-		@SuppressWarnings("unused")
-		public void setPartList(List<Part> partList) {
-			this.partList = partList;
-		}
-	}
+        assertNotNull(bean.getPartList());
+        assertEquals(parts.get("partList").size(), bean.getPartList().size());
+    }
 
 
-	@SuppressWarnings("serial")
-	private static class PartListServlet extends AbstractStandardMultipartServlet<PartListBean> {
-	}
+    @SuppressWarnings("serial")
+    private abstract static class AbstractStandardMultipartServlet<T> extends HttpServlet {
+
+        private T bean;
+
+        @Override
+        public void service(HttpServletRequest request, HttpServletResponse response) {
+            WebRequestDataBinder binder = new WebRequestDataBinder(bean);
+            ServletWebRequest webRequest = new ServletWebRequest(request, response);
+            binder.bind(webRequest);
+            response.setStatus(HttpServletResponse.SC_OK);
+        }
+
+        public void setBean(T bean) {
+            this.bean = bean;
+        }
+    }
+
+
+    private static class PartsBean {
+
+        public Part firstPart;
+
+        public Part secondPart;
+
+        public Part getFirstPart() {
+            return firstPart;
+        }
+
+        @SuppressWarnings("unused")
+        public void setFirstPart(Part firstPart) {
+            this.firstPart = firstPart;
+        }
+
+        public Part getSecondPart() {
+            return secondPart;
+        }
+
+        @SuppressWarnings("unused")
+        public void setSecondPart(Part secondPart) {
+            this.secondPart = secondPart;
+        }
+    }
+
+
+    @SuppressWarnings("serial")
+    private static class PartsServlet extends AbstractStandardMultipartServlet<PartsBean> {
+    }
+
+
+    private static class PartListBean {
+
+        public List<Part> partList;
+
+        public List<Part> getPartList() {
+            return partList;
+        }
+
+        @SuppressWarnings("unused")
+        public void setPartList(List<Part> partList) {
+            this.partList = partList;
+        }
+    }
+
+
+    @SuppressWarnings("serial")
+    private static class PartListServlet extends AbstractStandardMultipartServlet<PartListBean> {
+    }
 
 }

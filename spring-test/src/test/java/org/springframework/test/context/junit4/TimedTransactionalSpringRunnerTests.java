@@ -41,32 +41,32 @@ import static org.springframework.test.transaction.TransactionTestUtils.*;
 @Transactional
 public class TimedTransactionalSpringRunnerTests {
 
-	@Test
-	@Timed(millis = 10000)
-	@Repeat(5)
-	public void transactionalWithSpringTimeout() {
-		assertInTransaction(true);
-	}
+    @Test
+    @Timed(millis = 10000)
+    @Repeat(5)
+    public void transactionalWithSpringTimeout() {
+        assertInTransaction(true);
+    }
 
-	@Test(timeout = 10000)
-	@Repeat(5)
-	public void transactionalWithJUnitTimeout() {
-		assertInTransaction(true);
-	}
+    @Test(timeout = 10000)
+    @Repeat(5)
+    public void transactionalWithJUnitTimeout() {
+        assertInTransaction(true);
+    }
 
-	@Test
-	@Transactional(propagation = Propagation.NOT_SUPPORTED)
-	@Timed(millis = 10000)
-	@Repeat(5)
-	public void notTransactionalWithSpringTimeout() {
-		assertInTransaction(false);
-	}
+    @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    @Timed(millis = 10000)
+    @Repeat(5)
+    public void notTransactionalWithSpringTimeout() {
+        assertInTransaction(false);
+    }
 
-	@Test(timeout = 10000)
-	@Transactional(propagation = Propagation.NOT_SUPPORTED)
-	@Repeat(5)
-	public void notTransactionalWithJUnitTimeout() {
-		assertInTransaction(false);
-	}
+    @Test(timeout = 10000)
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    @Repeat(5)
+    public void notTransactionalWithJUnitTimeout() {
+        assertInTransaction(false);
+    }
 
 }

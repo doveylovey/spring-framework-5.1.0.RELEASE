@@ -41,86 +41,86 @@ import org.springframework.web.socket.sockjs.transport.TransportType;
  */
 public class XhrClientSockJsSession extends AbstractClientSockJsSession {
 
-	private final XhrTransport transport;
+    private final XhrTransport transport;
 
-	private HttpHeaders headers;
+    private HttpHeaders headers;
 
-	private HttpHeaders sendHeaders;
+    private HttpHeaders sendHeaders;
 
-	private final URI sendUrl;
+    private final URI sendUrl;
 
-	private int textMessageSizeLimit = -1;
+    private int textMessageSizeLimit = -1;
 
-	private int binaryMessageSizeLimit = -1;
-
-
-	public XhrClientSockJsSession(TransportRequest request, WebSocketHandler handler,
-			XhrTransport transport, SettableListenableFuture<WebSocketSession> connectFuture) {
-
-		super(request, handler, connectFuture);
-		Assert.notNull(transport, "XhrTransport is required");
-		this.transport = transport;
-		this.headers = request.getHttpRequestHeaders();
-		this.sendHeaders = new HttpHeaders();
-		this.sendHeaders.putAll(this.headers);
-		this.sendHeaders.setContentType(MediaType.APPLICATION_JSON);
-		this.sendUrl = request.getSockJsUrlInfo().getTransportUrl(TransportType.XHR_SEND);
-	}
+    private int binaryMessageSizeLimit = -1;
 
 
-	public HttpHeaders getHeaders() {
-		return this.headers;
-	}
+    public XhrClientSockJsSession(TransportRequest request, WebSocketHandler handler,
+                                  XhrTransport transport, SettableListenableFuture<WebSocketSession> connectFuture) {
 
-	@Override
-	public InetSocketAddress getLocalAddress() {
-		return null;
-	}
+        super(request, handler, connectFuture);
+        Assert.notNull(transport, "XhrTransport is required");
+        this.transport = transport;
+        this.headers = request.getHttpRequestHeaders();
+        this.sendHeaders = new HttpHeaders();
+        this.sendHeaders.putAll(this.headers);
+        this.sendHeaders.setContentType(MediaType.APPLICATION_JSON);
+        this.sendUrl = request.getSockJsUrlInfo().getTransportUrl(TransportType.XHR_SEND);
+    }
 
-	@Override
-	public InetSocketAddress getRemoteAddress() {
-		URI uri = getUri();
-		return (uri != null ? new InetSocketAddress(uri.getHost(), uri.getPort()) : null);
-	}
 
-	@Override
-	public String getAcceptedProtocol() {
-		return null;
-	}
+    public HttpHeaders getHeaders() {
+        return this.headers;
+    }
 
-	@Override
-	public void setTextMessageSizeLimit(int messageSizeLimit) {
-		this.textMessageSizeLimit = messageSizeLimit;
-	}
+    @Override
+    public InetSocketAddress getLocalAddress() {
+        return null;
+    }
 
-	@Override
-	public int getTextMessageSizeLimit() {
-		return this.textMessageSizeLimit;
-	}
+    @Override
+    public InetSocketAddress getRemoteAddress() {
+        URI uri = getUri();
+        return (uri != null ? new InetSocketAddress(uri.getHost(), uri.getPort()) : null);
+    }
 
-	@Override
-	public void setBinaryMessageSizeLimit(int messageSizeLimit) {
-		this.binaryMessageSizeLimit = -1;
-	}
+    @Override
+    public String getAcceptedProtocol() {
+        return null;
+    }
 
-	@Override
-	public int getBinaryMessageSizeLimit() {
-		return this.binaryMessageSizeLimit;
-	}
+    @Override
+    public void setTextMessageSizeLimit(int messageSizeLimit) {
+        this.textMessageSizeLimit = messageSizeLimit;
+    }
 
-	@Override
-	public List<WebSocketExtension> getExtensions() {
-		return Collections.emptyList();
-	}
+    @Override
+    public int getTextMessageSizeLimit() {
+        return this.textMessageSizeLimit;
+    }
 
-	@Override
-	protected void sendInternal(TextMessage message) {
-		this.transport.executeSendRequest(this.sendUrl, this.sendHeaders, message);
-	}
+    @Override
+    public void setBinaryMessageSizeLimit(int messageSizeLimit) {
+        this.binaryMessageSizeLimit = -1;
+    }
 
-	@Override
-	protected void disconnect(CloseStatus status) {
-		// Nothing to do: XHR transports check if session is disconnected.
-	}
+    @Override
+    public int getBinaryMessageSizeLimit() {
+        return this.binaryMessageSizeLimit;
+    }
+
+    @Override
+    public List<WebSocketExtension> getExtensions() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    protected void sendInternal(TextMessage message) {
+        this.transport.executeSendRequest(this.sendUrl, this.sendHeaders, message);
+    }
+
+    @Override
+    protected void disconnect(CloseStatus status) {
+        // Nothing to do: XHR transports check if session is disconnected.
+    }
 
 }

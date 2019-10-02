@@ -23,50 +23,51 @@ import static org.junit.Assert.*;
 
 /**
  * Unit tests for {@link FixedVersionStrategy}.
+ *
  * @author Rossen Stoyanchev
  * @author Brian Clozel
  */
 public class FixedVersionStrategyTests {
 
-	private static final String VERSION = "1df341f";
+    private static final String VERSION = "1df341f";
 
-	private static final String PATH = "js/foo.js";
-
-
-	private FixedVersionStrategy strategy;
+    private static final String PATH = "js/foo.js";
 
 
-	@Before
-	public void setup() {
-		this.strategy = new FixedVersionStrategy(VERSION);
-	}
+    private FixedVersionStrategy strategy;
 
 
-	@Test(expected = IllegalArgumentException.class)
-	public void emptyPrefixVersion() {
-		new FixedVersionStrategy("  ");
-	}
+    @Before
+    public void setup() {
+        this.strategy = new FixedVersionStrategy(VERSION);
+    }
 
-	@Test
-	public void extractVersion() {
-		assertEquals(VERSION, this.strategy.extractVersion(VERSION + "/" + PATH));
-		assertNull(this.strategy.extractVersion(PATH));
-	}
 
-	@Test
-	public void removeVersion() {
-		assertEquals("/" + PATH, this.strategy.removeVersion(VERSION + "/" + PATH, VERSION));
-	}
+    @Test(expected = IllegalArgumentException.class)
+    public void emptyPrefixVersion() {
+        new FixedVersionStrategy("  ");
+    }
 
-	@Test
-	public void addVersion() {
-		assertEquals(VERSION + "/" + PATH, this.strategy.addVersion("/" + PATH, VERSION));
-	}
+    @Test
+    public void extractVersion() {
+        assertEquals(VERSION, this.strategy.extractVersion(VERSION + "/" + PATH));
+        assertNull(this.strategy.extractVersion(PATH));
+    }
 
-	@Test  // SPR-13727
-	public void addVersionRelativePath() {
-		String relativePath = "../" + PATH;
-		assertEquals(relativePath, this.strategy.addVersion(relativePath, VERSION));
-	}
+    @Test
+    public void removeVersion() {
+        assertEquals("/" + PATH, this.strategy.removeVersion(VERSION + "/" + PATH, VERSION));
+    }
+
+    @Test
+    public void addVersion() {
+        assertEquals(VERSION + "/" + PATH, this.strategy.addVersion("/" + PATH, VERSION));
+    }
+
+    @Test  // SPR-13727
+    public void addVersionRelativePath() {
+        String relativePath = "../" + PATH;
+        assertEquals(relativePath, this.strategy.addVersion(relativePath, VERSION));
+    }
 
 }

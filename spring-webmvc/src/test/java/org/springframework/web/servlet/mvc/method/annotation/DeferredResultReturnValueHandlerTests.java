@@ -44,110 +44,118 @@ import static org.springframework.web.method.ResolvableMethod.*;
  */
 public class DeferredResultReturnValueHandlerTests {
 
-	private DeferredResultMethodReturnValueHandler handler;
+    private DeferredResultMethodReturnValueHandler handler;
 
-	private MockHttpServletRequest request;
+    private MockHttpServletRequest request;
 
-	private NativeWebRequest webRequest;
-
-
-	@Before
-	public void setup() throws Exception {
-		this.handler = new DeferredResultMethodReturnValueHandler();
-		this.request = new MockHttpServletRequest();
-		MockHttpServletResponse response = new MockHttpServletResponse();
-		this.webRequest = new ServletWebRequest(this.request, response);
-
-		AsyncWebRequest asyncWebRequest = new StandardServletAsyncWebRequest(this.request, response);
-		WebAsyncUtils.getAsyncManager(this.webRequest).setAsyncWebRequest(asyncWebRequest);
-		this.request.setAsyncSupported(true);
-	}
+    private NativeWebRequest webRequest;
 
 
-	@Test
-	public void supportsReturnType() throws Exception {
-		assertTrue(this.handler.supportsReturnType(
-				on(TestController.class).resolveReturnType(DeferredResult.class, String.class)));
+    @Before
+    public void setup() throws Exception {
+        this.handler = new DeferredResultMethodReturnValueHandler();
+        this.request = new MockHttpServletRequest();
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        this.webRequest = new ServletWebRequest(this.request, response);
 
-		assertTrue(this.handler.supportsReturnType(
-				on(TestController.class).resolveReturnType(ListenableFuture.class, String.class)));
-
-		assertTrue(this.handler.supportsReturnType(
-				on(TestController.class).resolveReturnType(CompletableFuture.class, String.class)));
-	}
-
-	@Test
-	public void doesNotSupportReturnType() throws Exception {
-		assertFalse(this.handler.supportsReturnType(on(TestController.class).resolveReturnType(String.class)));
-	}
-
-	@Test
-	public void deferredResult() throws Exception {
-		DeferredResult<String> result = new DeferredResult<>();
-		IllegalStateException ex = new IllegalStateException();
-		testHandle(result, DeferredResult.class, () -> result.setErrorResult(ex), ex);
-	}
-
-	@Test
-	public void listenableFuture() throws Exception {
-		SettableListenableFuture<String> future = new SettableListenableFuture<>();
-		testHandle(future, ListenableFuture.class, () -> future.set("foo"), "foo");
-	}
-
-	@Test
-	public void completableFuture() throws Exception {
-		SettableListenableFuture<String> future = new SettableListenableFuture<>();
-		testHandle(future, CompletableFuture.class, () -> future.set("foo"), "foo");
-	}
-
-	@Test
-	public void deferredResultWithError() throws Exception {
-		DeferredResult<String> result = new DeferredResult<>();
-		testHandle(result, DeferredResult.class, () -> result.setResult("foo"), "foo");
-	}
-
-	@Test
-	public void listenableFutureWithError() throws Exception {
-		SettableListenableFuture<String> future = new SettableListenableFuture<>();
-		IllegalStateException ex = new IllegalStateException();
-		testHandle(future, ListenableFuture.class, () -> future.setException(ex), ex);
-	}
-
-	@Test
-	public void completableFutureWithError() throws Exception {
-		SettableListenableFuture<String> future = new SettableListenableFuture<>();
-		IllegalStateException ex = new IllegalStateException();
-		testHandle(future, CompletableFuture.class, () -> future.setException(ex), ex);
-	}
+        AsyncWebRequest asyncWebRequest = new StandardServletAsyncWebRequest(this.request, response);
+        WebAsyncUtils.getAsyncManager(this.webRequest).setAsyncWebRequest(asyncWebRequest);
+        this.request.setAsyncSupported(true);
+    }
 
 
-	private void testHandle(Object returnValue, Class<?> asyncType,
-			Runnable setResultTask, Object expectedValue) throws Exception {
+    @Test
+    public void supportsReturnType() throws Exception {
+        assertTrue(this.handler.supportsReturnType(
+                on(TestController.class).resolveReturnType(DeferredResult.class, String.class)));
 
-		ModelAndViewContainer mavContainer = new ModelAndViewContainer();
-		MethodParameter returnType = on(TestController.class).resolveReturnType(asyncType, String.class);
-		this.handler.handleReturnValue(returnValue, returnType, mavContainer, this.webRequest);
+        assertTrue(this.handler.supportsReturnType(
+                on(TestController.class).resolveReturnType(ListenableFuture.class, String.class)));
 
-		assertTrue(this.request.isAsyncStarted());
-		assertFalse(WebAsyncUtils.getAsyncManager(this.webRequest).hasConcurrentResult());
+        assertTrue(this.handler.supportsReturnType(
+                on(TestController.class).resolveReturnType(CompletableFuture.class, String.class)));
+    }
 
-		setResultTask.run();
+    @Test
+    public void doesNotSupportReturnType() throws Exception {
+        assertFalse(this.handler.supportsReturnType(on(TestController.class).resolveReturnType(String.class)));
+    }
 
-		assertTrue(WebAsyncUtils.getAsyncManager(this.webRequest).hasConcurrentResult());
-		assertEquals(expectedValue, WebAsyncUtils.getAsyncManager(this.webRequest).getConcurrentResult());
-	}
+    @Test
+    public void deferredResult() throws Exception {
+        DeferredResult<String> result = new DeferredResult<>();
+        IllegalStateException ex = new IllegalStateException();
+        testHandle(result, DeferredResult.class, () -> result.setErrorResult(ex), ex);
+    }
+
+    @Test
+    public void listenableFuture() throws Exception {
+        SettableListenableFuture<String> future = new SettableListenableFuture<>();
+        testHandle(future, ListenableFuture.class, () -> future.set("foo"), "foo");
+    }
+
+    @Test
+    public void completableFuture() throws Exception {
+        SettableListenableFuture<String> future = new SettableListenableFuture<>();
+        testHandle(future, CompletableFuture.class, () -> future.set("foo"), "foo");
+    }
+
+    @Test
+    public void deferredResultWithError() throws Exception {
+        DeferredResult<String> result = new DeferredResult<>();
+        testHandle(result, DeferredResult.class, () -> result.setResult("foo"), "foo");
+    }
+
+    @Test
+    public void listenableFutureWithError() throws Exception {
+        SettableListenableFuture<String> future = new SettableListenableFuture<>();
+        IllegalStateException ex = new IllegalStateException();
+        testHandle(future, ListenableFuture.class, () -> future.setException(ex), ex);
+    }
+
+    @Test
+    public void completableFutureWithError() throws Exception {
+        SettableListenableFuture<String> future = new SettableListenableFuture<>();
+        IllegalStateException ex = new IllegalStateException();
+        testHandle(future, CompletableFuture.class, () -> future.setException(ex), ex);
+    }
 
 
-	@SuppressWarnings("unused")
-	static class TestController {
+    private void testHandle(Object returnValue, Class<?> asyncType,
+                            Runnable setResultTask, Object expectedValue) throws Exception {
 
-		String handleString() { return null; }
+        ModelAndViewContainer mavContainer = new ModelAndViewContainer();
+        MethodParameter returnType = on(TestController.class).resolveReturnType(asyncType, String.class);
+        this.handler.handleReturnValue(returnValue, returnType, mavContainer, this.webRequest);
 
-		DeferredResult<String> handleDeferredResult() { return null; }
+        assertTrue(this.request.isAsyncStarted());
+        assertFalse(WebAsyncUtils.getAsyncManager(this.webRequest).hasConcurrentResult());
 
-		ListenableFuture<String> handleListenableFuture() { return null; }
+        setResultTask.run();
 
-		CompletableFuture<String> handleCompletableFuture() { return null; }
-	}
+        assertTrue(WebAsyncUtils.getAsyncManager(this.webRequest).hasConcurrentResult());
+        assertEquals(expectedValue, WebAsyncUtils.getAsyncManager(this.webRequest).getConcurrentResult());
+    }
+
+
+    @SuppressWarnings("unused")
+    static class TestController {
+
+        String handleString() {
+            return null;
+        }
+
+        DeferredResult<String> handleDeferredResult() {
+            return null;
+        }
+
+        ListenableFuture<String> handleListenableFuture() {
+            return null;
+        }
+
+        CompletableFuture<String> handleCompletableFuture() {
+            return null;
+        }
+    }
 
 }

@@ -35,55 +35,55 @@ import static org.springframework.test.context.support.AnnotationConfigContextLo
  */
 public class AnnotationConfigContextLoaderUtilsTests {
 
-	@Test(expected = IllegalArgumentException.class)
-	public void detectDefaultConfigurationClassesWithNullDeclaringClass() {
-		detectDefaultConfigurationClasses(null);
-	}
+    @Test(expected = IllegalArgumentException.class)
+    public void detectDefaultConfigurationClassesWithNullDeclaringClass() {
+        detectDefaultConfigurationClasses(null);
+    }
 
-	@Test
-	public void detectDefaultConfigurationClassesWithoutConfigurationClass() {
-		Class<?>[] configClasses = detectDefaultConfigurationClasses(NoConfigTestCase.class);
-		assertNotNull(configClasses);
-		assertEquals(0, configClasses.length);
-	}
+    @Test
+    public void detectDefaultConfigurationClassesWithoutConfigurationClass() {
+        Class<?>[] configClasses = detectDefaultConfigurationClasses(NoConfigTestCase.class);
+        assertNotNull(configClasses);
+        assertEquals(0, configClasses.length);
+    }
 
-	@Test
-	public void detectDefaultConfigurationClassesWithExplicitConfigurationAnnotation() {
-		Class<?>[] configClasses = detectDefaultConfigurationClasses(ExplicitConfigTestCase.class);
-		assertNotNull(configClasses);
-		assertArrayEquals(new Class<?>[] { ExplicitConfigTestCase.Config.class }, configClasses);
-	}
+    @Test
+    public void detectDefaultConfigurationClassesWithExplicitConfigurationAnnotation() {
+        Class<?>[] configClasses = detectDefaultConfigurationClasses(ExplicitConfigTestCase.class);
+        assertNotNull(configClasses);
+        assertArrayEquals(new Class<?>[]{ExplicitConfigTestCase.Config.class}, configClasses);
+    }
 
-	@Test
-	public void detectDefaultConfigurationClassesWithConfigurationMetaAnnotation() {
-		Class<?>[] configClasses = detectDefaultConfigurationClasses(MetaAnnotatedConfigTestCase.class);
-		assertNotNull(configClasses);
-		assertArrayEquals(new Class<?>[] { MetaAnnotatedConfigTestCase.Config.class }, configClasses);
-	}
+    @Test
+    public void detectDefaultConfigurationClassesWithConfigurationMetaAnnotation() {
+        Class<?>[] configClasses = detectDefaultConfigurationClasses(MetaAnnotatedConfigTestCase.class);
+        assertNotNull(configClasses);
+        assertArrayEquals(new Class<?>[]{MetaAnnotatedConfigTestCase.Config.class}, configClasses);
+    }
 
 
-	private static class NoConfigTestCase {
+    private static class NoConfigTestCase {
 
-	}
+    }
 
-	private static class ExplicitConfigTestCase {
+    private static class ExplicitConfigTestCase {
 
-		@Configuration
-		static class Config {
-		}
-	}
+        @Configuration
+        static class Config {
+        }
+    }
 
-	@Configuration
-	@Retention(RetentionPolicy.RUNTIME)
-	@Target(ElementType.TYPE)
-	private static @interface MetaConfig {
-	}
+    @Configuration
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.TYPE)
+    private static @interface MetaConfig {
+    }
 
-	private static class MetaAnnotatedConfigTestCase {
+    private static class MetaAnnotatedConfigTestCase {
 
-		@MetaConfig
-		static class Config {
-		}
-	}
+        @MetaConfig
+        static class Config {
+        }
+    }
 
 }

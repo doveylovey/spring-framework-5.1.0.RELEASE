@@ -41,66 +41,66 @@ import static org.junit.Assume.*;
  * </p>
  *
  * @author Sam Brannen
- * @since 2.5
  * @see StandardJUnit4FeaturesSpringRunnerTests
+ * @since 2.5
  */
 public class StandardJUnit4FeaturesTests {
 
-	private static int staticBeforeCounter = 0;
+    private static int staticBeforeCounter = 0;
 
 
-	@BeforeClass
-	public static void incrementStaticBeforeCounter() {
-		StandardJUnit4FeaturesTests.staticBeforeCounter++;
-	}
+    @BeforeClass
+    public static void incrementStaticBeforeCounter() {
+        StandardJUnit4FeaturesTests.staticBeforeCounter++;
+    }
 
 
-	private int beforeCounter = 0;
+    private int beforeCounter = 0;
 
 
-	@Test
-	@Ignore
-	public void alwaysFailsButShouldBeIgnored() {
-		fail("The body of an ignored test should never be executed!");
-	}
+    @Test
+    @Ignore
+    public void alwaysFailsButShouldBeIgnored() {
+        fail("The body of an ignored test should never be executed!");
+    }
 
-	@Test
-	public void alwaysSucceeds() {
-		assertTrue(true);
-	}
+    @Test
+    public void alwaysSucceeds() {
+        assertTrue(true);
+    }
 
-	@Test(expected = IndexOutOfBoundsException.class)
-	public void expectingAnIndexOutOfBoundsException() {
-		new ArrayList<>().get(1);
-	}
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void expectingAnIndexOutOfBoundsException() {
+        new ArrayList<>().get(1);
+    }
 
-	@Test
-	public void failedAssumptionShouldPrecludeImminentFailure() {
-		assumeTrue(false);
-		fail("A failed assumption should preclude imminent failure!");
-	}
+    @Test
+    public void failedAssumptionShouldPrecludeImminentFailure() {
+        assumeTrue(false);
+        fail("A failed assumption should preclude imminent failure!");
+    }
 
-	@Before
-	public void incrementBeforeCounter() {
-		this.beforeCounter++;
-	}
+    @Before
+    public void incrementBeforeCounter() {
+        this.beforeCounter++;
+    }
 
-	@Test(timeout = 10000)
-	public void noOpShouldNotTimeOut() {
-		/* no-op */
-	}
+    @Test(timeout = 10000)
+    public void noOpShouldNotTimeOut() {
+        /* no-op */
+    }
 
-	@Test
-	public void verifyBeforeAnnotation() {
-		assertEquals(1, this.beforeCounter);
-	}
+    @Test
+    public void verifyBeforeAnnotation() {
+        assertEquals(1, this.beforeCounter);
+    }
 
-	@Test
-	public void verifyBeforeClassAnnotation() {
-		// Instead of testing for equality to 1, we just assert that the value
-		// was incremented at least once, since this test class may serve as a
-		// parent class to other tests in a suite, etc.
-		assertTrue(StandardJUnit4FeaturesTests.staticBeforeCounter > 0);
-	}
+    @Test
+    public void verifyBeforeClassAnnotation() {
+        // Instead of testing for equality to 1, we just assert that the value
+        // was incremented at least once, since this test class may serve as a
+        // parent class to other tests in a suite, etc.
+        assertTrue(StandardJUnit4FeaturesTests.staticBeforeCounter > 0);
+    }
 
 }

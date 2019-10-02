@@ -41,39 +41,39 @@ import static org.junit.Assert.*;
  */
 public class CachingMetadataReaderLeakTests {
 
-	private static final int ITEMS_TO_LOAD = 9999;
+    private static final int ITEMS_TO_LOAD = 9999;
 
-	private final MetadataReaderFactory mrf = new CachingMetadataReaderFactory();
+    private final MetadataReaderFactory mrf = new CachingMetadataReaderFactory();
 
-	@Test
-	public void testSignificantLoad() throws Exception {
-		Assume.group(TestGroup.LONG_RUNNING);
+    @Test
+    public void testSignificantLoad() throws Exception {
+        Assume.group(TestGroup.LONG_RUNNING);
 
-		// the biggest public class in the JDK (>60k)
-		URL url = getClass().getResource("/java/awt/Component.class");
-		assertThat(url, notNullValue());
+        // the biggest public class in the JDK (>60k)
+        URL url = getClass().getResource("/java/awt/Component.class");
+        assertThat(url, notNullValue());
 
-		// look at a LOT of items
-		for (int i = 0; i < ITEMS_TO_LOAD; i++) {
-			Resource resource = new UrlResource(url) {
+        // look at a LOT of items
+        for (int i = 0; i < ITEMS_TO_LOAD; i++) {
+            Resource resource = new UrlResource(url) {
 
-				@Override
-				public boolean equals(Object obj) {
-					return (obj == this);
-				}
+                @Override
+                public boolean equals(Object obj) {
+                    return (obj == this);
+                }
 
-				@Override
-				public int hashCode() {
-					return System.identityHashCode(this);
-				}
-			};
+                @Override
+                public int hashCode() {
+                    return System.identityHashCode(this);
+                }
+            };
 
-			MetadataReader reader = mrf.getMetadataReader(resource);
-			assertThat(reader, notNullValue());
-		}
+            MetadataReader reader = mrf.getMetadataReader(resource);
+            assertThat(reader, notNullValue());
+        }
 
-		// useful for profiling to take snapshots
-		// System.in.read();
-	}
+        // useful for profiling to take snapshots
+        // System.in.read();
+    }
 
 }

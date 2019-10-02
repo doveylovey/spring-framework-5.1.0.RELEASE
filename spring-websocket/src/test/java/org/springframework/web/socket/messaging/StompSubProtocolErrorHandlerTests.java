@@ -29,46 +29,47 @@ import org.springframework.messaging.support.MessageHeaderAccessor;
 
 /**
  * Unit tests for {@link StompSubProtocolErrorHandler}.
+ *
  * @author Rossen Stoyanchev
  */
 public class StompSubProtocolErrorHandlerTests {
 
-	private StompSubProtocolErrorHandler handler;
+    private StompSubProtocolErrorHandler handler;
 
 
-	@Before
-	public void setUp() throws Exception {
-		this.handler = new StompSubProtocolErrorHandler();
-	}
+    @Before
+    public void setUp() throws Exception {
+        this.handler = new StompSubProtocolErrorHandler();
+    }
 
 
-	@Test
-	public void handleClientMessageProcessingError() throws Exception {
+    @Test
+    public void handleClientMessageProcessingError() throws Exception {
 
-		Exception ex = new Exception("fake exception");
-		Message<byte[]> actual = this.handler.handleClientMessageProcessingError(null, ex);
+        Exception ex = new Exception("fake exception");
+        Message<byte[]> actual = this.handler.handleClientMessageProcessingError(null, ex);
 
-		StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(actual, StompHeaderAccessor.class);
-		assertNotNull(accessor);
-		assertEquals(StompCommand.ERROR, accessor.getCommand());
-		assertEquals(ex.getMessage(), accessor.getMessage());
-		assertArrayEquals(new byte[0], actual.getPayload());
-	}
+        StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(actual, StompHeaderAccessor.class);
+        assertNotNull(accessor);
+        assertEquals(StompCommand.ERROR, accessor.getCommand());
+        assertEquals(ex.getMessage(), accessor.getMessage());
+        assertArrayEquals(new byte[0], actual.getPayload());
+    }
 
-	@Test
-	public void handleClientMessageProcessingErrorWithReceipt() throws Exception {
+    @Test
+    public void handleClientMessageProcessingErrorWithReceipt() throws Exception {
 
-		String receiptId = "123";
-		StompHeaderAccessor clientHeaderAccessor = StompHeaderAccessor.create(StompCommand.SEND);
-		clientHeaderAccessor.setReceipt(receiptId);
-		MessageHeaders clientHeaders = clientHeaderAccessor.getMessageHeaders();
-		Message<byte[]> clientMessage = MessageBuilder.createMessage(new byte[0], clientHeaders);
-		Message<byte[]> actual = this.handler.handleClientMessageProcessingError(clientMessage, new Exception());
+        String receiptId = "123";
+        StompHeaderAccessor clientHeaderAccessor = StompHeaderAccessor.create(StompCommand.SEND);
+        clientHeaderAccessor.setReceipt(receiptId);
+        MessageHeaders clientHeaders = clientHeaderAccessor.getMessageHeaders();
+        Message<byte[]> clientMessage = MessageBuilder.createMessage(new byte[0], clientHeaders);
+        Message<byte[]> actual = this.handler.handleClientMessageProcessingError(clientMessage, new Exception());
 
-		StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(actual, StompHeaderAccessor.class);
-		assertNotNull(accessor);
-		assertEquals(receiptId, accessor.getReceiptId());
-	}
+        StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(actual, StompHeaderAccessor.class);
+        assertNotNull(accessor);
+        assertEquals(receiptId, accessor.getReceiptId());
+    }
 
 
 }

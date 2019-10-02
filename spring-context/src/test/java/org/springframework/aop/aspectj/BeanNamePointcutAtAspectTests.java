@@ -37,58 +37,58 @@ import static org.junit.Assert.*;
  */
 public class BeanNamePointcutAtAspectTests {
 
-	private ITestBean testBean1;
+    private ITestBean testBean1;
 
-	private ITestBean testBean3;
+    private ITestBean testBean3;
 
-	private CounterAspect counterAspect;
-
-
-	@org.junit.Before
-	public void setup() {
-		ClassPathXmlApplicationContext ctx =
-				new ClassPathXmlApplicationContext(getClass().getSimpleName() + ".xml", getClass());
-
-		counterAspect = (CounterAspect) ctx.getBean("counterAspect");
-		testBean1 = (ITestBean) ctx.getBean("testBean1");
-		testBean3 = (ITestBean) ctx.getBean("testBean3");
-	}
+    private CounterAspect counterAspect;
 
 
-	@Test
-	public void testMatchingBeanName() {
-		assertTrue("Expected a proxy", testBean1 instanceof Advised);
+    @org.junit.Before
+    public void setup() {
+        ClassPathXmlApplicationContext ctx =
+                new ClassPathXmlApplicationContext(getClass().getSimpleName() + ".xml", getClass());
 
-		// Call two methods to test for SPR-3953-like condition
-		testBean1.setAge(20);
-		testBean1.setName("");
-		assertEquals(2, counterAspect.count);
-	}
+        counterAspect = (CounterAspect) ctx.getBean("counterAspect");
+        testBean1 = (ITestBean) ctx.getBean("testBean1");
+        testBean3 = (ITestBean) ctx.getBean("testBean3");
+    }
 
-	@Test
-	public void testNonMatchingBeanName() {
-		assertFalse("Didn't expect a proxy", testBean3 instanceof Advised);
 
-		testBean3.setAge(20);
-		assertEquals(0, counterAspect.count);
-	}
+    @Test
+    public void testMatchingBeanName() {
+        assertTrue("Expected a proxy", testBean1 instanceof Advised);
 
-	@Test
-	public void testProgrammaticProxyCreation() {
-		ITestBean testBean = new TestBean();
+        // Call two methods to test for SPR-3953-like condition
+        testBean1.setAge(20);
+        testBean1.setName("");
+        assertEquals(2, counterAspect.count);
+    }
 
-		AspectJProxyFactory factory = new AspectJProxyFactory();
-		factory.setTarget(testBean);
+    @Test
+    public void testNonMatchingBeanName() {
+        assertFalse("Didn't expect a proxy", testBean3 instanceof Advised);
 
-		CounterAspect myCounterAspect = new CounterAspect();
-		factory.addAspect(myCounterAspect);
+        testBean3.setAge(20);
+        assertEquals(0, counterAspect.count);
+    }
 
-		ITestBean proxyTestBean = factory.getProxy();
+    @Test
+    public void testProgrammaticProxyCreation() {
+        ITestBean testBean = new TestBean();
 
-		assertTrue("Expected a proxy", proxyTestBean instanceof Advised);
-		proxyTestBean.setAge(20);
-		assertEquals("Programmatically created proxy shouldn't match bean()", 0, myCounterAspect.count);
-	}
+        AspectJProxyFactory factory = new AspectJProxyFactory();
+        factory.setTarget(testBean);
+
+        CounterAspect myCounterAspect = new CounterAspect();
+        factory.addAspect(myCounterAspect);
+
+        ITestBean proxyTestBean = factory.getProxy();
+
+        assertTrue("Expected a proxy", proxyTestBean instanceof Advised);
+        proxyTestBean.setAge(20);
+        assertEquals("Programmatically created proxy shouldn't match bean()", 0, myCounterAspect.count);
+    }
 
 }
 
@@ -96,11 +96,11 @@ public class BeanNamePointcutAtAspectTests {
 @Aspect
 class CounterAspect {
 
-	int count;
+    int count;
 
-	@Before("execution(* set*(..)) && bean(testBean1)")
-	public void increment1ForAnonymousPointcut() {
-		count++;
-	}
+    @Before("execution(* set*(..)) && bean(testBean1)")
+    public void increment1ForAnonymousPointcut() {
+        count++;
+    }
 
 }

@@ -40,49 +40,49 @@ import static org.junit.Assert.assertTrue;
  */
 public class ByteBufferEncoderTests extends AbstractDataBufferAllocatingTestCase {
 
-	private ByteBufferEncoder encoder;
+    private ByteBufferEncoder encoder;
 
-	@Before
-	public void createEncoder() {
-		this.encoder = new ByteBufferEncoder();
-	}
+    @Before
+    public void createEncoder() {
+        this.encoder = new ByteBufferEncoder();
+    }
 
-	@Test
-	public void canEncode() {
-		assertTrue(this.encoder.canEncode(ResolvableType.forClass(ByteBuffer.class),
-				MimeTypeUtils.TEXT_PLAIN));
-		assertFalse(this.encoder.canEncode(ResolvableType.forClass(Integer.class),
-				MimeTypeUtils.TEXT_PLAIN));
-		assertTrue(this.encoder.canEncode(ResolvableType.forClass(ByteBuffer.class),
-				MimeTypeUtils.APPLICATION_JSON));
+    @Test
+    public void canEncode() {
+        assertTrue(this.encoder.canEncode(ResolvableType.forClass(ByteBuffer.class),
+                MimeTypeUtils.TEXT_PLAIN));
+        assertFalse(this.encoder.canEncode(ResolvableType.forClass(Integer.class),
+                MimeTypeUtils.TEXT_PLAIN));
+        assertTrue(this.encoder.canEncode(ResolvableType.forClass(ByteBuffer.class),
+                MimeTypeUtils.APPLICATION_JSON));
 
-		// SPR-15464
-		assertFalse(this.encoder.canEncode(ResolvableType.NONE, null));
-	}
+        // SPR-15464
+        assertFalse(this.encoder.canEncode(ResolvableType.NONE, null));
+    }
 
-	@Test
-	public void encode() {
-		byte[] fooBytes = "foo".getBytes(StandardCharsets.UTF_8);
-		byte[] barBytes = "bar".getBytes(StandardCharsets.UTF_8);
-		Flux<ByteBuffer> source =
-				Flux.just(ByteBuffer.wrap(fooBytes), ByteBuffer.wrap(barBytes));
+    @Test
+    public void encode() {
+        byte[] fooBytes = "foo".getBytes(StandardCharsets.UTF_8);
+        byte[] barBytes = "bar".getBytes(StandardCharsets.UTF_8);
+        Flux<ByteBuffer> source =
+                Flux.just(ByteBuffer.wrap(fooBytes), ByteBuffer.wrap(barBytes));
 
-		Flux<DataBuffer> output = this.encoder.encode(source, this.bufferFactory,
-				ResolvableType.forClassWithGenerics(Publisher.class, ByteBuffer.class),
-				null, Collections.emptyMap());
-		StepVerifier.create(output)
-				.consumeNextWith(b -> {
-					byte[] buf = new byte[3];
-					b.read(buf);
-					assertArrayEquals(fooBytes, buf);
-				})
-				.consumeNextWith(b -> {
-					byte[] buf = new byte[3];
-					b.read(buf);
-					assertArrayEquals(barBytes, buf);
-				})
-				.expectComplete()
-				.verify();
-	}
+        Flux<DataBuffer> output = this.encoder.encode(source, this.bufferFactory,
+                ResolvableType.forClassWithGenerics(Publisher.class, ByteBuffer.class),
+                null, Collections.emptyMap());
+        StepVerifier.create(output)
+                .consumeNextWith(b -> {
+                    byte[] buf = new byte[3];
+                    b.read(buf);
+                    assertArrayEquals(fooBytes, buf);
+                })
+                .consumeNextWith(b -> {
+                    byte[] buf = new byte[3];
+                    b.read(buf);
+                    assertArrayEquals(barBytes, buf);
+                })
+                .expectComplete()
+                .verify();
+    }
 
 }

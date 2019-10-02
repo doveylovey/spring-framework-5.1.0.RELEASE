@@ -37,19 +37,19 @@ import static org.junit.Assert.*;
  * @since 3.2
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = { GlobalConfig.class, DevProfileConfig.class }, initializers = {
-	FooBarAliasInitializer.class, DevProfileInitializer.class })
+@ContextConfiguration(classes = {GlobalConfig.class, DevProfileConfig.class}, initializers = {
+        FooBarAliasInitializer.class, DevProfileInitializer.class})
 public class MultipleInitializersAnnotationConfigTests {
 
-	@Autowired
-	private String foo, bar, baz;
+    @Autowired
+    private String foo, bar, baz;
 
 
-	@Test
-	public void activeBeans() {
-		assertEquals("foo", foo);
-		assertEquals("foo", bar);
-		assertEquals("dev profile config", baz);
-	}
+    @Test
+    public void activeBeans() {
+        assertEquals("foo", foo);
+        assertEquals("foo", bar);
+        assertEquals("dev profile config", baz);
+    }
 
 }

@@ -34,130 +34,132 @@ import static org.springframework.tests.TestResourceUtils.*;
  */
 public class ThreadLocalTargetSourceTests {
 
-	private static final Resource CONTEXT = qualifiedResource(ThreadLocalTargetSourceTests.class, "context.xml");
+    private static final Resource CONTEXT = qualifiedResource(ThreadLocalTargetSourceTests.class, "context.xml");
 
-	/** Initial count value set in bean factory XML */
-	private static final int INITIAL_COUNT = 10;
+    /**
+     * Initial count value set in bean factory XML
+     */
+    private static final int INITIAL_COUNT = 10;
 
-	private DefaultListableBeanFactory beanFactory;
+    private DefaultListableBeanFactory beanFactory;
 
-	@Before
-	public void setUp() throws Exception {
-		this.beanFactory = new DefaultListableBeanFactory();
-		new XmlBeanDefinitionReader(this.beanFactory).loadBeanDefinitions(CONTEXT);
-	}
+    @Before
+    public void setUp() throws Exception {
+        this.beanFactory = new DefaultListableBeanFactory();
+        new XmlBeanDefinitionReader(this.beanFactory).loadBeanDefinitions(CONTEXT);
+    }
 
-	/**
-	 * We must simulate container shutdown, which should clear threads.
-	 */
-	protected void tearDown() {
-		this.beanFactory.destroySingletons();
-	}
+    /**
+     * We must simulate container shutdown, which should clear threads.
+     */
+    protected void tearDown() {
+        this.beanFactory.destroySingletons();
+    }
 
-	/**
-	 * Check we can use two different ThreadLocalTargetSources
-	 * managing objects of different types without them interfering
-	 * with one another.
-	 */
-	@Test
-	public void testUseDifferentManagedInstancesInSameThread() {
-		SideEffectBean apartment = (SideEffectBean) beanFactory.getBean("apartment");
-		assertEquals(INITIAL_COUNT, apartment.getCount());
-		apartment.doWork();
-		assertEquals(INITIAL_COUNT + 1, apartment.getCount());
+    /**
+     * Check we can use two different ThreadLocalTargetSources
+     * managing objects of different types without them interfering
+     * with one another.
+     */
+    @Test
+    public void testUseDifferentManagedInstancesInSameThread() {
+        SideEffectBean apartment = (SideEffectBean) beanFactory.getBean("apartment");
+        assertEquals(INITIAL_COUNT, apartment.getCount());
+        apartment.doWork();
+        assertEquals(INITIAL_COUNT + 1, apartment.getCount());
 
-		ITestBean test = (ITestBean) beanFactory.getBean("threadLocal2");
-		assertEquals("Rod", test.getName());
-		assertEquals("Kerry", test.getSpouse().getName());
-	}
+        ITestBean test = (ITestBean) beanFactory.getBean("threadLocal2");
+        assertEquals("Rod", test.getName());
+        assertEquals("Kerry", test.getSpouse().getName());
+    }
 
-	@Test
-	public void testReuseInSameThread() {
-		SideEffectBean apartment = (SideEffectBean) beanFactory.getBean("apartment");
-		assertEquals(INITIAL_COUNT, apartment.getCount());
-		apartment.doWork();
-		assertEquals(INITIAL_COUNT + 1, apartment.getCount());
+    @Test
+    public void testReuseInSameThread() {
+        SideEffectBean apartment = (SideEffectBean) beanFactory.getBean("apartment");
+        assertEquals(INITIAL_COUNT, apartment.getCount());
+        apartment.doWork();
+        assertEquals(INITIAL_COUNT + 1, apartment.getCount());
 
-		apartment = (SideEffectBean) beanFactory.getBean("apartment");
-		assertEquals(INITIAL_COUNT + 1, apartment.getCount());
-	}
+        apartment = (SideEffectBean) beanFactory.getBean("apartment");
+        assertEquals(INITIAL_COUNT + 1, apartment.getCount());
+    }
 
-	/**
-	 * Relies on introduction.
-	 */
-	@Test
-	public void testCanGetStatsViaMixin() {
-		ThreadLocalTargetSourceStats stats = (ThreadLocalTargetSourceStats) beanFactory.getBean("apartment");
-		// +1 because creating target for stats call counts
-		assertEquals(1, stats.getInvocationCount());
-		SideEffectBean apartment = (SideEffectBean) beanFactory.getBean("apartment");
-		apartment.doWork();
-		// +1 again
-		assertEquals(3, stats.getInvocationCount());
-		// + 1 for states call!
-		assertEquals(3, stats.getHitCount());
-		apartment.doWork();
-		assertEquals(6, stats.getInvocationCount());
-		assertEquals(6, stats.getHitCount());
-		// Only one thread so only one object can have been bound
-		assertEquals(1, stats.getObjectCount());
-	}
+    /**
+     * Relies on introduction.
+     */
+    @Test
+    public void testCanGetStatsViaMixin() {
+        ThreadLocalTargetSourceStats stats = (ThreadLocalTargetSourceStats) beanFactory.getBean("apartment");
+        // +1 because creating target for stats call counts
+        assertEquals(1, stats.getInvocationCount());
+        SideEffectBean apartment = (SideEffectBean) beanFactory.getBean("apartment");
+        apartment.doWork();
+        // +1 again
+        assertEquals(3, stats.getInvocationCount());
+        // + 1 for states call!
+        assertEquals(3, stats.getHitCount());
+        apartment.doWork();
+        assertEquals(6, stats.getInvocationCount());
+        assertEquals(6, stats.getHitCount());
+        // Only one thread so only one object can have been bound
+        assertEquals(1, stats.getObjectCount());
+    }
 
-	@Test
-	public void testNewThreadHasOwnInstance() throws InterruptedException {
-		SideEffectBean apartment = (SideEffectBean) beanFactory.getBean("apartment");
-		assertEquals(INITIAL_COUNT, apartment.getCount());
-		apartment.doWork();
-		apartment.doWork();
-		apartment.doWork();
-		assertEquals(INITIAL_COUNT + 3, apartment.getCount());
+    @Test
+    public void testNewThreadHasOwnInstance() throws InterruptedException {
+        SideEffectBean apartment = (SideEffectBean) beanFactory.getBean("apartment");
+        assertEquals(INITIAL_COUNT, apartment.getCount());
+        apartment.doWork();
+        apartment.doWork();
+        apartment.doWork();
+        assertEquals(INITIAL_COUNT + 3, apartment.getCount());
 
-		class Runner implements Runnable {
-			public SideEffectBean mine;
-			@Override
-			public void run() {
-				this.mine = (SideEffectBean) beanFactory.getBean("apartment");
-				assertEquals(INITIAL_COUNT, mine.getCount());
-				mine.doWork();
-				assertEquals(INITIAL_COUNT + 1, mine.getCount());
-			}
-		}
-		Runner r = new Runner();
-		Thread t = new Thread(r);
-		t.start();
-		t.join();
+        class Runner implements Runnable {
+            public SideEffectBean mine;
 
-		assertNotNull(r);
+            @Override
+            public void run() {
+                this.mine = (SideEffectBean) beanFactory.getBean("apartment");
+                assertEquals(INITIAL_COUNT, mine.getCount());
+                mine.doWork();
+                assertEquals(INITIAL_COUNT + 1, mine.getCount());
+            }
+        }
+        Runner r = new Runner();
+        Thread t = new Thread(r);
+        t.start();
+        t.join();
 
-		// Check it didn't affect the other thread's copy
-		assertEquals(INITIAL_COUNT + 3, apartment.getCount());
+        assertNotNull(r);
 
-		// When we use other thread's copy in this thread
-		// it should behave like ours
-		assertEquals(INITIAL_COUNT + 3, r.mine.getCount());
+        // Check it didn't affect the other thread's copy
+        assertEquals(INITIAL_COUNT + 3, apartment.getCount());
 
-		// Bound to two threads
-		assertEquals(2, ((ThreadLocalTargetSourceStats) apartment).getObjectCount());
-	}
+        // When we use other thread's copy in this thread
+        // it should behave like ours
+        assertEquals(INITIAL_COUNT + 3, r.mine.getCount());
 
-	/**
-	 * Test for SPR-1442. Destroyed target should re-associated with thread and not throw NPE
-	 */
-	@Test
-	public void testReuseDestroyedTarget() {
-		ThreadLocalTargetSource source = (ThreadLocalTargetSource)this.beanFactory.getBean("threadLocalTs");
+        // Bound to two threads
+        assertEquals(2, ((ThreadLocalTargetSourceStats) apartment).getObjectCount());
+    }
 
-		// try first time
-		source.getTarget();
-		source.destroy();
+    /**
+     * Test for SPR-1442. Destroyed target should re-associated with thread and not throw NPE
+     */
+    @Test
+    public void testReuseDestroyedTarget() {
+        ThreadLocalTargetSource source = (ThreadLocalTargetSource) this.beanFactory.getBean("threadLocalTs");
 
-		// try second time
-		try {
-			source.getTarget();
-		}
-		catch (NullPointerException ex) {
-			fail("Should not throw NPE");
-		}
-	}
+        // try first time
+        source.getTarget();
+        source.destroy();
+
+        // try second time
+        try {
+            source.getTarget();
+        } catch (NullPointerException ex) {
+            fail("Should not throw NPE");
+        }
+    }
 
 }

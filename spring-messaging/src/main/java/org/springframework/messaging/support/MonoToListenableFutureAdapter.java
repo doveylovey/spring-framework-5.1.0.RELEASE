@@ -24,21 +24,21 @@ import org.springframework.lang.Nullable;
  * A Mono-to-ListenableFuture adapter where the source and the target from
  * the Promise and the ListenableFuture respectively are of the same type.
  *
+ * @param <T> the object type
  * @author Rossen Stoyanchev
  * @author Stephane Maldini
  * @since 5.0
- * @param <T> the object type
  */
 public class MonoToListenableFutureAdapter<T> extends AbstractMonoToListenableFutureAdapter<T, T> {
 
-	public MonoToListenableFutureAdapter(Mono<T> mono) {
-		super(mono);
-	}
+    public MonoToListenableFutureAdapter(Mono<T> mono) {
+        super(mono);
+    }
 
-	@Override
-	@Nullable
-	protected T adapt(@Nullable T result) {
-		return result;
-	}
+    @Override
+    @Nullable
+    protected T adapt(@Nullable T result) {
+        return result;
+    }
 
 }

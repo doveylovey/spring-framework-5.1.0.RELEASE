@@ -31,11 +31,11 @@ import static org.junit.Assert.*;
  */
 @TestPropertySource("extended.properties")
 public class MergedPropertiesFilesTestPropertySourceTests extends
-		ExplicitPropertiesFileTestPropertySourceTests {
+        ExplicitPropertiesFileTestPropertySourceTests {
 
-	@Test
-	public void verifyExtendedPropertiesAreAvailableInEnvironment() {
-		assertEquals(42, env.getProperty("extended", Integer.class).intValue());
-	}
+    @Test
+    public void verifyExtendedPropertiesAreAvailableInEnvironment() {
+        assertEquals(42, env.getProperty("extended", Integer.class).intValue());
+    }
 
 }

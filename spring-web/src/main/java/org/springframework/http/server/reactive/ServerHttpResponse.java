@@ -31,30 +31,32 @@ import org.springframework.util.MultiValueMap;
  */
 public interface ServerHttpResponse extends ReactiveHttpOutputMessage {
 
-	/**
-	 * Set the HTTP status code of the response.
-	 * @param status the HTTP status as an {@link HttpStatus} enum value
-	 * @return {@code false} if the status code has not been set because the HTTP response
-	 * is already committed, {@code true} if it has been set correctly.
-	 */
-	boolean setStatusCode(@Nullable HttpStatus status);
+    /**
+     * Set the HTTP status code of the response.
+     *
+     * @param status the HTTP status as an {@link HttpStatus} enum value
+     * @return {@code false} if the status code has not been set because the HTTP response
+     * is already committed, {@code true} if it has been set correctly.
+     */
+    boolean setStatusCode(@Nullable HttpStatus status);
 
-	/**
-	 * Return the HTTP status code or {@code null} if not set.
-	 */
-	@Nullable
-	HttpStatus getStatusCode();
+    /**
+     * Return the HTTP status code or {@code null} if not set.
+     */
+    @Nullable
+    HttpStatus getStatusCode();
 
-	/**
-	 * Return a mutable map with the cookies to send to the server.
-	 */
-	MultiValueMap<String, ResponseCookie> getCookies();
+    /**
+     * Return a mutable map with the cookies to send to the server.
+     */
+    MultiValueMap<String, ResponseCookie> getCookies();
 
-	/**
-	 * Add the given {@code ResponseCookie}.
-	 * @param cookie the cookie to add
-	 * @throws IllegalStateException if the response has already been committed
-	 */
-	void addCookie(ResponseCookie cookie);
+    /**
+     * Add the given {@code ResponseCookie}.
+     *
+     * @param cookie the cookie to add
+     * @throws IllegalStateException if the response has already been committed
+     */
+    void addCookie(ResponseCookie cookie);
 
 }

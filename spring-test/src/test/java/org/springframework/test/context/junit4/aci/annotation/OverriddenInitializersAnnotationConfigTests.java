@@ -35,11 +35,11 @@ import static org.junit.Assert.*;
 @ContextConfiguration(initializers = DevProfileInitializer.class, inheritInitializers = false)
 public class OverriddenInitializersAnnotationConfigTests extends SingleInitializerAnnotationConfigTests {
 
-	@Test
-	@Override
-	public void activeBeans() {
-		assertEquals("foo", foo);
-		assertNull(bar);
-		assertEquals("dev profile config", baz);
-	}
+    @Test
+    @Override
+    public void activeBeans() {
+        assertEquals("foo", foo);
+        assertNull(bar);
+        assertEquals("dev profile config", baz);
+    }
 }

@@ -39,50 +39,50 @@ import static org.junit.Assert.assertTrue;
 @RunWith(Parameterized.class)
 public class CharSequenceEncoderTests extends AbstractDataBufferAllocatingTestCase {
 
-	private CharSequenceEncoder encoder;
+    private CharSequenceEncoder encoder;
 
-	@Before
-	public void createEncoder() {
-		this.encoder = CharSequenceEncoder.textPlainOnly();
-	}
+    @Before
+    public void createEncoder() {
+        this.encoder = CharSequenceEncoder.textPlainOnly();
+    }
 
-	@Test
-	public void canWrite() {
-		assertTrue(this.encoder.canEncode(ResolvableType.forClass(String.class),
-				MimeTypeUtils.TEXT_PLAIN));
-		assertTrue(this.encoder.canEncode(ResolvableType.forClass(StringBuilder.class),
-				MimeTypeUtils.TEXT_PLAIN));
-		assertTrue(this.encoder.canEncode(ResolvableType.forClass(StringBuffer.class),
-				MimeTypeUtils.TEXT_PLAIN));
-		assertFalse(this.encoder.canEncode(ResolvableType.forClass(Integer.class),
-				MimeTypeUtils.TEXT_PLAIN));
-		assertFalse(this.encoder.canEncode(ResolvableType.forClass(String.class),
-				MimeTypeUtils.APPLICATION_JSON));
+    @Test
+    public void canWrite() {
+        assertTrue(this.encoder.canEncode(ResolvableType.forClass(String.class),
+                MimeTypeUtils.TEXT_PLAIN));
+        assertTrue(this.encoder.canEncode(ResolvableType.forClass(StringBuilder.class),
+                MimeTypeUtils.TEXT_PLAIN));
+        assertTrue(this.encoder.canEncode(ResolvableType.forClass(StringBuffer.class),
+                MimeTypeUtils.TEXT_PLAIN));
+        assertFalse(this.encoder.canEncode(ResolvableType.forClass(Integer.class),
+                MimeTypeUtils.TEXT_PLAIN));
+        assertFalse(this.encoder.canEncode(ResolvableType.forClass(String.class),
+                MimeTypeUtils.APPLICATION_JSON));
 
-		// SPR-15464
-		assertFalse(this.encoder.canEncode(ResolvableType.NONE, null));
-	}
+        // SPR-15464
+        assertFalse(this.encoder.canEncode(ResolvableType.NONE, null));
+    }
 
-	@Test
-	public void writeString() {
-		Flux<String> stringFlux = Flux.just("foo");
-		Flux<DataBuffer> output = Flux.from(
-				this.encoder.encode(stringFlux, this.bufferFactory, null, null, Collections.emptyMap()));
-		StepVerifier.create(output)
-				.consumeNextWith(stringConsumer("foo"))
-				.expectComplete()
-				.verify();
-	}
+    @Test
+    public void writeString() {
+        Flux<String> stringFlux = Flux.just("foo");
+        Flux<DataBuffer> output = Flux.from(
+                this.encoder.encode(stringFlux, this.bufferFactory, null, null, Collections.emptyMap()));
+        StepVerifier.create(output)
+                .consumeNextWith(stringConsumer("foo"))
+                .expectComplete()
+                .verify();
+    }
 
-	@Test
-	public void writeStringBuilder() {
-		Flux<StringBuilder> stringBuilderFlux = Flux.just(new StringBuilder("foo"));
-		Flux<DataBuffer> output = Flux.from(
-				this.encoder.encode(stringBuilderFlux, this.bufferFactory, null, null, Collections.emptyMap()));
-		StepVerifier.create(output)
-				.consumeNextWith(stringConsumer("foo"))
-				.expectComplete()
-				.verify();
-	}
+    @Test
+    public void writeStringBuilder() {
+        Flux<StringBuilder> stringBuilderFlux = Flux.just(new StringBuilder("foo"));
+        Flux<DataBuffer> output = Flux.from(
+                this.encoder.encode(stringBuilderFlux, this.bufferFactory, null, null, Collections.emptyMap()));
+        StepVerifier.create(output)
+                .consumeNextWith(stringConsumer("foo"))
+                .expectComplete()
+                .verify();
+    }
 
 }

@@ -40,117 +40,115 @@ import static org.junit.Assert.*;
  */
 public class MessageReceivingTemplateTests {
 
-	@Rule
-	public final ExpectedException thrown = ExpectedException.none();
+    @Rule
+    public final ExpectedException thrown = ExpectedException.none();
 
-	private TestMessagingTemplate template;
-
-
-	@Before
-	public void setup() {
-		this.template = new TestMessagingTemplate();
-	}
-
-	@Test
-	public void receive() {
-		Message<?> expected = new GenericMessage<>("payload");
-		this.template.setDefaultDestination("home");
-		this.template.setReceiveMessage(expected);
-		Message<?> actual = this.template.receive();
-
-		assertEquals("home", this.template.destination);
-		assertSame(expected, actual);
-	}
-
-	@Test(expected = IllegalStateException.class)
-	public void receiveMissingDefaultDestination() {
-		this.template.receive();
-	}
-
-	@Test
-	public void receiveFromDestination() {
-		Message<?> expected = new GenericMessage<>("payload");
-		this.template.setReceiveMessage(expected);
-		Message<?> actual = this.template.receive("somewhere");
-
-		assertEquals("somewhere", this.template.destination);
-		assertSame(expected, actual);
-	}
-
-	@Test
-	public void receiveAndConvert() {
-		Message<?> expected = new GenericMessage<>("payload");
-		this.template.setDefaultDestination("home");
-		this.template.setReceiveMessage(expected);
-		String payload = this.template.receiveAndConvert(String.class);
-
-		assertEquals("home", this.template.destination);
-		assertSame("payload", payload);
-	}
-
-	@Test
-	public void receiveAndConvertFromDestination() {
-		Message<?> expected = new GenericMessage<>("payload");
-		this.template.setReceiveMessage(expected);
-		String payload = this.template.receiveAndConvert("somewhere", String.class);
-
-		assertEquals("somewhere", this.template.destination);
-		assertSame("payload", payload);
-	}
-
-	@Test
-	public void receiveAndConvertFailed() {
-		Message<?> expected = new GenericMessage<>("not a number test");
-		this.template.setReceiveMessage(expected);
-		this.template.setMessageConverter(new GenericMessageConverter());
-
-		thrown.expect(MessageConversionException.class);
-		thrown.expectCause(isA(ConversionFailedException.class));
-		this.template.receiveAndConvert("somewhere", Integer.class);
-	}
-
-	@Test
-	public void receiveAndConvertNoConverter() {
-		Message<?> expected = new GenericMessage<>("payload");
-		this.template.setDefaultDestination("home");
-		this.template.setReceiveMessage(expected);
-		this.template.setMessageConverter(new GenericMessageConverter());
-		try {
-			this.template.receiveAndConvert(Writer.class);
-		}
-		catch (MessageConversionException ex) {
-			assertTrue("Invalid exception message '" + ex.getMessage() + "'", ex.getMessage().contains("payload"));
-			assertSame(expected, ex.getFailedMessage());
-		}
-	}
+    private TestMessagingTemplate template;
 
 
+    @Before
+    public void setup() {
+        this.template = new TestMessagingTemplate();
+    }
 
-	private static class TestMessagingTemplate extends AbstractMessagingTemplate<String> {
+    @Test
+    public void receive() {
+        Message<?> expected = new GenericMessage<>("payload");
+        this.template.setDefaultDestination("home");
+        this.template.setReceiveMessage(expected);
+        Message<?> actual = this.template.receive();
 
-		private String destination;
+        assertEquals("home", this.template.destination);
+        assertSame(expected, actual);
+    }
 
-		private Message<?> receiveMessage;
+    @Test(expected = IllegalStateException.class)
+    public void receiveMissingDefaultDestination() {
+        this.template.receive();
+    }
 
-		private void setReceiveMessage(Message<?> receiveMessage) {
-			this.receiveMessage = receiveMessage;
-		}
+    @Test
+    public void receiveFromDestination() {
+        Message<?> expected = new GenericMessage<>("payload");
+        this.template.setReceiveMessage(expected);
+        Message<?> actual = this.template.receive("somewhere");
 
-		@Override
-		protected void doSend(String destination, Message<?> message) {
-		}
+        assertEquals("somewhere", this.template.destination);
+        assertSame(expected, actual);
+    }
 
-		@Override
-		protected Message<?> doReceive(String destination) {
-			this.destination = destination;
-			return this.receiveMessage;
-		}
+    @Test
+    public void receiveAndConvert() {
+        Message<?> expected = new GenericMessage<>("payload");
+        this.template.setDefaultDestination("home");
+        this.template.setReceiveMessage(expected);
+        String payload = this.template.receiveAndConvert(String.class);
 
-		@Override
-		protected Message<?> doSendAndReceive(String destination, Message<?> requestMessage) {
-			this.destination = destination;
-			return null;
-		}
-	}
+        assertEquals("home", this.template.destination);
+        assertSame("payload", payload);
+    }
+
+    @Test
+    public void receiveAndConvertFromDestination() {
+        Message<?> expected = new GenericMessage<>("payload");
+        this.template.setReceiveMessage(expected);
+        String payload = this.template.receiveAndConvert("somewhere", String.class);
+
+        assertEquals("somewhere", this.template.destination);
+        assertSame("payload", payload);
+    }
+
+    @Test
+    public void receiveAndConvertFailed() {
+        Message<?> expected = new GenericMessage<>("not a number test");
+        this.template.setReceiveMessage(expected);
+        this.template.setMessageConverter(new GenericMessageConverter());
+
+        thrown.expect(MessageConversionException.class);
+        thrown.expectCause(isA(ConversionFailedException.class));
+        this.template.receiveAndConvert("somewhere", Integer.class);
+    }
+
+    @Test
+    public void receiveAndConvertNoConverter() {
+        Message<?> expected = new GenericMessage<>("payload");
+        this.template.setDefaultDestination("home");
+        this.template.setReceiveMessage(expected);
+        this.template.setMessageConverter(new GenericMessageConverter());
+        try {
+            this.template.receiveAndConvert(Writer.class);
+        } catch (MessageConversionException ex) {
+            assertTrue("Invalid exception message '" + ex.getMessage() + "'", ex.getMessage().contains("payload"));
+            assertSame(expected, ex.getFailedMessage());
+        }
+    }
+
+
+    private static class TestMessagingTemplate extends AbstractMessagingTemplate<String> {
+
+        private String destination;
+
+        private Message<?> receiveMessage;
+
+        private void setReceiveMessage(Message<?> receiveMessage) {
+            this.receiveMessage = receiveMessage;
+        }
+
+        @Override
+        protected void doSend(String destination, Message<?> message) {
+        }
+
+        @Override
+        protected Message<?> doReceive(String destination) {
+            this.destination = destination;
+            return this.receiveMessage;
+        }
+
+        @Override
+        protected Message<?> doSendAndReceive(String destination, Message<?> requestMessage) {
+            this.destination = destination;
+            return null;
+        }
+    }
 
 }

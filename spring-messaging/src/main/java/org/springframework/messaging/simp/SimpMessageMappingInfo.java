@@ -34,86 +34,86 @@ import org.springframework.messaging.handler.MessageCondition;
  */
 public class SimpMessageMappingInfo implements MessageCondition<SimpMessageMappingInfo> {
 
-	private final SimpMessageTypeMessageCondition messageTypeMessageCondition;
+    private final SimpMessageTypeMessageCondition messageTypeMessageCondition;
 
-	private final DestinationPatternsMessageCondition destinationConditions;
-
-
-	public SimpMessageMappingInfo(SimpMessageTypeMessageCondition messageTypeMessageCondition,
-			DestinationPatternsMessageCondition destinationConditions) {
-
-		this.messageTypeMessageCondition = messageTypeMessageCondition;
-		this.destinationConditions = destinationConditions;
-	}
+    private final DestinationPatternsMessageCondition destinationConditions;
 
 
-	public SimpMessageTypeMessageCondition getMessageTypeMessageCondition() {
-		return this.messageTypeMessageCondition;
-	}
+    public SimpMessageMappingInfo(SimpMessageTypeMessageCondition messageTypeMessageCondition,
+                                  DestinationPatternsMessageCondition destinationConditions) {
 
-	public DestinationPatternsMessageCondition getDestinationConditions() {
-		return this.destinationConditions;
-	}
-
-
-	@Override
-	public SimpMessageMappingInfo combine(SimpMessageMappingInfo other) {
-		SimpMessageTypeMessageCondition typeCond =
-				this.getMessageTypeMessageCondition().combine(other.getMessageTypeMessageCondition());
-		DestinationPatternsMessageCondition destCond =
-				this.destinationConditions.combine(other.getDestinationConditions());
-		return new SimpMessageMappingInfo(typeCond, destCond);
-	}
-
-	@Override
-	@Nullable
-	public SimpMessageMappingInfo getMatchingCondition(Message<?> message) {
-		SimpMessageTypeMessageCondition typeCond = this.messageTypeMessageCondition.getMatchingCondition(message);
-		if (typeCond == null) {
-			return null;
-		}
-		DestinationPatternsMessageCondition destCond = this.destinationConditions.getMatchingCondition(message);
-		if (destCond == null) {
-			return null;
-		}
-		return new SimpMessageMappingInfo(typeCond, destCond);
-	}
-
-	@Override
-	public int compareTo(SimpMessageMappingInfo other, Message<?> message) {
-		int result = this.messageTypeMessageCondition.compareTo(other.messageTypeMessageCondition, message);
-		if (result != 0) {
-			return result;
-		}
-		result = this.destinationConditions.compareTo(other.destinationConditions, message);
-		if (result != 0) {
-			return result;
-		}
-		return 0;
-	}
+        this.messageTypeMessageCondition = messageTypeMessageCondition;
+        this.destinationConditions = destinationConditions;
+    }
 
 
-	@Override
-	public boolean equals(Object other) {
-		if (this == other) {
-			return true;
-		}
-		if (!(other instanceof SimpMessageMappingInfo)) {
-			return false;
-		}
-		SimpMessageMappingInfo otherInfo = (SimpMessageMappingInfo) other;
-		return (this.destinationConditions.equals(otherInfo.destinationConditions) &&
-				this.messageTypeMessageCondition.equals(otherInfo.messageTypeMessageCondition));
-	}
+    public SimpMessageTypeMessageCondition getMessageTypeMessageCondition() {
+        return this.messageTypeMessageCondition;
+    }
 
-	@Override
-	public int hashCode() {
-		return (this.destinationConditions.hashCode() * 31 + this.messageTypeMessageCondition.hashCode());
-	}
+    public DestinationPatternsMessageCondition getDestinationConditions() {
+        return this.destinationConditions;
+    }
 
-	@Override
-	public String toString() {
-		return "{" + this.destinationConditions + ",messageType=" + this.messageTypeMessageCondition + '}';
-	}
+
+    @Override
+    public SimpMessageMappingInfo combine(SimpMessageMappingInfo other) {
+        SimpMessageTypeMessageCondition typeCond =
+                this.getMessageTypeMessageCondition().combine(other.getMessageTypeMessageCondition());
+        DestinationPatternsMessageCondition destCond =
+                this.destinationConditions.combine(other.getDestinationConditions());
+        return new SimpMessageMappingInfo(typeCond, destCond);
+    }
+
+    @Override
+    @Nullable
+    public SimpMessageMappingInfo getMatchingCondition(Message<?> message) {
+        SimpMessageTypeMessageCondition typeCond = this.messageTypeMessageCondition.getMatchingCondition(message);
+        if (typeCond == null) {
+            return null;
+        }
+        DestinationPatternsMessageCondition destCond = this.destinationConditions.getMatchingCondition(message);
+        if (destCond == null) {
+            return null;
+        }
+        return new SimpMessageMappingInfo(typeCond, destCond);
+    }
+
+    @Override
+    public int compareTo(SimpMessageMappingInfo other, Message<?> message) {
+        int result = this.messageTypeMessageCondition.compareTo(other.messageTypeMessageCondition, message);
+        if (result != 0) {
+            return result;
+        }
+        result = this.destinationConditions.compareTo(other.destinationConditions, message);
+        if (result != 0) {
+            return result;
+        }
+        return 0;
+    }
+
+
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) {
+            return true;
+        }
+        if (!(other instanceof SimpMessageMappingInfo)) {
+            return false;
+        }
+        SimpMessageMappingInfo otherInfo = (SimpMessageMappingInfo) other;
+        return (this.destinationConditions.equals(otherInfo.destinationConditions) &&
+                this.messageTypeMessageCondition.equals(otherInfo.messageTypeMessageCondition));
+    }
+
+    @Override
+    public int hashCode() {
+        return (this.destinationConditions.hashCode() * 31 + this.messageTypeMessageCondition.hashCode());
+    }
+
+    @Override
+    public String toString() {
+        return "{" + this.destinationConditions + ",messageType=" + this.messageTypeMessageCondition + '}';
+    }
 
 }

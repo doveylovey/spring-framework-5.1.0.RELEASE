@@ -31,23 +31,23 @@ import org.springframework.util.MimeType;
  *
  * @author Sebastien Deleuze
  * @author Rossen Stoyanchev
- * @since 5.0
  * @see Jackson2JsonEncoder
+ * @since 5.0
  */
 public class Jackson2SmileDecoder extends AbstractJackson2Decoder {
 
-	private static final MimeType[] DEFAULT_SMILE_MIME_TYPES = new MimeType[] {
-					new MimeType("application", "x-jackson-smile", StandardCharsets.UTF_8),
-					new MimeType("application", "*+x-jackson-smile", StandardCharsets.UTF_8)};
+    private static final MimeType[] DEFAULT_SMILE_MIME_TYPES = new MimeType[]{
+            new MimeType("application", "x-jackson-smile", StandardCharsets.UTF_8),
+            new MimeType("application", "*+x-jackson-smile", StandardCharsets.UTF_8)};
 
 
-	public Jackson2SmileDecoder() {
-		this(Jackson2ObjectMapperBuilder.smile().build(), DEFAULT_SMILE_MIME_TYPES);
-	}
+    public Jackson2SmileDecoder() {
+        this(Jackson2ObjectMapperBuilder.smile().build(), DEFAULT_SMILE_MIME_TYPES);
+    }
 
-	public Jackson2SmileDecoder(ObjectMapper mapper, MimeType... mimeTypes) {
-		super(mapper, mimeTypes);
-		Assert.isAssignable(SmileFactory.class, mapper.getFactory().getClass());
-	}
+    public Jackson2SmileDecoder(ObjectMapper mapper, MimeType... mimeTypes) {
+        super(mapper, mimeTypes);
+        Assert.isAssignable(SmileFactory.class, mapper.getFactory().getClass());
+    }
 
 }

@@ -34,53 +34,54 @@ import static org.junit.Assert.assertTrue;
 
 /**
  * Unit tests for {@link PrincipalArgumentResolver}.
+ *
  * @author Rossen Stoyanchev
  */
 public class PrincipalArgumentResolverTests {
 
-	private final PrincipalArgumentResolver resolver =
-			new PrincipalArgumentResolver(ReactiveAdapterRegistry.getSharedInstance());
+    private final PrincipalArgumentResolver resolver =
+            new PrincipalArgumentResolver(ReactiveAdapterRegistry.getSharedInstance());
 
-	private ResolvableMethod testMethod = ResolvableMethod.on(getClass()).named("handle").build();
-
-
-	@Test
-	public void supportsParameter() throws Exception {
-		assertTrue(this.resolver.supportsParameter(this.testMethod.arg(Principal.class)));
-		assertTrue(this.resolver.supportsParameter(this.testMethod.arg(Mono.class, Principal.class)));
-		assertTrue(this.resolver.supportsParameter(this.testMethod.arg(Single.class, Principal.class)));
-	}
+    private ResolvableMethod testMethod = ResolvableMethod.on(getClass()).named("handle").build();
 
 
-	@Test
-	public void resolverArgument() throws Exception {
-
-		BindingContext context = new BindingContext();
-		Principal user = () -> "Joe";
-		ServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/"))
-				.mutate().principal(Mono.just(user)).build();
-
-		MethodParameter param = this.testMethod.arg(Principal.class);
-		Object actual = this.resolver.resolveArgument(param, context, exchange).block();
-		assertSame(user, actual);
-
-		param = this.testMethod.arg(Mono.class, Principal.class);
-		actual = this.resolver.resolveArgument(param, context, exchange).block();
-		assertTrue(Mono.class.isAssignableFrom(actual.getClass()));
-		assertSame(user, ((Mono<?>) actual).block());
-
-		param = this.testMethod.arg(Single.class, Principal.class);
-		actual = this.resolver.resolveArgument(param, context, exchange).block();
-		assertTrue(Single.class.isAssignableFrom(actual.getClass()));
-		assertSame(user, ((Single<?>) actual).blockingGet());
-	}
+    @Test
+    public void supportsParameter() throws Exception {
+        assertTrue(this.resolver.supportsParameter(this.testMethod.arg(Principal.class)));
+        assertTrue(this.resolver.supportsParameter(this.testMethod.arg(Mono.class, Principal.class)));
+        assertTrue(this.resolver.supportsParameter(this.testMethod.arg(Single.class, Principal.class)));
+    }
 
 
-	@SuppressWarnings("unused")
-	void handle(
-			Principal user,
-			Mono<Principal> userMono,
-			Single<Principal> singleUser) {
-	}
+    @Test
+    public void resolverArgument() throws Exception {
+
+        BindingContext context = new BindingContext();
+        Principal user = () -> "Joe";
+        ServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/"))
+                .mutate().principal(Mono.just(user)).build();
+
+        MethodParameter param = this.testMethod.arg(Principal.class);
+        Object actual = this.resolver.resolveArgument(param, context, exchange).block();
+        assertSame(user, actual);
+
+        param = this.testMethod.arg(Mono.class, Principal.class);
+        actual = this.resolver.resolveArgument(param, context, exchange).block();
+        assertTrue(Mono.class.isAssignableFrom(actual.getClass()));
+        assertSame(user, ((Mono<?>) actual).block());
+
+        param = this.testMethod.arg(Single.class, Principal.class);
+        actual = this.resolver.resolveArgument(param, context, exchange).block();
+        assertTrue(Single.class.isAssignableFrom(actual.getClass()));
+        assertSame(user, ((Single<?>) actual).blockingGet());
+    }
+
+
+    @SuppressWarnings("unused")
+    void handle(
+            Principal user,
+            Mono<Principal> userMono,
+            Single<Principal> singleUser) {
+    }
 
 }

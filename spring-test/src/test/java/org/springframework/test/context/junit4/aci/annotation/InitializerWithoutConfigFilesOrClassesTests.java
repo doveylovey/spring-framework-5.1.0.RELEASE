@@ -41,22 +41,22 @@ import static org.junit.Assert.*;
 @ContextConfiguration(initializers = EntireAppInitializer.class)
 public class InitializerWithoutConfigFilesOrClassesTests {
 
-	@Autowired
-	private String foo;
+    @Autowired
+    private String foo;
 
 
-	@Test
-	public void foo() {
-		assertEquals("foo", foo);
-	}
+    @Test
+    public void foo() {
+        assertEquals("foo", foo);
+    }
 
 
-	static class EntireAppInitializer implements ApplicationContextInitializer<GenericApplicationContext> {
+    static class EntireAppInitializer implements ApplicationContextInitializer<GenericApplicationContext> {
 
-		@Override
-		public void initialize(GenericApplicationContext applicationContext) {
-			new AnnotatedBeanDefinitionReader(applicationContext).register(GlobalConfig.class);
-		}
-	}
+        @Override
+        public void initialize(GenericApplicationContext applicationContext) {
+            new AnnotatedBeanDefinitionReader(applicationContext).register(GlobalConfig.class);
+        }
+    }
 
 }

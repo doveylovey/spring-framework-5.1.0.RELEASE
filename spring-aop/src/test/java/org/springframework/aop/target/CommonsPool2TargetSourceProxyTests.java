@@ -32,16 +32,16 @@ import static org.springframework.tests.TestResourceUtils.*;
  */
 public class CommonsPool2TargetSourceProxyTests {
 
-	private static final Resource CONTEXT =
-		qualifiedResource(CommonsPool2TargetSourceProxyTests.class, "context.xml");
+    private static final Resource CONTEXT =
+            qualifiedResource(CommonsPool2TargetSourceProxyTests.class, "context.xml");
 
-	@Test
-	public void testProxy() throws Exception {
-		DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
-		XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(beanFactory);
-		reader.loadBeanDefinitions(CONTEXT);
-		beanFactory.preInstantiateSingletons();
-		ITestBean bean = (ITestBean)beanFactory.getBean("testBean");
-		assertTrue(AopUtils.isAopProxy(bean));
-	}
+    @Test
+    public void testProxy() throws Exception {
+        DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
+        XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(beanFactory);
+        reader.loadBeanDefinitions(CONTEXT);
+        beanFactory.preInstantiateSingletons();
+        ITestBean bean = (ITestBean) beanFactory.getBean("testBean");
+        assertTrue(AopUtils.isAopProxy(bean));
+    }
 }

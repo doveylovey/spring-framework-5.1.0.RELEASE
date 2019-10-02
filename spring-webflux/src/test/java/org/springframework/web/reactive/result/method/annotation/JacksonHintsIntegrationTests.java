@@ -44,197 +44,199 @@ import static org.junit.Assert.*;
  */
 public class JacksonHintsIntegrationTests extends AbstractRequestMappingIntegrationTests {
 
-	@Override
-	protected ApplicationContext initApplicationContext() {
-		AnnotationConfigApplicationContext wac = new AnnotationConfigApplicationContext();
-		wac.register(WebConfig.class);
-		wac.refresh();
-		return wac;
-	}
+    @Override
+    protected ApplicationContext initApplicationContext() {
+        AnnotationConfigApplicationContext wac = new AnnotationConfigApplicationContext();
+        wac.register(WebConfig.class);
+        wac.refresh();
+        return wac;
+    }
 
 
-	@Test
-	public void jsonViewResponse() throws Exception {
-		String expected = "{\"withView1\":\"with\"}";
-		assertEquals(expected, performGet("/response/raw", MediaType.APPLICATION_JSON_UTF8, String.class).getBody());
-	}
+    @Test
+    public void jsonViewResponse() throws Exception {
+        String expected = "{\"withView1\":\"with\"}";
+        assertEquals(expected, performGet("/response/raw", MediaType.APPLICATION_JSON_UTF8, String.class).getBody());
+    }
 
-	@Test
-	public void jsonViewWithMonoResponse() throws Exception {
-		String expected = "{\"withView1\":\"with\"}";
-		assertEquals(expected, performGet("/response/mono", MediaType.APPLICATION_JSON_UTF8, String.class).getBody());
-	}
+    @Test
+    public void jsonViewWithMonoResponse() throws Exception {
+        String expected = "{\"withView1\":\"with\"}";
+        assertEquals(expected, performGet("/response/mono", MediaType.APPLICATION_JSON_UTF8, String.class).getBody());
+    }
 
-	@Test  // SPR-16098
-	public void jsonViewWithMonoResponseEntity() throws Exception {
-		String expected = "{\"withView1\":\"with\"}";
-		assertEquals(expected, performGet("/response/entity", MediaType.APPLICATION_JSON_UTF8, String.class).getBody());
-	}
+    @Test  // SPR-16098
+    public void jsonViewWithMonoResponseEntity() throws Exception {
+        String expected = "{\"withView1\":\"with\"}";
+        assertEquals(expected, performGet("/response/entity", MediaType.APPLICATION_JSON_UTF8, String.class).getBody());
+    }
 
-	@Test
-	public void jsonViewWithFluxResponse() throws Exception {
-		String expected = "[{\"withView1\":\"with\"},{\"withView1\":\"with\"}]";
-		assertEquals(expected, performGet("/response/flux", MediaType.APPLICATION_JSON_UTF8, String.class).getBody());
-	}
+    @Test
+    public void jsonViewWithFluxResponse() throws Exception {
+        String expected = "[{\"withView1\":\"with\"},{\"withView1\":\"with\"}]";
+        assertEquals(expected, performGet("/response/flux", MediaType.APPLICATION_JSON_UTF8, String.class).getBody());
+    }
 
-	@Test
-	public void jsonViewWithRequest() throws Exception {
-		String expected = "{\"withView1\":\"with\",\"withView2\":null,\"withoutView\":null}";
-		assertEquals(expected, performPost("/request/raw", MediaType.APPLICATION_JSON,
-				new JacksonViewBean("with", "with", "without"), MediaType.APPLICATION_JSON_UTF8, String.class).getBody());
-	}
+    @Test
+    public void jsonViewWithRequest() throws Exception {
+        String expected = "{\"withView1\":\"with\",\"withView2\":null,\"withoutView\":null}";
+        assertEquals(expected, performPost("/request/raw", MediaType.APPLICATION_JSON,
+                new JacksonViewBean("with", "with", "without"), MediaType.APPLICATION_JSON_UTF8, String.class).getBody());
+    }
 
-	@Test
-	public void jsonViewWithMonoRequest() throws Exception {
-		String expected = "{\"withView1\":\"with\",\"withView2\":null,\"withoutView\":null}";
-		assertEquals(expected, performPost("/request/mono", MediaType.APPLICATION_JSON,
-				new JacksonViewBean("with", "with", "without"), MediaType.APPLICATION_JSON_UTF8, String.class).getBody());
-	}
+    @Test
+    public void jsonViewWithMonoRequest() throws Exception {
+        String expected = "{\"withView1\":\"with\",\"withView2\":null,\"withoutView\":null}";
+        assertEquals(expected, performPost("/request/mono", MediaType.APPLICATION_JSON,
+                new JacksonViewBean("with", "with", "without"), MediaType.APPLICATION_JSON_UTF8, String.class).getBody());
+    }
 
-	@Test  // SPR-16098
-	public void jsonViewWithEntityMonoRequest() throws Exception {
-		String expected = "{\"withView1\":\"with\",\"withView2\":null,\"withoutView\":null}";
-		assertEquals(expected, performPost("/request/entity/mono", MediaType.APPLICATION_JSON,
-				new JacksonViewBean("with", "with", "without"),
-				MediaType.APPLICATION_JSON_UTF8, String.class).getBody());
-	}
+    @Test  // SPR-16098
+    public void jsonViewWithEntityMonoRequest() throws Exception {
+        String expected = "{\"withView1\":\"with\",\"withView2\":null,\"withoutView\":null}";
+        assertEquals(expected, performPost("/request/entity/mono", MediaType.APPLICATION_JSON,
+                new JacksonViewBean("with", "with", "without"),
+                MediaType.APPLICATION_JSON_UTF8, String.class).getBody());
+    }
 
-	@Test  // SPR-16098
-	public void jsonViewWithEntityFluxRequest() throws Exception {
-		String expected = "[" +
-				"{\"withView1\":\"with\",\"withView2\":null,\"withoutView\":null}," +
-				"{\"withView1\":\"with\",\"withView2\":null,\"withoutView\":null}]";
-		assertEquals(expected, performPost("/request/entity/flux", MediaType.APPLICATION_JSON,
-				Arrays.asList(new JacksonViewBean("with", "with", "without"),
-						new JacksonViewBean("with", "with", "without")),
-				MediaType.APPLICATION_JSON_UTF8, String.class).getBody());
-	}
+    @Test  // SPR-16098
+    public void jsonViewWithEntityFluxRequest() throws Exception {
+        String expected = "[" +
+                "{\"withView1\":\"with\",\"withView2\":null,\"withoutView\":null}," +
+                "{\"withView1\":\"with\",\"withView2\":null,\"withoutView\":null}]";
+        assertEquals(expected, performPost("/request/entity/flux", MediaType.APPLICATION_JSON,
+                Arrays.asList(new JacksonViewBean("with", "with", "without"),
+                        new JacksonViewBean("with", "with", "without")),
+                MediaType.APPLICATION_JSON_UTF8, String.class).getBody());
+    }
 
-	@Test
-	public void jsonViewWithFluxRequest() throws Exception {
-		String expected = "[" +
-				"{\"withView1\":\"with\",\"withView2\":null,\"withoutView\":null}," +
-				"{\"withView1\":\"with\",\"withView2\":null,\"withoutView\":null}]";
-		List<JacksonViewBean> beans = Arrays.asList(
-				new JacksonViewBean("with", "with", "without"),
-				new JacksonViewBean("with", "with", "without"));
-		assertEquals(expected, performPost("/request/flux", MediaType.APPLICATION_JSON, beans,
-				MediaType.APPLICATION_JSON_UTF8, String.class).getBody());
-	}
-
-
-	@Configuration
-	@ComponentScan(resourcePattern = "**/JacksonHintsIntegrationTests*.class")
-	@EnableWebFlux
-	@SuppressWarnings({"unused", "WeakerAccess"})
-	static class WebConfig {
-	}
+    @Test
+    public void jsonViewWithFluxRequest() throws Exception {
+        String expected = "[" +
+                "{\"withView1\":\"with\",\"withView2\":null,\"withoutView\":null}," +
+                "{\"withView1\":\"with\",\"withView2\":null,\"withoutView\":null}]";
+        List<JacksonViewBean> beans = Arrays.asList(
+                new JacksonViewBean("with", "with", "without"),
+                new JacksonViewBean("with", "with", "without"));
+        assertEquals(expected, performPost("/request/flux", MediaType.APPLICATION_JSON, beans,
+                MediaType.APPLICATION_JSON_UTF8, String.class).getBody());
+    }
 
 
-	@RestController
-	@SuppressWarnings("unused")
-	private static class JsonViewRestController {
-
-		@GetMapping("/response/raw")
-		@JsonView(MyJacksonView1.class)
-		public JacksonViewBean rawResponse() {
-			return new JacksonViewBean("with", "with", "without");
-		}
-
-		@GetMapping("/response/mono")
-		@JsonView(MyJacksonView1.class)
-		public Mono<JacksonViewBean> monoResponse() {
-			return Mono.just(new JacksonViewBean("with", "with", "without"));
-		}
-
-		@GetMapping("/response/entity")
-		@JsonView(MyJacksonView1.class)
-		public Mono<ResponseEntity<JacksonViewBean>> monoResponseEntity() {
-			return Mono.just(ResponseEntity.ok(new JacksonViewBean("with", "with", "without")));
-		}
-
-		@GetMapping("/response/flux")
-		@JsonView(MyJacksonView1.class)
-		public Flux<JacksonViewBean> fluxResponse() {
-			return Flux.just(new JacksonViewBean("with", "with", "without"), new JacksonViewBean("with", "with", "without"));
-		}
-
-		@PostMapping("/request/raw")
-		public JacksonViewBean rawRequest(@JsonView(MyJacksonView1.class) @RequestBody JacksonViewBean bean) {
-			return bean;
-		}
-
-		@PostMapping("/request/mono")
-		public Mono<JacksonViewBean> monoRequest(@JsonView(MyJacksonView1.class) @RequestBody Mono<JacksonViewBean> mono) {
-			return mono;
-		}
-
-		@PostMapping("/request/entity/mono")
-		public Mono<JacksonViewBean> entityMonoRequest(@JsonView(MyJacksonView1.class) HttpEntity<Mono<JacksonViewBean>> entityMono) {
-			return entityMono.getBody();
-		}
-
-		@PostMapping("/request/entity/flux")
-		public Flux<JacksonViewBean> entityFluxRequest(@JsonView(MyJacksonView1.class) HttpEntity<Flux<JacksonViewBean>> entityFlux) {
-			return entityFlux.getBody();
-		}
-
-		@PostMapping("/request/flux")
-		public Flux<JacksonViewBean> fluxRequest(@JsonView(MyJacksonView1.class) @RequestBody Flux<JacksonViewBean> flux) {
-			return flux;
-		}
-
-	}
-
-	private interface MyJacksonView1 {}
-
-	private interface MyJacksonView2 {}
+    @Configuration
+    @ComponentScan(resourcePattern = "**/JacksonHintsIntegrationTests*.class")
+    @EnableWebFlux
+    @SuppressWarnings({"unused", "WeakerAccess"})
+    static class WebConfig {
+    }
 
 
-	@SuppressWarnings("unused")
-	private static class JacksonViewBean {
+    @RestController
+    @SuppressWarnings("unused")
+    private static class JsonViewRestController {
 
-		@JsonView(MyJacksonView1.class)
-		private String withView1;
+        @GetMapping("/response/raw")
+        @JsonView(MyJacksonView1.class)
+        public JacksonViewBean rawResponse() {
+            return new JacksonViewBean("with", "with", "without");
+        }
 
-		@JsonView(MyJacksonView2.class)
-		private String withView2;
+        @GetMapping("/response/mono")
+        @JsonView(MyJacksonView1.class)
+        public Mono<JacksonViewBean> monoResponse() {
+            return Mono.just(new JacksonViewBean("with", "with", "without"));
+        }
 
-		private String withoutView;
+        @GetMapping("/response/entity")
+        @JsonView(MyJacksonView1.class)
+        public Mono<ResponseEntity<JacksonViewBean>> monoResponseEntity() {
+            return Mono.just(ResponseEntity.ok(new JacksonViewBean("with", "with", "without")));
+        }
+
+        @GetMapping("/response/flux")
+        @JsonView(MyJacksonView1.class)
+        public Flux<JacksonViewBean> fluxResponse() {
+            return Flux.just(new JacksonViewBean("with", "with", "without"), new JacksonViewBean("with", "with", "without"));
+        }
+
+        @PostMapping("/request/raw")
+        public JacksonViewBean rawRequest(@JsonView(MyJacksonView1.class) @RequestBody JacksonViewBean bean) {
+            return bean;
+        }
+
+        @PostMapping("/request/mono")
+        public Mono<JacksonViewBean> monoRequest(@JsonView(MyJacksonView1.class) @RequestBody Mono<JacksonViewBean> mono) {
+            return mono;
+        }
+
+        @PostMapping("/request/entity/mono")
+        public Mono<JacksonViewBean> entityMonoRequest(@JsonView(MyJacksonView1.class) HttpEntity<Mono<JacksonViewBean>> entityMono) {
+            return entityMono.getBody();
+        }
+
+        @PostMapping("/request/entity/flux")
+        public Flux<JacksonViewBean> entityFluxRequest(@JsonView(MyJacksonView1.class) HttpEntity<Flux<JacksonViewBean>> entityFlux) {
+            return entityFlux.getBody();
+        }
+
+        @PostMapping("/request/flux")
+        public Flux<JacksonViewBean> fluxRequest(@JsonView(MyJacksonView1.class) @RequestBody Flux<JacksonViewBean> flux) {
+            return flux;
+        }
+
+    }
+
+    private interface MyJacksonView1 {
+    }
+
+    private interface MyJacksonView2 {
+    }
 
 
-		public JacksonViewBean() {
-		}
+    @SuppressWarnings("unused")
+    private static class JacksonViewBean {
 
-		public JacksonViewBean(String withView1, String withView2, String withoutView) {
-			this.withView1 = withView1;
-			this.withView2 = withView2;
-			this.withoutView = withoutView;
-		}
+        @JsonView(MyJacksonView1.class)
+        private String withView1;
 
-		public String getWithView1() {
-			return withView1;
-		}
+        @JsonView(MyJacksonView2.class)
+        private String withView2;
 
-		public void setWithView1(String withView1) {
-			this.withView1 = withView1;
-		}
+        private String withoutView;
 
-		public String getWithView2() {
-			return withView2;
-		}
 
-		public void setWithView2(String withView2) {
-			this.withView2 = withView2;
-		}
+        public JacksonViewBean() {
+        }
 
-		public String getWithoutView() {
-			return withoutView;
-		}
+        public JacksonViewBean(String withView1, String withView2, String withoutView) {
+            this.withView1 = withView1;
+            this.withView2 = withView2;
+            this.withoutView = withoutView;
+        }
 
-		public void setWithoutView(String withoutView) {
-			this.withoutView = withoutView;
-		}
-	}
+        public String getWithView1() {
+            return withView1;
+        }
+
+        public void setWithView1(String withView1) {
+            this.withView1 = withView1;
+        }
+
+        public String getWithView2() {
+            return withView2;
+        }
+
+        public void setWithView2(String withView2) {
+            this.withView2 = withView2;
+        }
+
+        public String getWithoutView() {
+            return withoutView;
+        }
+
+        public void setWithoutView(String withoutView) {
+            this.withoutView = withoutView;
+        }
+    }
 
 }

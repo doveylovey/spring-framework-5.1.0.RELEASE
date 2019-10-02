@@ -31,21 +31,21 @@ import org.springframework.beans.DirectFieldAccessor;
  */
 public class GroovyMarkupViewResolverTests {
 
-	@Test
-	public void viewClass() throws Exception {
-		GroovyMarkupViewResolver resolver = new GroovyMarkupViewResolver();
-		Assert.assertEquals(GroovyMarkupView.class, resolver.requiredViewClass());
-		DirectFieldAccessor viewAccessor = new DirectFieldAccessor(resolver);
-		Class<?> viewClass = (Class<?>) viewAccessor.getPropertyValue("viewClass");
-		Assert.assertEquals(GroovyMarkupView.class, viewClass);
-	}
+    @Test
+    public void viewClass() throws Exception {
+        GroovyMarkupViewResolver resolver = new GroovyMarkupViewResolver();
+        Assert.assertEquals(GroovyMarkupView.class, resolver.requiredViewClass());
+        DirectFieldAccessor viewAccessor = new DirectFieldAccessor(resolver);
+        Class<?> viewClass = (Class<?>) viewAccessor.getPropertyValue("viewClass");
+        Assert.assertEquals(GroovyMarkupView.class, viewClass);
+    }
 
-	@Test
-	public void cacheKey() throws Exception {
-		GroovyMarkupViewResolver resolver = new GroovyMarkupViewResolver();
-		String cacheKey = (String) resolver.getCacheKey("test", Locale.US);
-		Assert.assertNotNull(cacheKey);
-		Assert.assertEquals("test_en_US", cacheKey);
-	}
+    @Test
+    public void cacheKey() throws Exception {
+        GroovyMarkupViewResolver resolver = new GroovyMarkupViewResolver();
+        String cacheKey = (String) resolver.getCacheKey("test", Locale.US);
+        Assert.assertNotNull(cacheKey);
+        Assert.assertEquals("test_en_US", cacheKey);
+    }
 
 }

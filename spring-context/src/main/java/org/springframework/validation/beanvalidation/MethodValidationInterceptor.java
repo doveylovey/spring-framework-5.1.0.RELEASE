@@ -50,88 +50,90 @@ import org.springframework.validation.annotation.Validated;
  * <p>As of Spring 5.0, this functionality requires a Bean Validation 1.1 provider.
  *
  * @author Juergen Hoeller
- * @since 3.1
  * @see MethodValidationPostProcessor
  * @see javax.validation.executable.ExecutableValidator
+ * @since 3.1
  */
 public class MethodValidationInterceptor implements MethodInterceptor {
 
-	private final Validator validator;
+    private final Validator validator;
 
 
-	/**
-	 * Create a new MethodValidationInterceptor using a default JSR-303 validator underneath.
-	 */
-	public MethodValidationInterceptor() {
-		this(Validation.buildDefaultValidatorFactory());
-	}
+    /**
+     * Create a new MethodValidationInterceptor using a default JSR-303 validator underneath.
+     */
+    public MethodValidationInterceptor() {
+        this(Validation.buildDefaultValidatorFactory());
+    }
 
-	/**
-	 * Create a new MethodValidationInterceptor using the given JSR-303 ValidatorFactory.
-	 * @param validatorFactory the JSR-303 ValidatorFactory to use
-	 */
-	public MethodValidationInterceptor(ValidatorFactory validatorFactory) {
-		this(validatorFactory.getValidator());
-	}
+    /**
+     * Create a new MethodValidationInterceptor using the given JSR-303 ValidatorFactory.
+     *
+     * @param validatorFactory the JSR-303 ValidatorFactory to use
+     */
+    public MethodValidationInterceptor(ValidatorFactory validatorFactory) {
+        this(validatorFactory.getValidator());
+    }
 
-	/**
-	 * Create a new MethodValidationInterceptor using the given JSR-303 Validator.
-	 * @param validator the JSR-303 Validator to use
-	 */
-	public MethodValidationInterceptor(Validator validator) {
-		this.validator = validator;
-	}
+    /**
+     * Create a new MethodValidationInterceptor using the given JSR-303 Validator.
+     *
+     * @param validator the JSR-303 Validator to use
+     */
+    public MethodValidationInterceptor(Validator validator) {
+        this.validator = validator;
+    }
 
 
-	@Override
-	@SuppressWarnings("unchecked")
-	public Object invoke(MethodInvocation invocation) throws Throwable {
-		Class<?>[] groups = determineValidationGroups(invocation);
+    @Override
+    @SuppressWarnings("unchecked")
+    public Object invoke(MethodInvocation invocation) throws Throwable {
+        Class<?>[] groups = determineValidationGroups(invocation);
 
-		// Standard Bean Validation 1.1 API
-		ExecutableValidator execVal = this.validator.forExecutables();
-		Method methodToValidate = invocation.getMethod();
-		Set<ConstraintViolation<Object>> result;
+        // Standard Bean Validation 1.1 API
+        ExecutableValidator execVal = this.validator.forExecutables();
+        Method methodToValidate = invocation.getMethod();
+        Set<ConstraintViolation<Object>> result;
 
-		try {
-			result = execVal.validateParameters(
-					invocation.getThis(), methodToValidate, invocation.getArguments(), groups);
-		}
-		catch (IllegalArgumentException ex) {
-			// Probably a generic type mismatch between interface and impl as reported in SPR-12237 / HV-1011
-			// Let's try to find the bridged method on the implementation class...
-			methodToValidate = BridgeMethodResolver.findBridgedMethod(
-					ClassUtils.getMostSpecificMethod(invocation.getMethod(), invocation.getThis().getClass()));
-			result = execVal.validateParameters(
-					invocation.getThis(), methodToValidate, invocation.getArguments(), groups);
-		}
-		if (!result.isEmpty()) {
-			throw new ConstraintViolationException(result);
-		}
+        try {
+            result = execVal.validateParameters(
+                    invocation.getThis(), methodToValidate, invocation.getArguments(), groups);
+        } catch (IllegalArgumentException ex) {
+            // Probably a generic type mismatch between interface and impl as reported in SPR-12237 / HV-1011
+            // Let's try to find the bridged method on the implementation class...
+            methodToValidate = BridgeMethodResolver.findBridgedMethod(
+                    ClassUtils.getMostSpecificMethod(invocation.getMethod(), invocation.getThis().getClass()));
+            result = execVal.validateParameters(
+                    invocation.getThis(), methodToValidate, invocation.getArguments(), groups);
+        }
+        if (!result.isEmpty()) {
+            throw new ConstraintViolationException(result);
+        }
 
-		Object returnValue = invocation.proceed();
+        Object returnValue = invocation.proceed();
 
-		result = execVal.validateReturnValue(invocation.getThis(), methodToValidate, returnValue, groups);
-		if (!result.isEmpty()) {
-			throw new ConstraintViolationException(result);
-		}
+        result = execVal.validateReturnValue(invocation.getThis(), methodToValidate, returnValue, groups);
+        if (!result.isEmpty()) {
+            throw new ConstraintViolationException(result);
+        }
 
-		return returnValue;
-	}
+        return returnValue;
+    }
 
-	/**
-	 * Determine the validation groups to validate against for the given method invocation.
-	 * <p>Default are the validation groups as specified in the {@link Validated} annotation
-	 * on the containing target class of the method.
-	 * @param invocation the current MethodInvocation
-	 * @return the applicable validation groups as a Class array
-	 */
-	protected Class<?>[] determineValidationGroups(MethodInvocation invocation) {
-		Validated validatedAnn = AnnotationUtils.findAnnotation(invocation.getMethod(), Validated.class);
-		if (validatedAnn == null) {
-			validatedAnn = AnnotationUtils.findAnnotation(invocation.getThis().getClass(), Validated.class);
-		}
-		return (validatedAnn != null ? validatedAnn.value() : new Class<?>[0]);
-	}
+    /**
+     * Determine the validation groups to validate against for the given method invocation.
+     * <p>Default are the validation groups as specified in the {@link Validated} annotation
+     * on the containing target class of the method.
+     *
+     * @param invocation the current MethodInvocation
+     * @return the applicable validation groups as a Class array
+     */
+    protected Class<?>[] determineValidationGroups(MethodInvocation invocation) {
+        Validated validatedAnn = AnnotationUtils.findAnnotation(invocation.getMethod(), Validated.class);
+        if (validatedAnn == null) {
+            validatedAnn = AnnotationUtils.findAnnotation(invocation.getThis().getClass(), Validated.class);
+        }
+        return (validatedAnn != null ? validatedAnn.value() : new Class<?>[0]);
+    }
 
 }

@@ -18,5 +18,7 @@ VALUES('Dilbert')
 ` custom single-line comment
 
 
-INSERT INTO user VALUES('Dogbert')@@
-INSERT INTO user VALUES('Catbert')@@
+INSERT INTO user
+VALUES ('Dogbert') @@
+INSERT INTO user
+VALUES ('Catbert') @@

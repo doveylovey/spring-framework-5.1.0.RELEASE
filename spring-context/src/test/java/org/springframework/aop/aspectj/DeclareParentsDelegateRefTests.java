@@ -29,31 +29,31 @@ import static org.junit.Assert.*;
  */
 public class DeclareParentsDelegateRefTests {
 
-	protected NoMethodsBean noMethodsBean;
+    protected NoMethodsBean noMethodsBean;
 
-	protected Counter counter;
-
-
-	@Before
-	public void setup() {
-		ClassPathXmlApplicationContext ctx =
-				new ClassPathXmlApplicationContext(getClass().getSimpleName() + ".xml", getClass());
-		noMethodsBean = (NoMethodsBean) ctx.getBean("noMethodsBean");
-		counter = (Counter) ctx.getBean("counter");
-		counter.reset();
-	}
+    protected Counter counter;
 
 
-	@Test
-	public void testIntroductionWasMade() {
-		assertTrue("Introduction must have been made", noMethodsBean instanceof ICounter);
-	}
+    @Before
+    public void setup() {
+        ClassPathXmlApplicationContext ctx =
+                new ClassPathXmlApplicationContext(getClass().getSimpleName() + ".xml", getClass());
+        noMethodsBean = (NoMethodsBean) ctx.getBean("noMethodsBean");
+        counter = (Counter) ctx.getBean("counter");
+        counter.reset();
+    }
 
-	@Test
-	public void testIntroductionDelegation() {
-		((ICounter)noMethodsBean).increment();
-		assertEquals("Delegate's counter should be updated", 1, counter.getCount());
-	}
+
+    @Test
+    public void testIntroductionWasMade() {
+        assertTrue("Introduction must have been made", noMethodsBean instanceof ICounter);
+    }
+
+    @Test
+    public void testIntroductionDelegation() {
+        ((ICounter) noMethodsBean).increment();
+        assertEquals("Delegate's counter should be updated", 1, counter.getCount());
+    }
 
 }
 

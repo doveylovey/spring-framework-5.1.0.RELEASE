@@ -28,45 +28,45 @@ import org.springframework.util.Assert;
  *
  * @author Mark Fisher
  * @author Juergen Hoeller
- * @since 2.5
  * @see ScopeMetadataResolver
  * @see ScopedProxyMode
+ * @since 2.5
  */
 public class ScopeMetadata {
 
-	private String scopeName = BeanDefinition.SCOPE_SINGLETON;
+    private String scopeName = BeanDefinition.SCOPE_SINGLETON;
 
-	private ScopedProxyMode scopedProxyMode = ScopedProxyMode.NO;
+    private ScopedProxyMode scopedProxyMode = ScopedProxyMode.NO;
 
 
-	/**
-	 * Set the name of the scope.
-	 */
-	public void setScopeName(String scopeName) {
-		Assert.notNull(scopeName, "'scopeName' must not be null");
-		this.scopeName = scopeName;
-	}
+    /**
+     * Set the name of the scope.
+     */
+    public void setScopeName(String scopeName) {
+        Assert.notNull(scopeName, "'scopeName' must not be null");
+        this.scopeName = scopeName;
+    }
 
-	/**
-	 * Get the name of the scope.
-	 */
-	public String getScopeName() {
-		return this.scopeName;
-	}
+    /**
+     * Get the name of the scope.
+     */
+    public String getScopeName() {
+        return this.scopeName;
+    }
 
-	/**
-	 * Set the proxy-mode to be applied to the scoped instance.
-	 */
-	public void setScopedProxyMode(ScopedProxyMode scopedProxyMode) {
-		Assert.notNull(scopedProxyMode, "'scopedProxyMode' must not be null");
-		this.scopedProxyMode = scopedProxyMode;
-	}
+    /**
+     * Set the proxy-mode to be applied to the scoped instance.
+     */
+    public void setScopedProxyMode(ScopedProxyMode scopedProxyMode) {
+        Assert.notNull(scopedProxyMode, "'scopedProxyMode' must not be null");
+        this.scopedProxyMode = scopedProxyMode;
+    }
 
-	/**
-	 * Get the proxy-mode to be applied to the scoped instance.
-	 */
-	public ScopedProxyMode getScopedProxyMode() {
-		return this.scopedProxyMode;
-	}
+    /**
+     * Get the proxy-mode to be applied to the scoped instance.
+     */
+    public ScopedProxyMode getScopedProxyMode() {
+        return this.scopedProxyMode;
+    }
 
 }

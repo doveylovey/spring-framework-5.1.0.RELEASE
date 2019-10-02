@@ -34,15 +34,15 @@ import static org.springframework.test.transaction.TransactionTestUtils.*;
 @ContextConfiguration
 public class TimedTransactionalTestNGSpringContextTests extends AbstractTransactionalTestNGSpringContextTests {
 
-	@Test
-	public void testWithoutTimeout() {
-		assertInTransaction(true);
-	}
+    @Test
+    public void testWithoutTimeout() {
+        assertInTransaction(true);
+    }
 
-	// TODO Enable TestNG test with timeout once we have a solution.
-	@Test(timeOut = 10000, enabled = false)
-	public void testWithTimeout() {
-		assertInTransaction(true);
-	}
+    // TODO Enable TestNG test with timeout once we have a solution.
+    @Test(timeOut = 10000, enabled = false)
+    public void testWithTimeout() {
+        assertInTransaction(true);
+    }
 
 }

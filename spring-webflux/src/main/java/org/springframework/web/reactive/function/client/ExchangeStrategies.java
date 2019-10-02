@@ -35,65 +35,69 @@ import org.springframework.http.codec.HttpMessageWriter;
  */
 public interface ExchangeStrategies {
 
-	/**
-	 * Return {@link HttpMessageReader HttpMessageReaders} to read and decode the response body with.
-	 * @return the stream of message readers
-	 */
-	List<HttpMessageReader<?>> messageReaders();
+    /**
+     * Return {@link HttpMessageReader HttpMessageReaders} to read and decode the response body with.
+     *
+     * @return the stream of message readers
+     */
+    List<HttpMessageReader<?>> messageReaders();
 
-	/**
-	 * Return {@link HttpMessageWriter HttpMessageWriters} to write and encode the request body with.
-	 * @return the stream of message writers
-	 */
-	List<HttpMessageWriter<?>> messageWriters();
-
-
-	// Static methods
-
-	/**
-	 * Return a new {@code ExchangeStrategies} with default configuration
-	 * provided by {@link ClientCodecConfigurer}.
-	 */
-	static ExchangeStrategies withDefaults() {
-		return DefaultExchangeStrategiesBuilder.DEFAULT_EXCHANGE_STRATEGIES;
-	}
-
-	/**
-	 * Return a builder pre-configured with default configuration to start.
-	 * This is the same as {@link #withDefaults()} but returns a mutable builder
-	 * for further customizations.
-	 */
-	static Builder builder() {
-		DefaultExchangeStrategiesBuilder builder = new DefaultExchangeStrategiesBuilder();
-		builder.defaultConfiguration();
-		return builder;
-	}
-
-	/**
-	 * Return a builder with empty configuration to start.
-	 */
-	static Builder empty() {
-		return new DefaultExchangeStrategiesBuilder();
-	}
+    /**
+     * Return {@link HttpMessageWriter HttpMessageWriters} to write and encode the request body with.
+     *
+     * @return the stream of message writers
+     */
+    List<HttpMessageWriter<?>> messageWriters();
 
 
-	/**
-	 * A mutable builder for an {@link ExchangeStrategies}.
-	 */
-	interface Builder {
+    // Static methods
 
-		/**
-		 * Customize the list of client-side HTTP message readers and writers.
-		 * @param consumer the consumer to customize the codecs
-		 * @return this builder
-		 */
-		Builder codecs(Consumer<ClientCodecConfigurer> consumer);
+    /**
+     * Return a new {@code ExchangeStrategies} with default configuration
+     * provided by {@link ClientCodecConfigurer}.
+     */
+    static ExchangeStrategies withDefaults() {
+        return DefaultExchangeStrategiesBuilder.DEFAULT_EXCHANGE_STRATEGIES;
+    }
 
-		/**
-		 * Builds the {@link ExchangeStrategies}.
-		 * @return the built strategies
-		 */
-		ExchangeStrategies build();
-	}
+    /**
+     * Return a builder pre-configured with default configuration to start.
+     * This is the same as {@link #withDefaults()} but returns a mutable builder
+     * for further customizations.
+     */
+    static Builder builder() {
+        DefaultExchangeStrategiesBuilder builder = new DefaultExchangeStrategiesBuilder();
+        builder.defaultConfiguration();
+        return builder;
+    }
+
+    /**
+     * Return a builder with empty configuration to start.
+     */
+    static Builder empty() {
+        return new DefaultExchangeStrategiesBuilder();
+    }
+
+
+    /**
+     * A mutable builder for an {@link ExchangeStrategies}.
+     */
+    interface Builder {
+
+        /**
+         * Customize the list of client-side HTTP message readers and writers.
+         *
+         * @param consumer the consumer to customize the codecs
+         * @return this builder
+         */
+        Builder codecs(Consumer<ClientCodecConfigurer> consumer);
+
+        /**
+         * Builds the {@link ExchangeStrategies}.
+         *
+         * @return the built strategies
+         */
+        ExchangeStrategies build();
+    }
 
 }

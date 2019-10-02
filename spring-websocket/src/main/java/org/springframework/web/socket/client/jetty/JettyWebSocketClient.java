@@ -59,123 +59,120 @@ import org.springframework.web.util.UriComponentsBuilder;
  */
 public class JettyWebSocketClient extends AbstractWebSocketClient implements Lifecycle {
 
-	private final org.eclipse.jetty.websocket.client.WebSocketClient client;
+    private final org.eclipse.jetty.websocket.client.WebSocketClient client;
 
-	@Nullable
-	private AsyncListenableTaskExecutor taskExecutor = new SimpleAsyncTaskExecutor();
-
-
-	/**
-	 * Default constructor that creates an instance of
-	 * {@link org.eclipse.jetty.websocket.client.WebSocketClient}.
-	 */
-	public JettyWebSocketClient() {
-		this.client = new org.eclipse.jetty.websocket.client.WebSocketClient();
-	}
-
-	/**
-	 * Constructor that accepts an existing
-	 * {@link org.eclipse.jetty.websocket.client.WebSocketClient} instance.
-	 */
-	public JettyWebSocketClient(WebSocketClient client) {
-		this.client = client;
-	}
+    @Nullable
+    private AsyncListenableTaskExecutor taskExecutor = new SimpleAsyncTaskExecutor();
 
 
-	/**
-	 * Set an {@link AsyncListenableTaskExecutor} to use when opening connections.
-	 * If this property is set to {@code null}, calls to any of the
-	 * {@code doHandshake} methods will block until the connection is established.
-	 * <p>By default an instance of {@code SimpleAsyncTaskExecutor} is used.
-	 */
-	public void setTaskExecutor(@Nullable AsyncListenableTaskExecutor taskExecutor) {
-		this.taskExecutor = taskExecutor;
-	}
+    /**
+     * Default constructor that creates an instance of
+     * {@link org.eclipse.jetty.websocket.client.WebSocketClient}.
+     */
+    public JettyWebSocketClient() {
+        this.client = new org.eclipse.jetty.websocket.client.WebSocketClient();
+    }
 
-	/**
-	 * Return the configured {@link TaskExecutor}.
-	 */
-	@Nullable
-	public AsyncListenableTaskExecutor getTaskExecutor() {
-		return this.taskExecutor;
-	}
+    /**
+     * Constructor that accepts an existing
+     * {@link org.eclipse.jetty.websocket.client.WebSocketClient} instance.
+     */
+    public JettyWebSocketClient(WebSocketClient client) {
+        this.client = client;
+    }
 
 
-	@Override
-	public void start() {
-		try {
-			this.client.start();
-		}
-		catch (Exception ex) {
-			throw new IllegalStateException("Failed to start Jetty WebSocketClient", ex);
-		}
-	}
+    /**
+     * Set an {@link AsyncListenableTaskExecutor} to use when opening connections.
+     * If this property is set to {@code null}, calls to any of the
+     * {@code doHandshake} methods will block until the connection is established.
+     * <p>By default an instance of {@code SimpleAsyncTaskExecutor} is used.
+     */
+    public void setTaskExecutor(@Nullable AsyncListenableTaskExecutor taskExecutor) {
+        this.taskExecutor = taskExecutor;
+    }
 
-	@Override
-	public void stop() {
-		try {
-			this.client.stop();
-		}
-		catch (Exception ex) {
-			logger.error("Failed to stop Jetty WebSocketClient", ex);
-		}
-	}
-
-	@Override
-	public boolean isRunning() {
-		return this.client.isStarted();
-	}
+    /**
+     * Return the configured {@link TaskExecutor}.
+     */
+    @Nullable
+    public AsyncListenableTaskExecutor getTaskExecutor() {
+        return this.taskExecutor;
+    }
 
 
-	@Override
-	public ListenableFuture<WebSocketSession> doHandshake(WebSocketHandler webSocketHandler,
-			String uriTemplate, Object... uriVars) {
+    @Override
+    public void start() {
+        try {
+            this.client.start();
+        } catch (Exception ex) {
+            throw new IllegalStateException("Failed to start Jetty WebSocketClient", ex);
+        }
+    }
 
-		UriComponents uriComponents = UriComponentsBuilder.fromUriString(uriTemplate).buildAndExpand(uriVars).encode();
-		return doHandshake(webSocketHandler, null, uriComponents.toUri());
-	}
+    @Override
+    public void stop() {
+        try {
+            this.client.stop();
+        } catch (Exception ex) {
+            logger.error("Failed to stop Jetty WebSocketClient", ex);
+        }
+    }
 
-	@Override
-	public ListenableFuture<WebSocketSession> doHandshakeInternal(WebSocketHandler wsHandler,
-			HttpHeaders headers, final URI uri, List<String> protocols,
-			List<WebSocketExtension> extensions,  Map<String, Object> attributes) {
+    @Override
+    public boolean isRunning() {
+        return this.client.isStarted();
+    }
 
-		final ClientUpgradeRequest request = new ClientUpgradeRequest();
-		request.setSubProtocols(protocols);
 
-		for (WebSocketExtension e : extensions) {
-			request.addExtensions(new WebSocketToJettyExtensionConfigAdapter(e));
-		}
+    @Override
+    public ListenableFuture<WebSocketSession> doHandshake(WebSocketHandler webSocketHandler,
+                                                          String uriTemplate, Object... uriVars) {
 
-		headers.forEach(request::setHeader);
+        UriComponents uriComponents = UriComponentsBuilder.fromUriString(uriTemplate).buildAndExpand(uriVars).encode();
+        return doHandshake(webSocketHandler, null, uriComponents.toUri());
+    }
 
-		Principal user = getUser();
-		final JettyWebSocketSession wsSession = new JettyWebSocketSession(attributes, user);
-		final JettyWebSocketHandlerAdapter listener = new JettyWebSocketHandlerAdapter(wsHandler, wsSession);
+    @Override
+    public ListenableFuture<WebSocketSession> doHandshakeInternal(WebSocketHandler wsHandler,
+                                                                  HttpHeaders headers, final URI uri, List<String> protocols,
+                                                                  List<WebSocketExtension> extensions, Map<String, Object> attributes) {
 
-		Callable<WebSocketSession> connectTask = () -> {
-			Future<Session> future = this.client.connect(listener, uri, request);
-			future.get();
-			return wsSession;
-		};
+        final ClientUpgradeRequest request = new ClientUpgradeRequest();
+        request.setSubProtocols(protocols);
 
-		if (this.taskExecutor != null) {
-			return this.taskExecutor.submitListenable(connectTask);
-		}
-		else {
-			ListenableFutureTask<WebSocketSession> task = new ListenableFutureTask<>(connectTask);
-			task.run();
-			return task;
-		}
-	}
+        for (WebSocketExtension e : extensions) {
+            request.addExtensions(new WebSocketToJettyExtensionConfigAdapter(e));
+        }
 
-	/**
-	 * Return the user to make available through {@link WebSocketSession#getPrincipal()}.
-	 * By default this method returns {@code null}
-	 */
-	@Nullable
-	protected Principal getUser() {
-		return null;
-	}
+        headers.forEach(request::setHeader);
+
+        Principal user = getUser();
+        final JettyWebSocketSession wsSession = new JettyWebSocketSession(attributes, user);
+        final JettyWebSocketHandlerAdapter listener = new JettyWebSocketHandlerAdapter(wsHandler, wsSession);
+
+        Callable<WebSocketSession> connectTask = () -> {
+            Future<Session> future = this.client.connect(listener, uri, request);
+            future.get();
+            return wsSession;
+        };
+
+        if (this.taskExecutor != null) {
+            return this.taskExecutor.submitListenable(connectTask);
+        } else {
+            ListenableFutureTask<WebSocketSession> task = new ListenableFutureTask<>(connectTask);
+            task.run();
+            return task;
+        }
+    }
+
+    /**
+     * Return the user to make available through {@link WebSocketSession#getPrincipal()}.
+     * By default this method returns {@code null}
+     */
+    @Nullable
+    protected Principal getUser() {
+        return null;
+    }
 
 }

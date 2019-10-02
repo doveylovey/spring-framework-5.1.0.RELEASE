@@ -36,12 +36,12 @@ import static org.junit.Assert.*;
 @MetaMetaConfig
 public class MetaMetaConfigDefaultsTests {
 
-	@Autowired
-	private String foo;
+    @Autowired
+    private String foo;
 
 
-	@Test
-	public void foo() {
-		assertEquals("Production Foo", foo);
-	}
+    @Test
+    public void foo() {
+        assertEquals("Production Foo", foo);
+    }
 }

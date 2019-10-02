@@ -50,28 +50,28 @@ import static org.junit.Assert.*;
  * </p>
  *
  * @author Sam Brannen
- * @since 2.5
  * @see GenericPropertiesContextLoader
  * @see SpringJUnit4ClassRunnerAppCtxTests
+ * @since 2.5
  */
 @RunWith(SpringRunner.class)
 @ContextConfiguration(loader = GenericPropertiesContextLoader.class)
 public class PropertiesBasedSpringJUnit4ClassRunnerAppCtxTests {
 
-	@Autowired
-	private Pet cat;
+    @Autowired
+    private Pet cat;
 
-	@Autowired
-	private String testString;
+    @Autowired
+    private String testString;
 
 
-	@Test
-	public void verifyAnnotationAutowiredFields() {
-		assertNotNull("The cat field should have been autowired.", this.cat);
-		assertEquals("Garfield", this.cat.getName());
+    @Test
+    public void verifyAnnotationAutowiredFields() {
+        assertNotNull("The cat field should have been autowired.", this.cat);
+        assertEquals("Garfield", this.cat.getName());
 
-		assertNotNull("The testString field should have been autowired.", this.testString);
-		assertEquals("Test String", this.testString);
-	}
+        assertNotNull("The testString field should have been autowired.", this.testString);
+        assertEquals("Test String", this.testString);
+    }
 
 }

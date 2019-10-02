@@ -38,24 +38,24 @@ import static org.junit.Assert.*;
 @ContextConfiguration
 public class DefaultLoaderDefaultConfigClassesInheritedTests extends DefaultLoaderDefaultConfigClassesBaseTests {
 
-	@Configuration
-	static class Config {
+    @Configuration
+    static class Config {
 
-		@Bean
-		public Pet pet() {
-			return new Pet("Fido");
-		}
-	}
-
-
-	@Autowired
-	private Pet pet;
+        @Bean
+        public Pet pet() {
+            return new Pet("Fido");
+        }
+    }
 
 
-	@Test
-	public void verifyPetSetFromExtendedContextConfig() {
-		assertNotNull("The pet should have been autowired.", this.pet);
-		assertEquals("Fido", this.pet.getName());
-	}
+    @Autowired
+    private Pet pet;
+
+
+    @Test
+    public void verifyPetSetFromExtendedContextConfig() {
+        assertNotNull("The pet should have been autowired.", this.pet);
+        assertEquals("Fido", this.pet.getName());
+    }
 
 }

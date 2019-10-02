@@ -43,72 +43,72 @@ import static org.junit.Assert.assertThat;
 @RunWith(Parameterized.class)
 public class CookieIntegrationTests extends AbstractHttpHandlerIntegrationTests {
 
-	private CookieHandler cookieHandler;
+    private CookieHandler cookieHandler;
 
-	@Override
-	protected HttpHandler createHttpHandler() {
-		this.cookieHandler = new CookieHandler();
-		return this.cookieHandler;
-	}
-
-
-	@SuppressWarnings("unchecked")
-	@Test
-	public void basicTest() throws Exception {
-		URI url = new URI("http://localhost:" + port);
-		String header = "SID=31d4d96e407aad42; lang=en-US";
-		ResponseEntity<Void> response = new RestTemplate().exchange(
-				RequestEntity.get(url).header("Cookie", header).build(), Void.class);
-
-		Map<String, List<HttpCookie>> requestCookies = this.cookieHandler.requestCookies;
-		assertEquals(2, requestCookies.size());
-
-		List<HttpCookie> list = requestCookies.get("SID");
-		assertEquals(1, list.size());
-		assertEquals("31d4d96e407aad42", list.iterator().next().getValue());
-
-		list = requestCookies.get("lang");
-		assertEquals(1, list.size());
-		assertEquals("en-US", list.iterator().next().getValue());
-
-		List<String> headerValues = response.getHeaders().get("Set-Cookie");
-		assertEquals(2, headerValues.size());
-
-		assertThat(splitCookie(headerValues.get(0)), containsInAnyOrder(equalTo("SID=31d4d96e407aad42"),
-				equalToIgnoringCase("Path=/"), equalToIgnoringCase("Secure"), equalToIgnoringCase("HttpOnly")));
-
-		assertThat(splitCookie(headerValues.get(1)), containsInAnyOrder(equalTo("lang=en-US"),
-				equalToIgnoringCase("Path=/"), equalToIgnoringCase("Domain=example.com")));
-	}
-
-	// No client side HttpCookie support yet
-	private List<String> splitCookie(String value) {
-		List<String> list = new ArrayList<>();
-		for (String s : value.split(";")){
-			list.add(s.trim());
-		}
-		return list;
-	}
+    @Override
+    protected HttpHandler createHttpHandler() {
+        this.cookieHandler = new CookieHandler();
+        return this.cookieHandler;
+    }
 
 
-	private class CookieHandler implements HttpHandler {
+    @SuppressWarnings("unchecked")
+    @Test
+    public void basicTest() throws Exception {
+        URI url = new URI("http://localhost:" + port);
+        String header = "SID=31d4d96e407aad42; lang=en-US";
+        ResponseEntity<Void> response = new RestTemplate().exchange(
+                RequestEntity.get(url).header("Cookie", header).build(), Void.class);
 
-		private Map<String, List<HttpCookie>> requestCookies;
+        Map<String, List<HttpCookie>> requestCookies = this.cookieHandler.requestCookies;
+        assertEquals(2, requestCookies.size());
+
+        List<HttpCookie> list = requestCookies.get("SID");
+        assertEquals(1, list.size());
+        assertEquals("31d4d96e407aad42", list.iterator().next().getValue());
+
+        list = requestCookies.get("lang");
+        assertEquals(1, list.size());
+        assertEquals("en-US", list.iterator().next().getValue());
+
+        List<String> headerValues = response.getHeaders().get("Set-Cookie");
+        assertEquals(2, headerValues.size());
+
+        assertThat(splitCookie(headerValues.get(0)), containsInAnyOrder(equalTo("SID=31d4d96e407aad42"),
+                equalToIgnoringCase("Path=/"), equalToIgnoringCase("Secure"), equalToIgnoringCase("HttpOnly")));
+
+        assertThat(splitCookie(headerValues.get(1)), containsInAnyOrder(equalTo("lang=en-US"),
+                equalToIgnoringCase("Path=/"), equalToIgnoringCase("Domain=example.com")));
+    }
+
+    // No client side HttpCookie support yet
+    private List<String> splitCookie(String value) {
+        List<String> list = new ArrayList<>();
+        for (String s : value.split(";")) {
+            list.add(s.trim());
+        }
+        return list;
+    }
 
 
-		@Override
-		public Mono<Void> handle(ServerHttpRequest request, ServerHttpResponse response) {
+    private class CookieHandler implements HttpHandler {
 
-			this.requestCookies = request.getCookies();
-			this.requestCookies.size(); // Cause lazy loading
+        private Map<String, List<HttpCookie>> requestCookies;
 
-			response.getCookies().add("SID", ResponseCookie.from("SID", "31d4d96e407aad42")
-					.path("/").secure(true).httpOnly(true).build());
-			response.getCookies().add("lang", ResponseCookie.from("lang", "en-US")
-					.domain("example.com").path("/").build());
 
-			return response.setComplete();
-		}
-	}
+        @Override
+        public Mono<Void> handle(ServerHttpRequest request, ServerHttpResponse response) {
+
+            this.requestCookies = request.getCookies();
+            this.requestCookies.size(); // Cause lazy loading
+
+            response.getCookies().add("SID", ResponseCookie.from("SID", "31d4d96e407aad42")
+                    .path("/").secure(true).httpOnly(true).build());
+            response.getCookies().add("lang", ResponseCookie.from("lang", "en-US")
+                    .domain("example.com").path("/").build());
+
+            return response.setComplete();
+        }
+    }
 
 }

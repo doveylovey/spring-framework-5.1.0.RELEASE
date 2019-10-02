@@ -34,34 +34,32 @@ import org.springframework.web.server.ServerWebExchange;
  * @since 5.0
  */
 public class ModelArgumentResolver extends HandlerMethodArgumentResolverSupport
-		implements SyncHandlerMethodArgumentResolver {
+        implements SyncHandlerMethodArgumentResolver {
 
-	public ModelArgumentResolver(ReactiveAdapterRegistry adapterRegistry) {
-		super(adapterRegistry);
-	}
+    public ModelArgumentResolver(ReactiveAdapterRegistry adapterRegistry) {
+        super(adapterRegistry);
+    }
 
 
-	@Override
-	public boolean supportsParameter(MethodParameter parameter) {
-		return checkParameterTypeNoReactiveWrapper(parameter,
-				type -> Model.class.isAssignableFrom(type) || Map.class.isAssignableFrom(type));
-	}
+    @Override
+    public boolean supportsParameter(MethodParameter parameter) {
+        return checkParameterTypeNoReactiveWrapper(parameter,
+                type -> Model.class.isAssignableFrom(type) || Map.class.isAssignableFrom(type));
+    }
 
-	@Override
-	public Object resolveArgumentValue(
-			MethodParameter parameter, BindingContext context, ServerWebExchange exchange) {
+    @Override
+    public Object resolveArgumentValue(
+            MethodParameter parameter, BindingContext context, ServerWebExchange exchange) {
 
-		Class<?> type = parameter.getParameterType();
-		if (Model.class.isAssignableFrom(type)) {
-			return context.getModel();
-		}
-		else if (Map.class.isAssignableFrom(type)) {
-			return context.getModel().asMap();
-		}
-		else {
-			// Should never happen..
-			throw new IllegalStateException("Unexpected method parameter type: " + type);
-		}
-	}
+        Class<?> type = parameter.getParameterType();
+        if (Model.class.isAssignableFrom(type)) {
+            return context.getModel();
+        } else if (Map.class.isAssignableFrom(type)) {
+            return context.getModel().asMap();
+        } else {
+            // Should never happen..
+            throw new IllegalStateException("Unexpected method parameter type: " + type);
+        }
+    }
 
 }

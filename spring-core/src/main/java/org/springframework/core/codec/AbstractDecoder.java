@@ -33,59 +33,61 @@ import org.springframework.util.MimeType;
 /**
  * Abstract base class for {@link Decoder} implementations.
  *
+ * @param <T> the element type
  * @author Sebastien Deleuze
  * @author Arjen Poutsma
  * @since 5.0
- * @param <T> the element type
  */
 public abstract class AbstractDecoder<T> implements Decoder<T> {
 
-	protected Log logger = LogFactory.getLog(getClass());
+    protected Log logger = LogFactory.getLog(getClass());
 
-	private final List<MimeType> decodableMimeTypes;
-
-
-	protected AbstractDecoder(MimeType... supportedMimeTypes) {
-		this.decodableMimeTypes = Arrays.asList(supportedMimeTypes);
-	}
+    private final List<MimeType> decodableMimeTypes;
 
 
-	/**
-	 * Set an alternative logger to use than the one based on the class name.
-	 * @param logger the logger to use
-	 * @since 5.1
-	 */
-	public void setLogger(Log logger) {
-		this.logger = logger;
-	}
-
-	/**
-	 * Return the currently configured Logger.
-	 * @since 5.1
-	 */
-	public Log getLogger() {
-		return logger;
-	}
+    protected AbstractDecoder(MimeType... supportedMimeTypes) {
+        this.decodableMimeTypes = Arrays.asList(supportedMimeTypes);
+    }
 
 
-	@Override
-	public List<MimeType> getDecodableMimeTypes() {
-		return this.decodableMimeTypes;
-	}
+    /**
+     * Set an alternative logger to use than the one based on the class name.
+     *
+     * @param logger the logger to use
+     * @since 5.1
+     */
+    public void setLogger(Log logger) {
+        this.logger = logger;
+    }
 
-	@Override
-	public boolean canDecode(ResolvableType elementType, @Nullable MimeType mimeType) {
-		if (mimeType == null) {
-			return true;
-		}
-		return this.decodableMimeTypes.stream().anyMatch(candidate -> candidate.isCompatibleWith(mimeType));
-	}
+    /**
+     * Return the currently configured Logger.
+     *
+     * @since 5.1
+     */
+    public Log getLogger() {
+        return logger;
+    }
 
-	@Override
-	public Mono<T> decodeToMono(Publisher<DataBuffer> inputStream, ResolvableType elementType,
-			@Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
 
-		throw new UnsupportedOperationException();
-	}
+    @Override
+    public List<MimeType> getDecodableMimeTypes() {
+        return this.decodableMimeTypes;
+    }
+
+    @Override
+    public boolean canDecode(ResolvableType elementType, @Nullable MimeType mimeType) {
+        if (mimeType == null) {
+            return true;
+        }
+        return this.decodableMimeTypes.stream().anyMatch(candidate -> candidate.isCompatibleWith(mimeType));
+    }
+
+    @Override
+    public Mono<T> decodeToMono(Publisher<DataBuffer> inputStream, ResolvableType elementType,
+                                @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
+
+        throw new UnsupportedOperationException();
+    }
 
 }

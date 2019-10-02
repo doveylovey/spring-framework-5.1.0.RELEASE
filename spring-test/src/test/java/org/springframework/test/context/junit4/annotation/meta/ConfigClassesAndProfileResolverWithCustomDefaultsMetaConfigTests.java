@@ -35,12 +35,12 @@ import static org.junit.Assert.*;
 @ConfigClassesAndProfileResolverWithCustomDefaultsMetaConfig
 public class ConfigClassesAndProfileResolverWithCustomDefaultsMetaConfigTests {
 
-	@Autowired
-	private String foo;
+    @Autowired
+    private String foo;
 
 
-	@Test
-	public void foo() {
-		assertEquals("Resolver Foo", foo);
-	}
+    @Test
+    public void foo() {
+        assertEquals("Resolver Foo", foo);
+    }
 }

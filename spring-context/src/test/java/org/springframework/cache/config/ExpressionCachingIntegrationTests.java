@@ -33,102 +33,102 @@ import org.springframework.context.annotation.Configuration;
  */
 public class ExpressionCachingIntegrationTests {
 
-	@Test  // SPR-11692
-	@SuppressWarnings("unchecked")
-	public void expressionIsCacheBasedOnActualMethod() {
-		ConfigurableApplicationContext context =
-				new AnnotationConfigApplicationContext(SharedConfig.class, Spr11692Config.class);
+    @Test  // SPR-11692
+    @SuppressWarnings("unchecked")
+    public void expressionIsCacheBasedOnActualMethod() {
+        ConfigurableApplicationContext context =
+                new AnnotationConfigApplicationContext(SharedConfig.class, Spr11692Config.class);
 
-		BaseDao<User> userDao = (BaseDao<User>) context.getBean("userDao");
-		BaseDao<Order> orderDao = (BaseDao<Order>) context.getBean("orderDao");
+        BaseDao<User> userDao = (BaseDao<User>) context.getBean("userDao");
+        BaseDao<Order> orderDao = (BaseDao<Order>) context.getBean("orderDao");
 
-		userDao.persist(new User("1"));
-		orderDao.persist(new Order("2"));
+        userDao.persist(new User("1"));
+        orderDao.persist(new Order("2"));
 
-		context.close();
-	}
-
-
-	@Configuration
-	static class Spr11692Config {
-
-		@Bean
-		public BaseDao<User> userDao() {
-			return new UserDaoImpl();
-		}
-
-		@Bean
-		public BaseDao<Order> orderDao() {
-			return new OrderDaoImpl();
-		}
-	}
+        context.close();
+    }
 
 
-	private interface BaseDao<T> {
+    @Configuration
+    static class Spr11692Config {
 
-		T persist(T t);
-	}
+        @Bean
+        public BaseDao<User> userDao() {
+            return new UserDaoImpl();
+        }
 
-
-	private static class UserDaoImpl implements BaseDao<User> {
-
-		@Override
-		@CachePut(value = "users", key = "#user.id")
-		public User persist(User user) {
-			return user;
-		}
-	}
-
-
-	private static class OrderDaoImpl implements BaseDao<Order> {
-
-		@Override
-		@CachePut(value = "orders", key = "#order.id")
-		public Order persist(Order order) {
-			return order;
-		}
-	}
+        @Bean
+        public BaseDao<Order> orderDao() {
+            return new OrderDaoImpl();
+        }
+    }
 
 
-	private static class User {
+    private interface BaseDao<T> {
 
-		private final String id;
-
-		public User(String id) {
-			this.id = id;
-		}
-
-		@SuppressWarnings("unused")
-		public String getId() {
-			return this.id;
-		}
-	}
+        T persist(T t);
+    }
 
 
-	private static class Order {
+    private static class UserDaoImpl implements BaseDao<User> {
 
-		private final String id;
-
-		public Order(String id) {
-			this.id = id;
-		}
-
-		@SuppressWarnings("unused")
-		public String getId() {
-			return this.id;
-		}
-	}
+        @Override
+        @CachePut(value = "users", key = "#user.id")
+        public User persist(User user) {
+            return user;
+        }
+    }
 
 
-	@Configuration
-	@EnableCaching
-	static class SharedConfig extends CachingConfigurerSupport {
+    private static class OrderDaoImpl implements BaseDao<Order> {
 
-		@Override
-		@Bean
-		public CacheManager cacheManager() {
-			return new ConcurrentMapCacheManager();
-		}
-	}
+        @Override
+        @CachePut(value = "orders", key = "#order.id")
+        public Order persist(Order order) {
+            return order;
+        }
+    }
+
+
+    private static class User {
+
+        private final String id;
+
+        public User(String id) {
+            this.id = id;
+        }
+
+        @SuppressWarnings("unused")
+        public String getId() {
+            return this.id;
+        }
+    }
+
+
+    private static class Order {
+
+        private final String id;
+
+        public Order(String id) {
+            this.id = id;
+        }
+
+        @SuppressWarnings("unused")
+        public String getId() {
+            return this.id;
+        }
+    }
+
+
+    @Configuration
+    @EnableCaching
+    static class SharedConfig extends CachingConfigurerSupport {
+
+        @Override
+        @Bean
+        public CacheManager cacheManager() {
+            return new ConcurrentMapCacheManager();
+        }
+    }
 
 }

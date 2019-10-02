@@ -42,48 +42,48 @@ import org.springframework.test.context.ContextConfiguration;
 @Target(ElementType.TYPE)
 public @interface ConfigClassesAndProfileResolverWithCustomDefaultsMetaConfig {
 
-	@Configuration
-	@Profile("dev")
-	static class DevConfig {
+    @Configuration
+    @Profile("dev")
+    static class DevConfig {
 
-		@Bean
-		public String foo() {
-			return "Dev Foo";
-		}
-	}
+        @Bean
+        public String foo() {
+            return "Dev Foo";
+        }
+    }
 
-	@Configuration
-	@Profile("prod")
-	static class ProductionConfig {
+    @Configuration
+    @Profile("prod")
+    static class ProductionConfig {
 
-		@Bean
-		public String foo() {
-			return "Production Foo";
-		}
-	}
+        @Bean
+        public String foo() {
+            return "Production Foo";
+        }
+    }
 
-	@Configuration
-	@Profile("resolver")
-	static class ResolverConfig {
+    @Configuration
+    @Profile("resolver")
+    static class ResolverConfig {
 
-		@Bean
-		public String foo() {
-			return "Resolver Foo";
-		}
-	}
+        @Bean
+        public String foo() {
+            return "Resolver Foo";
+        }
+    }
 
-	static class CustomResolver implements ActiveProfilesResolver {
+    static class CustomResolver implements ActiveProfilesResolver {
 
-		@Override
-		public String[] resolve(Class<?> testClass) {
-			return testClass.getSimpleName().equals("ConfigClassesAndProfileResolverWithCustomDefaultsMetaConfigTests") ? new String[] { "resolver" }
-					: new String[] {};
-		}
-	}
+        @Override
+        public String[] resolve(Class<?> testClass) {
+            return testClass.getSimpleName().equals("ConfigClassesAndProfileResolverWithCustomDefaultsMetaConfigTests") ? new String[]{"resolver"}
+                    : new String[]{};
+        }
+    }
 
 
-	Class<?>[] classes() default { DevConfig.class, ProductionConfig.class, ResolverConfig.class };
+    Class<?>[] classes() default {DevConfig.class, ProductionConfig.class, ResolverConfig.class};
 
-	Class<? extends ActiveProfilesResolver> resolver() default CustomResolver.class;
+    Class<? extends ActiveProfilesResolver> resolver() default CustomResolver.class;
 
 }

@@ -34,96 +34,95 @@ import org.springframework.lang.Nullable;
  *
  * @author Rob Harrop
  * @author Juergen Hoeller
- * @since 2.0
  * @see XmlReaderContext
  * @see BeanDefinitionParserDelegate
+ * @since 2.0
  */
 public final class ParserContext {
 
-	private final XmlReaderContext readerContext;
+    private final XmlReaderContext readerContext;
 
-	private final BeanDefinitionParserDelegate delegate;
+    private final BeanDefinitionParserDelegate delegate;
 
-	@Nullable
-	private BeanDefinition containingBeanDefinition;
+    @Nullable
+    private BeanDefinition containingBeanDefinition;
 
-	private final Deque<CompositeComponentDefinition> containingComponents = new ArrayDeque<>();
-
-
-	public ParserContext(XmlReaderContext readerContext, BeanDefinitionParserDelegate delegate) {
-		this.readerContext = readerContext;
-		this.delegate = delegate;
-	}
-
-	public ParserContext(XmlReaderContext readerContext, BeanDefinitionParserDelegate delegate,
-			@Nullable BeanDefinition containingBeanDefinition) {
-
-		this.readerContext = readerContext;
-		this.delegate = delegate;
-		this.containingBeanDefinition = containingBeanDefinition;
-	}
+    private final Deque<CompositeComponentDefinition> containingComponents = new ArrayDeque<>();
 
 
-	public final XmlReaderContext getReaderContext() {
-		return this.readerContext;
-	}
+    public ParserContext(XmlReaderContext readerContext, BeanDefinitionParserDelegate delegate) {
+        this.readerContext = readerContext;
+        this.delegate = delegate;
+    }
 
-	public final BeanDefinitionRegistry getRegistry() {
-		return this.readerContext.getRegistry();
-	}
+    public ParserContext(XmlReaderContext readerContext, BeanDefinitionParserDelegate delegate,
+                         @Nullable BeanDefinition containingBeanDefinition) {
 
-	public final BeanDefinitionParserDelegate getDelegate() {
-		return this.delegate;
-	}
+        this.readerContext = readerContext;
+        this.delegate = delegate;
+        this.containingBeanDefinition = containingBeanDefinition;
+    }
 
-	@Nullable
-	public final BeanDefinition getContainingBeanDefinition() {
-		return this.containingBeanDefinition;
-	}
 
-	public final boolean isNested() {
-		return (this.containingBeanDefinition != null);
-	}
+    public final XmlReaderContext getReaderContext() {
+        return this.readerContext;
+    }
 
-	public boolean isDefaultLazyInit() {
-		return BeanDefinitionParserDelegate.TRUE_VALUE.equals(this.delegate.getDefaults().getLazyInit());
-	}
+    public final BeanDefinitionRegistry getRegistry() {
+        return this.readerContext.getRegistry();
+    }
 
-	@Nullable
-	public Object extractSource(Object sourceCandidate) {
-		return this.readerContext.extractSource(sourceCandidate);
-	}
+    public final BeanDefinitionParserDelegate getDelegate() {
+        return this.delegate;
+    }
 
-	@Nullable
-	public CompositeComponentDefinition getContainingComponent() {
-		return this.containingComponents.peek();
-	}
+    @Nullable
+    public final BeanDefinition getContainingBeanDefinition() {
+        return this.containingBeanDefinition;
+    }
 
-	public void pushContainingComponent(CompositeComponentDefinition containingComponent) {
-		this.containingComponents.push(containingComponent);
-	}
+    public final boolean isNested() {
+        return (this.containingBeanDefinition != null);
+    }
 
-	public CompositeComponentDefinition popContainingComponent() {
-		return this.containingComponents.pop();
-	}
+    public boolean isDefaultLazyInit() {
+        return BeanDefinitionParserDelegate.TRUE_VALUE.equals(this.delegate.getDefaults().getLazyInit());
+    }
 
-	public void popAndRegisterContainingComponent() {
-		registerComponent(popContainingComponent());
-	}
+    @Nullable
+    public Object extractSource(Object sourceCandidate) {
+        return this.readerContext.extractSource(sourceCandidate);
+    }
 
-	public void registerComponent(ComponentDefinition component) {
-		CompositeComponentDefinition containingComponent = getContainingComponent();
-		if (containingComponent != null) {
-			containingComponent.addNestedComponent(component);
-		}
-		else {
-			this.readerContext.fireComponentRegistered(component);
-		}
-	}
+    @Nullable
+    public CompositeComponentDefinition getContainingComponent() {
+        return this.containingComponents.peek();
+    }
 
-	public void registerBeanComponent(BeanComponentDefinition component) {
-		BeanDefinitionReaderUtils.registerBeanDefinition(component, getRegistry());
-		registerComponent(component);
-	}
+    public void pushContainingComponent(CompositeComponentDefinition containingComponent) {
+        this.containingComponents.push(containingComponent);
+    }
+
+    public CompositeComponentDefinition popContainingComponent() {
+        return this.containingComponents.pop();
+    }
+
+    public void popAndRegisterContainingComponent() {
+        registerComponent(popContainingComponent());
+    }
+
+    public void registerComponent(ComponentDefinition component) {
+        CompositeComponentDefinition containingComponent = getContainingComponent();
+        if (containingComponent != null) {
+            containingComponent.addNestedComponent(component);
+        } else {
+            this.readerContext.fireComponentRegistered(component);
+        }
+    }
+
+    public void registerBeanComponent(BeanComponentDefinition component) {
+        BeanDefinitionReaderUtils.registerBeanDefinition(component, getRegistry());
+        registerComponent(component);
+    }
 
 }

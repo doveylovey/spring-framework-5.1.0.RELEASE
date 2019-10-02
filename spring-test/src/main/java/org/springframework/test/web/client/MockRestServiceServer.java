@@ -66,263 +66,272 @@ import org.springframework.web.client.support.RestGatewaySupport;
 @SuppressWarnings("deprecation")
 public final class MockRestServiceServer {
 
-	private final RequestExpectationManager expectationManager;
+    private final RequestExpectationManager expectationManager;
 
 
-	/**
-	 * Private constructor with {@code RequestExpectationManager}.
-	 * See static builder methods and {@code createServer} shortcut methods.
-	 */
-	private MockRestServiceServer(RequestExpectationManager expectationManager) {
-		this.expectationManager = expectationManager;
-	}
+    /**
+     * Private constructor with {@code RequestExpectationManager}.
+     * See static builder methods and {@code createServer} shortcut methods.
+     */
+    private MockRestServiceServer(RequestExpectationManager expectationManager) {
+        this.expectationManager = expectationManager;
+    }
 
 
-	/**
-	 * Set up an expectation for a single HTTP request. The returned
-	 * {@link ResponseActions} can be used to set up further expectations as
-	 * well as to define the response.
-	 * <p>This method may be invoked any number times before starting to make
-	 * request through the underlying {@code RestTemplate} in order to set up
-	 * all expected requests.
-	 * @param matcher request matcher
-	 * @return a representation of the expectation
-	 */
-	public ResponseActions expect(RequestMatcher matcher) {
-		return expect(ExpectedCount.once(), matcher);
-	}
+    /**
+     * Set up an expectation for a single HTTP request. The returned
+     * {@link ResponseActions} can be used to set up further expectations as
+     * well as to define the response.
+     * <p>This method may be invoked any number times before starting to make
+     * request through the underlying {@code RestTemplate} in order to set up
+     * all expected requests.
+     *
+     * @param matcher request matcher
+     * @return a representation of the expectation
+     */
+    public ResponseActions expect(RequestMatcher matcher) {
+        return expect(ExpectedCount.once(), matcher);
+    }
 
-	/**
-	 * An alternative to {@link #expect(RequestMatcher)} that also indicates how
-	 * many times the request is expected to be executed.
-	 * <p>When request expectations have an expected count greater than one, only
-	 * the first execution is expected to match the order of declaration. Subsequent
-	 * request executions may be inserted anywhere thereafter.
-	 * @param count the expected count
-	 * @param matcher request matcher
-	 * @return a representation of the expectation
-	 * @since 4.3
-	 */
-	public ResponseActions expect(ExpectedCount count, RequestMatcher matcher) {
-		return this.expectationManager.expectRequest(count, matcher);
-	}
+    /**
+     * An alternative to {@link #expect(RequestMatcher)} that also indicates how
+     * many times the request is expected to be executed.
+     * <p>When request expectations have an expected count greater than one, only
+     * the first execution is expected to match the order of declaration. Subsequent
+     * request executions may be inserted anywhere thereafter.
+     *
+     * @param count   the expected count
+     * @param matcher request matcher
+     * @return a representation of the expectation
+     * @since 4.3
+     */
+    public ResponseActions expect(ExpectedCount count, RequestMatcher matcher) {
+        return this.expectationManager.expectRequest(count, matcher);
+    }
 
-	/**
-	 * Verify that all expected requests set up via
-	 * {@link #expect(RequestMatcher)} were indeed performed.
-	 * @throws AssertionError when some expectations were not met
-	 */
-	public void verify() {
-		this.expectationManager.verify();
-	}
+    /**
+     * Verify that all expected requests set up via
+     * {@link #expect(RequestMatcher)} were indeed performed.
+     *
+     * @throws AssertionError when some expectations were not met
+     */
+    public void verify() {
+        this.expectationManager.verify();
+    }
 
-	/**
-	 * Reset the internal state removing all expectations and recorded requests.
-	 */
-	public void reset() {
-		this.expectationManager.reset();
-	}
-
-
-	/**
-	 * Return a builder for a {@code MockRestServiceServer} that should be used
-	 * to reply to the given {@code RestTemplate}.
-	 * @since 4.3
-	 */
-	public static MockRestServiceServerBuilder bindTo(RestTemplate restTemplate) {
-		return new DefaultBuilder(restTemplate);
-	}
-
-	/**
-	 * Return a builder for a {@code MockRestServiceServer} that should be used
-	 * to reply to the given {@code AsyncRestTemplate}.
-	 * @since 4.3
-	 * @deprecated see deprecation notice on
-	 * {@link org.springframework.web.client.AsyncRestTemplate} itself
-	 */
-	@Deprecated
-	public static MockRestServiceServerBuilder bindTo(org.springframework.web.client.AsyncRestTemplate asyncRestTemplate) {
-		return new DefaultBuilder(asyncRestTemplate);
-	}
-
-	/**
-	 * Return a builder for a {@code MockRestServiceServer} that should be used
-	 * to reply to the given {@code RestGatewaySupport}.
-	 * @since 4.3
-	 */
-	public static MockRestServiceServerBuilder bindTo(RestGatewaySupport restGateway) {
-		Assert.notNull(restGateway, "'gatewaySupport' must not be null");
-		return new DefaultBuilder(restGateway.getRestTemplate());
-	}
+    /**
+     * Reset the internal state removing all expectations and recorded requests.
+     */
+    public void reset() {
+        this.expectationManager.reset();
+    }
 
 
-	/**
-	 * A shortcut for {@code bindTo(restTemplate).build()}.
-	 * @param restTemplate the RestTemplate to set up for mock testing
-	 * @return the mock server
-	 */
-	public static MockRestServiceServer createServer(RestTemplate restTemplate) {
-		return bindTo(restTemplate).build();
-	}
+    /**
+     * Return a builder for a {@code MockRestServiceServer} that should be used
+     * to reply to the given {@code RestTemplate}.
+     *
+     * @since 4.3
+     */
+    public static MockRestServiceServerBuilder bindTo(RestTemplate restTemplate) {
+        return new DefaultBuilder(restTemplate);
+    }
 
-	/**
-	 * A shortcut for {@code bindTo(asyncRestTemplate).build()}.
-	 * @param asyncRestTemplate the AsyncRestTemplate to set up for mock testing
-	 * @return the created mock server
-	 * @deprecated see deprecation notice on
-	 * {@link org.springframework.web.client.AsyncRestTemplate} itself
-	 */
-	@Deprecated
-	public static MockRestServiceServer createServer(org.springframework.web.client.AsyncRestTemplate asyncRestTemplate) {
-		return bindTo(asyncRestTemplate).build();
-	}
+    /**
+     * Return a builder for a {@code MockRestServiceServer} that should be used
+     * to reply to the given {@code AsyncRestTemplate}.
+     *
+     * @since 4.3
+     * @deprecated see deprecation notice on
+     * {@link org.springframework.web.client.AsyncRestTemplate} itself
+     */
+    @Deprecated
+    public static MockRestServiceServerBuilder bindTo(org.springframework.web.client.AsyncRestTemplate asyncRestTemplate) {
+        return new DefaultBuilder(asyncRestTemplate);
+    }
 
-	/**
-	 * A shortcut for {@code bindTo(restGateway).build()}.
-	 * @param restGateway the REST gateway to set up for mock testing
-	 * @return the created mock server
-	 */
-	public static MockRestServiceServer createServer(RestGatewaySupport restGateway) {
-		return bindTo(restGateway).build();
-	}
-
-
-	/**
-	 * Builder to create a {@code MockRestServiceServer}.
-	 */
-	public interface MockRestServiceServerBuilder {
-
-		/**
-		 * Whether to allow expected requests to be executed in any order not
-		 * necessarily matching the order of declaration.
-		 * <p>Effectively a shortcut for:<br>
-		 * {@code builder.build(new UnorderedRequestExpectationManager)}.
-		 * <p>By default this is set to {@code false}
-		 * @param ignoreExpectOrder whether to ignore the order of expectations
-		 */
-		MockRestServiceServerBuilder ignoreExpectOrder(boolean ignoreExpectOrder);
-
-		/**
-		 * Use the {@link BufferingClientHttpRequestFactory} wrapper to buffer
-		 * the input and output streams, and for example, allow multiple reads
-		 * of the response body.
-		 * @since 5.0.5
-		 */
-		MockRestServiceServerBuilder bufferContent();
-
-		/**
-		 * Build the {@code MockRestServiceServer} and set up the underlying
-		 * {@code RestTemplate} or {@code AsyncRestTemplate} with a
-		 * {@link ClientHttpRequestFactory} that creates mock requests.
-		 */
-		MockRestServiceServer build();
-
-		/**
-		 * An overloaded build alternative that accepts a custom
-		 * {@link RequestExpectationManager}.
-		 */
-		MockRestServiceServer build(RequestExpectationManager manager);
-	}
+    /**
+     * Return a builder for a {@code MockRestServiceServer} that should be used
+     * to reply to the given {@code RestGatewaySupport}.
+     *
+     * @since 4.3
+     */
+    public static MockRestServiceServerBuilder bindTo(RestGatewaySupport restGateway) {
+        Assert.notNull(restGateway, "'gatewaySupport' must not be null");
+        return new DefaultBuilder(restGateway.getRestTemplate());
+    }
 
 
-	private static class DefaultBuilder implements MockRestServiceServerBuilder {
+    /**
+     * A shortcut for {@code bindTo(restTemplate).build()}.
+     *
+     * @param restTemplate the RestTemplate to set up for mock testing
+     * @return the mock server
+     */
+    public static MockRestServiceServer createServer(RestTemplate restTemplate) {
+        return bindTo(restTemplate).build();
+    }
 
-		@Nullable
-		private final RestTemplate restTemplate;
+    /**
+     * A shortcut for {@code bindTo(asyncRestTemplate).build()}.
+     *
+     * @param asyncRestTemplate the AsyncRestTemplate to set up for mock testing
+     * @return the created mock server
+     * @deprecated see deprecation notice on
+     * {@link org.springframework.web.client.AsyncRestTemplate} itself
+     */
+    @Deprecated
+    public static MockRestServiceServer createServer(org.springframework.web.client.AsyncRestTemplate asyncRestTemplate) {
+        return bindTo(asyncRestTemplate).build();
+    }
 
-		@Nullable
-		private final org.springframework.web.client.AsyncRestTemplate asyncRestTemplate;
-
-		private boolean ignoreExpectOrder;
-
-		private boolean bufferContent;
-
-
-		public DefaultBuilder(RestTemplate restTemplate) {
-			Assert.notNull(restTemplate, "RestTemplate must not be null");
-			this.restTemplate = restTemplate;
-			this.asyncRestTemplate = null;
-		}
-
-		public DefaultBuilder(org.springframework.web.client.AsyncRestTemplate asyncRestTemplate) {
-			Assert.notNull(asyncRestTemplate, "AsyncRestTemplate must not be null");
-			this.restTemplate = null;
-			this.asyncRestTemplate = asyncRestTemplate;
-		}
-
-		@Override
-		public MockRestServiceServerBuilder ignoreExpectOrder(boolean ignoreExpectOrder) {
-			this.ignoreExpectOrder = ignoreExpectOrder;
-			return this;
-		}
-
-		@Override
-		public MockRestServiceServerBuilder bufferContent() {
-			this.bufferContent = true;
-			return this;
-		}
-
-		@Override
-		public MockRestServiceServer build() {
-			if (this.ignoreExpectOrder) {
-				return build(new UnorderedRequestExpectationManager());
-			}
-			else {
-				return build(new SimpleRequestExpectationManager());
-			}
-		}
-
-		@Override
-		public MockRestServiceServer build(RequestExpectationManager manager) {
-			MockRestServiceServer server = new MockRestServiceServer(manager);
-			MockClientHttpRequestFactory factory = server.new MockClientHttpRequestFactory();
-			if (this.restTemplate != null) {
-				if (this.bufferContent) {
-					this.restTemplate.setRequestFactory(new BufferingClientHttpRequestFactory(factory));
-				}
-				else {
-					this.restTemplate.setRequestFactory(factory);
-				}
-			}
-			if (this.asyncRestTemplate != null) {
-				this.asyncRestTemplate.setAsyncRequestFactory(factory);
-			}
-			return server;
-		}
-	}
+    /**
+     * A shortcut for {@code bindTo(restGateway).build()}.
+     *
+     * @param restGateway the REST gateway to set up for mock testing
+     * @return the created mock server
+     */
+    public static MockRestServiceServer createServer(RestGatewaySupport restGateway) {
+        return bindTo(restGateway).build();
+    }
 
 
-	/**
-	 * Mock ClientHttpRequestFactory that creates requests by iterating
-	 * over the list of expected {@link DefaultRequestExpectation}'s.
-	 */
-	private class MockClientHttpRequestFactory implements ClientHttpRequestFactory,
-			org.springframework.http.client.AsyncClientHttpRequestFactory {
+    /**
+     * Builder to create a {@code MockRestServiceServer}.
+     */
+    public interface MockRestServiceServerBuilder {
 
-		@Override
-		public ClientHttpRequest createRequest(URI uri, HttpMethod httpMethod) {
-			return createRequestInternal(uri, httpMethod);
-		}
+        /**
+         * Whether to allow expected requests to be executed in any order not
+         * necessarily matching the order of declaration.
+         * <p>Effectively a shortcut for:<br>
+         * {@code builder.build(new UnorderedRequestExpectationManager)}.
+         * <p>By default this is set to {@code false}
+         *
+         * @param ignoreExpectOrder whether to ignore the order of expectations
+         */
+        MockRestServiceServerBuilder ignoreExpectOrder(boolean ignoreExpectOrder);
 
-		@Override
-		public org.springframework.http.client.AsyncClientHttpRequest createAsyncRequest(URI uri, HttpMethod httpMethod) {
-			return createRequestInternal(uri, httpMethod);
-		}
+        /**
+         * Use the {@link BufferingClientHttpRequestFactory} wrapper to buffer
+         * the input and output streams, and for example, allow multiple reads
+         * of the response body.
+         *
+         * @since 5.0.5
+         */
+        MockRestServiceServerBuilder bufferContent();
 
-		private org.springframework.mock.http.client.MockAsyncClientHttpRequest createRequestInternal(URI uri, HttpMethod method) {
-			Assert.notNull(uri, "'uri' must not be null");
-			Assert.notNull(method, "'httpMethod' must not be null");
+        /**
+         * Build the {@code MockRestServiceServer} and set up the underlying
+         * {@code RestTemplate} or {@code AsyncRestTemplate} with a
+         * {@link ClientHttpRequestFactory} that creates mock requests.
+         */
+        MockRestServiceServer build();
 
-			return new org.springframework.mock.http.client.MockAsyncClientHttpRequest(method, uri) {
+        /**
+         * An overloaded build alternative that accepts a custom
+         * {@link RequestExpectationManager}.
+         */
+        MockRestServiceServer build(RequestExpectationManager manager);
+    }
 
-				@Override
-				protected ClientHttpResponse executeInternal() throws IOException {
-					ClientHttpResponse response = expectationManager.validateRequest(this);
-					setResponse(response);
-					return response;
-				}
-			};
-		}
-	}
+
+    private static class DefaultBuilder implements MockRestServiceServerBuilder {
+
+        @Nullable
+        private final RestTemplate restTemplate;
+
+        @Nullable
+        private final org.springframework.web.client.AsyncRestTemplate asyncRestTemplate;
+
+        private boolean ignoreExpectOrder;
+
+        private boolean bufferContent;
+
+
+        public DefaultBuilder(RestTemplate restTemplate) {
+            Assert.notNull(restTemplate, "RestTemplate must not be null");
+            this.restTemplate = restTemplate;
+            this.asyncRestTemplate = null;
+        }
+
+        public DefaultBuilder(org.springframework.web.client.AsyncRestTemplate asyncRestTemplate) {
+            Assert.notNull(asyncRestTemplate, "AsyncRestTemplate must not be null");
+            this.restTemplate = null;
+            this.asyncRestTemplate = asyncRestTemplate;
+        }
+
+        @Override
+        public MockRestServiceServerBuilder ignoreExpectOrder(boolean ignoreExpectOrder) {
+            this.ignoreExpectOrder = ignoreExpectOrder;
+            return this;
+        }
+
+        @Override
+        public MockRestServiceServerBuilder bufferContent() {
+            this.bufferContent = true;
+            return this;
+        }
+
+        @Override
+        public MockRestServiceServer build() {
+            if (this.ignoreExpectOrder) {
+                return build(new UnorderedRequestExpectationManager());
+            } else {
+                return build(new SimpleRequestExpectationManager());
+            }
+        }
+
+        @Override
+        public MockRestServiceServer build(RequestExpectationManager manager) {
+            MockRestServiceServer server = new MockRestServiceServer(manager);
+            MockClientHttpRequestFactory factory = server.new MockClientHttpRequestFactory();
+            if (this.restTemplate != null) {
+                if (this.bufferContent) {
+                    this.restTemplate.setRequestFactory(new BufferingClientHttpRequestFactory(factory));
+                } else {
+                    this.restTemplate.setRequestFactory(factory);
+                }
+            }
+            if (this.asyncRestTemplate != null) {
+                this.asyncRestTemplate.setAsyncRequestFactory(factory);
+            }
+            return server;
+        }
+    }
+
+
+    /**
+     * Mock ClientHttpRequestFactory that creates requests by iterating
+     * over the list of expected {@link DefaultRequestExpectation}'s.
+     */
+    private class MockClientHttpRequestFactory implements ClientHttpRequestFactory,
+            org.springframework.http.client.AsyncClientHttpRequestFactory {
+
+        @Override
+        public ClientHttpRequest createRequest(URI uri, HttpMethod httpMethod) {
+            return createRequestInternal(uri, httpMethod);
+        }
+
+        @Override
+        public org.springframework.http.client.AsyncClientHttpRequest createAsyncRequest(URI uri, HttpMethod httpMethod) {
+            return createRequestInternal(uri, httpMethod);
+        }
+
+        private org.springframework.mock.http.client.MockAsyncClientHttpRequest createRequestInternal(URI uri, HttpMethod method) {
+            Assert.notNull(uri, "'uri' must not be null");
+            Assert.notNull(method, "'httpMethod' must not be null");
+
+            return new org.springframework.mock.http.client.MockAsyncClientHttpRequest(method, uri) {
+
+                @Override
+                protected ClientHttpResponse executeInternal() throws IOException {
+                    ClientHttpResponse response = expectationManager.validateRequest(this);
+                    setResponse(response);
+                    return response;
+                }
+            };
+        }
+    }
 
 }

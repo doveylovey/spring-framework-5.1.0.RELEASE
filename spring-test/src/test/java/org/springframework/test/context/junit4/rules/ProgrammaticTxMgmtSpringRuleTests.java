@@ -43,31 +43,31 @@ import org.springframework.transaction.PlatformTransactionManager;
 @ContextConfiguration
 public class ProgrammaticTxMgmtSpringRuleTests extends ProgrammaticTxMgmtTests {
 
-	@ClassRule
-	public static final SpringClassRule springClassRule = new SpringClassRule();
+    @ClassRule
+    public static final SpringClassRule springClassRule = new SpringClassRule();
 
-	@Rule
-	public final SpringMethodRule springMethodRule = new SpringMethodRule();
+    @Rule
+    public final SpringMethodRule springMethodRule = new SpringMethodRule();
 
-	// All tests are in superclass.
+    // All tests are in superclass.
 
-	// -------------------------------------------------------------------------
+    // -------------------------------------------------------------------------
 
-	@Configuration
-	static class Config {
+    @Configuration
+    static class Config {
 
-		@Bean
-		public PlatformTransactionManager transactionManager() {
-			return new DataSourceTransactionManager(dataSource());
-		}
+        @Bean
+        public PlatformTransactionManager transactionManager() {
+            return new DataSourceTransactionManager(dataSource());
+        }
 
-		@Bean
-		public DataSource dataSource() {
-			return new EmbeddedDatabaseBuilder()//
-			.generateUniqueName(true)//
-			.addScript("classpath:/org/springframework/test/context/jdbc/schema.sql") //
-			.build();
-		}
-	}
+        @Bean
+        public DataSource dataSource() {
+            return new EmbeddedDatabaseBuilder()//
+                    .generateUniqueName(true)//
+                    .addScript("classpath:/org/springframework/test/context/jdbc/schema.sql") //
+                    .build();
+        }
+    }
 
 }

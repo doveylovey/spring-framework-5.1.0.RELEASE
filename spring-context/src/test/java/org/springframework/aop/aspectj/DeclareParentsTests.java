@@ -32,58 +32,57 @@ import static org.junit.Assert.*;
  */
 public class DeclareParentsTests {
 
-	private ITestBean testBeanProxy;
+    private ITestBean testBeanProxy;
 
-	private Object introductionObject;
-
-
-	@Before
-	public void setup() {
-		ClassPathXmlApplicationContext ctx =
-				new ClassPathXmlApplicationContext(getClass().getSimpleName() + ".xml", getClass());
-		testBeanProxy = (ITestBean) ctx.getBean("testBean");
-		introductionObject = ctx.getBean("introduction");
-	}
+    private Object introductionObject;
 
 
-	@Test
-	public void testIntroductionWasMade() {
-		assertTrue(AopUtils.isAopProxy(testBeanProxy));
-		assertFalse("Introduction should not be proxied", AopUtils.isAopProxy(introductionObject));
-		assertTrue("Introduction must have been made", testBeanProxy instanceof Lockable);
-	}
+    @Before
+    public void setup() {
+        ClassPathXmlApplicationContext ctx =
+                new ClassPathXmlApplicationContext(getClass().getSimpleName() + ".xml", getClass());
+        testBeanProxy = (ITestBean) ctx.getBean("testBean");
+        introductionObject = ctx.getBean("introduction");
+    }
 
-	// TODO if you change type pattern from org.springframework.beans..*
-	// to org.springframework..* it also matches introduction.
-	// Perhaps generated advisor bean definition could be made to depend
-	// on the introduction, in which case this would not be a problem.
-	@Test
-	public void testLockingWorks() {
-		Lockable lockable = (Lockable) testBeanProxy;
-		assertFalse(lockable.locked());
 
-		// Invoke a non-advised method
-		testBeanProxy.getAge();
+    @Test
+    public void testIntroductionWasMade() {
+        assertTrue(AopUtils.isAopProxy(testBeanProxy));
+        assertFalse("Introduction should not be proxied", AopUtils.isAopProxy(introductionObject));
+        assertTrue("Introduction must have been made", testBeanProxy instanceof Lockable);
+    }
 
-		testBeanProxy.setName("");
-		lockable.lock();
-		try {
-			testBeanProxy.setName(" ");
-			fail("Should be locked");
-		}
-		catch (IllegalStateException ex) {
-			// expected
-		}
-	}
+    // TODO if you change type pattern from org.springframework.beans..*
+    // to org.springframework..* it also matches introduction.
+    // Perhaps generated advisor bean definition could be made to depend
+    // on the introduction, in which case this would not be a problem.
+    @Test
+    public void testLockingWorks() {
+        Lockable lockable = (Lockable) testBeanProxy;
+        assertFalse(lockable.locked());
+
+        // Invoke a non-advised method
+        testBeanProxy.getAge();
+
+        testBeanProxy.setName("");
+        lockable.lock();
+        try {
+            testBeanProxy.setName(" ");
+            fail("Should be locked");
+        } catch (IllegalStateException ex) {
+            // expected
+        }
+    }
 
 }
 
 
 class NonAnnotatedMakeLockable {
 
-	public void checkNotLocked(Lockable mixin) {
-		if (mixin.locked()) {
-			throw new IllegalStateException("locked");
-		}
-	}
+    public void checkNotLocked(Lockable mixin) {
+        if (mixin.locked()) {
+            throw new IllegalStateException("locked");
+        }
+    }
 }

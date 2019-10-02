@@ -47,107 +47,106 @@ import static org.junit.Assert.fail;
  */
 public class RequestHeaderMapMethodArgumentResolverTests {
 
-	private RequestHeaderMapMethodArgumentResolver resolver;
+    private RequestHeaderMapMethodArgumentResolver resolver;
 
-	private MethodParameter paramMap;
-	private MethodParameter paramMultiValueMap;
-	private MethodParameter paramHttpHeaders;
-	private MethodParameter paramUnsupported;
-	private MethodParameter paramAlsoUnsupported;
-
-
-	@Before
-	public void setup() throws Exception {
-		resolver = new RequestHeaderMapMethodArgumentResolver(ReactiveAdapterRegistry.getSharedInstance());
-
-		Method method = ReflectionUtils.findMethod(getClass(), "params", (Class<?>[]) null);
-		paramMap = new SynthesizingMethodParameter(method, 0);
-		paramMultiValueMap = new SynthesizingMethodParameter(method, 1);
-		paramHttpHeaders = new SynthesizingMethodParameter(method, 2);
-		paramUnsupported = new SynthesizingMethodParameter(method, 3);
-		paramUnsupported = new SynthesizingMethodParameter(method, 3);
-		paramAlsoUnsupported = new SynthesizingMethodParameter(method, 4);
-	}
+    private MethodParameter paramMap;
+    private MethodParameter paramMultiValueMap;
+    private MethodParameter paramHttpHeaders;
+    private MethodParameter paramUnsupported;
+    private MethodParameter paramAlsoUnsupported;
 
 
-	@Test
-	public void supportsParameter() {
-		assertTrue("Map parameter not supported", resolver.supportsParameter(paramMap));
-		assertTrue("MultiValueMap parameter not supported", resolver.supportsParameter(paramMultiValueMap));
-		assertTrue("HttpHeaders parameter not supported", resolver.supportsParameter(paramHttpHeaders));
-		assertFalse("non-@RequestParam map supported", resolver.supportsParameter(paramUnsupported));
-		try {
-			this.resolver.supportsParameter(this.paramAlsoUnsupported);
-			fail();
-		}
-		catch (IllegalStateException ex) {
-			assertTrue("Unexpected error message:\n" + ex.getMessage(),
-					ex.getMessage().startsWith(
-							"RequestHeaderMapMethodArgumentResolver doesn't support reactive type wrapper"));
-		}
-	}
+    @Before
+    public void setup() throws Exception {
+        resolver = new RequestHeaderMapMethodArgumentResolver(ReactiveAdapterRegistry.getSharedInstance());
 
-	@Test
-	public void resolveMapArgument() throws Exception {
-		String name = "foo";
-		String value = "bar";
-		Map<String, String> expected = Collections.singletonMap(name, value);
-		MockServerHttpRequest request = MockServerHttpRequest.get("/").header(name, value).build();
-		MockServerWebExchange exchange = MockServerWebExchange.from(request);
-
-		Mono<Object> mono = resolver.resolveArgument(paramMap, null, exchange);
-		Object result = mono.block();
-
-		assertTrue(result instanceof Map);
-		assertEquals("Invalid result", expected, result);
-	}
-
-	@Test
-	public void resolveMultiValueMapArgument() throws Exception {
-		String name = "foo";
-		String value1 = "bar";
-		String value2 = "baz";
-		MockServerHttpRequest request = MockServerHttpRequest.get("/").header(name, value1, value2).build();
-		MockServerWebExchange exchange = MockServerWebExchange.from(request);
-
-		MultiValueMap<String, String> expected = new LinkedMultiValueMap<>(1);
-		expected.add(name, value1);
-		expected.add(name, value2);
-
-		Mono<Object> mono = resolver.resolveArgument(paramMultiValueMap, null, exchange);
-		Object result = mono.block();
-
-		assertTrue(result instanceof MultiValueMap);
-		assertEquals("Invalid result", expected, result);
-	}
-
-	@Test
-	public void resolveHttpHeadersArgument() throws Exception {
-		String name = "foo";
-		String value1 = "bar";
-		String value2 = "baz";
-		MockServerHttpRequest request = MockServerHttpRequest.get("/").header(name, value1, value2).build();
-		MockServerWebExchange exchange = MockServerWebExchange.from(request);
-
-		HttpHeaders expected = new HttpHeaders();
-		expected.add(name, value1);
-		expected.add(name, value2);
-
-		Mono<Object> mono = resolver.resolveArgument(paramHttpHeaders, null, exchange);
-		Object result = mono.block();
-
-		assertTrue(result instanceof HttpHeaders);
-		assertEquals("Invalid result", expected, result);
-	}
+        Method method = ReflectionUtils.findMethod(getClass(), "params", (Class<?>[]) null);
+        paramMap = new SynthesizingMethodParameter(method, 0);
+        paramMultiValueMap = new SynthesizingMethodParameter(method, 1);
+        paramHttpHeaders = new SynthesizingMethodParameter(method, 2);
+        paramUnsupported = new SynthesizingMethodParameter(method, 3);
+        paramUnsupported = new SynthesizingMethodParameter(method, 3);
+        paramAlsoUnsupported = new SynthesizingMethodParameter(method, 4);
+    }
 
 
-	@SuppressWarnings("unused")
-	public void params(
-			@RequestHeader Map<?, ?> param1,
-			@RequestHeader MultiValueMap<?, ?> param2,
-			@RequestHeader HttpHeaders param3,
-			Map<?,?> unsupported,
-			@RequestHeader Mono<Map<?, ?>> alsoUnsupported) {
-	}
+    @Test
+    public void supportsParameter() {
+        assertTrue("Map parameter not supported", resolver.supportsParameter(paramMap));
+        assertTrue("MultiValueMap parameter not supported", resolver.supportsParameter(paramMultiValueMap));
+        assertTrue("HttpHeaders parameter not supported", resolver.supportsParameter(paramHttpHeaders));
+        assertFalse("non-@RequestParam map supported", resolver.supportsParameter(paramUnsupported));
+        try {
+            this.resolver.supportsParameter(this.paramAlsoUnsupported);
+            fail();
+        } catch (IllegalStateException ex) {
+            assertTrue("Unexpected error message:\n" + ex.getMessage(),
+                    ex.getMessage().startsWith(
+                            "RequestHeaderMapMethodArgumentResolver doesn't support reactive type wrapper"));
+        }
+    }
+
+    @Test
+    public void resolveMapArgument() throws Exception {
+        String name = "foo";
+        String value = "bar";
+        Map<String, String> expected = Collections.singletonMap(name, value);
+        MockServerHttpRequest request = MockServerHttpRequest.get("/").header(name, value).build();
+        MockServerWebExchange exchange = MockServerWebExchange.from(request);
+
+        Mono<Object> mono = resolver.resolveArgument(paramMap, null, exchange);
+        Object result = mono.block();
+
+        assertTrue(result instanceof Map);
+        assertEquals("Invalid result", expected, result);
+    }
+
+    @Test
+    public void resolveMultiValueMapArgument() throws Exception {
+        String name = "foo";
+        String value1 = "bar";
+        String value2 = "baz";
+        MockServerHttpRequest request = MockServerHttpRequest.get("/").header(name, value1, value2).build();
+        MockServerWebExchange exchange = MockServerWebExchange.from(request);
+
+        MultiValueMap<String, String> expected = new LinkedMultiValueMap<>(1);
+        expected.add(name, value1);
+        expected.add(name, value2);
+
+        Mono<Object> mono = resolver.resolveArgument(paramMultiValueMap, null, exchange);
+        Object result = mono.block();
+
+        assertTrue(result instanceof MultiValueMap);
+        assertEquals("Invalid result", expected, result);
+    }
+
+    @Test
+    public void resolveHttpHeadersArgument() throws Exception {
+        String name = "foo";
+        String value1 = "bar";
+        String value2 = "baz";
+        MockServerHttpRequest request = MockServerHttpRequest.get("/").header(name, value1, value2).build();
+        MockServerWebExchange exchange = MockServerWebExchange.from(request);
+
+        HttpHeaders expected = new HttpHeaders();
+        expected.add(name, value1);
+        expected.add(name, value2);
+
+        Mono<Object> mono = resolver.resolveArgument(paramHttpHeaders, null, exchange);
+        Object result = mono.block();
+
+        assertTrue(result instanceof HttpHeaders);
+        assertEquals("Invalid result", expected, result);
+    }
+
+
+    @SuppressWarnings("unused")
+    public void params(
+            @RequestHeader Map<?, ?> param1,
+            @RequestHeader MultiValueMap<?, ?> param2,
+            @RequestHeader HttpHeaders param3,
+            Map<?, ?> unsupported,
+            @RequestHeader Mono<Map<?, ?>> alsoUnsupported) {
+    }
 
 }

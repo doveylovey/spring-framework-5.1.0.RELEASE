@@ -47,99 +47,100 @@ import org.springframework.util.MimeType;
  */
 public class MockServerHttpResponse extends AbstractServerHttpResponse {
 
-	private Flux<DataBuffer> body = Flux.error(new IllegalStateException(
-			"No content was written nor was setComplete() called on this response."));
+    private Flux<DataBuffer> body = Flux.error(new IllegalStateException(
+            "No content was written nor was setComplete() called on this response."));
 
-	private Function<Flux<DataBuffer>, Mono<Void>> writeHandler;
-
-
-	public MockServerHttpResponse() {
-		super(new DefaultDataBufferFactory());
-		this.writeHandler = body -> {
-			this.body = body.cache();
-			return this.body.then();
-		};
-	}
+    private Function<Flux<DataBuffer>, Mono<Void>> writeHandler;
 
 
-	/**
-	 * Configure a custom handler to consume the response body.
-	 * <p>By default, response body content is consumed in full and cached for
-	 * subsequent access in tests. Use this option to take control over how the
-	 * response body is consumed.
-	 * @param writeHandler the write handler to use returning {@code Mono<Void>}
-	 * when the body has been "written" (i.e. consumed).
-	 */
-	public void setWriteHandler(Function<Flux<DataBuffer>, Mono<Void>> writeHandler) {
-		Assert.notNull(writeHandler, "'writeHandler' is required");
-		this.body = Flux.error(new IllegalStateException("Not available with custom write handler."));
-		this.writeHandler = writeHandler;
-	}
-
-	@Override
-	public <T> T getNativeResponse() {
-		throw new IllegalStateException("This is a mock. No running server, no native response.");
-	}
+    public MockServerHttpResponse() {
+        super(new DefaultDataBufferFactory());
+        this.writeHandler = body -> {
+            this.body = body.cache();
+            return this.body.then();
+        };
+    }
 
 
-	@Override
-	protected void applyStatusCode() {
-	}
+    /**
+     * Configure a custom handler to consume the response body.
+     * <p>By default, response body content is consumed in full and cached for
+     * subsequent access in tests. Use this option to take control over how the
+     * response body is consumed.
+     *
+     * @param writeHandler the write handler to use returning {@code Mono<Void>}
+     *                     when the body has been "written" (i.e. consumed).
+     */
+    public void setWriteHandler(Function<Flux<DataBuffer>, Mono<Void>> writeHandler) {
+        Assert.notNull(writeHandler, "'writeHandler' is required");
+        this.body = Flux.error(new IllegalStateException("Not available with custom write handler."));
+        this.writeHandler = writeHandler;
+    }
 
-	@Override
-	protected void applyHeaders() {
-	}
+    @Override
+    public <T> T getNativeResponse() {
+        throw new IllegalStateException("This is a mock. No running server, no native response.");
+    }
 
-	@Override
-	protected void applyCookies() {
-		getCookies().values().stream().flatMap(Collection::stream)
-				.forEach(cookie -> getHeaders().add(HttpHeaders.SET_COOKIE, cookie.toString()));
-	}
 
-	@Override
-	protected Mono<Void> writeWithInternal(Publisher<? extends DataBuffer> body) {
-		return this.writeHandler.apply(Flux.from(body));
-	}
+    @Override
+    protected void applyStatusCode() {
+    }
 
-	@Override
-	protected Mono<Void> writeAndFlushWithInternal(
-			Publisher<? extends Publisher<? extends DataBuffer>> body) {
+    @Override
+    protected void applyHeaders() {
+    }
 
-		return this.writeHandler.apply(Flux.from(body).concatMap(Flux::from));
-	}
+    @Override
+    protected void applyCookies() {
+        getCookies().values().stream().flatMap(Collection::stream)
+                .forEach(cookie -> getHeaders().add(HttpHeaders.SET_COOKIE, cookie.toString()));
+    }
 
-	@Override
-	public Mono<Void> setComplete() {
-		return doCommit(() -> Mono.defer(() -> this.writeHandler.apply(Flux.empty())));
-	}
+    @Override
+    protected Mono<Void> writeWithInternal(Publisher<? extends DataBuffer> body) {
+        return this.writeHandler.apply(Flux.from(body));
+    }
 
-	/**
-	 * Return the response body or an error stream if the body was not set.
-	 */
-	public Flux<DataBuffer> getBody() {
-		return this.body;
-	}
+    @Override
+    protected Mono<Void> writeAndFlushWithInternal(
+            Publisher<? extends Publisher<? extends DataBuffer>> body) {
 
-	/**
-	 * Aggregate response data and convert to a String using the "Content-Type"
-	 * charset or "UTF-8" by default.
-	 */
-	public Mono<String> getBodyAsString() {
-		Charset charset = Optional.ofNullable(getHeaders().getContentType()).map(MimeType::getCharset)
-				.orElse(StandardCharsets.UTF_8);
-		return getBody()
-				.reduce(bufferFactory().allocateBuffer(), (previous, current) -> {
-					previous.write(current);
-					DataBufferUtils.release(current);
-					return previous;
-				})
-				.map(buffer -> bufferToString(buffer, charset));
-	}
+        return this.writeHandler.apply(Flux.from(body).concatMap(Flux::from));
+    }
 
-	private static String bufferToString(DataBuffer buffer, Charset charset) {
-		byte[] bytes = new byte[buffer.readableByteCount()];
-		buffer.read(bytes);
-		return new String(bytes, charset);
-	}
+    @Override
+    public Mono<Void> setComplete() {
+        return doCommit(() -> Mono.defer(() -> this.writeHandler.apply(Flux.empty())));
+    }
+
+    /**
+     * Return the response body or an error stream if the body was not set.
+     */
+    public Flux<DataBuffer> getBody() {
+        return this.body;
+    }
+
+    /**
+     * Aggregate response data and convert to a String using the "Content-Type"
+     * charset or "UTF-8" by default.
+     */
+    public Mono<String> getBodyAsString() {
+        Charset charset = Optional.ofNullable(getHeaders().getContentType()).map(MimeType::getCharset)
+                .orElse(StandardCharsets.UTF_8);
+        return getBody()
+                .reduce(bufferFactory().allocateBuffer(), (previous, current) -> {
+                    previous.write(current);
+                    DataBufferUtils.release(current);
+                    return previous;
+                })
+                .map(buffer -> bufferToString(buffer, charset));
+    }
+
+    private static String bufferToString(DataBuffer buffer, Charset charset) {
+        byte[] bytes = new byte[buffer.readableByteCount()];
+        buffer.read(bytes);
+        return new String(bytes, charset);
+    }
 
 }

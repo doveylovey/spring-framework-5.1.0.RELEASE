@@ -34,17 +34,17 @@ import org.springframework.transaction.PlatformTransactionManager;
 @Configuration
 public class PopulatedSchemaDatabaseConfig {
 
-	@Bean
-	public PlatformTransactionManager transactionManager() {
-		return new DataSourceTransactionManager(dataSource());
-	}
+    @Bean
+    public PlatformTransactionManager transactionManager() {
+        return new DataSourceTransactionManager(dataSource());
+    }
 
-	@Bean
-	public DataSource dataSource() {
-		return new EmbeddedDatabaseBuilder()//
-		.setName("populated-sql-scripts-test-db")//
-		.addScript("classpath:/org/springframework/test/context/jdbc/schema.sql") //
-		.build();
-	}
+    @Bean
+    public DataSource dataSource() {
+        return new EmbeddedDatabaseBuilder()//
+                .setName("populated-sql-scripts-test-db")//
+                .addScript("classpath:/org/springframework/test/context/jdbc/schema.sql") //
+                .build();
+    }
 
 }

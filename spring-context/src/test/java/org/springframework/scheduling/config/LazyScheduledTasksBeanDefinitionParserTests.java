@@ -30,30 +30,29 @@ import org.springframework.context.support.GenericXmlApplicationContext;
  */
 public class LazyScheduledTasksBeanDefinitionParserTests {
 
-	@Test(timeout = 5000)
-	public void checkTarget() {
-		Task task =
-			new GenericXmlApplicationContext(
-					LazyScheduledTasksBeanDefinitionParserTests.class,
-					"lazyScheduledTasksContext.xml")
-				.getBean(Task.class);
+    @Test(timeout = 5000)
+    public void checkTarget() {
+        Task task =
+                new GenericXmlApplicationContext(
+                        LazyScheduledTasksBeanDefinitionParserTests.class,
+                        "lazyScheduledTasksContext.xml")
+                        .getBean(Task.class);
 
-		while (!task.executed) {
-			try {
-				Thread.sleep(10);
-			}
-			catch (Exception ex) { /* Do Nothing */ }
-		}
-	}
+        while (!task.executed) {
+            try {
+                Thread.sleep(10);
+            } catch (Exception ex) { /* Do Nothing */ }
+        }
+    }
 
 
-	static class Task {
+    static class Task {
 
-		volatile boolean executed = false;
+        volatile boolean executed = false;
 
-		public void doWork() {
-			executed = true;
-		}
-	}
+        public void doWork() {
+            executed = true;
+        }
+    }
 
 }

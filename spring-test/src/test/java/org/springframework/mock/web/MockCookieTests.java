@@ -27,40 +27,40 @@ import static org.junit.Assert.*;
  */
 public class MockCookieTests {
 
-	@Test
-	public void constructCookie() {
-		MockCookie cookie = new MockCookie("SESSION", "123");
+    @Test
+    public void constructCookie() {
+        MockCookie cookie = new MockCookie("SESSION", "123");
 
-		assertEquals("SESSION", cookie.getName());
-		assertEquals("123", cookie.getValue());
-	}
+        assertEquals("SESSION", cookie.getName());
+        assertEquals("123", cookie.getValue());
+    }
 
-	@Test
-	public void setSameSite() {
-		MockCookie cookie = new MockCookie("SESSION", "123");
-		cookie.setSameSite("Strict");
+    @Test
+    public void setSameSite() {
+        MockCookie cookie = new MockCookie("SESSION", "123");
+        cookie.setSameSite("Strict");
 
-		assertEquals("Strict", cookie.getSameSite());
-	}
+        assertEquals("Strict", cookie.getSameSite());
+    }
 
-	@Test
-	public void parseValidHeader() {
-		MockCookie cookie = MockCookie.parse(
-				"SESSION=123; Domain=example.com; Max-Age=60; Path=/; Secure; HttpOnly; SameSite=Lax");
+    @Test
+    public void parseValidHeader() {
+        MockCookie cookie = MockCookie.parse(
+                "SESSION=123; Domain=example.com; Max-Age=60; Path=/; Secure; HttpOnly; SameSite=Lax");
 
-		assertEquals("SESSION", cookie.getName());
-		assertEquals("123", cookie.getValue());
-		assertEquals("example.com", cookie.getDomain());
-		assertEquals(60, cookie.getMaxAge());
-		assertEquals("/", cookie.getPath());
-		assertTrue(cookie.getSecure());
-		assertTrue(cookie.isHttpOnly());
-		assertEquals("Lax", cookie.getSameSite());
-	}
+        assertEquals("SESSION", cookie.getName());
+        assertEquals("123", cookie.getValue());
+        assertEquals("example.com", cookie.getDomain());
+        assertEquals(60, cookie.getMaxAge());
+        assertEquals("/", cookie.getPath());
+        assertTrue(cookie.getSecure());
+        assertTrue(cookie.isHttpOnly());
+        assertEquals("Lax", cookie.getSameSite());
+    }
 
-	@Test(expected = IllegalArgumentException.class)
-	public void parseInvalidHeader() {
-		MockCookie.parse("invalid");
-	}
+    @Test(expected = IllegalArgumentException.class)
+    public void parseInvalidHeader() {
+        MockCookie.parse("invalid");
+    }
 
 }

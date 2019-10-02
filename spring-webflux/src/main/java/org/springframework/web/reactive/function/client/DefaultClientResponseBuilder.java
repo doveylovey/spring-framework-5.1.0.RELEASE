@@ -42,147 +42,147 @@ import org.springframework.util.MultiValueMap;
  */
 final class DefaultClientResponseBuilder implements ClientResponse.Builder {
 
-	private ExchangeStrategies strategies;
+    private ExchangeStrategies strategies;
 
-	private HttpStatus statusCode = HttpStatus.OK;
+    private HttpStatus statusCode = HttpStatus.OK;
 
-	private final HttpHeaders headers = new HttpHeaders();
+    private final HttpHeaders headers = new HttpHeaders();
 
-	private final MultiValueMap<String, ResponseCookie> cookies = new LinkedMultiValueMap<>();
+    private final MultiValueMap<String, ResponseCookie> cookies = new LinkedMultiValueMap<>();
 
-	private Flux<DataBuffer> body = Flux.empty();
-
-
-	public DefaultClientResponseBuilder(ExchangeStrategies strategies) {
-		Assert.notNull(strategies, "ExchangeStrategies must not be null");
-		this.strategies = strategies;
-	}
-
-	public DefaultClientResponseBuilder(ClientResponse other) {
-		Assert.notNull(other, "ClientResponse must not be null");
-		this.strategies = other.strategies();
-		statusCode(other.statusCode());
-		headers(headers -> headers.addAll(other.headers().asHttpHeaders()));
-		cookies(cookies -> cookies.addAll(other.cookies()));
-	}
+    private Flux<DataBuffer> body = Flux.empty();
 
 
-	@Override
-	public DefaultClientResponseBuilder statusCode(HttpStatus statusCode) {
-		Assert.notNull(statusCode, "HttpStatus must not be null");
-		this.statusCode = statusCode;
-		return this;
-	}
+    public DefaultClientResponseBuilder(ExchangeStrategies strategies) {
+        Assert.notNull(strategies, "ExchangeStrategies must not be null");
+        this.strategies = strategies;
+    }
 
-	@Override
-	public ClientResponse.Builder header(String headerName, String... headerValues) {
-		for (String headerValue : headerValues) {
-			this.headers.add(headerName, headerValue);
-		}
-		return this;
-	}
-
-	@Override
-	public ClientResponse.Builder headers(Consumer<HttpHeaders> headersConsumer) {
-		headersConsumer.accept(this.headers);
-		return this;
-	}
-
-	@Override
-	public DefaultClientResponseBuilder cookie(String name, String... values) {
-		for (String value : values) {
-			this.cookies.add(name, ResponseCookie.from(name, value).build());
-		}
-		return this;
-	}
-
-	@Override
-	public ClientResponse.Builder cookies(Consumer<MultiValueMap<String, ResponseCookie>> cookiesConsumer) {
-		cookiesConsumer.accept(this.cookies);
-		return this;
-	}
-
-	@Override
-	public ClientResponse.Builder body(Flux<DataBuffer> body) {
-		Assert.notNull(body, "Body must not be null");
-		releaseBody();
-		this.body = body;
-		return this;
-	}
-
-	@Override
-	public ClientResponse.Builder body(String body) {
-		Assert.notNull(body, "Body must not be null");
-		releaseBody();
-		DataBufferFactory dataBufferFactory = new DefaultDataBufferFactory();
-		this.body = Flux.just(body).
-				map(s -> {
-					byte[] bytes = body.getBytes(StandardCharsets.UTF_8);
-					return dataBufferFactory.wrap(bytes);
-				});
-		return this;
-	}
-
-	private void releaseBody() {
-		this.body.subscribe(DataBufferUtils.releaseConsumer());
-	}
-
-	@Override
-	public ClientResponse build() {
-
-		ClientHttpResponse httpResponse =
-				new BuiltClientHttpResponse(this.statusCode, this.headers, this.cookies, this.body);
-
-		// When building ClientResponse manually, the ClientRequest.logPrefix() has to be passed,
-		// e.g. via ClientResponse.Builder, but this (builder) is not used currently.
-
-		return new DefaultClientResponse(httpResponse, this.strategies, "");
-	}
+    public DefaultClientResponseBuilder(ClientResponse other) {
+        Assert.notNull(other, "ClientResponse must not be null");
+        this.strategies = other.strategies();
+        statusCode(other.statusCode());
+        headers(headers -> headers.addAll(other.headers().asHttpHeaders()));
+        cookies(cookies -> cookies.addAll(other.cookies()));
+    }
 
 
-	private static class BuiltClientHttpResponse implements ClientHttpResponse {
+    @Override
+    public DefaultClientResponseBuilder statusCode(HttpStatus statusCode) {
+        Assert.notNull(statusCode, "HttpStatus must not be null");
+        this.statusCode = statusCode;
+        return this;
+    }
 
-		private final HttpStatus statusCode;
+    @Override
+    public ClientResponse.Builder header(String headerName, String... headerValues) {
+        for (String headerValue : headerValues) {
+            this.headers.add(headerName, headerValue);
+        }
+        return this;
+    }
 
-		private final HttpHeaders headers;
+    @Override
+    public ClientResponse.Builder headers(Consumer<HttpHeaders> headersConsumer) {
+        headersConsumer.accept(this.headers);
+        return this;
+    }
 
-		private final MultiValueMap<String, ResponseCookie> cookies;
+    @Override
+    public DefaultClientResponseBuilder cookie(String name, String... values) {
+        for (String value : values) {
+            this.cookies.add(name, ResponseCookie.from(name, value).build());
+        }
+        return this;
+    }
 
-		private final Flux<DataBuffer> body;
+    @Override
+    public ClientResponse.Builder cookies(Consumer<MultiValueMap<String, ResponseCookie>> cookiesConsumer) {
+        cookiesConsumer.accept(this.cookies);
+        return this;
+    }
 
-		public BuiltClientHttpResponse(HttpStatus statusCode, HttpHeaders headers,
-				MultiValueMap<String, ResponseCookie> cookies, Flux<DataBuffer> body) {
+    @Override
+    public ClientResponse.Builder body(Flux<DataBuffer> body) {
+        Assert.notNull(body, "Body must not be null");
+        releaseBody();
+        this.body = body;
+        return this;
+    }
 
-			this.statusCode = statusCode;
-			this.headers = HttpHeaders.readOnlyHttpHeaders(headers);
-			this.cookies = CollectionUtils.unmodifiableMultiValueMap(cookies);
-			this.body = body;
-		}
+    @Override
+    public ClientResponse.Builder body(String body) {
+        Assert.notNull(body, "Body must not be null");
+        releaseBody();
+        DataBufferFactory dataBufferFactory = new DefaultDataBufferFactory();
+        this.body = Flux.just(body).
+                map(s -> {
+                    byte[] bytes = body.getBytes(StandardCharsets.UTF_8);
+                    return dataBufferFactory.wrap(bytes);
+                });
+        return this;
+    }
 
-		@Override
-		public HttpStatus getStatusCode() {
-			return this.statusCode;
-		}
+    private void releaseBody() {
+        this.body.subscribe(DataBufferUtils.releaseConsumer());
+    }
 
-		@Override
-		public int getRawStatusCode() {
-			return this.statusCode.value();
-		}
+    @Override
+    public ClientResponse build() {
 
-		@Override
-		public HttpHeaders getHeaders() {
-			return this.headers;
-		}
+        ClientHttpResponse httpResponse =
+                new BuiltClientHttpResponse(this.statusCode, this.headers, this.cookies, this.body);
 
-		@Override
-		public MultiValueMap<String, ResponseCookie> getCookies() {
-			return this.cookies;
-		}
+        // When building ClientResponse manually, the ClientRequest.logPrefix() has to be passed,
+        // e.g. via ClientResponse.Builder, but this (builder) is not used currently.
 
-		@Override
-		public Flux<DataBuffer> getBody() {
-			return this.body;
-		}
-	}
+        return new DefaultClientResponse(httpResponse, this.strategies, "");
+    }
+
+
+    private static class BuiltClientHttpResponse implements ClientHttpResponse {
+
+        private final HttpStatus statusCode;
+
+        private final HttpHeaders headers;
+
+        private final MultiValueMap<String, ResponseCookie> cookies;
+
+        private final Flux<DataBuffer> body;
+
+        public BuiltClientHttpResponse(HttpStatus statusCode, HttpHeaders headers,
+                                       MultiValueMap<String, ResponseCookie> cookies, Flux<DataBuffer> body) {
+
+            this.statusCode = statusCode;
+            this.headers = HttpHeaders.readOnlyHttpHeaders(headers);
+            this.cookies = CollectionUtils.unmodifiableMultiValueMap(cookies);
+            this.body = body;
+        }
+
+        @Override
+        public HttpStatus getStatusCode() {
+            return this.statusCode;
+        }
+
+        @Override
+        public int getRawStatusCode() {
+            return this.statusCode.value();
+        }
+
+        @Override
+        public HttpHeaders getHeaders() {
+            return this.headers;
+        }
+
+        @Override
+        public MultiValueMap<String, ResponseCookie> getCookies() {
+            return this.cookies;
+        }
+
+        @Override
+        public Flux<DataBuffer> getBody() {
+            return this.body;
+        }
+    }
 
 }

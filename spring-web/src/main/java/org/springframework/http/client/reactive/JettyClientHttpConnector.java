@@ -34,89 +34,89 @@ import org.springframework.util.Assert;
 
 /**
  * Jetty ReactiveStreams HttpClient implementation of {@link ClientHttpConnector}.
- *
+ * <p>
  * Implemented with buffer copy instead of optimized buffer wrapping because the latter
  * hangs since {@link Callback#succeeded()} doesn't allow releasing the buffer and
  * requesting more data at different times (required for {@code Mono<DataBuffer>} for example).
  * See https://github.com/eclipse/jetty.project/issues/2429 for more details.
  *
  * @author Sebastien Deleuze
- * @since 5.1
  * @see <a href="https://github.com/jetty-project/jetty-reactive-httpclient">Jetty ReactiveStreams HttpClient</a>
+ * @since 5.1
  */
 public class JettyClientHttpConnector implements ClientHttpConnector {
 
-	private final HttpClient httpClient;
+    private final HttpClient httpClient;
 
-	private DataBufferFactory bufferFactory = new DefaultDataBufferFactory();
-
-
-	/**
-	 * Default constructor that creates a new instance of {@link HttpClient}.
-	 */
-	public JettyClientHttpConnector() {
-		this(new HttpClient());
-	}
-
-	/**
-	 * Constructor with an {@link JettyResourceFactory} that will manage shared resources.
-	 * @param resourceFactory the {@link JettyResourceFactory} to use
-	 * @param customizer the lambda used to customize the {@link HttpClient}
-	 */
-	public JettyClientHttpConnector(JettyResourceFactory resourceFactory, @Nullable Consumer<HttpClient> customizer) {
-		HttpClient httpClient = new HttpClient();
-		httpClient.setExecutor(resourceFactory.getExecutor());
-		httpClient.setByteBufferPool(resourceFactory.getByteBufferPool());
-		httpClient.setScheduler(resourceFactory.getScheduler());
-		if (customizer != null) {
-			customizer.accept(httpClient);
-		}
-		this.httpClient = httpClient;
-	}
-
-	/**
-	 * Constructor with an initialized {@link HttpClient}.
-	 */
-	public JettyClientHttpConnector(HttpClient httpClient) {
-		Assert.notNull(httpClient, "HttpClient is required");
-		this.httpClient = httpClient;
-	}
+    private DataBufferFactory bufferFactory = new DefaultDataBufferFactory();
 
 
-	public void setBufferFactory(DataBufferFactory bufferFactory) {
-		this.bufferFactory = bufferFactory;
-	}
+    /**
+     * Default constructor that creates a new instance of {@link HttpClient}.
+     */
+    public JettyClientHttpConnector() {
+        this(new HttpClient());
+    }
+
+    /**
+     * Constructor with an {@link JettyResourceFactory} that will manage shared resources.
+     *
+     * @param resourceFactory the {@link JettyResourceFactory} to use
+     * @param customizer      the lambda used to customize the {@link HttpClient}
+     */
+    public JettyClientHttpConnector(JettyResourceFactory resourceFactory, @Nullable Consumer<HttpClient> customizer) {
+        HttpClient httpClient = new HttpClient();
+        httpClient.setExecutor(resourceFactory.getExecutor());
+        httpClient.setByteBufferPool(resourceFactory.getByteBufferPool());
+        httpClient.setScheduler(resourceFactory.getScheduler());
+        if (customizer != null) {
+            customizer.accept(httpClient);
+        }
+        this.httpClient = httpClient;
+    }
+
+    /**
+     * Constructor with an initialized {@link HttpClient}.
+     */
+    public JettyClientHttpConnector(HttpClient httpClient) {
+        Assert.notNull(httpClient, "HttpClient is required");
+        this.httpClient = httpClient;
+    }
 
 
-	@Override
-	public Mono<ClientHttpResponse> connect(HttpMethod method, URI uri,
-			Function<? super ClientHttpRequest, Mono<Void>> requestCallback) {
+    public void setBufferFactory(DataBufferFactory bufferFactory) {
+        this.bufferFactory = bufferFactory;
+    }
 
-		if (!uri.isAbsolute()) {
-			return Mono.error(new IllegalArgumentException("URI is not absolute: " + uri));
-		}
 
-		if (!this.httpClient.isStarted()) {
-			try {
-				this.httpClient.start();
-			}
-			catch (Exception ex) {
-				return Mono.error(ex);
-			}
-		}
+    @Override
+    public Mono<ClientHttpResponse> connect(HttpMethod method, URI uri,
+                                            Function<? super ClientHttpRequest, Mono<Void>> requestCallback) {
 
-		JettyClientHttpRequest clientHttpRequest = new JettyClientHttpRequest(
-				this.httpClient.newRequest(uri).method(method.toString()), this.bufferFactory);
-		return requestCallback.apply(clientHttpRequest).then(Mono.from(
-				clientHttpRequest.getReactiveRequest().response((reactiveResponse, contentChunks) -> {
-					Flux<DataBuffer> content = Flux.from(contentChunks).map(chunk -> {
-						DataBuffer buffer = this.bufferFactory.allocateBuffer(chunk.buffer.capacity());
-						buffer.write(chunk.buffer);
-						chunk.callback.succeeded();
-						return buffer;
-					});
-					return Mono.just(new JettyClientHttpResponse(reactiveResponse, content));
-				})));
-	}
+        if (!uri.isAbsolute()) {
+            return Mono.error(new IllegalArgumentException("URI is not absolute: " + uri));
+        }
+
+        if (!this.httpClient.isStarted()) {
+            try {
+                this.httpClient.start();
+            } catch (Exception ex) {
+                return Mono.error(ex);
+            }
+        }
+
+        JettyClientHttpRequest clientHttpRequest = new JettyClientHttpRequest(
+                this.httpClient.newRequest(uri).method(method.toString()), this.bufferFactory);
+        return requestCallback.apply(clientHttpRequest).then(Mono.from(
+                clientHttpRequest.getReactiveRequest().response((reactiveResponse, contentChunks) -> {
+                    Flux<DataBuffer> content = Flux.from(contentChunks).map(chunk -> {
+                        DataBuffer buffer = this.bufferFactory.allocateBuffer(chunk.buffer.capacity());
+                        buffer.write(chunk.buffer);
+                        chunk.callback.succeeded();
+                        return buffer;
+                    });
+                    return Mono.just(new JettyClientHttpResponse(reactiveResponse, content));
+                })));
+    }
 
 }

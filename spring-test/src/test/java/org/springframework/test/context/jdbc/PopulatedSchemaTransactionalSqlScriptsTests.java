@@ -37,20 +37,20 @@ import static org.junit.Assert.*;
 @DirtiesContext
 public class PopulatedSchemaTransactionalSqlScriptsTests extends AbstractTransactionalJUnit4SpringContextTests {
 
-	@BeforeTransaction
-	@AfterTransaction
-	public void verifyPreAndPostTransactionDatabaseState() {
-		assertNumUsers(0);
-	}
+    @BeforeTransaction
+    @AfterTransaction
+    public void verifyPreAndPostTransactionDatabaseState() {
+        assertNumUsers(0);
+    }
 
-	@Test
-	@SqlGroup(@Sql("data-add-dogbert.sql"))
-	public void methodLevelScripts() {
-		assertNumUsers(1);
-	}
+    @Test
+    @SqlGroup(@Sql("data-add-dogbert.sql"))
+    public void methodLevelScripts() {
+        assertNumUsers(1);
+    }
 
-	protected void assertNumUsers(int expected) {
-		assertEquals("Number of rows in the 'user' table.", expected, countRowsInTable("user"));
-	}
+    protected void assertNumUsers(int expected) {
+        assertEquals("Number of rows in the 'user' table.", expected, countRowsInTable("user"));
+    }
 
 }

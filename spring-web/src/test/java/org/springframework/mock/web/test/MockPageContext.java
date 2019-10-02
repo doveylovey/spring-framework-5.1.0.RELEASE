@@ -51,326 +51,325 @@ import org.springframework.util.Assert;
  */
 public class MockPageContext extends PageContext {
 
-	private final ServletContext servletContext;
+    private final ServletContext servletContext;
 
-	private final HttpServletRequest request;
+    private final HttpServletRequest request;
 
-	private final HttpServletResponse response;
+    private final HttpServletResponse response;
 
-	private final ServletConfig servletConfig;
+    private final ServletConfig servletConfig;
 
-	private final Map<String, Object> attributes = new LinkedHashMap<>();
+    private final Map<String, Object> attributes = new LinkedHashMap<>();
 
-	private JspWriter out;
-
-
-	/**
-	 * Create new MockPageContext with a default {@link MockServletContext},
-	 * {@link MockHttpServletRequest}, {@link MockHttpServletResponse},
-	 * {@link MockServletConfig}.
-	 */
-	public MockPageContext() {
-		this(null, null, null, null);
-	}
-
-	/**
-	 * Create new MockPageContext with a default {@link MockHttpServletRequest},
-	 * {@link MockHttpServletResponse}, {@link MockServletConfig}.
-	 * @param servletContext the ServletContext that the JSP page runs in
-	 * (only necessary when actually accessing the ServletContext)
-	 */
-	public MockPageContext(ServletContext servletContext) {
-		this(servletContext, null, null, null);
-	}
-
-	/**
-	 * Create new MockPageContext with a MockHttpServletResponse,
-	 * MockServletConfig.
-	 * @param servletContext the ServletContext that the JSP page runs in
-	 * @param request the current HttpServletRequest
-	 * (only necessary when actually accessing the request)
-	 */
-	public MockPageContext(ServletContext servletContext, HttpServletRequest request) {
-		this(servletContext, request, null, null);
-	}
-
-	/**
-	 * Create new MockPageContext with a MockServletConfig.
-	 * @param servletContext the ServletContext that the JSP page runs in
-	 * @param request the current HttpServletRequest
-	 * @param response the current HttpServletResponse
-	 * (only necessary when actually writing to the response)
-	 */
-	public MockPageContext(ServletContext servletContext, HttpServletRequest request, HttpServletResponse response) {
-		this(servletContext, request, response, null);
-	}
-
-	/**
-	 * Create new MockServletConfig.
-	 * @param servletContext the ServletContext that the JSP page runs in
-	 * @param request the current HttpServletRequest
-	 * @param response the current HttpServletResponse
-	 * @param servletConfig the ServletConfig (hardly ever accessed from within a tag)
-	 */
-	public MockPageContext(ServletContext servletContext, HttpServletRequest request,
-			HttpServletResponse response, ServletConfig servletConfig) {
-
-		this.servletContext = (servletContext != null ? servletContext : new MockServletContext());
-		this.request = (request != null ? request : new MockHttpServletRequest(servletContext));
-		this.response = (response != null ? response : new MockHttpServletResponse());
-		this.servletConfig = (servletConfig != null ? servletConfig : new MockServletConfig(servletContext));
-	}
+    private JspWriter out;
 
 
-	@Override
-	public void initialize(
-			Servlet servlet, ServletRequest request, ServletResponse response,
-			String errorPageURL, boolean needsSession, int bufferSize, boolean autoFlush) {
+    /**
+     * Create new MockPageContext with a default {@link MockServletContext},
+     * {@link MockHttpServletRequest}, {@link MockHttpServletResponse},
+     * {@link MockServletConfig}.
+     */
+    public MockPageContext() {
+        this(null, null, null, null);
+    }
 
-		throw new UnsupportedOperationException("Use appropriate constructor");
-	}
+    /**
+     * Create new MockPageContext with a default {@link MockHttpServletRequest},
+     * {@link MockHttpServletResponse}, {@link MockServletConfig}.
+     *
+     * @param servletContext the ServletContext that the JSP page runs in
+     *                       (only necessary when actually accessing the ServletContext)
+     */
+    public MockPageContext(ServletContext servletContext) {
+        this(servletContext, null, null, null);
+    }
 
-	@Override
-	public void release() {
-	}
+    /**
+     * Create new MockPageContext with a MockHttpServletResponse,
+     * MockServletConfig.
+     *
+     * @param servletContext the ServletContext that the JSP page runs in
+     * @param request        the current HttpServletRequest
+     *                       (only necessary when actually accessing the request)
+     */
+    public MockPageContext(ServletContext servletContext, HttpServletRequest request) {
+        this(servletContext, request, null, null);
+    }
 
-	@Override
-	public void setAttribute(String name, Object value) {
-		Assert.notNull(name, "Attribute name must not be null");
-		if (value != null) {
-			this.attributes.put(name, value);
-		}
-		else {
-			this.attributes.remove(name);
-		}
-	}
+    /**
+     * Create new MockPageContext with a MockServletConfig.
+     *
+     * @param servletContext the ServletContext that the JSP page runs in
+     * @param request        the current HttpServletRequest
+     * @param response       the current HttpServletResponse
+     *                       (only necessary when actually writing to the response)
+     */
+    public MockPageContext(ServletContext servletContext, HttpServletRequest request, HttpServletResponse response) {
+        this(servletContext, request, response, null);
+    }
 
-	@Override
-	public void setAttribute(String name, Object value, int scope) {
-		Assert.notNull(name, "Attribute name must not be null");
-		switch (scope) {
-			case PAGE_SCOPE:
-				setAttribute(name, value);
-				break;
-			case REQUEST_SCOPE:
-				this.request.setAttribute(name, value);
-				break;
-			case SESSION_SCOPE:
-				this.request.getSession().setAttribute(name, value);
-				break;
-			case APPLICATION_SCOPE:
-				this.servletContext.setAttribute(name, value);
-				break;
-			default:
-				throw new IllegalArgumentException("Invalid scope: " + scope);
-		}
-	}
+    /**
+     * Create new MockServletConfig.
+     *
+     * @param servletContext the ServletContext that the JSP page runs in
+     * @param request        the current HttpServletRequest
+     * @param response       the current HttpServletResponse
+     * @param servletConfig  the ServletConfig (hardly ever accessed from within a tag)
+     */
+    public MockPageContext(ServletContext servletContext, HttpServletRequest request,
+                           HttpServletResponse response, ServletConfig servletConfig) {
 
-	@Override
-	public Object getAttribute(String name) {
-		Assert.notNull(name, "Attribute name must not be null");
-		return this.attributes.get(name);
-	}
+        this.servletContext = (servletContext != null ? servletContext : new MockServletContext());
+        this.request = (request != null ? request : new MockHttpServletRequest(servletContext));
+        this.response = (response != null ? response : new MockHttpServletResponse());
+        this.servletConfig = (servletConfig != null ? servletConfig : new MockServletConfig(servletContext));
+    }
 
-	@Override
-	public Object getAttribute(String name, int scope) {
-		Assert.notNull(name, "Attribute name must not be null");
-		switch (scope) {
-			case PAGE_SCOPE:
-				return getAttribute(name);
-			case REQUEST_SCOPE:
-				return this.request.getAttribute(name);
-			case SESSION_SCOPE:
-				HttpSession session = this.request.getSession(false);
-				return (session != null ? session.getAttribute(name) : null);
-			case APPLICATION_SCOPE:
-				return this.servletContext.getAttribute(name);
-			default:
-				throw new IllegalArgumentException("Invalid scope: " + scope);
-		}
-	}
 
-	@Override
-	public Object findAttribute(String name) {
-		Object value = getAttribute(name);
-		if (value == null) {
-			value = getAttribute(name, REQUEST_SCOPE);
-			if (value == null) {
-				value = getAttribute(name, SESSION_SCOPE);
-				if (value == null) {
-					value = getAttribute(name, APPLICATION_SCOPE);
-				}
-			}
-		}
-		return value;
-	}
+    @Override
+    public void initialize(
+            Servlet servlet, ServletRequest request, ServletResponse response,
+            String errorPageURL, boolean needsSession, int bufferSize, boolean autoFlush) {
 
-	@Override
-	public void removeAttribute(String name) {
-		Assert.notNull(name, "Attribute name must not be null");
-		this.removeAttribute(name, PageContext.PAGE_SCOPE);
-		this.removeAttribute(name, PageContext.REQUEST_SCOPE);
-		this.removeAttribute(name, PageContext.SESSION_SCOPE);
-		this.removeAttribute(name, PageContext.APPLICATION_SCOPE);
-	}
+        throw new UnsupportedOperationException("Use appropriate constructor");
+    }
 
-	@Override
-	public void removeAttribute(String name, int scope) {
-		Assert.notNull(name, "Attribute name must not be null");
-		switch (scope) {
-			case PAGE_SCOPE:
-				this.attributes.remove(name);
-				break;
-			case REQUEST_SCOPE:
-				this.request.removeAttribute(name);
-				break;
-			case SESSION_SCOPE:
-				this.request.getSession().removeAttribute(name);
-				break;
-			case APPLICATION_SCOPE:
-				this.servletContext.removeAttribute(name);
-				break;
-			default:
-				throw new IllegalArgumentException("Invalid scope: " + scope);
-		}
-	}
+    @Override
+    public void release() {
+    }
 
-	@Override
-	public int getAttributesScope(String name) {
-		if (getAttribute(name) != null) {
-			return PAGE_SCOPE;
-		}
-		else if (getAttribute(name, REQUEST_SCOPE) != null) {
-			return REQUEST_SCOPE;
-		}
-		else if (getAttribute(name, SESSION_SCOPE) != null) {
-			return SESSION_SCOPE;
-		}
-		else if (getAttribute(name, APPLICATION_SCOPE) != null) {
-			return APPLICATION_SCOPE;
-		}
-		else {
-			return 0;
-		}
-	}
+    @Override
+    public void setAttribute(String name, Object value) {
+        Assert.notNull(name, "Attribute name must not be null");
+        if (value != null) {
+            this.attributes.put(name, value);
+        } else {
+            this.attributes.remove(name);
+        }
+    }
 
-	public Enumeration<String> getAttributeNames() {
-		return Collections.enumeration(new LinkedHashSet<>(this.attributes.keySet()));
-	}
+    @Override
+    public void setAttribute(String name, Object value, int scope) {
+        Assert.notNull(name, "Attribute name must not be null");
+        switch (scope) {
+            case PAGE_SCOPE:
+                setAttribute(name, value);
+                break;
+            case REQUEST_SCOPE:
+                this.request.setAttribute(name, value);
+                break;
+            case SESSION_SCOPE:
+                this.request.getSession().setAttribute(name, value);
+                break;
+            case APPLICATION_SCOPE:
+                this.servletContext.setAttribute(name, value);
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid scope: " + scope);
+        }
+    }
 
-	@Override
-	public Enumeration<String> getAttributeNamesInScope(int scope) {
-		switch (scope) {
-			case PAGE_SCOPE:
-				return getAttributeNames();
-			case REQUEST_SCOPE:
-				return this.request.getAttributeNames();
-			case SESSION_SCOPE:
-				HttpSession session = this.request.getSession(false);
-				return (session != null ? session.getAttributeNames() : Collections.emptyEnumeration());
-			case APPLICATION_SCOPE:
-				return this.servletContext.getAttributeNames();
-			default:
-				throw new IllegalArgumentException("Invalid scope: " + scope);
-		}
-	}
+    @Override
+    public Object getAttribute(String name) {
+        Assert.notNull(name, "Attribute name must not be null");
+        return this.attributes.get(name);
+    }
 
-	@Override
-	public JspWriter getOut() {
-		if (this.out == null) {
-			this.out = new MockJspWriter(this.response);
-		}
-		return this.out;
-	}
+    @Override
+    public Object getAttribute(String name, int scope) {
+        Assert.notNull(name, "Attribute name must not be null");
+        switch (scope) {
+            case PAGE_SCOPE:
+                return getAttribute(name);
+            case REQUEST_SCOPE:
+                return this.request.getAttribute(name);
+            case SESSION_SCOPE:
+                HttpSession session = this.request.getSession(false);
+                return (session != null ? session.getAttribute(name) : null);
+            case APPLICATION_SCOPE:
+                return this.servletContext.getAttribute(name);
+            default:
+                throw new IllegalArgumentException("Invalid scope: " + scope);
+        }
+    }
 
-	@Override
-	@Deprecated
-	public javax.servlet.jsp.el.ExpressionEvaluator getExpressionEvaluator() {
-		return new MockExpressionEvaluator(this);
-	}
+    @Override
+    public Object findAttribute(String name) {
+        Object value = getAttribute(name);
+        if (value == null) {
+            value = getAttribute(name, REQUEST_SCOPE);
+            if (value == null) {
+                value = getAttribute(name, SESSION_SCOPE);
+                if (value == null) {
+                    value = getAttribute(name, APPLICATION_SCOPE);
+                }
+            }
+        }
+        return value;
+    }
 
-	@Override
-	public ELContext getELContext() {
-		return null;
-	}
+    @Override
+    public void removeAttribute(String name) {
+        Assert.notNull(name, "Attribute name must not be null");
+        this.removeAttribute(name, PageContext.PAGE_SCOPE);
+        this.removeAttribute(name, PageContext.REQUEST_SCOPE);
+        this.removeAttribute(name, PageContext.SESSION_SCOPE);
+        this.removeAttribute(name, PageContext.APPLICATION_SCOPE);
+    }
 
-	@Override
-	@Deprecated
-	public javax.servlet.jsp.el.VariableResolver getVariableResolver() {
-		return null;
-	}
+    @Override
+    public void removeAttribute(String name, int scope) {
+        Assert.notNull(name, "Attribute name must not be null");
+        switch (scope) {
+            case PAGE_SCOPE:
+                this.attributes.remove(name);
+                break;
+            case REQUEST_SCOPE:
+                this.request.removeAttribute(name);
+                break;
+            case SESSION_SCOPE:
+                this.request.getSession().removeAttribute(name);
+                break;
+            case APPLICATION_SCOPE:
+                this.servletContext.removeAttribute(name);
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid scope: " + scope);
+        }
+    }
 
-	@Override
-	public HttpSession getSession() {
-		return this.request.getSession();
-	}
+    @Override
+    public int getAttributesScope(String name) {
+        if (getAttribute(name) != null) {
+            return PAGE_SCOPE;
+        } else if (getAttribute(name, REQUEST_SCOPE) != null) {
+            return REQUEST_SCOPE;
+        } else if (getAttribute(name, SESSION_SCOPE) != null) {
+            return SESSION_SCOPE;
+        } else if (getAttribute(name, APPLICATION_SCOPE) != null) {
+            return APPLICATION_SCOPE;
+        } else {
+            return 0;
+        }
+    }
 
-	@Override
-	public Object getPage() {
-		return this;
-	}
+    public Enumeration<String> getAttributeNames() {
+        return Collections.enumeration(new LinkedHashSet<>(this.attributes.keySet()));
+    }
 
-	@Override
-	public ServletRequest getRequest() {
-		return this.request;
-	}
+    @Override
+    public Enumeration<String> getAttributeNamesInScope(int scope) {
+        switch (scope) {
+            case PAGE_SCOPE:
+                return getAttributeNames();
+            case REQUEST_SCOPE:
+                return this.request.getAttributeNames();
+            case SESSION_SCOPE:
+                HttpSession session = this.request.getSession(false);
+                return (session != null ? session.getAttributeNames() : Collections.emptyEnumeration());
+            case APPLICATION_SCOPE:
+                return this.servletContext.getAttributeNames();
+            default:
+                throw new IllegalArgumentException("Invalid scope: " + scope);
+        }
+    }
 
-	@Override
-	public ServletResponse getResponse() {
-		return this.response;
-	}
+    @Override
+    public JspWriter getOut() {
+        if (this.out == null) {
+            this.out = new MockJspWriter(this.response);
+        }
+        return this.out;
+    }
 
-	@Override
-	public Exception getException() {
-		return null;
-	}
+    @Override
+    @Deprecated
+    public javax.servlet.jsp.el.ExpressionEvaluator getExpressionEvaluator() {
+        return new MockExpressionEvaluator(this);
+    }
 
-	@Override
-	public ServletConfig getServletConfig() {
-		return this.servletConfig;
-	}
+    @Override
+    public ELContext getELContext() {
+        return null;
+    }
 
-	@Override
-	public ServletContext getServletContext() {
-		return this.servletContext;
-	}
+    @Override
+    @Deprecated
+    public javax.servlet.jsp.el.VariableResolver getVariableResolver() {
+        return null;
+    }
 
-	@Override
-	public void forward(String path) throws ServletException, IOException {
-		this.request.getRequestDispatcher(path).forward(this.request, this.response);
-	}
+    @Override
+    public HttpSession getSession() {
+        return this.request.getSession();
+    }
 
-	@Override
-	public void include(String path) throws ServletException, IOException {
-		this.request.getRequestDispatcher(path).include(this.request, this.response);
-	}
+    @Override
+    public Object getPage() {
+        return this;
+    }
 
-	@Override
-	public void include(String path, boolean flush) throws ServletException, IOException {
-		this.request.getRequestDispatcher(path).include(this.request, this.response);
-		if (flush) {
-			this.response.flushBuffer();
-		}
-	}
+    @Override
+    public ServletRequest getRequest() {
+        return this.request;
+    }
 
-	public byte[] getContentAsByteArray() {
-		Assert.state(this.response instanceof MockHttpServletResponse, "MockHttpServletResponse required");
-		return ((MockHttpServletResponse) this.response).getContentAsByteArray();
-	}
+    @Override
+    public ServletResponse getResponse() {
+        return this.response;
+    }
 
-	public String getContentAsString() throws UnsupportedEncodingException {
-		Assert.state(this.response instanceof MockHttpServletResponse, "MockHttpServletResponse required");
-		return ((MockHttpServletResponse) this.response).getContentAsString();
-	}
+    @Override
+    public Exception getException() {
+        return null;
+    }
 
-	@Override
-	public void handlePageException(Exception ex) throws ServletException, IOException {
-		throw new ServletException("Page exception", ex);
-	}
+    @Override
+    public ServletConfig getServletConfig() {
+        return this.servletConfig;
+    }
 
-	@Override
-	public void handlePageException(Throwable ex) throws ServletException, IOException {
-		throw new ServletException("Page exception", ex);
-	}
+    @Override
+    public ServletContext getServletContext() {
+        return this.servletContext;
+    }
+
+    @Override
+    public void forward(String path) throws ServletException, IOException {
+        this.request.getRequestDispatcher(path).forward(this.request, this.response);
+    }
+
+    @Override
+    public void include(String path) throws ServletException, IOException {
+        this.request.getRequestDispatcher(path).include(this.request, this.response);
+    }
+
+    @Override
+    public void include(String path, boolean flush) throws ServletException, IOException {
+        this.request.getRequestDispatcher(path).include(this.request, this.response);
+        if (flush) {
+            this.response.flushBuffer();
+        }
+    }
+
+    public byte[] getContentAsByteArray() {
+        Assert.state(this.response instanceof MockHttpServletResponse, "MockHttpServletResponse required");
+        return ((MockHttpServletResponse) this.response).getContentAsByteArray();
+    }
+
+    public String getContentAsString() throws UnsupportedEncodingException {
+        Assert.state(this.response instanceof MockHttpServletResponse, "MockHttpServletResponse required");
+        return ((MockHttpServletResponse) this.response).getContentAsString();
+    }
+
+    @Override
+    public void handlePageException(Exception ex) throws ServletException, IOException {
+        throw new ServletException("Page exception", ex);
+    }
+
+    @Override
+    public void handlePageException(Throwable ex) throws ServletException, IOException {
+        throw new ServletException("Page exception", ex);
+    }
 
 }

@@ -26,31 +26,31 @@ import java.util.Map;
  */
 public class JmsListenerContainerTestFactory implements JmsListenerContainerFactory<MessageListenerTestContainer> {
 
-	private boolean autoStartup = true;
+    private boolean autoStartup = true;
 
-	private final Map<String, MessageListenerTestContainer> listenerContainers =
-			new LinkedHashMap<>();
-
-
-	public void setAutoStartup(boolean autoStartup) {
-		this.autoStartup = autoStartup;
-	}
+    private final Map<String, MessageListenerTestContainer> listenerContainers =
+            new LinkedHashMap<>();
 
 
-	public List<MessageListenerTestContainer> getListenerContainers() {
-		return new ArrayList<>(this.listenerContainers.values());
-	}
+    public void setAutoStartup(boolean autoStartup) {
+        this.autoStartup = autoStartup;
+    }
 
-	public MessageListenerTestContainer getListenerContainer(String id) {
-		return this.listenerContainers.get(id);
-	}
 
-	@Override
-	public MessageListenerTestContainer createListenerContainer(JmsListenerEndpoint endpoint) {
-		MessageListenerTestContainer container = new MessageListenerTestContainer(endpoint);
-		container.setAutoStartup(this.autoStartup);
-		this.listenerContainers.put(endpoint.getId(), container);
-		return container;
-	}
+    public List<MessageListenerTestContainer> getListenerContainers() {
+        return new ArrayList<>(this.listenerContainers.values());
+    }
+
+    public MessageListenerTestContainer getListenerContainer(String id) {
+        return this.listenerContainers.get(id);
+    }
+
+    @Override
+    public MessageListenerTestContainer createListenerContainer(JmsListenerEndpoint endpoint) {
+        MessageListenerTestContainer container = new MessageListenerTestContainer(endpoint);
+        container.setAutoStartup(this.autoStartup);
+        this.listenerContainers.put(endpoint.getId(), container);
+        return container;
+    }
 
 }

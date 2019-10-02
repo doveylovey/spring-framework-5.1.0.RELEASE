@@ -36,85 +36,84 @@ import org.springframework.util.concurrent.SuccessCallback;
  * Adapts {@link Mono} to {@link ListenableFuture} optionally converting the
  * result Object type {@code <S>} to the expected target type {@code <T>}.
  *
- * @author Rossen Stoyanchev
- * @since 5.0
  * @param <S> the type of object expected from the {@link Mono}
  * @param <T> the type of object expected from the {@link ListenableFuture}
+ * @author Rossen Stoyanchev
+ * @since 5.0
  */
 abstract class AbstractMonoToListenableFutureAdapter<S, T> implements ListenableFuture<T> {
 
-	private final MonoProcessor<S> monoProcessor;
+    private final MonoProcessor<S> monoProcessor;
 
-	private final ListenableFutureCallbackRegistry<T> registry = new ListenableFutureCallbackRegistry<>();
-
-
-	protected AbstractMonoToListenableFutureAdapter(Mono<S> mono) {
-		Assert.notNull(mono, "Mono must not be null");
-		this.monoProcessor = mono
-				.doOnSuccess(result -> {
-					T adapted;
-					try {
-						adapted = adapt(result);
-					}
-					catch (Throwable ex) {
-						this.registry.failure(ex);
-						return;
-					}
-					this.registry.success(adapted);
-				})
-				.doOnError(this.registry::failure)
-				.toProcessor();
-	}
+    private final ListenableFutureCallbackRegistry<T> registry = new ListenableFutureCallbackRegistry<>();
 
 
-	@Override
-	@Nullable
-	public T get() throws InterruptedException {
-		S result = this.monoProcessor.block();
-		return adapt(result);
-	}
-
-	@Override
-	@Nullable
-	public T get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
-		Assert.notNull(unit, "TimeUnit must not be null");
-		Duration duration = Duration.ofMillis(TimeUnit.MILLISECONDS.convert(timeout, unit));
-		S result = this.monoProcessor.block(duration);
-		return adapt(result);
-	}
-
-	@Override
-	public boolean cancel(boolean mayInterruptIfRunning) {
-		if (isCancelled()) {
-			return false;
-		}
-		this.monoProcessor.cancel();
-		return true;
-	}
-
-	@Override
-	public boolean isCancelled() {
-		return this.monoProcessor.isCancelled();
-	}
-
-	@Override
-	public boolean isDone() {
-		return this.monoProcessor.isTerminated();
-	}
-
-	@Override
-	public void addCallback(ListenableFutureCallback<? super T> callback) {
-		this.registry.addCallback(callback);
-	}
-
-	@Override
-	public void addCallback(SuccessCallback<? super T> successCallback, FailureCallback failureCallback) {
-		this.registry.addSuccessCallback(successCallback);
-		this.registry.addFailureCallback(failureCallback);
-	}
+    protected AbstractMonoToListenableFutureAdapter(Mono<S> mono) {
+        Assert.notNull(mono, "Mono must not be null");
+        this.monoProcessor = mono
+                .doOnSuccess(result -> {
+                    T adapted;
+                    try {
+                        adapted = adapt(result);
+                    } catch (Throwable ex) {
+                        this.registry.failure(ex);
+                        return;
+                    }
+                    this.registry.success(adapted);
+                })
+                .doOnError(this.registry::failure)
+                .toProcessor();
+    }
 
 
-	@Nullable
-	protected abstract T adapt(@Nullable S result);
+    @Override
+    @Nullable
+    public T get() throws InterruptedException {
+        S result = this.monoProcessor.block();
+        return adapt(result);
+    }
+
+    @Override
+    @Nullable
+    public T get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+        Assert.notNull(unit, "TimeUnit must not be null");
+        Duration duration = Duration.ofMillis(TimeUnit.MILLISECONDS.convert(timeout, unit));
+        S result = this.monoProcessor.block(duration);
+        return adapt(result);
+    }
+
+    @Override
+    public boolean cancel(boolean mayInterruptIfRunning) {
+        if (isCancelled()) {
+            return false;
+        }
+        this.monoProcessor.cancel();
+        return true;
+    }
+
+    @Override
+    public boolean isCancelled() {
+        return this.monoProcessor.isCancelled();
+    }
+
+    @Override
+    public boolean isDone() {
+        return this.monoProcessor.isTerminated();
+    }
+
+    @Override
+    public void addCallback(ListenableFutureCallback<? super T> callback) {
+        this.registry.addCallback(callback);
+    }
+
+    @Override
+    public void addCallback(SuccessCallback<? super T> successCallback, FailureCallback failureCallback) {
+        this.registry.addSuccessCallback(successCallback);
+        this.registry.addFailureCallback(failureCallback);
+    }
+
+
+    @Nullable
+    protected abstract T adapt(@Nullable S result);
 
 }

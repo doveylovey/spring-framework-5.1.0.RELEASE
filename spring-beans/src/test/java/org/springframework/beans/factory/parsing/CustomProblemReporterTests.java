@@ -37,57 +37,57 @@ import static org.springframework.tests.TestResourceUtils.*;
  */
 public class CustomProblemReporterTests {
 
-	private static final Resource CONTEXT = qualifiedResource(CustomProblemReporterTests.class, "context.xml");
+    private static final Resource CONTEXT = qualifiedResource(CustomProblemReporterTests.class, "context.xml");
 
-	private CollatingProblemReporter problemReporter;
+    private CollatingProblemReporter problemReporter;
 
-	private DefaultListableBeanFactory beanFactory;
+    private DefaultListableBeanFactory beanFactory;
 
-	private XmlBeanDefinitionReader reader;
-
-
-	@Before
-	public void setUp() {
-		this.problemReporter = new CollatingProblemReporter();
-		this.beanFactory = new DefaultListableBeanFactory();
-		this.reader = new XmlBeanDefinitionReader(this.beanFactory);
-		this.reader.setProblemReporter(this.problemReporter);
-	}
-
-	@Test
-	public void testErrorsAreCollated() {
-		this.reader.loadBeanDefinitions(CONTEXT);
-		assertEquals("Incorrect number of errors collated", 4, this.problemReporter.getErrors().length);
-
-		TestBean bean = (TestBean) this.beanFactory.getBean("validBean");
-		assertNotNull(bean);
-	}
+    private XmlBeanDefinitionReader reader;
 
 
-	private static class CollatingProblemReporter implements ProblemReporter {
+    @Before
+    public void setUp() {
+        this.problemReporter = new CollatingProblemReporter();
+        this.beanFactory = new DefaultListableBeanFactory();
+        this.reader = new XmlBeanDefinitionReader(this.beanFactory);
+        this.reader.setProblemReporter(this.problemReporter);
+    }
 
-		private final List<Problem> errors = new ArrayList<>();
+    @Test
+    public void testErrorsAreCollated() {
+        this.reader.loadBeanDefinitions(CONTEXT);
+        assertEquals("Incorrect number of errors collated", 4, this.problemReporter.getErrors().length);
 
-		private final List<Problem> warnings = new ArrayList<>();
+        TestBean bean = (TestBean) this.beanFactory.getBean("validBean");
+        assertNotNull(bean);
+    }
 
-		@Override
-		public void fatal(Problem problem) {
-			throw new BeanDefinitionParsingException(problem);
-		}
 
-		@Override
-		public void error(Problem problem) {
-			this.errors.add(problem);
-		}
+    private static class CollatingProblemReporter implements ProblemReporter {
 
-		public Problem[] getErrors() {
-			return this.errors.toArray(new Problem[this.errors.size()]);
-		}
+        private final List<Problem> errors = new ArrayList<>();
 
-		@Override
-		public void warning(Problem problem) {
-			this.warnings.add(problem);
-		}
-	}
+        private final List<Problem> warnings = new ArrayList<>();
+
+        @Override
+        public void fatal(Problem problem) {
+            throw new BeanDefinitionParsingException(problem);
+        }
+
+        @Override
+        public void error(Problem problem) {
+            this.errors.add(problem);
+        }
+
+        public Problem[] getErrors() {
+            return this.errors.toArray(new Problem[this.errors.size()]);
+        }
+
+        @Override
+        public void warning(Problem problem) {
+            this.warnings.add(problem);
+        }
+    }
 
 }

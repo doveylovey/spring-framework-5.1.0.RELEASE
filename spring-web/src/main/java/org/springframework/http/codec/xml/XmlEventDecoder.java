@@ -57,7 +57,7 @@ import org.springframework.util.xml.StaxUtils;
  *     &lt;child&gt;bar&lt;/child&gt;
  * &lt;/root&gt;
  * </pre>
- *
+ * <p>
  * this decoder will produce a {@link Flux} with the following events:
  *
  * <ol>
@@ -80,91 +80,86 @@ import org.springframework.util.xml.StaxUtils;
  */
 public class XmlEventDecoder extends AbstractDecoder<XMLEvent> {
 
-	private static final XMLInputFactory inputFactory = StaxUtils.createDefensiveInputFactory();
+    private static final XMLInputFactory inputFactory = StaxUtils.createDefensiveInputFactory();
 
-	private static final boolean aaltoPresent = ClassUtils.isPresent(
-			"com.fasterxml.aalto.AsyncXMLStreamReader", XmlEventDecoder.class.getClassLoader());
+    private static final boolean aaltoPresent = ClassUtils.isPresent(
+            "com.fasterxml.aalto.AsyncXMLStreamReader", XmlEventDecoder.class.getClassLoader());
 
-	boolean useAalto = aaltoPresent;
-
-
-	public XmlEventDecoder() {
-		super(MimeTypeUtils.APPLICATION_XML, MimeTypeUtils.TEXT_XML);
-	}
+    boolean useAalto = aaltoPresent;
 
 
-	@Override
-	@SuppressWarnings({"rawtypes", "unchecked"})  // on JDK 9 where XMLEventReader is Iterator<Object>
-	public Flux<XMLEvent> decode(Publisher<DataBuffer> inputStream, ResolvableType elementType,
-			@Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
-
-		Flux<DataBuffer> flux = Flux.from(inputStream);
-		if (this.useAalto) {
-			AaltoDataBufferToXmlEvent aaltoMapper = new AaltoDataBufferToXmlEvent();
-			return flux.flatMap(aaltoMapper)
-					.doFinally(signalType -> aaltoMapper.endOfInput());
-		}
-		else {
-			Mono<DataBuffer> singleBuffer = DataBufferUtils.join(flux);
-			return singleBuffer.
-					flatMapMany(dataBuffer -> {
-						try {
-							InputStream is = dataBuffer.asInputStream();
-							Iterator eventReader = inputFactory.createXMLEventReader(is);
-							return Flux.fromIterable((Iterable<XMLEvent>) () -> eventReader)
-									.doFinally(t -> DataBufferUtils.release(dataBuffer));
-						}
-						catch (XMLStreamException ex) {
-							return Mono.error(ex);
-						}
-					});
-		}
-	}
+    public XmlEventDecoder() {
+        super(MimeTypeUtils.APPLICATION_XML, MimeTypeUtils.TEXT_XML);
+    }
 
 
-	/*
-	 * Separate static class to isolate Aalto dependency.
-	 */
-	private static class AaltoDataBufferToXmlEvent implements Function<DataBuffer, Publisher<? extends XMLEvent>> {
+    @Override
+    @SuppressWarnings({"rawtypes", "unchecked"})  // on JDK 9 where XMLEventReader is Iterator<Object>
+    public Flux<XMLEvent> decode(Publisher<DataBuffer> inputStream, ResolvableType elementType,
+                                 @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
 
-		private static final AsyncXMLInputFactory inputFactory = new InputFactoryImpl();
+        Flux<DataBuffer> flux = Flux.from(inputStream);
+        if (this.useAalto) {
+            AaltoDataBufferToXmlEvent aaltoMapper = new AaltoDataBufferToXmlEvent();
+            return flux.flatMap(aaltoMapper)
+                    .doFinally(signalType -> aaltoMapper.endOfInput());
+        } else {
+            Mono<DataBuffer> singleBuffer = DataBufferUtils.join(flux);
+            return singleBuffer.
+                    flatMapMany(dataBuffer -> {
+                        try {
+                            InputStream is = dataBuffer.asInputStream();
+                            Iterator eventReader = inputFactory.createXMLEventReader(is);
+                            return Flux.fromIterable((Iterable<XMLEvent>) () -> eventReader)
+                                    .doFinally(t -> DataBufferUtils.release(dataBuffer));
+                        } catch (XMLStreamException ex) {
+                            return Mono.error(ex);
+                        }
+                    });
+        }
+    }
 
-		private final AsyncXMLStreamReader<AsyncByteBufferFeeder> streamReader =
-				inputFactory.createAsyncForByteBuffer();
 
-		private final XMLEventAllocator eventAllocator = EventAllocatorImpl.getDefaultInstance();
+    /*
+     * Separate static class to isolate Aalto dependency.
+     */
+    private static class AaltoDataBufferToXmlEvent implements Function<DataBuffer, Publisher<? extends XMLEvent>> {
 
-		@Override
-		public Publisher<? extends XMLEvent> apply(DataBuffer dataBuffer) {
-			try {
-				this.streamReader.getInputFeeder().feedInput(dataBuffer.asByteBuffer());
-				List<XMLEvent> events = new ArrayList<>();
-				while (true) {
-					if (this.streamReader.next() == AsyncXMLStreamReader.EVENT_INCOMPLETE) {
-						// no more events with what currently has been fed to the reader
-						break;
-					}
-					else {
-						XMLEvent event = this.eventAllocator.allocate(this.streamReader);
-						events.add(event);
-						if (event.isEndDocument()) {
-							break;
-						}
-					}
-				}
-				return Flux.fromIterable(events);
-			}
-			catch (XMLStreamException ex) {
-				return Mono.error(ex);
-			}
-			finally {
-				DataBufferUtils.release(dataBuffer);
-			}
-		}
+        private static final AsyncXMLInputFactory inputFactory = new InputFactoryImpl();
 
-		public void endOfInput() {
-			this.streamReader.getInputFeeder().endOfInput();
-		}
-	}
+        private final AsyncXMLStreamReader<AsyncByteBufferFeeder> streamReader =
+                inputFactory.createAsyncForByteBuffer();
+
+        private final XMLEventAllocator eventAllocator = EventAllocatorImpl.getDefaultInstance();
+
+        @Override
+        public Publisher<? extends XMLEvent> apply(DataBuffer dataBuffer) {
+            try {
+                this.streamReader.getInputFeeder().feedInput(dataBuffer.asByteBuffer());
+                List<XMLEvent> events = new ArrayList<>();
+                while (true) {
+                    if (this.streamReader.next() == AsyncXMLStreamReader.EVENT_INCOMPLETE) {
+                        // no more events with what currently has been fed to the reader
+                        break;
+                    } else {
+                        XMLEvent event = this.eventAllocator.allocate(this.streamReader);
+                        events.add(event);
+                        if (event.isEndDocument()) {
+                            break;
+                        }
+                    }
+                }
+                return Flux.fromIterable(events);
+            } catch (XMLStreamException ex) {
+                return Mono.error(ex);
+            } finally {
+                DataBufferUtils.release(dataBuffer);
+            }
+        }
+
+        public void endOfInput() {
+            this.streamReader.getInputFeeder().endOfInput();
+        }
+    }
 
 }

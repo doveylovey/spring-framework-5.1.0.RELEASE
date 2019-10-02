@@ -41,82 +41,82 @@ import static org.junit.Assert.*;
  */
 public class ResourceTransformerSupportTests {
 
-	private static final Duration TIMEOUT = Duration.ofSeconds(5);
+    private static final Duration TIMEOUT = Duration.ofSeconds(5);
 
 
-	private ResourceTransformerChain chain;
+    private ResourceTransformerChain chain;
 
-	private TestResourceTransformerSupport transformer;
-
-
-	@Before
-	public void setup() {
-		VersionResourceResolver versionResolver = new VersionResourceResolver();
-		versionResolver.setStrategyMap(Collections.singletonMap("/**", new ContentVersionStrategy()));
-		PathResourceResolver pathResolver = new PathResourceResolver();
-		pathResolver.setAllowedLocations(new ClassPathResource("test/", getClass()));
-
-		List<ResourceResolver> resolvers = new ArrayList<>();
-		resolvers.add(versionResolver);
-		resolvers.add(pathResolver);
-		ResourceResolverChain resolverChain = new DefaultResourceResolverChain(resolvers);
-
-		this.chain = new DefaultResourceTransformerChain(resolverChain, Collections.emptyList());
-		this.transformer = new TestResourceTransformerSupport();
-		this.transformer.setResourceUrlProvider(createUrlProvider(resolvers));
-	}
-
-	private ResourceUrlProvider createUrlProvider(List<ResourceResolver> resolvers) {
-		ResourceWebHandler handler = new ResourceWebHandler();
-		handler.setLocations(Collections.singletonList(new ClassPathResource("test/", getClass())));
-		handler.setResourceResolvers(resolvers);
-
-		ResourceUrlProvider urlProvider = new ResourceUrlProvider();
-		urlProvider.registerHandlers(Collections.singletonMap("/resources/**", handler));
-		return urlProvider;
-	}
+    private TestResourceTransformerSupport transformer;
 
 
-	@Test
-	public void resolveUrlPath() {
-		MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/resources/main.css"));
-		String resourcePath = "/resources/bar.css";
-		Resource resource = getResource("main.css");
-		String actual = this.transformer.resolveUrlPath(resourcePath, exchange, resource, this.chain).block(TIMEOUT);
+    @Before
+    public void setup() {
+        VersionResourceResolver versionResolver = new VersionResourceResolver();
+        versionResolver.setStrategyMap(Collections.singletonMap("/**", new ContentVersionStrategy()));
+        PathResourceResolver pathResolver = new PathResourceResolver();
+        pathResolver.setAllowedLocations(new ClassPathResource("test/", getClass()));
 
-		assertEquals("/resources/bar-11e16cf79faee7ac698c805cf28248d2.css", actual);
-		assertEquals("/resources/bar-11e16cf79faee7ac698c805cf28248d2.css", actual);
-	}
+        List<ResourceResolver> resolvers = new ArrayList<>();
+        resolvers.add(versionResolver);
+        resolvers.add(pathResolver);
+        ResourceResolverChain resolverChain = new DefaultResourceResolverChain(resolvers);
 
-	@Test
-	public void resolveUrlPathWithRelativePath() {
-		Resource resource = getResource("main.css");
-		MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get(""));
-		String actual = this.transformer.resolveUrlPath("bar.css", exchange, resource, this.chain).block(TIMEOUT);
+        this.chain = new DefaultResourceTransformerChain(resolverChain, Collections.emptyList());
+        this.transformer = new TestResourceTransformerSupport();
+        this.transformer.setResourceUrlProvider(createUrlProvider(resolvers));
+    }
 
-		assertEquals("bar-11e16cf79faee7ac698c805cf28248d2.css", actual);
-	}
+    private ResourceUrlProvider createUrlProvider(List<ResourceResolver> resolvers) {
+        ResourceWebHandler handler = new ResourceWebHandler();
+        handler.setLocations(Collections.singletonList(new ClassPathResource("test/", getClass())));
+        handler.setResourceResolvers(resolvers);
 
-	@Test
-	public void resolveUrlPathWithRelativePathInParentDirectory() {
-		Resource resource = getResource("images/image.png");
-		MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get(""));
-		String actual = this.transformer.resolveUrlPath("../bar.css", exchange, resource, this.chain).block(TIMEOUT);
-
-		assertEquals("../bar-11e16cf79faee7ac698c805cf28248d2.css", actual);
-	}
-
-	private Resource getResource(String filePath) {
-		return new ClassPathResource("test/" + filePath, getClass());
-	}
+        ResourceUrlProvider urlProvider = new ResourceUrlProvider();
+        urlProvider.registerHandlers(Collections.singletonMap("/resources/**", handler));
+        return urlProvider;
+    }
 
 
-	private static class TestResourceTransformerSupport extends ResourceTransformerSupport {
+    @Test
+    public void resolveUrlPath() {
+        MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/resources/main.css"));
+        String resourcePath = "/resources/bar.css";
+        Resource resource = getResource("main.css");
+        String actual = this.transformer.resolveUrlPath(resourcePath, exchange, resource, this.chain).block(TIMEOUT);
 
-		@Override
-		public Mono<Resource> transform(ServerWebExchange ex, Resource res, ResourceTransformerChain chain) {
-			return Mono.error(new IllegalStateException("Should never be called"));
-		}
-	}
+        assertEquals("/resources/bar-11e16cf79faee7ac698c805cf28248d2.css", actual);
+        assertEquals("/resources/bar-11e16cf79faee7ac698c805cf28248d2.css", actual);
+    }
+
+    @Test
+    public void resolveUrlPathWithRelativePath() {
+        Resource resource = getResource("main.css");
+        MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get(""));
+        String actual = this.transformer.resolveUrlPath("bar.css", exchange, resource, this.chain).block(TIMEOUT);
+
+        assertEquals("bar-11e16cf79faee7ac698c805cf28248d2.css", actual);
+    }
+
+    @Test
+    public void resolveUrlPathWithRelativePathInParentDirectory() {
+        Resource resource = getResource("images/image.png");
+        MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get(""));
+        String actual = this.transformer.resolveUrlPath("../bar.css", exchange, resource, this.chain).block(TIMEOUT);
+
+        assertEquals("../bar-11e16cf79faee7ac698c805cf28248d2.css", actual);
+    }
+
+    private Resource getResource(String filePath) {
+        return new ClassPathResource("test/" + filePath, getClass());
+    }
+
+
+    private static class TestResourceTransformerSupport extends ResourceTransformerSupport {
+
+        @Override
+        public Mono<Resource> transform(ServerWebExchange ex, Resource res, ResourceTransformerChain chain) {
+            return Mono.error(new IllegalStateException("Should never be called"));
+        }
+    }
 
 }

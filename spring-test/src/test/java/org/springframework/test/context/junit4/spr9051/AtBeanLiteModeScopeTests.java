@@ -40,62 +40,62 @@ import static org.junit.Assert.*;
 @ContextConfiguration(classes = AtBeanLiteModeScopeTests.LiteBeans.class)
 public class AtBeanLiteModeScopeTests {
 
-	/**
-	 * This is intentionally <b>not</b> annotated with {@code @Configuration}.
-	 */
-	static class LiteBeans {
+    /**
+     * This is intentionally <b>not</b> annotated with {@code @Configuration}.
+     */
+    static class LiteBeans {
 
-		@Bean
-		public LifecycleBean singleton() {
-			LifecycleBean bean = new LifecycleBean("singleton");
-			assertFalse(bean.isInitialized());
-			return bean;
-		}
+        @Bean
+        public LifecycleBean singleton() {
+            LifecycleBean bean = new LifecycleBean("singleton");
+            assertFalse(bean.isInitialized());
+            return bean;
+        }
 
-		@Bean
-		@Scope("prototype")
-		public LifecycleBean prototype() {
-			LifecycleBean bean = new LifecycleBean("prototype");
-			assertFalse(bean.isInitialized());
-			return bean;
-		}
-	}
-
-
-	@Autowired
-	private ApplicationContext applicationContext;
-
-	@Autowired
-	@Qualifier("singleton")
-	private LifecycleBean injectedSingletonBean;
-
-	@Autowired
-	@Qualifier("prototype")
-	private LifecycleBean injectedPrototypeBean;
+        @Bean
+        @Scope("prototype")
+        public LifecycleBean prototype() {
+            LifecycleBean bean = new LifecycleBean("prototype");
+            assertFalse(bean.isInitialized());
+            return bean;
+        }
+    }
 
 
-	@Test
-	public void singletonLiteBean() {
-		assertNotNull(injectedSingletonBean);
-		assertTrue(injectedSingletonBean.isInitialized());
+    @Autowired
+    private ApplicationContext applicationContext;
 
-		LifecycleBean retrievedSingletonBean = applicationContext.getBean("singleton", LifecycleBean.class);
-		assertNotNull(retrievedSingletonBean);
-		assertTrue(retrievedSingletonBean.isInitialized());
+    @Autowired
+    @Qualifier("singleton")
+    private LifecycleBean injectedSingletonBean;
 
-		assertSame(injectedSingletonBean, retrievedSingletonBean);
-	}
+    @Autowired
+    @Qualifier("prototype")
+    private LifecycleBean injectedPrototypeBean;
 
-	@Test
-	public void prototypeLiteBean() {
-		assertNotNull(injectedPrototypeBean);
-		assertTrue(injectedPrototypeBean.isInitialized());
 
-		LifecycleBean retrievedPrototypeBean = applicationContext.getBean("prototype", LifecycleBean.class);
-		assertNotNull(retrievedPrototypeBean);
-		assertTrue(retrievedPrototypeBean.isInitialized());
+    @Test
+    public void singletonLiteBean() {
+        assertNotNull(injectedSingletonBean);
+        assertTrue(injectedSingletonBean.isInitialized());
 
-		assertNotSame(injectedPrototypeBean, retrievedPrototypeBean);
-	}
+        LifecycleBean retrievedSingletonBean = applicationContext.getBean("singleton", LifecycleBean.class);
+        assertNotNull(retrievedSingletonBean);
+        assertTrue(retrievedSingletonBean.isInitialized());
+
+        assertSame(injectedSingletonBean, retrievedSingletonBean);
+    }
+
+    @Test
+    public void prototypeLiteBean() {
+        assertNotNull(injectedPrototypeBean);
+        assertTrue(injectedPrototypeBean.isInitialized());
+
+        LifecycleBean retrievedPrototypeBean = applicationContext.getBean("prototype", LifecycleBean.class);
+        assertNotNull(retrievedPrototypeBean);
+        assertTrue(retrievedPrototypeBean.isInitialized());
+
+        assertNotSame(injectedPrototypeBean, retrievedPrototypeBean);
+    }
 
 }

@@ -51,171 +51,168 @@ import org.springframework.web.server.ServerWebExchange;
  */
 public class JettyRequestUpgradeStrategy implements RequestUpgradeStrategy, Lifecycle {
 
-	private static final ThreadLocal<WebSocketHandlerContainer> adapterHolder =
-			new NamedThreadLocal<>("JettyWebSocketHandlerAdapter");
+    private static final ThreadLocal<WebSocketHandlerContainer> adapterHolder =
+            new NamedThreadLocal<>("JettyWebSocketHandlerAdapter");
 
 
-	@Nullable
-	private WebSocketPolicy webSocketPolicy;
+    @Nullable
+    private WebSocketPolicy webSocketPolicy;
 
-	@Nullable
-	private WebSocketServerFactory factory;
+    @Nullable
+    private WebSocketServerFactory factory;
 
-	@Nullable
-	private volatile ServletContext servletContext;
+    @Nullable
+    private volatile ServletContext servletContext;
 
-	private volatile boolean running = false;
+    private volatile boolean running = false;
 
-	private final Object lifecycleMonitor = new Object();
-
-
-	/**
-	 * Configure a {@link WebSocketPolicy} to use to initialize
-	 * {@link WebSocketServerFactory}.
-	 * @param webSocketPolicy the WebSocket settings
-	 */
-	public void setWebSocketPolicy(WebSocketPolicy webSocketPolicy) {
-		this.webSocketPolicy = webSocketPolicy;
-	}
-
-	/**
-	 * Return the configured {@link WebSocketPolicy}, if any.
-	 */
-	@Nullable
-	public WebSocketPolicy getWebSocketPolicy() {
-		return this.webSocketPolicy;
-	}
+    private final Object lifecycleMonitor = new Object();
 
 
-	@Override
-	public void start() {
-		synchronized (this.lifecycleMonitor) {
-			ServletContext servletContext = this.servletContext;
-			if (!isRunning() && servletContext != null) {
-				this.running = true;
-				try {
-					this.factory = (this.webSocketPolicy != null ?
-							new WebSocketServerFactory(servletContext, this.webSocketPolicy) :
-							new WebSocketServerFactory(servletContext));
-					this.factory.setCreator((request, response) -> {
-						WebSocketHandlerContainer container = adapterHolder.get();
-						String protocol = container.getProtocol();
-						if (protocol != null) {
-							response.setAcceptedSubProtocol(protocol);
-						}
-						return container.getAdapter();
-					});
-					this.factory.start();
-				}
-				catch (Throwable ex) {
-					throw new IllegalStateException("Unable to start WebSocketServerFactory", ex);
-				}
-			}
-		}
-	}
+    /**
+     * Configure a {@link WebSocketPolicy} to use to initialize
+     * {@link WebSocketServerFactory}.
+     *
+     * @param webSocketPolicy the WebSocket settings
+     */
+    public void setWebSocketPolicy(WebSocketPolicy webSocketPolicy) {
+        this.webSocketPolicy = webSocketPolicy;
+    }
 
-	@Override
-	public void stop() {
-		synchronized (this.lifecycleMonitor) {
-			if (isRunning()) {
-				this.running = false;
-				if (this.factory != null) {
-					try {
-						this.factory.stop();
-					}
-					catch (Throwable ex) {
-						throw new IllegalStateException("Failed to stop WebSocketServerFactory", ex);
-					}
-				}
-			}
-		}
-	}
-
-	@Override
-	public boolean isRunning() {
-		return this.running;
-	}
+    /**
+     * Return the configured {@link WebSocketPolicy}, if any.
+     */
+    @Nullable
+    public WebSocketPolicy getWebSocketPolicy() {
+        return this.webSocketPolicy;
+    }
 
 
-	@Override
-	public Mono<Void> upgrade(ServerWebExchange exchange, WebSocketHandler handler,
-			@Nullable String subProtocol, Supplier<HandshakeInfo> handshakeInfoFactory) {
+    @Override
+    public void start() {
+        synchronized (this.lifecycleMonitor) {
+            ServletContext servletContext = this.servletContext;
+            if (!isRunning() && servletContext != null) {
+                this.running = true;
+                try {
+                    this.factory = (this.webSocketPolicy != null ?
+                            new WebSocketServerFactory(servletContext, this.webSocketPolicy) :
+                            new WebSocketServerFactory(servletContext));
+                    this.factory.setCreator((request, response) -> {
+                        WebSocketHandlerContainer container = adapterHolder.get();
+                        String protocol = container.getProtocol();
+                        if (protocol != null) {
+                            response.setAcceptedSubProtocol(protocol);
+                        }
+                        return container.getAdapter();
+                    });
+                    this.factory.start();
+                } catch (Throwable ex) {
+                    throw new IllegalStateException("Unable to start WebSocketServerFactory", ex);
+                }
+            }
+        }
+    }
 
-		ServerHttpRequest request = exchange.getRequest();
-		ServerHttpResponse response = exchange.getResponse();
+    @Override
+    public void stop() {
+        synchronized (this.lifecycleMonitor) {
+            if (isRunning()) {
+                this.running = false;
+                if (this.factory != null) {
+                    try {
+                        this.factory.stop();
+                    } catch (Throwable ex) {
+                        throw new IllegalStateException("Failed to stop WebSocketServerFactory", ex);
+                    }
+                }
+            }
+        }
+    }
 
-		HttpServletRequest servletRequest = getHttpServletRequest(request);
-		HttpServletResponse servletResponse = getHttpServletResponse(response);
-
-		HandshakeInfo handshakeInfo = handshakeInfoFactory.get();
-		DataBufferFactory factory = response.bufferFactory();
-
-		JettyWebSocketHandlerAdapter adapter = new JettyWebSocketHandlerAdapter(
-				handler, session -> new JettyWebSocketSession(session, handshakeInfo, factory));
-
-		startLazily(servletRequest);
-
-		Assert.state(this.factory != null, "No WebSocketServerFactory available");
-		boolean isUpgrade = this.factory.isUpgradeRequest(servletRequest, servletResponse);
-		Assert.isTrue(isUpgrade, "Not a WebSocket handshake");
-
-		try {
-			adapterHolder.set(new WebSocketHandlerContainer(adapter, subProtocol));
-			this.factory.acceptWebSocket(servletRequest, servletResponse);
-		}
-		catch (IOException ex) {
-			return Mono.error(ex);
-		}
-		finally {
-			adapterHolder.remove();
-		}
-
-		return Mono.empty();
-	}
-
-	private HttpServletRequest getHttpServletRequest(ServerHttpRequest request) {
-		Assert.isInstanceOf(AbstractServerHttpRequest.class, request);
-		return ((AbstractServerHttpRequest) request).getNativeRequest();
-	}
-
-	private HttpServletResponse getHttpServletResponse(ServerHttpResponse response) {
-		Assert.isInstanceOf(AbstractServerHttpResponse.class, response);
-		return ((AbstractServerHttpResponse) response).getNativeResponse();
-	}
-
-	private void startLazily(HttpServletRequest request) {
-		if (this.servletContext != null) {
-			return;
-		}
-		synchronized (this.lifecycleMonitor) {
-			if (this.servletContext == null) {
-				this.servletContext = request.getServletContext();
-				start();
-			}
-		}
-	}
+    @Override
+    public boolean isRunning() {
+        return this.running;
+    }
 
 
-	private static class WebSocketHandlerContainer {
+    @Override
+    public Mono<Void> upgrade(ServerWebExchange exchange, WebSocketHandler handler,
+                              @Nullable String subProtocol, Supplier<HandshakeInfo> handshakeInfoFactory) {
 
-		private final JettyWebSocketHandlerAdapter adapter;
+        ServerHttpRequest request = exchange.getRequest();
+        ServerHttpResponse response = exchange.getResponse();
 
-		@Nullable
-		private final String protocol;
+        HttpServletRequest servletRequest = getHttpServletRequest(request);
+        HttpServletResponse servletResponse = getHttpServletResponse(response);
 
-		public WebSocketHandlerContainer(JettyWebSocketHandlerAdapter adapter, @Nullable String protocol) {
-			this.adapter = adapter;
-			this.protocol = protocol;
-		}
+        HandshakeInfo handshakeInfo = handshakeInfoFactory.get();
+        DataBufferFactory factory = response.bufferFactory();
 
-		public JettyWebSocketHandlerAdapter getAdapter() {
-			return this.adapter;
-		}
+        JettyWebSocketHandlerAdapter adapter = new JettyWebSocketHandlerAdapter(
+                handler, session -> new JettyWebSocketSession(session, handshakeInfo, factory));
 
-		@Nullable
-		public String getProtocol() {
-			return this.protocol;
-		}
-	}
+        startLazily(servletRequest);
+
+        Assert.state(this.factory != null, "No WebSocketServerFactory available");
+        boolean isUpgrade = this.factory.isUpgradeRequest(servletRequest, servletResponse);
+        Assert.isTrue(isUpgrade, "Not a WebSocket handshake");
+
+        try {
+            adapterHolder.set(new WebSocketHandlerContainer(adapter, subProtocol));
+            this.factory.acceptWebSocket(servletRequest, servletResponse);
+        } catch (IOException ex) {
+            return Mono.error(ex);
+        } finally {
+            adapterHolder.remove();
+        }
+
+        return Mono.empty();
+    }
+
+    private HttpServletRequest getHttpServletRequest(ServerHttpRequest request) {
+        Assert.isInstanceOf(AbstractServerHttpRequest.class, request);
+        return ((AbstractServerHttpRequest) request).getNativeRequest();
+    }
+
+    private HttpServletResponse getHttpServletResponse(ServerHttpResponse response) {
+        Assert.isInstanceOf(AbstractServerHttpResponse.class, response);
+        return ((AbstractServerHttpResponse) response).getNativeResponse();
+    }
+
+    private void startLazily(HttpServletRequest request) {
+        if (this.servletContext != null) {
+            return;
+        }
+        synchronized (this.lifecycleMonitor) {
+            if (this.servletContext == null) {
+                this.servletContext = request.getServletContext();
+                start();
+            }
+        }
+    }
+
+
+    private static class WebSocketHandlerContainer {
+
+        private final JettyWebSocketHandlerAdapter adapter;
+
+        @Nullable
+        private final String protocol;
+
+        public WebSocketHandlerContainer(JettyWebSocketHandlerAdapter adapter, @Nullable String protocol) {
+            this.adapter = adapter;
+            this.protocol = protocol;
+        }
+
+        public JettyWebSocketHandlerAdapter getAdapter() {
+            return this.adapter;
+        }
+
+        @Nullable
+        public String getProtocol() {
+            return this.protocol;
+        }
+    }
 
 }

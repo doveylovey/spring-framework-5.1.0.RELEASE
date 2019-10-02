@@ -31,63 +31,63 @@ import org.springframework.core.io.Resource;
  */
 class ToStringVisitor implements RouterFunctions.Visitor {
 
-	private static final String NEW_LINE = System.getProperty("line.separator", "\\n");
+    private static final String NEW_LINE = System.getProperty("line.separator", "\\n");
 
-	private final StringBuilder builder = new StringBuilder();
+    private final StringBuilder builder = new StringBuilder();
 
-	private int indent = 0;
+    private int indent = 0;
 
-	@Override
-	public void startNested(RequestPredicate predicate) {
-		indent();
-		this.builder.append(predicate);
-		this.builder.append(" => {");
-		this.builder.append(NEW_LINE);
-		this.indent++;
-	}
+    @Override
+    public void startNested(RequestPredicate predicate) {
+        indent();
+        this.builder.append(predicate);
+        this.builder.append(" => {");
+        this.builder.append(NEW_LINE);
+        this.indent++;
+    }
 
-	@Override
-	public void endNested(RequestPredicate predicate) {
-		this.indent--;
-		indent();
-		this.builder.append('}');
-		this.builder.append(NEW_LINE);
-	}
+    @Override
+    public void endNested(RequestPredicate predicate) {
+        this.indent--;
+        indent();
+        this.builder.append('}');
+        this.builder.append(NEW_LINE);
+    }
 
-	@Override
-	public void route(RequestPredicate predicate, HandlerFunction<?> handlerFunction) {
-		indent();
-		this.builder.append(predicate);
-		this.builder.append(" -> ");
-		this.builder.append(handlerFunction);
-		this.builder.append(NEW_LINE);
-	}
+    @Override
+    public void route(RequestPredicate predicate, HandlerFunction<?> handlerFunction) {
+        indent();
+        this.builder.append(predicate);
+        this.builder.append(" -> ");
+        this.builder.append(handlerFunction);
+        this.builder.append(NEW_LINE);
+    }
 
-	@Override
-	public void resources(Function<ServerRequest, Mono<Resource>> lookupFunction) {
-		indent();
-		this.builder.append(lookupFunction);
-		this.builder.append(NEW_LINE);
-	}
+    @Override
+    public void resources(Function<ServerRequest, Mono<Resource>> lookupFunction) {
+        indent();
+        this.builder.append(lookupFunction);
+        this.builder.append(NEW_LINE);
+    }
 
-	@Override
-	public void unknown(RouterFunction<?> routerFunction) {
-		indent();
-		this.builder.append(routerFunction);
-	}
+    @Override
+    public void unknown(RouterFunction<?> routerFunction) {
+        indent();
+        this.builder.append(routerFunction);
+    }
 
-	private void indent() {
-		for (int i=0; i < this.indent; i++) {
-			this.builder.append(' ');
-		}
-	}
+    private void indent() {
+        for (int i = 0; i < this.indent; i++) {
+            this.builder.append(' ');
+        }
+    }
 
-	@Override
-	public String toString() {
-		String result = this.builder.toString();
-		if (result.endsWith(NEW_LINE)) {
-			result = result.substring(0, result.length() - NEW_LINE.length());
-		}
-		return result;
-	}
+    @Override
+    public String toString() {
+        String result = this.builder.toString();
+        if (result.endsWith(NEW_LINE)) {
+            result = result.substring(0, result.length() - NEW_LINE.length());
+        }
+        return result;
+    }
 }

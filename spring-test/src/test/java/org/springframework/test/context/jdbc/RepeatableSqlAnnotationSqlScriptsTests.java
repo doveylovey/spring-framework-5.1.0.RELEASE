@@ -42,24 +42,24 @@ import static org.junit.Assert.*;
 @DirtiesContext
 public class RepeatableSqlAnnotationSqlScriptsTests extends AbstractTransactionalJUnit4SpringContextTests {
 
-	@Test
-	// test##_ prefix is required for @FixMethodOrder.
-	public void test01_classLevelScripts() {
-		assertNumUsers(1);
-	}
+    @Test
+    // test##_ prefix is required for @FixMethodOrder.
+    public void test01_classLevelScripts() {
+        assertNumUsers(1);
+    }
 
-	@Test
-	@Sql("drop-schema.sql")
-	@Sql("schema.sql")
-	@Sql("data.sql")
-	@Sql("data-add-dogbert.sql")
-	// test##_ prefix is required for @FixMethodOrder.
-	public void test02_methodLevelScripts() {
-		assertNumUsers(2);
-	}
+    @Test
+    @Sql("drop-schema.sql")
+    @Sql("schema.sql")
+    @Sql("data.sql")
+    @Sql("data-add-dogbert.sql")
+    // test##_ prefix is required for @FixMethodOrder.
+    public void test02_methodLevelScripts() {
+        assertNumUsers(2);
+    }
 
-	protected void assertNumUsers(int expected) {
-		assertEquals("Number of rows in the 'user' table.", expected, countRowsInTable("user"));
-	}
+    protected void assertNumUsers(int expected) {
+        assertEquals("Number of rows in the 'user' table.", expected, countRowsInTable("user"));
+    }
 
 }

@@ -41,22 +41,22 @@ import static org.junit.Assert.*;
 @TestPropertySource(locations = "explicit.properties", properties = "explicit = inlined")
 public class InlinedPropertiesOverridePropertiesFilesTestPropertySourceTests {
 
-	@Autowired
-	Environment env;
+    @Autowired
+    Environment env;
 
-	@Value("${explicit}")
-	String explicit;
-
-
-	@Test
-	public void inlinedPropertyOverridesValueFromPropertiesFile() {
-		assertEquals("inlined", env.getProperty("explicit"));
-		assertEquals("inlined", this.explicit);
-	}
+    @Value("${explicit}")
+    String explicit;
 
 
-	@Configuration
-	static class Config {
-	}
+    @Test
+    public void inlinedPropertyOverridesValueFromPropertiesFile() {
+        assertEquals("inlined", env.getProperty("explicit"));
+        assertEquals("inlined", this.explicit);
+    }
+
+
+    @Configuration
+    static class Config {
+    }
 
 }

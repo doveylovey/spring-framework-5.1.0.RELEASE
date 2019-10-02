@@ -36,13 +36,13 @@ import static org.junit.Assert.*;
 @ContextConfiguration
 public class DefaultScriptDetectionXmlSupersedesGroovySpringContextTests {
 
-	@Autowired
-	protected String foo;
+    @Autowired
+    protected String foo;
 
 
-	@Test
-	public final void foo() {
-		assertEquals("The foo field should have been autowired.", "Foo", this.foo);
-	}
+    @Test
+    public final void foo() {
+        assertEquals("The foo field should have been autowired.", "Foo", this.foo);
+    }
 
 }

@@ -47,144 +47,145 @@ import org.springframework.web.server.ServerWebExchange;
  */
 public abstract class HandlerResultHandlerSupport implements Ordered {
 
-	private static final MediaType MEDIA_TYPE_APPLICATION_ALL = new MediaType("application");
+    private static final MediaType MEDIA_TYPE_APPLICATION_ALL = new MediaType("application");
 
 
-	protected final Log logger = LogFactory.getLog(getClass());
+    protected final Log logger = LogFactory.getLog(getClass());
 
-	private final RequestedContentTypeResolver contentTypeResolver;
+    private final RequestedContentTypeResolver contentTypeResolver;
 
-	private final ReactiveAdapterRegistry adapterRegistry;
+    private final ReactiveAdapterRegistry adapterRegistry;
 
-	private int order = LOWEST_PRECEDENCE;
-
-
-	protected HandlerResultHandlerSupport(RequestedContentTypeResolver contentTypeResolver,
-			ReactiveAdapterRegistry adapterRegistry) {
-
-		Assert.notNull(contentTypeResolver, "RequestedContentTypeResolver is required");
-		Assert.notNull(adapterRegistry, "ReactiveAdapterRegistry is required");
-		this.contentTypeResolver = contentTypeResolver;
-		this.adapterRegistry = adapterRegistry;
-	}
+    private int order = LOWEST_PRECEDENCE;
 
 
-	/**
-	 * Return the configured {@link ReactiveAdapterRegistry}.
-	 */
-	public ReactiveAdapterRegistry getAdapterRegistry() {
-		return this.adapterRegistry;
-	}
+    protected HandlerResultHandlerSupport(RequestedContentTypeResolver contentTypeResolver,
+                                          ReactiveAdapterRegistry adapterRegistry) {
 
-	/**
-	 * Return the configured {@link RequestedContentTypeResolver}.
-	 */
-	public RequestedContentTypeResolver getContentTypeResolver() {
-		return this.contentTypeResolver;
-	}
-
-	/**
-	 * Set the order for this result handler relative to others.
-	 * <p>By default set to {@link Ordered#LOWEST_PRECEDENCE}, however see
-	 * Javadoc of sub-classes which may change this default.
-	 * @param order the order
-	 */
-	public void setOrder(int order) {
-		this.order = order;
-	}
-
-	@Override
-	public int getOrder() {
-		return this.order;
-	}
+        Assert.notNull(contentTypeResolver, "RequestedContentTypeResolver is required");
+        Assert.notNull(adapterRegistry, "ReactiveAdapterRegistry is required");
+        this.contentTypeResolver = contentTypeResolver;
+        this.adapterRegistry = adapterRegistry;
+    }
 
 
-	/**
-	 * Get a {@code ReactiveAdapter} for the top-level return value type.
-	 * @return the matching adapter or {@code null}
-	 */
-	@Nullable
-	protected ReactiveAdapter getAdapter(HandlerResult result) {
-		Class<?> returnType = result.getReturnType().getRawClass();
-		return getAdapterRegistry().getAdapter(returnType, result.getReturnValue());
-	}
+    /**
+     * Return the configured {@link ReactiveAdapterRegistry}.
+     */
+    public ReactiveAdapterRegistry getAdapterRegistry() {
+        return this.adapterRegistry;
+    }
 
-	/**
-	 * Select the best media type for the current request through a content
-	 * negotiation algorithm.
-	 * @param exchange the current request
-	 * @param producibleTypesSupplier the media types that can be produced for the current request
-	 * @return the selected media type or {@code null}
-	 */
-	@Nullable
-	protected MediaType selectMediaType(ServerWebExchange exchange,
-			Supplier<List<MediaType>> producibleTypesSupplier) {
+    /**
+     * Return the configured {@link RequestedContentTypeResolver}.
+     */
+    public RequestedContentTypeResolver getContentTypeResolver() {
+        return this.contentTypeResolver;
+    }
 
-		MediaType contentType = exchange.getResponse().getHeaders().getContentType();
-		if (contentType != null && contentType.isConcrete()) {
-			if (logger.isDebugEnabled()) {
-				logger.debug(exchange.getLogPrefix() + "Found 'Content-Type:" + contentType + "' in response");
-			}
-			return contentType;
-		}
+    /**
+     * Set the order for this result handler relative to others.
+     * <p>By default set to {@link Ordered#LOWEST_PRECEDENCE}, however see
+     * Javadoc of sub-classes which may change this default.
+     *
+     * @param order the order
+     */
+    public void setOrder(int order) {
+        this.order = order;
+    }
 
-		List<MediaType> acceptableTypes = getAcceptableTypes(exchange);
-		List<MediaType> producibleTypes = getProducibleTypes(exchange, producibleTypesSupplier);
+    @Override
+    public int getOrder() {
+        return this.order;
+    }
 
-		Set<MediaType> compatibleMediaTypes = new LinkedHashSet<>();
-		for (MediaType acceptable : acceptableTypes) {
-			for (MediaType producible : producibleTypes) {
-				if (acceptable.isCompatibleWith(producible)) {
-					compatibleMediaTypes.add(selectMoreSpecificMediaType(acceptable, producible));
-				}
-			}
-		}
 
-		List<MediaType> result = new ArrayList<>(compatibleMediaTypes);
-		MediaType.sortBySpecificityAndQuality(result);
+    /**
+     * Get a {@code ReactiveAdapter} for the top-level return value type.
+     *
+     * @return the matching adapter or {@code null}
+     */
+    @Nullable
+    protected ReactiveAdapter getAdapter(HandlerResult result) {
+        Class<?> returnType = result.getReturnType().getRawClass();
+        return getAdapterRegistry().getAdapter(returnType, result.getReturnValue());
+    }
 
-		MediaType selected = null;
-		for (MediaType mediaType : result) {
-			if (mediaType.isConcrete()) {
-				selected = mediaType;
-				break;
-			}
-			else if (mediaType.equals(MediaType.ALL) || mediaType.equals(MEDIA_TYPE_APPLICATION_ALL)) {
-				selected = MediaType.APPLICATION_OCTET_STREAM;
-				break;
-			}
-		}
+    /**
+     * Select the best media type for the current request through a content
+     * negotiation algorithm.
+     *
+     * @param exchange                the current request
+     * @param producibleTypesSupplier the media types that can be produced for the current request
+     * @return the selected media type or {@code null}
+     */
+    @Nullable
+    protected MediaType selectMediaType(ServerWebExchange exchange,
+                                        Supplier<List<MediaType>> producibleTypesSupplier) {
 
-		if (selected != null) {
-			if (logger.isDebugEnabled()) {
-				logger.debug("Using '" + selected + "' given " +
-						acceptableTypes + " and supported " + producibleTypes);
-			}
-		}
-		else if (logger.isDebugEnabled()) {
-			logger.debug(exchange.getLogPrefix() +
-					"No match for " + acceptableTypes + ", supported: " + producibleTypes);
-		}
+        MediaType contentType = exchange.getResponse().getHeaders().getContentType();
+        if (contentType != null && contentType.isConcrete()) {
+            if (logger.isDebugEnabled()) {
+                logger.debug(exchange.getLogPrefix() + "Found 'Content-Type:" + contentType + "' in response");
+            }
+            return contentType;
+        }
 
-		return selected;
-	}
+        List<MediaType> acceptableTypes = getAcceptableTypes(exchange);
+        List<MediaType> producibleTypes = getProducibleTypes(exchange, producibleTypesSupplier);
 
-	private List<MediaType> getAcceptableTypes(ServerWebExchange exchange) {
-		return getContentTypeResolver().resolveMediaTypes(exchange);
-	}
+        Set<MediaType> compatibleMediaTypes = new LinkedHashSet<>();
+        for (MediaType acceptable : acceptableTypes) {
+            for (MediaType producible : producibleTypes) {
+                if (acceptable.isCompatibleWith(producible)) {
+                    compatibleMediaTypes.add(selectMoreSpecificMediaType(acceptable, producible));
+                }
+            }
+        }
 
-	@SuppressWarnings("unchecked")
-	private List<MediaType> getProducibleTypes(ServerWebExchange exchange,
-			Supplier<List<MediaType>> producibleTypesSupplier) {
+        List<MediaType> result = new ArrayList<>(compatibleMediaTypes);
+        MediaType.sortBySpecificityAndQuality(result);
 
-		Set<MediaType> mediaTypes = exchange.getAttribute(HandlerMapping.PRODUCIBLE_MEDIA_TYPES_ATTRIBUTE);
-		return (mediaTypes != null ? new ArrayList<>(mediaTypes) : producibleTypesSupplier.get());
-	}
+        MediaType selected = null;
+        for (MediaType mediaType : result) {
+            if (mediaType.isConcrete()) {
+                selected = mediaType;
+                break;
+            } else if (mediaType.equals(MediaType.ALL) || mediaType.equals(MEDIA_TYPE_APPLICATION_ALL)) {
+                selected = MediaType.APPLICATION_OCTET_STREAM;
+                break;
+            }
+        }
 
-	private MediaType selectMoreSpecificMediaType(MediaType acceptable, MediaType producible) {
-		producible = producible.copyQualityValue(acceptable);
-		Comparator<MediaType> comparator = MediaType.SPECIFICITY_COMPARATOR;
-		return (comparator.compare(acceptable, producible) <= 0 ? acceptable : producible);
-	}
+        if (selected != null) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Using '" + selected + "' given " +
+                        acceptableTypes + " and supported " + producibleTypes);
+            }
+        } else if (logger.isDebugEnabled()) {
+            logger.debug(exchange.getLogPrefix() +
+                    "No match for " + acceptableTypes + ", supported: " + producibleTypes);
+        }
+
+        return selected;
+    }
+
+    private List<MediaType> getAcceptableTypes(ServerWebExchange exchange) {
+        return getContentTypeResolver().resolveMediaTypes(exchange);
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<MediaType> getProducibleTypes(ServerWebExchange exchange,
+                                               Supplier<List<MediaType>> producibleTypesSupplier) {
+
+        Set<MediaType> mediaTypes = exchange.getAttribute(HandlerMapping.PRODUCIBLE_MEDIA_TYPES_ATTRIBUTE);
+        return (mediaTypes != null ? new ArrayList<>(mediaTypes) : producibleTypesSupplier.get());
+    }
+
+    private MediaType selectMoreSpecificMediaType(MediaType acceptable, MediaType producible) {
+        producible = producible.copyQualityValue(acceptable);
+        Comparator<MediaType> comparator = MediaType.SPECIFICITY_COMPARATOR;
+        return (comparator.compare(acceptable, producible) <= 0 ? acceptable : producible);
+    }
 
 }

@@ -40,29 +40,29 @@ import static org.junit.jupiter.api.Assertions.*;
  * JUnit Platform, simply run {@link SpringJUnitJupiterTestSuite} as a JUnit 4 test.
  *
  * @author Sam Brannen
- * @since 5.0
  * @see SpringExtension
  * @see ParameterizedTest
+ * @since 5.0
  */
 @SpringJUnitConfig(TestConfig.class)
 class SpringExtensionParameterizedTests {
 
-	@ParameterizedTest
-	@ValueSource(strings = { "Dilbert", "Wally" })
-	void people(String name, @Autowired List<Person> people) {
-		assertTrue(people.stream().map(Person::getName).filter(str -> name.equals(str)).findFirst().isPresent());
-	}
+    @ParameterizedTest
+    @ValueSource(strings = {"Dilbert", "Wally"})
+    void people(String name, @Autowired List<Person> people) {
+        assertTrue(people.stream().map(Person::getName).filter(str -> name.equals(str)).findFirst().isPresent());
+    }
 
-	@ParameterizedTest
-	@CsvSource("dogbert, Dogbert")
-	void dogs(String beanName, String dogName, ApplicationContext context) {
-		assertEquals(dogName, context.getBean(beanName, Dog.class).getName());
-	}
+    @ParameterizedTest
+    @CsvSource("dogbert, Dogbert")
+    void dogs(String beanName, String dogName, ApplicationContext context) {
+        assertEquals(dogName, context.getBean(beanName, Dog.class).getName());
+    }
 
-	@ParameterizedTest
-	@CsvSource({ "garfield, Garfield", "catbert, Catbert" })
-	void cats(String beanName, String catName, ApplicationContext context) {
-		assertEquals(catName, context.getBean(beanName, Cat.class).getName());
-	}
+    @ParameterizedTest
+    @CsvSource({"garfield, Garfield", "catbert, Catbert"})
+    void cats(String beanName, String catName, ApplicationContext context) {
+        assertEquals(catName, context.getBean(beanName, Cat.class).getName());
+    }
 
 }

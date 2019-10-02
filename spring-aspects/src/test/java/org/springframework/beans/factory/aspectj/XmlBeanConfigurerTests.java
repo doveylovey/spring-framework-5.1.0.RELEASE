@@ -27,14 +27,14 @@ import static org.junit.Assert.*;
  */
 public class XmlBeanConfigurerTests {
 
-	@Test
-	public void injection() {
-		try (ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(
-				"org/springframework/beans/factory/aspectj/beanConfigurerTests.xml")) {
+    @Test
+    public void injection() {
+        try (ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(
+                "org/springframework/beans/factory/aspectj/beanConfigurerTests.xml")) {
 
-			ShouldBeConfiguredBySpring myObject = new ShouldBeConfiguredBySpring();
-			assertEquals("Rod", myObject.getName());
-		}
-	}
+            ShouldBeConfiguredBySpring myObject = new ShouldBeConfiguredBySpring();
+            assertEquals("Rod", myObject.getName());
+        }
+    }
 
 }

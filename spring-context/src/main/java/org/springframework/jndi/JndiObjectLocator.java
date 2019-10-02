@@ -40,78 +40,80 @@ import org.springframework.util.StringUtils;
  * initialization of the locator before the JNDI object is available.
  *
  * @author Juergen Hoeller
- * @since 1.1
  * @see #setJndiName
  * @see #setJndiTemplate
  * @see #setJndiEnvironment
  * @see #setResourceRef
  * @see #lookup()
+ * @since 1.1
  */
 public abstract class JndiObjectLocator extends JndiLocatorSupport implements InitializingBean {
 
-	@Nullable
-	private String jndiName;
+    @Nullable
+    private String jndiName;
 
-	@Nullable
-	private Class<?> expectedType;
-
-
-	/**
-	 * Specify the JNDI name to look up. If it doesn't begin with "java:comp/env/"
-	 * this prefix is added automatically if "resourceRef" is set to "true".
-	 * @param jndiName the JNDI name to look up
-	 * @see #setResourceRef
-	 */
-	public void setJndiName(@Nullable String jndiName) {
-		this.jndiName = jndiName;
-	}
-
-	/**
-	 * Return the JNDI name to look up.
-	 */
-	@Nullable
-	public String getJndiName() {
-		return this.jndiName;
-	}
-
-	/**
-	 * Specify the type that the located JNDI object is supposed
-	 * to be assignable to, if any.
-	 */
-	public void setExpectedType(@Nullable Class<?> expectedType) {
-		this.expectedType = expectedType;
-	}
-
-	/**
-	 * Return the type that the located JNDI object is supposed
-	 * to be assignable to, if any.
-	 */
-	@Nullable
-	public Class<?> getExpectedType() {
-		return this.expectedType;
-	}
-
-	@Override
-	public void afterPropertiesSet() throws IllegalArgumentException, NamingException {
-		if (!StringUtils.hasLength(getJndiName())) {
-			throw new IllegalArgumentException("Property 'jndiName' is required");
-		}
-	}
+    @Nullable
+    private Class<?> expectedType;
 
 
-	/**
-	 * Perform the actual JNDI lookup for this locator's target resource.
-	 * @return the located target object
-	 * @throws NamingException if the JNDI lookup failed or if the
-	 * located JNDI object is not assigable to the expected type
-	 * @see #setJndiName
-	 * @see #setExpectedType
-	 * @see #lookup(String, Class)
-	 */
-	protected Object lookup() throws NamingException {
-		String jndiName = getJndiName();
-		Assert.state(jndiName != null, "No JNDI name specified");
-		return lookup(jndiName, getExpectedType());
-	}
+    /**
+     * Specify the JNDI name to look up. If it doesn't begin with "java:comp/env/"
+     * this prefix is added automatically if "resourceRef" is set to "true".
+     *
+     * @param jndiName the JNDI name to look up
+     * @see #setResourceRef
+     */
+    public void setJndiName(@Nullable String jndiName) {
+        this.jndiName = jndiName;
+    }
+
+    /**
+     * Return the JNDI name to look up.
+     */
+    @Nullable
+    public String getJndiName() {
+        return this.jndiName;
+    }
+
+    /**
+     * Specify the type that the located JNDI object is supposed
+     * to be assignable to, if any.
+     */
+    public void setExpectedType(@Nullable Class<?> expectedType) {
+        this.expectedType = expectedType;
+    }
+
+    /**
+     * Return the type that the located JNDI object is supposed
+     * to be assignable to, if any.
+     */
+    @Nullable
+    public Class<?> getExpectedType() {
+        return this.expectedType;
+    }
+
+    @Override
+    public void afterPropertiesSet() throws IllegalArgumentException, NamingException {
+        if (!StringUtils.hasLength(getJndiName())) {
+            throw new IllegalArgumentException("Property 'jndiName' is required");
+        }
+    }
+
+
+    /**
+     * Perform the actual JNDI lookup for this locator's target resource.
+     *
+     * @return the located target object
+     * @throws NamingException if the JNDI lookup failed or if the
+     *                         located JNDI object is not assigable to the expected type
+     * @see #setJndiName
+     * @see #setExpectedType
+     * @see #lookup(String, Class)
+     */
+    protected Object lookup() throws NamingException {
+        String jndiName = getJndiName();
+        Assert.state(jndiName != null, "No JNDI name specified");
+        return lookup(jndiName, getExpectedType());
+    }
 
 }

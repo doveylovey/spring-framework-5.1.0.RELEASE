@@ -35,28 +35,28 @@ import org.springframework.util.MimeTypeUtils;
 public class ByteArrayDecoder extends AbstractDataBufferDecoder<byte[]> {
 
 
-	public ByteArrayDecoder() {
-		super(MimeTypeUtils.ALL);
-	}
+    public ByteArrayDecoder() {
+        super(MimeTypeUtils.ALL);
+    }
 
 
-	@Override
-	public boolean canDecode(ResolvableType elementType, @Nullable MimeType mimeType) {
-		Class<?> clazz = elementType.getRawClass();
-		return (super.canDecode(elementType, mimeType) && byte[].class == clazz);
-	}
+    @Override
+    public boolean canDecode(ResolvableType elementType, @Nullable MimeType mimeType) {
+        Class<?> clazz = elementType.getRawClass();
+        return (super.canDecode(elementType, mimeType) && byte[].class == clazz);
+    }
 
-	@Override
-	protected byte[] decodeDataBuffer(DataBuffer dataBuffer, ResolvableType elementType,
-			@Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
+    @Override
+    protected byte[] decodeDataBuffer(DataBuffer dataBuffer, ResolvableType elementType,
+                                      @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
 
-		byte[] result = new byte[dataBuffer.readableByteCount()];
-		dataBuffer.read(result);
-		DataBufferUtils.release(dataBuffer);
-		if (logger.isDebugEnabled()) {
-			logger.debug(Hints.getLogPrefix(hints) + "Read " + result.length + " bytes");
-		}
-		return result;
-	}
+        byte[] result = new byte[dataBuffer.readableByteCount()];
+        dataBuffer.read(result);
+        DataBufferUtils.release(dataBuffer);
+        if (logger.isDebugEnabled()) {
+            logger.debug(Hints.getLogPrefix(hints) + "Read " + result.length + " bytes");
+        }
+        return result;
+    }
 
 }

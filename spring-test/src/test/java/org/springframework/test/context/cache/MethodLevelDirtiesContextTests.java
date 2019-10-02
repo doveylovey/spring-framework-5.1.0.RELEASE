@@ -52,60 +52,60 @@ import static org.springframework.test.annotation.DirtiesContext.MethodMode.*;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class MethodLevelDirtiesContextTests {
 
-	private static final AtomicInteger contextCount = new AtomicInteger();
+    private static final AtomicInteger contextCount = new AtomicInteger();
 
 
-	@Configuration
-	static class Config {
+    @Configuration
+    static class Config {
 
-		@Bean
-		Integer count() {
-			return contextCount.incrementAndGet();
-		}
-	}
-
-
-	@Autowired
-	private ConfigurableApplicationContext context;
-
-	@Autowired
-	private Integer count;
+        @Bean
+        Integer count() {
+            return contextCount.incrementAndGet();
+        }
+    }
 
 
-	@Test
-	// test## prefix required for @FixMethodOrder.
-	public void test01() throws Exception {
-		performAssertions(1);
-	}
+    @Autowired
+    private ConfigurableApplicationContext context;
 
-	@Test
-	@DirtiesContext(methodMode = BEFORE_METHOD)
-	// test## prefix required for @FixMethodOrder.
-	public void test02_dirtyContextBeforeTestMethod() throws Exception {
-		performAssertions(2);
-	}
+    @Autowired
+    private Integer count;
 
-	@Test
-	@DirtiesContext
-	// test## prefix required for @FixMethodOrder.
-	public void test03_dirtyContextAferTestMethod() throws Exception {
-		performAssertions(2);
-	}
 
-	@Test
-	// test## prefix required for @FixMethodOrder.
-	public void test04() throws Exception {
-		performAssertions(3);
-	}
+    @Test
+    // test## prefix required for @FixMethodOrder.
+    public void test01() throws Exception {
+        performAssertions(1);
+    }
 
-	private void performAssertions(int expectedContextCreationCount) throws Exception {
-		assertNotNull("context must not be null", this.context);
-		assertTrue("context must be active", this.context.isActive());
+    @Test
+    @DirtiesContext(methodMode = BEFORE_METHOD)
+    // test## prefix required for @FixMethodOrder.
+    public void test02_dirtyContextBeforeTestMethod() throws Exception {
+        performAssertions(2);
+    }
 
-		assertNotNull("count must not be null", this.count);
-		assertEquals("count: ", expectedContextCreationCount, this.count.intValue());
+    @Test
+    @DirtiesContext
+    // test## prefix required for @FixMethodOrder.
+    public void test03_dirtyContextAferTestMethod() throws Exception {
+        performAssertions(2);
+    }
 
-		assertEquals("context creation count: ", expectedContextCreationCount, contextCount.get());
-	}
+    @Test
+    // test## prefix required for @FixMethodOrder.
+    public void test04() throws Exception {
+        performAssertions(3);
+    }
+
+    private void performAssertions(int expectedContextCreationCount) throws Exception {
+        assertNotNull("context must not be null", this.context);
+        assertTrue("context must be active", this.context.isActive());
+
+        assertNotNull("count must not be null", this.count);
+        assertEquals("count: ", expectedContextCreationCount, this.count.intValue());
+
+        assertEquals("context creation count: ", expectedContextCreationCount, contextCount.get());
+    }
 
 }

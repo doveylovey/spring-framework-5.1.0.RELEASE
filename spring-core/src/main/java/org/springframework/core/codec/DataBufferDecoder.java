@@ -40,32 +40,32 @@ import org.springframework.util.MimeTypeUtils;
 public class DataBufferDecoder extends AbstractDataBufferDecoder<DataBuffer> {
 
 
-	public DataBufferDecoder() {
-		super(MimeTypeUtils.ALL);
-	}
+    public DataBufferDecoder() {
+        super(MimeTypeUtils.ALL);
+    }
 
 
-	@Override
-	public boolean canDecode(ResolvableType elementType, @Nullable MimeType mimeType) {
-		Class<?> clazz = elementType.getRawClass();
-		return (super.canDecode(elementType, mimeType) && clazz != null && DataBuffer.class.isAssignableFrom(clazz));
-	}
+    @Override
+    public boolean canDecode(ResolvableType elementType, @Nullable MimeType mimeType) {
+        Class<?> clazz = elementType.getRawClass();
+        return (super.canDecode(elementType, mimeType) && clazz != null && DataBuffer.class.isAssignableFrom(clazz));
+    }
 
-	@Override
-	public Flux<DataBuffer> decode(Publisher<DataBuffer> inputStream, ResolvableType elementType,
-			@Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
+    @Override
+    public Flux<DataBuffer> decode(Publisher<DataBuffer> inputStream, ResolvableType elementType,
+                                   @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
 
-		return Flux.from(inputStream);
-	}
+        return Flux.from(inputStream);
+    }
 
-	@Override
-	protected DataBuffer decodeDataBuffer(DataBuffer buffer, ResolvableType elementType,
-			@Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
+    @Override
+    protected DataBuffer decodeDataBuffer(DataBuffer buffer, ResolvableType elementType,
+                                          @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
 
-		if (logger.isDebugEnabled()) {
-			logger.debug(Hints.getLogPrefix(hints) + "Read " + buffer.readableByteCount() + " bytes");
-		}
-		return buffer;
-	}
+        if (logger.isDebugEnabled()) {
+            logger.debug(Hints.getLogPrefix(hints) + "Read " + buffer.readableByteCount() + " bytes");
+        }
+        return buffer;
+    }
 
 }

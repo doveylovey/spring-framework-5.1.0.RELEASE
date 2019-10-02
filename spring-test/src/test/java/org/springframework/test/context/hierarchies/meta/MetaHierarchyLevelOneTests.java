@@ -32,13 +32,13 @@ import static org.junit.Assert.*;
 @MetaMetaContextHierarchyConfig
 public class MetaHierarchyLevelOneTests {
 
-	@Autowired
-	private String foo;
+    @Autowired
+    private String foo;
 
 
-	@Test
-	public void foo() {
-		assertEquals("Dev Foo", foo);
-	}
+    @Test
+    public void foo() {
+        assertEquals("Dev Foo", foo);
+    }
 
 }

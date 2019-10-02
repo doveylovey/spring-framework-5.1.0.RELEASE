@@ -37,39 +37,39 @@ import static org.junit.Assert.*;
  */
 public class DefaultServerRequestBuilderTests {
 
-	private final DataBufferFactory dataBufferFactory = new DefaultDataBufferFactory();
+    private final DataBufferFactory dataBufferFactory = new DefaultDataBufferFactory();
 
 
-	@Test
-	public void from() {
-		MockServerHttpRequest request = MockServerHttpRequest.post("http://example.com")
-				.header("foo", "bar")
-				.build();
-		MockServerWebExchange exchange = MockServerWebExchange.from(request);
+    @Test
+    public void from() {
+        MockServerHttpRequest request = MockServerHttpRequest.post("http://example.com")
+                .header("foo", "bar")
+                .build();
+        MockServerWebExchange exchange = MockServerWebExchange.from(request);
 
-		ServerRequest other =
-				ServerRequest.create(exchange, HandlerStrategies.withDefaults().messageReaders());
+        ServerRequest other =
+                ServerRequest.create(exchange, HandlerStrategies.withDefaults().messageReaders());
 
-		Flux<DataBuffer> body = Flux.just("baz")
-				.map(s -> s.getBytes(StandardCharsets.UTF_8))
-				.map(dataBufferFactory::wrap);
+        Flux<DataBuffer> body = Flux.just("baz")
+                .map(s -> s.getBytes(StandardCharsets.UTF_8))
+                .map(dataBufferFactory::wrap);
 
-		ServerRequest result = ServerRequest.from(other)
-				.method(HttpMethod.HEAD)
-				.headers(httpHeaders -> httpHeaders.set("foo", "baar"))
-				.cookies(cookies -> cookies.set("baz", ResponseCookie.from("baz", "quux").build()))
-				.body(body)
-				.build();
+        ServerRequest result = ServerRequest.from(other)
+                .method(HttpMethod.HEAD)
+                .headers(httpHeaders -> httpHeaders.set("foo", "baar"))
+                .cookies(cookies -> cookies.set("baz", ResponseCookie.from("baz", "quux").build()))
+                .body(body)
+                .build();
 
-		assertEquals(HttpMethod.HEAD, result.method());
-		assertEquals(1, result.headers().asHttpHeaders().size());
-		assertEquals("baar", result.headers().asHttpHeaders().getFirst("foo"));
-		assertEquals(1, result.cookies().size());
-		assertEquals("quux", result.cookies().getFirst("baz").getValue());
+        assertEquals(HttpMethod.HEAD, result.method());
+        assertEquals(1, result.headers().asHttpHeaders().size());
+        assertEquals("baar", result.headers().asHttpHeaders().getFirst("foo"));
+        assertEquals(1, result.cookies().size());
+        assertEquals("quux", result.cookies().getFirst("baz").getValue());
 
-		StepVerifier.create(result.bodyToFlux(String.class))
-				.expectNext("baz")
-				.verifyComplete();
-	}
+        StepVerifier.create(result.bodyToFlux(String.class))
+                .expectNext("baz")
+                .verifyComplete();
+    }
 
 }

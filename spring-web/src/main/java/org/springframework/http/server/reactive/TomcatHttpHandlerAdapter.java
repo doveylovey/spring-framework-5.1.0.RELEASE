@@ -38,93 +38,90 @@ import org.springframework.util.Assert;
  * from the request and writing to the response with {@link ByteBuffer}.
  *
  * @author Violeta Georgieva
- * @since 5.0
  * @see org.springframework.web.server.adapter.AbstractReactiveWebInitializer
+ * @since 5.0
  */
 public class TomcatHttpHandlerAdapter extends ServletHttpHandlerAdapter {
 
 
-	public TomcatHttpHandlerAdapter(HttpHandler httpHandler) {
-		super(httpHandler);
-	}
+    public TomcatHttpHandlerAdapter(HttpHandler httpHandler) {
+        super(httpHandler);
+    }
 
 
-	@Override
-	protected ServletServerHttpRequest createRequest(HttpServletRequest request, AsyncContext asyncContext)
-			throws IOException, URISyntaxException {
+    @Override
+    protected ServletServerHttpRequest createRequest(HttpServletRequest request, AsyncContext asyncContext)
+            throws IOException, URISyntaxException {
 
-		Assert.notNull(getServletPath(), "servletPath is not initialized.");
-		return new TomcatServerHttpRequest(
-				request, asyncContext, getServletPath(), getDataBufferFactory(), getBufferSize());
-	}
+        Assert.notNull(getServletPath(), "servletPath is not initialized.");
+        return new TomcatServerHttpRequest(
+                request, asyncContext, getServletPath(), getDataBufferFactory(), getBufferSize());
+    }
 
-	@Override
-	protected ServletServerHttpResponse createResponse(HttpServletResponse response,
-			AsyncContext asyncContext, ServletServerHttpRequest request) throws IOException {
+    @Override
+    protected ServletServerHttpResponse createResponse(HttpServletResponse response,
+                                                       AsyncContext asyncContext, ServletServerHttpRequest request) throws IOException {
 
-		return new TomcatServerHttpResponse(
-				response, asyncContext, getDataBufferFactory(), getBufferSize(), request);
-	}
-
-
-	private final class TomcatServerHttpRequest extends ServletServerHttpRequest {
-
-		public TomcatServerHttpRequest(HttpServletRequest request, AsyncContext context,
-				String servletPath, DataBufferFactory factory, int bufferSize)
-				throws IOException, URISyntaxException {
-
-			super(request, context, servletPath, factory, bufferSize);
-		}
-
-		@Override
-		protected DataBuffer readFromInputStream() throws IOException {
-			boolean release = true;
-			int capacity = getBufferSize();
-			DataBuffer dataBuffer = getDataBufferFactory().allocateBuffer(capacity);
-			try {
-				ByteBuffer byteBuffer = dataBuffer.asByteBuffer(0, capacity);
-
-				ServletRequest request = getNativeRequest();
-				int read = ((CoyoteInputStream) request.getInputStream()).read(byteBuffer);
-				logBytesRead(read);
-
-				if (read > 0) {
-					dataBuffer.writePosition(read);
-					release = false;
-					return dataBuffer;
-				}
-				else if (read == -1) {
-					return EOF_BUFFER;
-				}
-				else {
-					return null;
-				}
-			}
-			finally {
-				if (release) {
-					DataBufferUtils.release(dataBuffer);
-				}
-			}
-		}
-	}
+        return new TomcatServerHttpResponse(
+                response, asyncContext, getDataBufferFactory(), getBufferSize(), request);
+    }
 
 
-	private static final class TomcatServerHttpResponse extends ServletServerHttpResponse {
+    private final class TomcatServerHttpRequest extends ServletServerHttpRequest {
 
-		public TomcatServerHttpResponse(HttpServletResponse response, AsyncContext context,
-				DataBufferFactory factory, int bufferSize, ServletServerHttpRequest request) throws IOException {
+        public TomcatServerHttpRequest(HttpServletRequest request, AsyncContext context,
+                                       String servletPath, DataBufferFactory factory, int bufferSize)
+                throws IOException, URISyntaxException {
 
-			super(response, context, factory, bufferSize, request);
-		}
+            super(request, context, servletPath, factory, bufferSize);
+        }
 
-		@Override
-		protected int writeToOutputStream(DataBuffer dataBuffer) throws IOException {
-			ByteBuffer input = dataBuffer.asByteBuffer();
-			int len = input.remaining();
-			ServletResponse response = getNativeResponse();
-			((CoyoteOutputStream) response.getOutputStream()).write(input);
-			return len;
-		}
-	}
+        @Override
+        protected DataBuffer readFromInputStream() throws IOException {
+            boolean release = true;
+            int capacity = getBufferSize();
+            DataBuffer dataBuffer = getDataBufferFactory().allocateBuffer(capacity);
+            try {
+                ByteBuffer byteBuffer = dataBuffer.asByteBuffer(0, capacity);
+
+                ServletRequest request = getNativeRequest();
+                int read = ((CoyoteInputStream) request.getInputStream()).read(byteBuffer);
+                logBytesRead(read);
+
+                if (read > 0) {
+                    dataBuffer.writePosition(read);
+                    release = false;
+                    return dataBuffer;
+                } else if (read == -1) {
+                    return EOF_BUFFER;
+                } else {
+                    return null;
+                }
+            } finally {
+                if (release) {
+                    DataBufferUtils.release(dataBuffer);
+                }
+            }
+        }
+    }
+
+
+    private static final class TomcatServerHttpResponse extends ServletServerHttpResponse {
+
+        public TomcatServerHttpResponse(HttpServletResponse response, AsyncContext context,
+                                        DataBufferFactory factory, int bufferSize, ServletServerHttpRequest request) throws IOException {
+
+            super(response, context, factory, bufferSize, request);
+        }
+
+        @Override
+        protected int writeToOutputStream(DataBuffer dataBuffer) throws IOException {
+            ByteBuffer input = dataBuffer.asByteBuffer();
+            int len = input.remaining();
+            ServletResponse response = getNativeResponse();
+            ((CoyoteOutputStream) response.getOutputStream()).write(input);
+            return len;
+        }
+    }
 
 }

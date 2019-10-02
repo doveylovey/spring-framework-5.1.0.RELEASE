@@ -41,142 +41,142 @@ import static org.springframework.mock.http.server.reactive.test.MockServerHttpR
  */
 public class CachingResourceResolverTests {
 
-	private static final Duration TIMEOUT = Duration.ofSeconds(5);
+    private static final Duration TIMEOUT = Duration.ofSeconds(5);
 
 
-	private Cache cache;
+    private Cache cache;
 
-	private ResourceResolverChain chain;
+    private ResourceResolverChain chain;
 
-	private List<Resource> locations;
-
-
-	@Before
-	public void setup() {
-
-		this.cache = new ConcurrentMapCache("resourceCache");
-
-		List<ResourceResolver> resolvers = new ArrayList<>();
-		resolvers.add(new CachingResourceResolver(this.cache));
-		resolvers.add(new PathResourceResolver());
-		this.chain = new DefaultResourceResolverChain(resolvers);
-
-		this.locations = new ArrayList<>();
-		this.locations.add(new ClassPathResource("test/", getClass()));
-	}
+    private List<Resource> locations;
 
 
-	@Test
-	public void resolveResourceInternal() {
-		Resource expected = new ClassPathResource("test/bar.css", getClass());
-		MockServerWebExchange exchange = MockServerWebExchange.from(get(""));
-		Resource actual = this.chain.resolveResource(exchange, "bar.css", this.locations).block(TIMEOUT);
+    @Before
+    public void setup() {
 
-		assertNotSame(expected, actual);
-		assertEquals(expected, actual);
-	}
+        this.cache = new ConcurrentMapCache("resourceCache");
 
-	@Test
-	public void resolveResourceInternalFromCache() {
-		Resource expected = Mockito.mock(Resource.class);
-		this.cache.put(resourceKey("bar.css"), expected);
+        List<ResourceResolver> resolvers = new ArrayList<>();
+        resolvers.add(new CachingResourceResolver(this.cache));
+        resolvers.add(new PathResourceResolver());
+        this.chain = new DefaultResourceResolverChain(resolvers);
 
-		MockServerWebExchange exchange = MockServerWebExchange.from(get(""));
-		Resource actual = this.chain.resolveResource(exchange, "bar.css", this.locations).block(TIMEOUT);
-
-		assertSame(expected, actual);
-	}
-
-	@Test
-	public void resolveResourceInternalNoMatch() {
-		MockServerWebExchange exchange = MockServerWebExchange.from(get(""));
-		assertNull(this.chain.resolveResource(exchange, "invalid.css", this.locations).block(TIMEOUT));
-	}
-
-	@Test
-	public void resolverUrlPath() {
-		String expected = "/foo.css";
-		String actual = this.chain.resolveUrlPath(expected, this.locations).block(TIMEOUT);
-
-		assertEquals(expected, actual);
-	}
-
-	@Test
-	public void resolverUrlPathFromCache() {
-		String expected = "cached-imaginary.css";
-		this.cache.put(CachingResourceResolver.RESOLVED_URL_PATH_CACHE_KEY_PREFIX + "imaginary.css", expected);
-		String actual = this.chain.resolveUrlPath("imaginary.css", this.locations).block(TIMEOUT);
-
-		assertEquals(expected, actual);
-	}
-
-	@Test
-	public void resolverUrlPathNoMatch() {
-		assertNull(this.chain.resolveUrlPath("invalid.css", this.locations).block(TIMEOUT));
-	}
-
-	@Test
-	public void resolveResourceAcceptEncodingInCacheKey() throws IOException {
-
-		String file = "bar.css";
-		EncodedResourceResolverTests.createGzippedFile(file);
-
-		// 1. Resolve plain resource
-
-		MockServerWebExchange exchange = MockServerWebExchange.from(get(file));
-		Resource expected = this.chain.resolveResource(exchange, file, this.locations).block(TIMEOUT);
-
-		String cacheKey = resourceKey(file);
-		assertSame(expected, this.cache.get(cacheKey).get());
+        this.locations = new ArrayList<>();
+        this.locations.add(new ClassPathResource("test/", getClass()));
+    }
 
 
-		// 2. Resolve with Accept-Encoding
+    @Test
+    public void resolveResourceInternal() {
+        Resource expected = new ClassPathResource("test/bar.css", getClass());
+        MockServerWebExchange exchange = MockServerWebExchange.from(get(""));
+        Resource actual = this.chain.resolveResource(exchange, "bar.css", this.locations).block(TIMEOUT);
 
-		exchange = MockServerWebExchange.from(get(file)
-				.header("Accept-Encoding", "gzip ; a=b  , deflate ,  br  ; c=d "));
-		expected = this.chain.resolveResource(exchange, file, this.locations).block(TIMEOUT);
+        assertNotSame(expected, actual);
+        assertEquals(expected, actual);
+    }
 
-		cacheKey = resourceKey(file + "+encoding=br,gzip");
-		assertSame(expected, this.cache.get(cacheKey).get());
+    @Test
+    public void resolveResourceInternalFromCache() {
+        Resource expected = Mockito.mock(Resource.class);
+        this.cache.put(resourceKey("bar.css"), expected);
 
-		// 3. Resolve with Accept-Encoding but no matching codings
+        MockServerWebExchange exchange = MockServerWebExchange.from(get(""));
+        Resource actual = this.chain.resolveResource(exchange, "bar.css", this.locations).block(TIMEOUT);
 
-		exchange = MockServerWebExchange.from(get(file).header("Accept-Encoding", "deflate"));
-		expected = this.chain.resolveResource(exchange, file, this.locations).block(TIMEOUT);
+        assertSame(expected, actual);
+    }
 
-		cacheKey = resourceKey(file);
-		assertSame(expected, this.cache.get(cacheKey).get());
-	}
+    @Test
+    public void resolveResourceInternalNoMatch() {
+        MockServerWebExchange exchange = MockServerWebExchange.from(get(""));
+        assertNull(this.chain.resolveResource(exchange, "invalid.css", this.locations).block(TIMEOUT));
+    }
 
-	@Test
-	public void resolveResourceNoAcceptEncoding() {
-		String file = "bar.css";
-		MockServerWebExchange exchange = MockServerWebExchange.from(get(file));
-		Resource expected = this.chain.resolveResource(exchange, file, this.locations).block(TIMEOUT);
+    @Test
+    public void resolverUrlPath() {
+        String expected = "/foo.css";
+        String actual = this.chain.resolveUrlPath(expected, this.locations).block(TIMEOUT);
 
-		String cacheKey = resourceKey(file);
-		Object actual = this.cache.get(cacheKey).get();
+        assertEquals(expected, actual);
+    }
 
-		assertEquals(expected, actual);
-	}
+    @Test
+    public void resolverUrlPathFromCache() {
+        String expected = "cached-imaginary.css";
+        this.cache.put(CachingResourceResolver.RESOLVED_URL_PATH_CACHE_KEY_PREFIX + "imaginary.css", expected);
+        String actual = this.chain.resolveUrlPath("imaginary.css", this.locations).block(TIMEOUT);
 
-	@Test
-	public void resolveResourceMatchingEncoding() {
-		Resource resource = Mockito.mock(Resource.class);
-		Resource gzipped = Mockito.mock(Resource.class);
-		this.cache.put(resourceKey("bar.css"), resource);
-		this.cache.put(resourceKey("bar.css+encoding=gzip"), gzipped);
+        assertEquals(expected, actual);
+    }
 
-		String file = "bar.css";
-		MockServerWebExchange exchange = MockServerWebExchange.from(get(file));
-		assertSame(resource, this.chain.resolveResource(exchange, file, this.locations).block(TIMEOUT));
+    @Test
+    public void resolverUrlPathNoMatch() {
+        assertNull(this.chain.resolveUrlPath("invalid.css", this.locations).block(TIMEOUT));
+    }
 
-		exchange = MockServerWebExchange.from(get(file).header("Accept-Encoding", "gzip"));
-		assertSame(gzipped, this.chain.resolveResource(exchange, file, this.locations).block(TIMEOUT));
-	}
+    @Test
+    public void resolveResourceAcceptEncodingInCacheKey() throws IOException {
 
-	private static String resourceKey(String key) {
-		return CachingResourceResolver.RESOLVED_RESOURCE_CACHE_KEY_PREFIX + key;
-	}
+        String file = "bar.css";
+        EncodedResourceResolverTests.createGzippedFile(file);
+
+        // 1. Resolve plain resource
+
+        MockServerWebExchange exchange = MockServerWebExchange.from(get(file));
+        Resource expected = this.chain.resolveResource(exchange, file, this.locations).block(TIMEOUT);
+
+        String cacheKey = resourceKey(file);
+        assertSame(expected, this.cache.get(cacheKey).get());
+
+
+        // 2. Resolve with Accept-Encoding
+
+        exchange = MockServerWebExchange.from(get(file)
+                .header("Accept-Encoding", "gzip ; a=b  , deflate ,  br  ; c=d "));
+        expected = this.chain.resolveResource(exchange, file, this.locations).block(TIMEOUT);
+
+        cacheKey = resourceKey(file + "+encoding=br,gzip");
+        assertSame(expected, this.cache.get(cacheKey).get());
+
+        // 3. Resolve with Accept-Encoding but no matching codings
+
+        exchange = MockServerWebExchange.from(get(file).header("Accept-Encoding", "deflate"));
+        expected = this.chain.resolveResource(exchange, file, this.locations).block(TIMEOUT);
+
+        cacheKey = resourceKey(file);
+        assertSame(expected, this.cache.get(cacheKey).get());
+    }
+
+    @Test
+    public void resolveResourceNoAcceptEncoding() {
+        String file = "bar.css";
+        MockServerWebExchange exchange = MockServerWebExchange.from(get(file));
+        Resource expected = this.chain.resolveResource(exchange, file, this.locations).block(TIMEOUT);
+
+        String cacheKey = resourceKey(file);
+        Object actual = this.cache.get(cacheKey).get();
+
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void resolveResourceMatchingEncoding() {
+        Resource resource = Mockito.mock(Resource.class);
+        Resource gzipped = Mockito.mock(Resource.class);
+        this.cache.put(resourceKey("bar.css"), resource);
+        this.cache.put(resourceKey("bar.css+encoding=gzip"), gzipped);
+
+        String file = "bar.css";
+        MockServerWebExchange exchange = MockServerWebExchange.from(get(file));
+        assertSame(resource, this.chain.resolveResource(exchange, file, this.locations).block(TIMEOUT));
+
+        exchange = MockServerWebExchange.from(get(file).header("Accept-Encoding", "gzip"));
+        assertSame(gzipped, this.chain.resolveResource(exchange, file, this.locations).block(TIMEOUT));
+    }
+
+    private static String resourceKey(String key) {
+        return CachingResourceResolver.RESOLVED_RESOURCE_CACHE_KEY_PREFIX + key;
+    }
 
 }

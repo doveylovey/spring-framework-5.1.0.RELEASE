@@ -38,78 +38,79 @@ import org.springframework.util.Assert;
  * delegate to the target {@link ConnectionFactory}.
  *
  * @author Juergen Hoeller
- * @since 1.2
  * @see #getConnection
+ * @since 1.2
  */
 @SuppressWarnings("serial")
 public class DelegatingConnectionFactory implements ConnectionFactory, InitializingBean {
 
-	@Nullable
-	private ConnectionFactory targetConnectionFactory;
+    @Nullable
+    private ConnectionFactory targetConnectionFactory;
 
 
-	/**
-	 * Set the target ConnectionFactory that this ConnectionFactory should delegate to.
-	 */
-	public void setTargetConnectionFactory(@Nullable ConnectionFactory targetConnectionFactory) {
-		this.targetConnectionFactory = targetConnectionFactory;
-	}
+    /**
+     * Set the target ConnectionFactory that this ConnectionFactory should delegate to.
+     */
+    public void setTargetConnectionFactory(@Nullable ConnectionFactory targetConnectionFactory) {
+        this.targetConnectionFactory = targetConnectionFactory;
+    }
 
-	/**
-	 * Return the target ConnectionFactory that this ConnectionFactory should delegate to.
-	 */
-	@Nullable
-	public ConnectionFactory getTargetConnectionFactory() {
-		return this.targetConnectionFactory;
-	}
+    /**
+     * Return the target ConnectionFactory that this ConnectionFactory should delegate to.
+     */
+    @Nullable
+    public ConnectionFactory getTargetConnectionFactory() {
+        return this.targetConnectionFactory;
+    }
 
-	/**
-	 * Obtain the target {@code ConnectionFactory} for actual use (never {@code null}).
-	 * @since 5.0
-	 */
-	protected ConnectionFactory obtainTargetConnectionFactory() {
-		ConnectionFactory connectionFactory = getTargetConnectionFactory();
-		Assert.state(connectionFactory != null, "No 'targetConnectionFactory' set");
-		return connectionFactory;
-	}
-
-
-	@Override
-	public void afterPropertiesSet() {
-		if (getTargetConnectionFactory() == null) {
-			throw new IllegalArgumentException("Property 'targetConnectionFactory' is required");
-		}
-	}
+    /**
+     * Obtain the target {@code ConnectionFactory} for actual use (never {@code null}).
+     *
+     * @since 5.0
+     */
+    protected ConnectionFactory obtainTargetConnectionFactory() {
+        ConnectionFactory connectionFactory = getTargetConnectionFactory();
+        Assert.state(connectionFactory != null, "No 'targetConnectionFactory' set");
+        return connectionFactory;
+    }
 
 
-	@Override
-	public Connection getConnection() throws ResourceException {
-		return obtainTargetConnectionFactory().getConnection();
-	}
+    @Override
+    public void afterPropertiesSet() {
+        if (getTargetConnectionFactory() == null) {
+            throw new IllegalArgumentException("Property 'targetConnectionFactory' is required");
+        }
+    }
 
-	@Override
-	public Connection getConnection(ConnectionSpec connectionSpec) throws ResourceException {
-		return obtainTargetConnectionFactory().getConnection(connectionSpec);
-	}
 
-	@Override
-	public RecordFactory getRecordFactory() throws ResourceException {
-		return obtainTargetConnectionFactory().getRecordFactory();
-	}
+    @Override
+    public Connection getConnection() throws ResourceException {
+        return obtainTargetConnectionFactory().getConnection();
+    }
 
-	@Override
-	public ResourceAdapterMetaData getMetaData() throws ResourceException {
-		return obtainTargetConnectionFactory().getMetaData();
-	}
+    @Override
+    public Connection getConnection(ConnectionSpec connectionSpec) throws ResourceException {
+        return obtainTargetConnectionFactory().getConnection(connectionSpec);
+    }
 
-	@Override
-	public Reference getReference() throws NamingException {
-		return obtainTargetConnectionFactory().getReference();
-	}
+    @Override
+    public RecordFactory getRecordFactory() throws ResourceException {
+        return obtainTargetConnectionFactory().getRecordFactory();
+    }
 
-	@Override
-	public void setReference(Reference reference) {
-		obtainTargetConnectionFactory().setReference(reference);
-	}
+    @Override
+    public ResourceAdapterMetaData getMetaData() throws ResourceException {
+        return obtainTargetConnectionFactory().getMetaData();
+    }
+
+    @Override
+    public Reference getReference() throws NamingException {
+        return obtainTargetConnectionFactory().getReference();
+    }
+
+    @Override
+    public void setReference(Reference reference) {
+        obtainTargetConnectionFactory().setReference(reference);
+    }
 
 }

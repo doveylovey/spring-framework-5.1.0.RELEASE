@@ -40,13 +40,13 @@ import static org.junit.Assert.*;
 @ContextConfiguration("DefaultLocationsBaseTests-context.xml")
 public class ExplicitLocationsBaseTests {
 
-	@Autowired
-	protected Employee employee;
+    @Autowired
+    protected Employee employee;
 
 
-	@Test
-	public void verifyEmployeeSetFromBaseContextConfig() {
-		assertNotNull("The employee should have been autowired.", this.employee);
-		assertEquals("John Smith", this.employee.getName());
-	}
+    @Test
+    public void verifyEmployeeSetFromBaseContextConfig() {
+        assertNotNull("The employee should have been autowired.", this.employee);
+        assertEquals("John Smith", this.employee.getName());
+    }
 }

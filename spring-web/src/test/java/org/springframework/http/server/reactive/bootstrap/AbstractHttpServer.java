@@ -32,152 +32,149 @@ import org.springframework.util.StopWatch;
  */
 public abstract class AbstractHttpServer implements HttpServer {
 
-	protected Log logger = LogFactory.getLog(getClass().getName());
+    protected Log logger = LogFactory.getLog(getClass().getName());
 
-	private String host = "0.0.0.0";
+    private String host = "0.0.0.0";
 
-	private int port = 0;
+    private int port = 0;
 
-	private HttpHandler httpHandler;
+    private HttpHandler httpHandler;
 
-	private Map<String, HttpHandler> handlerMap;
+    private Map<String, HttpHandler> handlerMap;
 
-	private volatile boolean running;
+    private volatile boolean running;
 
-	private final Object lifecycleMonitor = new Object();
-
-
-	@Override
-	public void setHost(String host) {
-		this.host = host;
-	}
-
-	public String getHost() {
-		return host;
-	}
-
-	@Override
-	public void setPort(int port) {
-		this.port = port;
-	}
-
-	@Override
-	public int getPort() {
-		return this.port;
-	}
-
-	@Override
-	public void setHandler(HttpHandler handler) {
-		this.httpHandler = handler;
-	}
-
-	public HttpHandler getHttpHandler() {
-		return this.httpHandler;
-	}
-
-	public void registerHttpHandler(String contextPath, HttpHandler handler) {
-		if (this.handlerMap == null) {
-			this.handlerMap = new LinkedHashMap<>();
-		}
-		this.handlerMap.put(contextPath, handler);
-	}
-
-	public Map<String, HttpHandler> getHttpHandlerMap() {
-		return this.handlerMap;
-	}
-
-	protected HttpHandler resolveHttpHandler() {
-		return (getHttpHandlerMap() != null ?
-				new ContextPathCompositeHandler(getHttpHandlerMap()) : getHttpHandler());
-	}
+    private final Object lifecycleMonitor = new Object();
 
 
-	// InitializingBean
+    @Override
+    public void setHost(String host) {
+        this.host = host;
+    }
 
-	@Override
-	public final void afterPropertiesSet() throws Exception {
-		Assert.notNull(this.host, "Host must not be null");
-		Assert.isTrue(this.port >= 0, "Port must not be a negative number");
-		Assert.isTrue(this.httpHandler != null || this.handlerMap != null, "No HttpHandler configured");
-		Assert.state(!this.running, "Cannot reconfigure while running");
+    public String getHost() {
+        return host;
+    }
 
-		synchronized (this.lifecycleMonitor) {
-			initServer();
-		}
-	}
+    @Override
+    public void setPort(int port) {
+        this.port = port;
+    }
 
-	protected abstract void initServer() throws Exception;
+    @Override
+    public int getPort() {
+        return this.port;
+    }
 
+    @Override
+    public void setHandler(HttpHandler handler) {
+        this.httpHandler = handler;
+    }
 
-	// Lifecycle
+    public HttpHandler getHttpHandler() {
+        return this.httpHandler;
+    }
 
-	@Override
-	public final void start() {
-		synchronized (this.lifecycleMonitor) {
-			if (!isRunning()) {
-				String serverName = getClass().getSimpleName();
-				if (logger.isDebugEnabled()) {
-					logger.debug("Starting " + serverName + "...");
-				}
-				this.running = true;
-				try {
-					StopWatch stopWatch = new StopWatch();
-					stopWatch.start();
-					startInternal();
-					long millis = stopWatch.getTotalTimeMillis();
-					if (logger.isDebugEnabled()) {
-						logger.debug("Server started on port " + getPort() + "(" + millis + " millis).");
-					}
-				}
-				catch (Throwable ex) {
-					throw new IllegalStateException(ex);
-				}
-			}
-		}
+    public void registerHttpHandler(String contextPath, HttpHandler handler) {
+        if (this.handlerMap == null) {
+            this.handlerMap = new LinkedHashMap<>();
+        }
+        this.handlerMap.put(contextPath, handler);
+    }
 
-	}
+    public Map<String, HttpHandler> getHttpHandlerMap() {
+        return this.handlerMap;
+    }
 
-	protected abstract void startInternal() throws Exception;
-
-	@Override
-	public final void stop() {
-		synchronized (this.lifecycleMonitor) {
-			if (isRunning()) {
-				String serverName = getClass().getSimpleName();
-				logger.debug("Stopping " + serverName + "...");
-				this.running = false;
-				try {
-					StopWatch stopWatch = new StopWatch();
-					stopWatch.start();
-					stopInternal();
-					logger.debug("Server stopped (" + stopWatch.getTotalTimeMillis() + " millis).");
-				}
-				catch (Throwable ex) {
-					throw new IllegalStateException(ex);
-				}
-				finally {
-					reset();
-				}
-			}
-		}
-	}
-
-	protected abstract void stopInternal() throws Exception;
-
-	@Override
-	public boolean isRunning() {
-		return this.running;
-	}
+    protected HttpHandler resolveHttpHandler() {
+        return (getHttpHandlerMap() != null ?
+                new ContextPathCompositeHandler(getHttpHandlerMap()) : getHttpHandler());
+    }
 
 
-	private void reset() {
-		this.host = "0.0.0.0";
-		this.port = 0;
-		this.httpHandler = null;
-		this.handlerMap = null;
-		resetInternal();
-	}
+    // InitializingBean
 
-	protected abstract void resetInternal();
+    @Override
+    public final void afterPropertiesSet() throws Exception {
+        Assert.notNull(this.host, "Host must not be null");
+        Assert.isTrue(this.port >= 0, "Port must not be a negative number");
+        Assert.isTrue(this.httpHandler != null || this.handlerMap != null, "No HttpHandler configured");
+        Assert.state(!this.running, "Cannot reconfigure while running");
+
+        synchronized (this.lifecycleMonitor) {
+            initServer();
+        }
+    }
+
+    protected abstract void initServer() throws Exception;
+
+
+    // Lifecycle
+
+    @Override
+    public final void start() {
+        synchronized (this.lifecycleMonitor) {
+            if (!isRunning()) {
+                String serverName = getClass().getSimpleName();
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Starting " + serverName + "...");
+                }
+                this.running = true;
+                try {
+                    StopWatch stopWatch = new StopWatch();
+                    stopWatch.start();
+                    startInternal();
+                    long millis = stopWatch.getTotalTimeMillis();
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("Server started on port " + getPort() + "(" + millis + " millis).");
+                    }
+                } catch (Throwable ex) {
+                    throw new IllegalStateException(ex);
+                }
+            }
+        }
+
+    }
+
+    protected abstract void startInternal() throws Exception;
+
+    @Override
+    public final void stop() {
+        synchronized (this.lifecycleMonitor) {
+            if (isRunning()) {
+                String serverName = getClass().getSimpleName();
+                logger.debug("Stopping " + serverName + "...");
+                this.running = false;
+                try {
+                    StopWatch stopWatch = new StopWatch();
+                    stopWatch.start();
+                    stopInternal();
+                    logger.debug("Server stopped (" + stopWatch.getTotalTimeMillis() + " millis).");
+                } catch (Throwable ex) {
+                    throw new IllegalStateException(ex);
+                } finally {
+                    reset();
+                }
+            }
+        }
+    }
+
+    protected abstract void stopInternal() throws Exception;
+
+    @Override
+    public boolean isRunning() {
+        return this.running;
+    }
+
+
+    private void reset() {
+        this.host = "0.0.0.0";
+        this.port = 0;
+        this.httpHandler = null;
+        this.handlerMap = null;
+        resetInternal();
+    }
+
+    protected abstract void resetInternal();
 
 }

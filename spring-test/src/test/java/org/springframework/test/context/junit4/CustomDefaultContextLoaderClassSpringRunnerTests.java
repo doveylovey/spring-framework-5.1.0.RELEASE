@@ -42,29 +42,29 @@ import static org.junit.Assert.*;
 @ContextConfiguration("PropertiesBasedSpringJUnit4ClassRunnerAppCtxTests-context.properties")
 public class CustomDefaultContextLoaderClassSpringRunnerTests {
 
-	@Autowired
-	private Pet cat;
+    @Autowired
+    private Pet cat;
 
-	@Autowired
-	private String testString;
-
-
-	@Test
-	public void verifyAnnotationAutowiredFields() {
-		assertNotNull("The cat field should have been autowired.", this.cat);
-		assertEquals("Garfield", this.cat.getName());
-
-		assertNotNull("The testString field should have been autowired.", this.testString);
-		assertEquals("Test String", this.testString);
-	}
+    @Autowired
+    private String testString;
 
 
-	public static class PropertiesBasedTestContextBootstrapper extends DefaultTestContextBootstrapper {
+    @Test
+    public void verifyAnnotationAutowiredFields() {
+        assertNotNull("The cat field should have been autowired.", this.cat);
+        assertEquals("Garfield", this.cat.getName());
 
-		@Override
-		protected Class<? extends ContextLoader> getDefaultContextLoaderClass(Class<?> testClass) {
-			return GenericPropertiesContextLoader.class;
-		}
-	}
+        assertNotNull("The testString field should have been autowired.", this.testString);
+        assertEquals("Test String", this.testString);
+    }
+
+
+    public static class PropertiesBasedTestContextBootstrapper extends DefaultTestContextBootstrapper {
+
+        @Override
+        protected Class<? extends ContextLoader> getDefaultContextLoaderClass(Class<?> testClass) {
+            return GenericPropertiesContextLoader.class;
+        }
+    }
 
 }

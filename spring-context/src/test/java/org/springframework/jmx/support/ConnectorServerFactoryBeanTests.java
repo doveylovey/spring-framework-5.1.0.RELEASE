@@ -46,103 +46,98 @@ import static org.junit.Assert.*;
  */
 public class ConnectorServerFactoryBeanTests extends AbstractMBeanServerTests {
 
-	private static final String OBJECT_NAME = "spring:type=connector,name=test";
+    private static final String OBJECT_NAME = "spring:type=connector,name=test";
 
 
-	@Override
-	protected void onSetUp() throws Exception {
-		Assume.group(TestGroup.JMXMP);
-	}
+    @Override
+    protected void onSetUp() throws Exception {
+        Assume.group(TestGroup.JMXMP);
+    }
 
-	@After
-	@Override
-	public void tearDown() throws Exception {
-		Assume.group(TestGroup.JMXMP, () -> super.tearDown());
-	}
+    @After
+    @Override
+    public void tearDown() throws Exception {
+        Assume.group(TestGroup.JMXMP, () -> super.tearDown());
+    }
 
 
-	@Test
-	public void startupWithLocatedServer() throws Exception {
-		ConnectorServerFactoryBean bean = new ConnectorServerFactoryBean();
-		bean.afterPropertiesSet();
+    @Test
+    public void startupWithLocatedServer() throws Exception {
+        ConnectorServerFactoryBean bean = new ConnectorServerFactoryBean();
+        bean.afterPropertiesSet();
 
-		try {
-			checkServerConnection(getServer());
-		}
-		finally {
-			bean.destroy();
-		}
-	}
+        try {
+            checkServerConnection(getServer());
+        } finally {
+            bean.destroy();
+        }
+    }
 
-	@Test
-	public void startupWithSuppliedServer() throws Exception {
-		//Added a brief snooze here - seems to fix occasional
-		//java.net.BindException: Address already in use errors
-		Thread.sleep(1);
+    @Test
+    public void startupWithSuppliedServer() throws Exception {
+        //Added a brief snooze here - seems to fix occasional
+        //java.net.BindException: Address already in use errors
+        Thread.sleep(1);
 
-		ConnectorServerFactoryBean bean = new ConnectorServerFactoryBean();
-		bean.setServer(getServer());
-		bean.afterPropertiesSet();
+        ConnectorServerFactoryBean bean = new ConnectorServerFactoryBean();
+        bean.setServer(getServer());
+        bean.afterPropertiesSet();
 
-		try {
-			checkServerConnection(getServer());
-		}
-		finally {
-			bean.destroy();
-		}
-	}
+        try {
+            checkServerConnection(getServer());
+        } finally {
+            bean.destroy();
+        }
+    }
 
-	@Test
-	public void registerWithMBeanServer() throws Exception {
-		//Added a brief snooze here - seems to fix occasional
-		//java.net.BindException: Address already in use errors
-		Thread.sleep(1);
-		ConnectorServerFactoryBean bean = new ConnectorServerFactoryBean();
-		bean.setObjectName(OBJECT_NAME);
-		bean.afterPropertiesSet();
+    @Test
+    public void registerWithMBeanServer() throws Exception {
+        //Added a brief snooze here - seems to fix occasional
+        //java.net.BindException: Address already in use errors
+        Thread.sleep(1);
+        ConnectorServerFactoryBean bean = new ConnectorServerFactoryBean();
+        bean.setObjectName(OBJECT_NAME);
+        bean.afterPropertiesSet();
 
-		try {
-			// Try to get the connector bean.
-			ObjectInstance instance = getServer().getObjectInstance(ObjectName.getInstance(OBJECT_NAME));
-			assertNotNull("ObjectInstance should not be null", instance);
-		}
-		finally {
-			bean.destroy();
-		}
-	}
+        try {
+            // Try to get the connector bean.
+            ObjectInstance instance = getServer().getObjectInstance(ObjectName.getInstance(OBJECT_NAME));
+            assertNotNull("ObjectInstance should not be null", instance);
+        } finally {
+            bean.destroy();
+        }
+    }
 
-	@Test
-	public void noRegisterWithMBeanServer() throws Exception {
-		ConnectorServerFactoryBean bean = new ConnectorServerFactoryBean();
-		bean.afterPropertiesSet();
+    @Test
+    public void noRegisterWithMBeanServer() throws Exception {
+        ConnectorServerFactoryBean bean = new ConnectorServerFactoryBean();
+        bean.afterPropertiesSet();
 
-		try {
-			// Try to get the connector bean.
-			getServer().getObjectInstance(ObjectName.getInstance(OBJECT_NAME));
-			fail("Instance should not be found");
-		}
-		catch (InstanceNotFoundException ex) {
-			// expected
-		}
-		finally {
-			bean.destroy();
-		}
-	}
+        try {
+            // Try to get the connector bean.
+            getServer().getObjectInstance(ObjectName.getInstance(OBJECT_NAME));
+            fail("Instance should not be found");
+        } catch (InstanceNotFoundException ex) {
+            // expected
+        } finally {
+            bean.destroy();
+        }
+    }
 
-	private void checkServerConnection(MBeanServer hostedServer) throws IOException, MalformedURLException {
-		// Try to connect using client.
-		JMXServiceURL serviceURL = new JMXServiceURL(ConnectorServerFactoryBean.DEFAULT_SERVICE_URL);
-		JMXConnector connector = JMXConnectorFactory.connect(serviceURL);
+    private void checkServerConnection(MBeanServer hostedServer) throws IOException, MalformedURLException {
+        // Try to connect using client.
+        JMXServiceURL serviceURL = new JMXServiceURL(ConnectorServerFactoryBean.DEFAULT_SERVICE_URL);
+        JMXConnector connector = JMXConnectorFactory.connect(serviceURL);
 
-		assertNotNull("Client Connector should not be null", connector);
+        assertNotNull("Client Connector should not be null", connector);
 
-		// Get the MBean server connection.
-		MBeanServerConnection connection = connector.getMBeanServerConnection();
-		assertNotNull("MBeanServerConnection should not be null", connection);
+        // Get the MBean server connection.
+        MBeanServerConnection connection = connector.getMBeanServerConnection();
+        assertNotNull("MBeanServerConnection should not be null", connection);
 
-		// Test for MBean server equality.
-		assertEquals("Registered MBean count should be the same", hostedServer.getMBeanCount(),
-				connection.getMBeanCount());
-	}
+        // Test for MBean server equality.
+        assertEquals("Registered MBean count should be the same", hostedServer.getMBeanCount(),
+                connection.getMBeanCount());
+    }
 
 }

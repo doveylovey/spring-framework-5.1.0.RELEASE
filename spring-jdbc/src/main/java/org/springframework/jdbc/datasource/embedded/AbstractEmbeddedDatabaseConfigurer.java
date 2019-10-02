@@ -33,31 +33,28 @@ import org.apache.commons.logging.LogFactory;
  */
 abstract class AbstractEmbeddedDatabaseConfigurer implements EmbeddedDatabaseConfigurer {
 
-	protected final Log logger = LogFactory.getLog(getClass());
+    protected final Log logger = LogFactory.getLog(getClass());
 
 
-	@Override
-	public void shutdown(DataSource dataSource, String databaseName) {
-		Connection con = null;
-		try {
-			con = dataSource.getConnection();
-			if (con != null) {
-				con.createStatement().execute("SHUTDOWN");
-			}
-		}
-		catch (SQLException ex) {
-			logger.info("Could not shut down embedded database", ex);
-		}
-		finally {
-			if (con != null) {
-				try {
-					con.close();
-				}
-				catch (Throwable ex) {
-					logger.debug("Could not close JDBC Connection on shutdown", ex);
-				}
-			}
-		}
-	}
+    @Override
+    public void shutdown(DataSource dataSource, String databaseName) {
+        Connection con = null;
+        try {
+            con = dataSource.getConnection();
+            if (con != null) {
+                con.createStatement().execute("SHUTDOWN");
+            }
+        } catch (SQLException ex) {
+            logger.info("Could not shut down embedded database", ex);
+        } finally {
+            if (con != null) {
+                try {
+                    con.close();
+                } catch (Throwable ex) {
+                    logger.debug("Could not close JDBC Connection on shutdown", ex);
+                }
+            }
+        }
+    }
 
 }

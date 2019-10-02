@@ -33,26 +33,26 @@ import static org.junit.Assert.*;
  * since it should only be run as part of the test suite: {@link Spr8849Tests}.
  *
  * @author Sam Brannen
- * @since 4.2
  * @see Spr8849Tests
+ * @since 4.2
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
 public class TestClass4 {
 
-	@Configuration
-	@ImportResource("classpath:/org/springframework/test/context/junit4/spr8849/datasource-config-with-auto-generated-db-name.xml")
-	static class Config {
-	}
+    @Configuration
+    @ImportResource("classpath:/org/springframework/test/context/junit4/spr8849/datasource-config-with-auto-generated-db-name.xml")
+    static class Config {
+    }
 
 
-	@Resource
-	DataSource dataSource;
+    @Resource
+    DataSource dataSource;
 
 
-	@Test
-	public void dummyTest() {
-		assertNotNull(dataSource);
-	}
+    @Test
+    public void dummyTest() {
+        assertNotNull(dataSource);
+    }
 
 }

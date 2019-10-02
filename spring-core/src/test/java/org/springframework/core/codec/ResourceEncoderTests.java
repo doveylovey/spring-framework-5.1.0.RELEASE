@@ -40,38 +40,38 @@ import static org.junit.Assert.assertTrue;
  */
 public class ResourceEncoderTests extends AbstractDataBufferAllocatingTestCase {
 
-	private final ResourceEncoder encoder = new ResourceEncoder();
+    private final ResourceEncoder encoder = new ResourceEncoder();
 
-	@Test
-	public void canEncode() throws Exception {
-		assertTrue(this.encoder.canEncode(ResolvableType.forClass(InputStreamResource.class),
-				MimeTypeUtils.TEXT_PLAIN));
-		assertTrue(this.encoder.canEncode(ResolvableType.forClass(ByteArrayResource.class),
-				MimeTypeUtils.TEXT_PLAIN));
-		assertTrue(this.encoder.canEncode(ResolvableType.forClass(Resource.class),
-				MimeTypeUtils.TEXT_PLAIN));
-		assertTrue(this.encoder.canEncode(ResolvableType.forClass(InputStreamResource.class),
-				MimeTypeUtils.APPLICATION_JSON));
+    @Test
+    public void canEncode() throws Exception {
+        assertTrue(this.encoder.canEncode(ResolvableType.forClass(InputStreamResource.class),
+                MimeTypeUtils.TEXT_PLAIN));
+        assertTrue(this.encoder.canEncode(ResolvableType.forClass(ByteArrayResource.class),
+                MimeTypeUtils.TEXT_PLAIN));
+        assertTrue(this.encoder.canEncode(ResolvableType.forClass(Resource.class),
+                MimeTypeUtils.TEXT_PLAIN));
+        assertTrue(this.encoder.canEncode(ResolvableType.forClass(InputStreamResource.class),
+                MimeTypeUtils.APPLICATION_JSON));
 
-		// SPR-15464
-		assertFalse(this.encoder.canEncode(ResolvableType.NONE, null));
-	}
+        // SPR-15464
+        assertFalse(this.encoder.canEncode(ResolvableType.NONE, null));
+    }
 
-	@Test
-	public void encode() throws Exception {
-		String s = "foo";
-		Resource resource = new ByteArrayResource(s.getBytes(StandardCharsets.UTF_8));
+    @Test
+    public void encode() throws Exception {
+        String s = "foo";
+        Resource resource = new ByteArrayResource(s.getBytes(StandardCharsets.UTF_8));
 
-		Mono<Resource> source = Mono.just(resource);
+        Mono<Resource> source = Mono.just(resource);
 
-		Flux<DataBuffer> output = this.encoder.encode(source, this.bufferFactory,
-				ResolvableType.forClass(Resource.class),
-				null, Collections.emptyMap());
+        Flux<DataBuffer> output = this.encoder.encode(source, this.bufferFactory,
+                ResolvableType.forClass(Resource.class),
+                null, Collections.emptyMap());
 
-		StepVerifier.create(output)
-				.consumeNextWith(stringConsumer(s))
-				.expectComplete()
-				.verify();
-	}
+        StepVerifier.create(output)
+                .consumeNextWith(stringConsumer(s))
+                .expectComplete()
+                .verify();
+    }
 
 }

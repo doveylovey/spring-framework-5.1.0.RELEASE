@@ -33,34 +33,36 @@ import static org.junit.Assert.*;
  */
 public class Spr10668Tests {
 
-	@Test
-	public void testSelfInjectHierarchy() throws Exception {
-		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(ChildConfig.class);
-		assertNotNull(context.getBean(MyComponent.class));
-		context.close();
-	}
+    @Test
+    public void testSelfInjectHierarchy() throws Exception {
+        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(ChildConfig.class);
+        assertNotNull(context.getBean(MyComponent.class));
+        context.close();
+    }
 
 
-	@Configuration
-	public static class ParentConfig {
+    @Configuration
+    public static class ParentConfig {
 
-		@Autowired(required = false)
-		MyComponent component;
-	}
-
-
-	@Configuration
-	public static class ChildConfig extends ParentConfig {
-
-		@Bean
-		public MyComponentImpl myComponent() {
-			return new MyComponentImpl();
-		}
-	}
+        @Autowired(required = false)
+        MyComponent component;
+    }
 
 
-	public interface MyComponent {}
+    @Configuration
+    public static class ChildConfig extends ParentConfig {
 
-	public static class MyComponentImpl implements MyComponent {}
+        @Bean
+        public MyComponentImpl myComponent() {
+            return new MyComponentImpl();
+        }
+    }
+
+
+    public interface MyComponent {
+    }
+
+    public static class MyComponentImpl implements MyComponent {
+    }
 
 }

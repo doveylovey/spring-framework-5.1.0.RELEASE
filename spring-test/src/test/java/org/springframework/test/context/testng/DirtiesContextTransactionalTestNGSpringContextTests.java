@@ -49,36 +49,36 @@ import static org.testng.Assert.*;
 @ContextConfiguration
 public class DirtiesContextTransactionalTestNGSpringContextTests extends AbstractTransactionalTestNGSpringContextTests {
 
-	private ApplicationContext dirtiedApplicationContext;
+    private ApplicationContext dirtiedApplicationContext;
 
 
-	private void performCommonAssertions() {
-		assertInTransaction(true);
-		assertNotNull(super.applicationContext,
-			"The application context should have been set due to ApplicationContextAware semantics.");
-		assertNotNull(super.jdbcTemplate,
-			"The JdbcTemplate should have been created in setDataSource() via DI for the DataSource.");
-	}
+    private void performCommonAssertions() {
+        assertInTransaction(true);
+        assertNotNull(super.applicationContext,
+                "The application context should have been set due to ApplicationContextAware semantics.");
+        assertNotNull(super.jdbcTemplate,
+                "The JdbcTemplate should have been created in setDataSource() via DI for the DataSource.");
+    }
 
-	@Test
-	@DirtiesContext
-	public void dirtyContext() {
-		performCommonAssertions();
-		this.dirtiedApplicationContext = super.applicationContext;
-	}
+    @Test
+    @DirtiesContext
+    public void dirtyContext() {
+        performCommonAssertions();
+        this.dirtiedApplicationContext = super.applicationContext;
+    }
 
-	@Test(dependsOnMethods = { "dirtyContext" })
-	public void verifyContextWasDirtied() {
-		performCommonAssertions();
-		assertNotSame(super.applicationContext, this.dirtiedApplicationContext,
-			"The application context should have been 'dirtied'.");
-		this.dirtiedApplicationContext = super.applicationContext;
-	}
+    @Test(dependsOnMethods = {"dirtyContext"})
+    public void verifyContextWasDirtied() {
+        performCommonAssertions();
+        assertNotSame(super.applicationContext, this.dirtiedApplicationContext,
+                "The application context should have been 'dirtied'.");
+        this.dirtiedApplicationContext = super.applicationContext;
+    }
 
-	@Test(dependsOnMethods = { "verifyContextWasDirtied" })
-	public void verifyContextWasNotDirtied() {
-		assertSame(this.applicationContext, this.dirtiedApplicationContext,
-			"The application context should NOT have been 'dirtied'.");
-	}
+    @Test(dependsOnMethods = {"verifyContextWasDirtied"})
+    public void verifyContextWasNotDirtied() {
+        assertSame(this.applicationContext, this.dirtiedApplicationContext,
+                "The application context should NOT have been 'dirtied'.");
+    }
 
 }

@@ -32,42 +32,42 @@ import org.springframework.core.io.buffer.DataBufferFactory;
  * to the response with {@link ByteBuffer}.
  *
  * @author Violeta Georgieva
- * @since 5.0
  * @see org.springframework.web.server.adapter.AbstractReactiveWebInitializer
+ * @since 5.0
  */
 public class JettyHttpHandlerAdapter extends ServletHttpHandlerAdapter {
 
-	public JettyHttpHandlerAdapter(HttpHandler httpHandler) {
-		super(httpHandler);
-	}
+    public JettyHttpHandlerAdapter(HttpHandler httpHandler) {
+        super(httpHandler);
+    }
 
 
-	@Override
-	protected ServletServerHttpResponse createResponse(HttpServletResponse response,
-			AsyncContext context, ServletServerHttpRequest request) throws IOException {
+    @Override
+    protected ServletServerHttpResponse createResponse(HttpServletResponse response,
+                                                       AsyncContext context, ServletServerHttpRequest request) throws IOException {
 
-		return new JettyServerHttpResponse(
-				response, context, getDataBufferFactory(), getBufferSize(), request);
-	}
+        return new JettyServerHttpResponse(
+                response, context, getDataBufferFactory(), getBufferSize(), request);
+    }
 
 
-	private static final class JettyServerHttpResponse extends ServletServerHttpResponse {
+    private static final class JettyServerHttpResponse extends ServletServerHttpResponse {
 
-		public JettyServerHttpResponse(HttpServletResponse response, AsyncContext asyncContext,
-				DataBufferFactory bufferFactory, int bufferSize, ServletServerHttpRequest request)
-				throws IOException {
+        public JettyServerHttpResponse(HttpServletResponse response, AsyncContext asyncContext,
+                                       DataBufferFactory bufferFactory, int bufferSize, ServletServerHttpRequest request)
+                throws IOException {
 
-			super(response, asyncContext, bufferFactory, bufferSize, request);
-		}
+            super(response, asyncContext, bufferFactory, bufferSize, request);
+        }
 
-		@Override
-		protected int writeToOutputStream(DataBuffer dataBuffer) throws IOException {
-			ByteBuffer input = dataBuffer.asByteBuffer();
-			int len = input.remaining();
-			ServletResponse response = getNativeResponse();
-			((HttpOutput) response.getOutputStream()).write(input);
-			return len;
-		}
-	}
+        @Override
+        protected int writeToOutputStream(DataBuffer dataBuffer) throws IOException {
+            ByteBuffer input = dataBuffer.asByteBuffer();
+            int len = input.remaining();
+            ServletResponse response = getNativeResponse();
+            ((HttpOutput) response.getOutputStream()).write(input);
+            return len;
+        }
+    }
 
 }

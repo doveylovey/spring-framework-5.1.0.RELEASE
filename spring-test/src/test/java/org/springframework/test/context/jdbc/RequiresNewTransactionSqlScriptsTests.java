@@ -38,24 +38,24 @@ import static org.junit.Assert.*;
 @DirtiesContext
 public class RequiresNewTransactionSqlScriptsTests extends AbstractTransactionalJUnit4SpringContextTests {
 
-	@BeforeTransaction
-	public void beforeTransaction() {
-		assertNumUsers(0);
-	}
+    @BeforeTransaction
+    public void beforeTransaction() {
+        assertNumUsers(0);
+    }
 
-	@Test
-	@SqlGroup(@Sql(scripts = "data-add-dogbert.sql", config = @SqlConfig(transactionMode = TransactionMode.ISOLATED)))
-	public void methodLevelScripts() {
-		assertNumUsers(1);
-	}
+    @Test
+    @SqlGroup(@Sql(scripts = "data-add-dogbert.sql", config = @SqlConfig(transactionMode = TransactionMode.ISOLATED)))
+    public void methodLevelScripts() {
+        assertNumUsers(1);
+    }
 
-	@AfterTransaction
-	public void afterTransaction() {
-		assertNumUsers(1);
-	}
+    @AfterTransaction
+    public void afterTransaction() {
+        assertNumUsers(1);
+    }
 
-	protected void assertNumUsers(int expected) {
-		assertEquals("Number of rows in the 'user' table.", expected, countRowsInTable("user"));
-	}
+    protected void assertNumUsers(int expected) {
+        assertEquals("Number of rows in the 'user' table.", expected, countRowsInTable("user"));
+    }
 
 }

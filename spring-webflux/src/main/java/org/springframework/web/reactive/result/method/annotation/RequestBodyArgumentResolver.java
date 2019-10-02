@@ -45,25 +45,25 @@ import org.springframework.web.server.ServerWebInputException;
  */
 public class RequestBodyArgumentResolver extends AbstractMessageReaderArgumentResolver {
 
-	public RequestBodyArgumentResolver(List<HttpMessageReader<?>> readers,
-			ReactiveAdapterRegistry registry) {
+    public RequestBodyArgumentResolver(List<HttpMessageReader<?>> readers,
+                                       ReactiveAdapterRegistry registry) {
 
-		super(readers, registry);
-	}
+        super(readers, registry);
+    }
 
 
-	@Override
-	public boolean supportsParameter(MethodParameter parameter) {
-		return parameter.hasParameterAnnotation(RequestBody.class);
-	}
+    @Override
+    public boolean supportsParameter(MethodParameter parameter) {
+        return parameter.hasParameterAnnotation(RequestBody.class);
+    }
 
-	@Override
-	public Mono<Object> resolveArgument(
-			MethodParameter param, BindingContext bindingContext, ServerWebExchange exchange) {
+    @Override
+    public Mono<Object> resolveArgument(
+            MethodParameter param, BindingContext bindingContext, ServerWebExchange exchange) {
 
-		RequestBody ann = param.getParameterAnnotation(RequestBody.class);
-		Assert.state(ann != null, "No RequestBody annotation");
-		return readBody(param, ann.required(), bindingContext, exchange);
-	}
+        RequestBody ann = param.getParameterAnnotation(RequestBody.class);
+        Assert.state(ann != null, "No RequestBody annotation");
+        return readBody(param, ann.required(), bindingContext, exchange);
+    }
 
 }

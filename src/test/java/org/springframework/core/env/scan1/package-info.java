@@ -36,17 +36,17 @@ class Config {
 @Profile(DEV_ENV_NAME)
 @Configuration
 class DevConfig {
-	@Bean
-	public Object devBean() {
-		return new Object();
-	}
+    @Bean
+    public Object devBean() {
+        return new Object();
+    }
 }
 
 @Profile(PROD_ENV_NAME)
 @Configuration
 class ProdConfig {
-	@Bean
-	public Object prodBean() {
-		return new Object();
-	}
+    @Bean
+    public Object prodBean() {
+        return new Object();
+    }
 }

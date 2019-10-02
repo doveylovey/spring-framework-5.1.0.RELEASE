@@ -54,48 +54,48 @@ import static org.junit.Assert.*;
 @ContextConfiguration(classes = AnnotatedConfigClassesWithoutAtConfigurationTests.AnnotatedFactoryBeans.class)
 public class AnnotatedConfigClassesWithoutAtConfigurationTests {
 
-	/**
-	 * This is intentionally <b>not</b> annotated with {@code @Configuration}.
-	 * Consequently, this class contains what we call <i>annotated factory bean
-	 * methods</i> instead of standard bean definition methods.
-	 */
-	static class AnnotatedFactoryBeans {
+    /**
+     * This is intentionally <b>not</b> annotated with {@code @Configuration}.
+     * Consequently, this class contains what we call <i>annotated factory bean
+     * methods</i> instead of standard bean definition methods.
+     */
+    static class AnnotatedFactoryBeans {
 
-		static final AtomicInteger enigmaCallCount = new AtomicInteger();
-
-
-		@Bean
-		public String enigma() {
-			return "enigma #" + enigmaCallCount.incrementAndGet();
-		}
-
-		@Bean
-		public LifecycleBean lifecycleBean() {
-			// The following call to enigma() literally invokes the local
-			// enigma() method, not a CGLIB proxied version, since these methods
-			// are essentially factory bean methods.
-			LifecycleBean bean = new LifecycleBean(enigma());
-			assertFalse(bean.isInitialized());
-			return bean;
-		}
-	}
+        static final AtomicInteger enigmaCallCount = new AtomicInteger();
 
 
-	@Autowired
-	private String enigma;
+        @Bean
+        public String enigma() {
+            return "enigma #" + enigmaCallCount.incrementAndGet();
+        }
 
-	@Autowired
-	private LifecycleBean lifecycleBean;
+        @Bean
+        public LifecycleBean lifecycleBean() {
+            // The following call to enigma() literally invokes the local
+            // enigma() method, not a CGLIB proxied version, since these methods
+            // are essentially factory bean methods.
+            LifecycleBean bean = new LifecycleBean(enigma());
+            assertFalse(bean.isInitialized());
+            return bean;
+        }
+    }
 
 
-	@Test
-	public void testSPR_9051() throws Exception {
-		assertNotNull(enigma);
-		assertNotNull(lifecycleBean);
-		assertTrue(lifecycleBean.isInitialized());
-		Set<String> names = new HashSet<>();
-		names.add(enigma.toString());
-		names.add(lifecycleBean.getName());
-		assertEquals(names, new HashSet<>(Arrays.asList("enigma #1", "enigma #2")));
-	}
+    @Autowired
+    private String enigma;
+
+    @Autowired
+    private LifecycleBean lifecycleBean;
+
+
+    @Test
+    public void testSPR_9051() throws Exception {
+        assertNotNull(enigma);
+        assertNotNull(lifecycleBean);
+        assertTrue(lifecycleBean.isInitialized());
+        Set<String> names = new HashSet<>();
+        names.add(enigma.toString());
+        names.add(lifecycleBean.getName());
+        assertEquals(names, new HashSet<>(Arrays.asList("enigma #1", "enigma #2")));
+    }
 }

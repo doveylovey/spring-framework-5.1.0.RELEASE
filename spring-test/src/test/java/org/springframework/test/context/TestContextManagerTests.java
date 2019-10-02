@@ -35,137 +35,137 @@ import static org.junit.Assert.*;
  */
 public class TestContextManagerTests {
 
-	private static final List<String> executionOrder = new ArrayList<>();
+    private static final List<String> executionOrder = new ArrayList<>();
 
-	private final TestContextManager testContextManager = new TestContextManager(ExampleTestCase.class);
+    private final TestContextManager testContextManager = new TestContextManager(ExampleTestCase.class);
 
-	private final Method testMethod;
-	{
-		try {
-			this.testMethod = ExampleTestCase.class.getDeclaredMethod("exampleTestMethod");
-		}
-		catch (Exception ex) {
-			throw new RuntimeException(ex);
-		}
-	}
+    private final Method testMethod;
 
-
-	@Test
-	public void listenerExecutionOrder() throws Exception {
-		// @formatter:off
-		assertEquals("Registered TestExecutionListeners", 3, this.testContextManager.getTestExecutionListeners().size());
-
-		this.testContextManager.beforeTestMethod(this, this.testMethod);
-		assertExecutionOrder("beforeTestMethod",
-			"beforeTestMethod-1",
-				"beforeTestMethod-2",
-					"beforeTestMethod-3"
-		);
-
-		this.testContextManager.beforeTestExecution(this, this.testMethod);
-		assertExecutionOrder("beforeTestExecution",
-			"beforeTestMethod-1",
-				"beforeTestMethod-2",
-					"beforeTestMethod-3",
-						"beforeTestExecution-1",
-							"beforeTestExecution-2",
-								"beforeTestExecution-3"
-		);
-
-		this.testContextManager.afterTestExecution(this, this.testMethod, null);
-		assertExecutionOrder("afterTestExecution",
-			"beforeTestMethod-1",
-				"beforeTestMethod-2",
-					"beforeTestMethod-3",
-						"beforeTestExecution-1",
-							"beforeTestExecution-2",
-								"beforeTestExecution-3",
-								"afterTestExecution-3",
-							"afterTestExecution-2",
-						"afterTestExecution-1"
-		);
-
-		this.testContextManager.afterTestMethod(this, this.testMethod, null);
-		assertExecutionOrder("afterTestMethod",
-			"beforeTestMethod-1",
-				"beforeTestMethod-2",
-					"beforeTestMethod-3",
-						"beforeTestExecution-1",
-							"beforeTestExecution-2",
-								"beforeTestExecution-3",
-								"afterTestExecution-3",
-							"afterTestExecution-2",
-						"afterTestExecution-1",
-					"afterTestMethod-3",
-				"afterTestMethod-2",
-			"afterTestMethod-1"
-		);
-		// @formatter:on
-	}
-
-	private static void assertExecutionOrder(String usageContext, String... expectedBeforeTestMethodCalls) {
-		assertEquals("execution order (" + usageContext + ") ==>", Arrays.asList(expectedBeforeTestMethodCalls),
-			executionOrder);
-	}
+    {
+        try {
+            this.testMethod = ExampleTestCase.class.getDeclaredMethod("exampleTestMethod");
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+    }
 
 
-	@TestExecutionListeners({ FirstTel.class, SecondTel.class, ThirdTel.class })
-	private static class ExampleTestCase {
+    @Test
+    public void listenerExecutionOrder() throws Exception {
+        // @formatter:off
+        assertEquals("Registered TestExecutionListeners", 3, this.testContextManager.getTestExecutionListeners().size());
 
-		@SuppressWarnings("unused")
-		public void exampleTestMethod() {
-		}
-	}
+        this.testContextManager.beforeTestMethod(this, this.testMethod);
+        assertExecutionOrder("beforeTestMethod",
+                "beforeTestMethod-1",
+                "beforeTestMethod-2",
+                "beforeTestMethod-3"
+        );
 
-	private static class NamedTestExecutionListener implements TestExecutionListener {
+        this.testContextManager.beforeTestExecution(this, this.testMethod);
+        assertExecutionOrder("beforeTestExecution",
+                "beforeTestMethod-1",
+                "beforeTestMethod-2",
+                "beforeTestMethod-3",
+                "beforeTestExecution-1",
+                "beforeTestExecution-2",
+                "beforeTestExecution-3"
+        );
 
-		private final String name;
+        this.testContextManager.afterTestExecution(this, this.testMethod, null);
+        assertExecutionOrder("afterTestExecution",
+                "beforeTestMethod-1",
+                "beforeTestMethod-2",
+                "beforeTestMethod-3",
+                "beforeTestExecution-1",
+                "beforeTestExecution-2",
+                "beforeTestExecution-3",
+                "afterTestExecution-3",
+                "afterTestExecution-2",
+                "afterTestExecution-1"
+        );
+
+        this.testContextManager.afterTestMethod(this, this.testMethod, null);
+        assertExecutionOrder("afterTestMethod",
+                "beforeTestMethod-1",
+                "beforeTestMethod-2",
+                "beforeTestMethod-3",
+                "beforeTestExecution-1",
+                "beforeTestExecution-2",
+                "beforeTestExecution-3",
+                "afterTestExecution-3",
+                "afterTestExecution-2",
+                "afterTestExecution-1",
+                "afterTestMethod-3",
+                "afterTestMethod-2",
+                "afterTestMethod-1"
+        );
+        // @formatter:on
+    }
+
+    private static void assertExecutionOrder(String usageContext, String... expectedBeforeTestMethodCalls) {
+        assertEquals("execution order (" + usageContext + ") ==>", Arrays.asList(expectedBeforeTestMethodCalls),
+                executionOrder);
+    }
 
 
-		public NamedTestExecutionListener(String name) {
-			this.name = name;
-		}
+    @TestExecutionListeners({FirstTel.class, SecondTel.class, ThirdTel.class})
+    private static class ExampleTestCase {
 
-		@Override
-		public void beforeTestMethod(TestContext testContext) {
-			executionOrder.add("beforeTestMethod-" + this.name);
-		}
+        @SuppressWarnings("unused")
+        public void exampleTestMethod() {
+        }
+    }
 
-		@Override
-		public void beforeTestExecution(TestContext testContext) {
-			executionOrder.add("beforeTestExecution-" + this.name);
-		}
+    private static class NamedTestExecutionListener implements TestExecutionListener {
 
-		@Override
-		public void afterTestExecution(TestContext testContext) {
-			executionOrder.add("afterTestExecution-" + this.name);
-		}
+        private final String name;
 
-		@Override
-		public void afterTestMethod(TestContext testContext) {
-			executionOrder.add("afterTestMethod-" + this.name);
-		}
-	}
 
-	private static class FirstTel extends NamedTestExecutionListener {
+        public NamedTestExecutionListener(String name) {
+            this.name = name;
+        }
 
-		public FirstTel() {
-			super("1");
-		}
-	}
+        @Override
+        public void beforeTestMethod(TestContext testContext) {
+            executionOrder.add("beforeTestMethod-" + this.name);
+        }
 
-	private static class SecondTel extends NamedTestExecutionListener {
+        @Override
+        public void beforeTestExecution(TestContext testContext) {
+            executionOrder.add("beforeTestExecution-" + this.name);
+        }
 
-		public SecondTel() {
-			super("2");
-		}
-	}
+        @Override
+        public void afterTestExecution(TestContext testContext) {
+            executionOrder.add("afterTestExecution-" + this.name);
+        }
 
-	private static class ThirdTel extends NamedTestExecutionListener {
+        @Override
+        public void afterTestMethod(TestContext testContext) {
+            executionOrder.add("afterTestMethod-" + this.name);
+        }
+    }
 
-		public ThirdTel() {
-			super("3");
-		}
-	}
+    private static class FirstTel extends NamedTestExecutionListener {
+
+        public FirstTel() {
+            super("1");
+        }
+    }
+
+    private static class SecondTel extends NamedTestExecutionListener {
+
+        public SecondTel() {
+            super("2");
+        }
+    }
+
+    private static class ThirdTel extends NamedTestExecutionListener {
+
+        public ThirdTel() {
+            super("3");
+        }
+    }
 
 }

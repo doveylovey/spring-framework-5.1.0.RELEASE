@@ -36,110 +36,111 @@ import org.springframework.util.Assert;
  * ad-hoc use against any {@code ConverterRegistry} instance.
  *
  * @author Phillip Webb
- * @since 3.2
  * @see org.springframework.format.datetime.standard.DateTimeFormatterRegistrar
  * @see org.springframework.format.datetime.joda.JodaTimeFormatterRegistrar
  * @see FormatterRegistrar#registerFormatters
+ * @since 3.2
  */
 public class DateFormatterRegistrar implements FormatterRegistrar {
 
-	@Nullable
-	private DateFormatter dateFormatter;
+    @Nullable
+    private DateFormatter dateFormatter;
 
 
-	/**
-	 * Set a global date formatter to register.
-	 * <p>If not specified, no general formatter for non-annotated
-	 * {@link Date} and {@link Calendar} fields will be registered.
-	 */
-	public void setFormatter(DateFormatter dateFormatter) {
-		Assert.notNull(dateFormatter, "DateFormatter must not be null");
-		this.dateFormatter = dateFormatter;
-	}
+    /**
+     * Set a global date formatter to register.
+     * <p>If not specified, no general formatter for non-annotated
+     * {@link Date} and {@link Calendar} fields will be registered.
+     */
+    public void setFormatter(DateFormatter dateFormatter) {
+        Assert.notNull(dateFormatter, "DateFormatter must not be null");
+        this.dateFormatter = dateFormatter;
+    }
 
 
-	@Override
-	public void registerFormatters(FormatterRegistry registry) {
-		addDateConverters(registry);
-		registry.addFormatterForFieldAnnotation(new DateTimeFormatAnnotationFormatterFactory());
+    @Override
+    public void registerFormatters(FormatterRegistry registry) {
+        addDateConverters(registry);
+        registry.addFormatterForFieldAnnotation(new DateTimeFormatAnnotationFormatterFactory());
 
-		// In order to retain back compatibility we only register Date/Calendar
-		// types when a user defined formatter is specified (see SPR-10105)
-		if (this.dateFormatter != null) {
-			registry.addFormatter(this.dateFormatter);
-			registry.addFormatterForFieldType(Calendar.class, this.dateFormatter);
-		}
-	}
+        // In order to retain back compatibility we only register Date/Calendar
+        // types when a user defined formatter is specified (see SPR-10105)
+        if (this.dateFormatter != null) {
+            registry.addFormatter(this.dateFormatter);
+            registry.addFormatterForFieldType(Calendar.class, this.dateFormatter);
+        }
+    }
 
-	/**
-	 * Add date converters to the specified registry.
-	 * @param converterRegistry the registry of converters to add to
-	 */
-	public static void addDateConverters(ConverterRegistry converterRegistry) {
-		converterRegistry.addConverter(new DateToLongConverter());
-		converterRegistry.addConverter(new DateToCalendarConverter());
-		converterRegistry.addConverter(new CalendarToDateConverter());
-		converterRegistry.addConverter(new CalendarToLongConverter());
-		converterRegistry.addConverter(new LongToDateConverter());
-		converterRegistry.addConverter(new LongToCalendarConverter());
-	}
-
-
-	private static class DateToLongConverter implements Converter<Date, Long> {
-
-		@Override
-		public Long convert(Date source) {
-			return source.getTime();
-		}
-	}
+    /**
+     * Add date converters to the specified registry.
+     *
+     * @param converterRegistry the registry of converters to add to
+     */
+    public static void addDateConverters(ConverterRegistry converterRegistry) {
+        converterRegistry.addConverter(new DateToLongConverter());
+        converterRegistry.addConverter(new DateToCalendarConverter());
+        converterRegistry.addConverter(new CalendarToDateConverter());
+        converterRegistry.addConverter(new CalendarToLongConverter());
+        converterRegistry.addConverter(new LongToDateConverter());
+        converterRegistry.addConverter(new LongToCalendarConverter());
+    }
 
 
-	private static class DateToCalendarConverter implements Converter<Date, Calendar> {
+    private static class DateToLongConverter implements Converter<Date, Long> {
 
-		@Override
-		public Calendar convert(Date source) {
-			Calendar calendar = Calendar.getInstance();
-			calendar.setTime(source);
-			return calendar;
-		}
-	}
+        @Override
+        public Long convert(Date source) {
+            return source.getTime();
+        }
+    }
 
 
-	private static class CalendarToDateConverter implements Converter<Calendar, Date> {
+    private static class DateToCalendarConverter implements Converter<Date, Calendar> {
 
-		@Override
-		public Date convert(Calendar source) {
-			return source.getTime();
-		}
-	}
-
-
-	private static class CalendarToLongConverter implements Converter<Calendar, Long> {
-
-		@Override
-		public Long convert(Calendar source) {
-			return source.getTimeInMillis();
-		}
-	}
+        @Override
+        public Calendar convert(Date source) {
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(source);
+            return calendar;
+        }
+    }
 
 
-	private static class LongToDateConverter implements Converter<Long, Date> {
+    private static class CalendarToDateConverter implements Converter<Calendar, Date> {
 
-		@Override
-		public Date convert(Long source) {
-			return new Date(source);
-		}
-	}
+        @Override
+        public Date convert(Calendar source) {
+            return source.getTime();
+        }
+    }
 
 
-	private static class LongToCalendarConverter implements Converter<Long, Calendar> {
+    private static class CalendarToLongConverter implements Converter<Calendar, Long> {
 
-		@Override
-		public Calendar convert(Long source) {
-			Calendar calendar = Calendar.getInstance();
-			calendar.setTimeInMillis(source);
-			return calendar;
-		}
-	}
+        @Override
+        public Long convert(Calendar source) {
+            return source.getTimeInMillis();
+        }
+    }
+
+
+    private static class LongToDateConverter implements Converter<Long, Date> {
+
+        @Override
+        public Date convert(Long source) {
+            return new Date(source);
+        }
+    }
+
+
+    private static class LongToCalendarConverter implements Converter<Long, Calendar> {
+
+        @Override
+        public Calendar convert(Long source) {
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTimeInMillis(source);
+            return calendar;
+        }
+    }
 
 }

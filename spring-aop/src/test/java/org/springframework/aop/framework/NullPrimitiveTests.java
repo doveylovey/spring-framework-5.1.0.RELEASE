@@ -34,62 +34,62 @@ import static org.junit.Assert.*;
  */
 public class NullPrimitiveTests {
 
-	@Rule
-	public ExpectedException thrown = ExpectedException.none();
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
-	static interface Foo {
-		int getValue();
-	}
+    static interface Foo {
+        int getValue();
+    }
 
-	@Test
-	public void testNullPrimitiveWithJdkProxy() {
+    @Test
+    public void testNullPrimitiveWithJdkProxy() {
 
-		class SimpleFoo implements Foo {
-			@Override
-			public int getValue() {
-				return 100;
-			}
-		}
+        class SimpleFoo implements Foo {
+            @Override
+            public int getValue() {
+                return 100;
+            }
+        }
 
-		SimpleFoo target = new SimpleFoo();
-		ProxyFactory factory = new ProxyFactory(target);
-		factory.addAdvice(new MethodInterceptor() {
-			@Override
-			public Object invoke(MethodInvocation invocation) throws Throwable {
-				return null;
-			}
-		});
+        SimpleFoo target = new SimpleFoo();
+        ProxyFactory factory = new ProxyFactory(target);
+        factory.addAdvice(new MethodInterceptor() {
+            @Override
+            public Object invoke(MethodInvocation invocation) throws Throwable {
+                return null;
+            }
+        });
 
-		Foo foo = (Foo) factory.getProxy();
+        Foo foo = (Foo) factory.getProxy();
 
-		thrown.expect(AopInvocationException.class);
-		thrown.expectMessage("Foo.getValue()");
-		assertEquals(0, foo.getValue());
-	}
+        thrown.expect(AopInvocationException.class);
+        thrown.expectMessage("Foo.getValue()");
+        assertEquals(0, foo.getValue());
+    }
 
-	public static class Bar {
-		public int getValue() {
-			return 100;
-		}
-	}
+    public static class Bar {
+        public int getValue() {
+            return 100;
+        }
+    }
 
-	@Test
-	public void testNullPrimitiveWithCglibProxy() {
+    @Test
+    public void testNullPrimitiveWithCglibProxy() {
 
-		Bar target = new Bar();
-		ProxyFactory factory = new ProxyFactory(target);
-		factory.addAdvice(new MethodInterceptor() {
-			@Override
-			public Object invoke(MethodInvocation invocation) throws Throwable {
-				return null;
-			}
-		});
+        Bar target = new Bar();
+        ProxyFactory factory = new ProxyFactory(target);
+        factory.addAdvice(new MethodInterceptor() {
+            @Override
+            public Object invoke(MethodInvocation invocation) throws Throwable {
+                return null;
+            }
+        });
 
-		Bar bar = (Bar) factory.getProxy();
+        Bar bar = (Bar) factory.getProxy();
 
-		thrown.expect(AopInvocationException.class);
-		thrown.expectMessage("Bar.getValue()");
-		assertEquals(0, bar.getValue());
-	}
+        thrown.expect(AopInvocationException.class);
+        thrown.expectMessage("Bar.getValue()");
+        assertEquals(0, bar.getValue());
+    }
 
 }

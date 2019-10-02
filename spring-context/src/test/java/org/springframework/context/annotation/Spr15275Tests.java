@@ -29,222 +29,226 @@ import static org.junit.Assert.*;
  */
 public class Spr15275Tests {
 
-	@Test
-	public void testWithFactoryBean() {
-		ApplicationContext context = new AnnotationConfigApplicationContext(ConfigWithFactoryBean.class);
-		assertEquals("x", context.getBean(Bar.class).foo.toString());
-		assertSame(context.getBean(FooInterface.class), context.getBean(Bar.class).foo);
-	}
+    @Test
+    public void testWithFactoryBean() {
+        ApplicationContext context = new AnnotationConfigApplicationContext(ConfigWithFactoryBean.class);
+        assertEquals("x", context.getBean(Bar.class).foo.toString());
+        assertSame(context.getBean(FooInterface.class), context.getBean(Bar.class).foo);
+    }
 
-	@Test
-	public void testWithAbstractFactoryBean() {
-		ApplicationContext context = new AnnotationConfigApplicationContext(ConfigWithAbstractFactoryBean.class);
-		assertEquals("x", context.getBean(Bar.class).foo.toString());
-		assertSame(context.getBean(FooInterface.class), context.getBean(Bar.class).foo);
-	}
+    @Test
+    public void testWithAbstractFactoryBean() {
+        ApplicationContext context = new AnnotationConfigApplicationContext(ConfigWithAbstractFactoryBean.class);
+        assertEquals("x", context.getBean(Bar.class).foo.toString());
+        assertSame(context.getBean(FooInterface.class), context.getBean(Bar.class).foo);
+    }
 
-	@Test
-	public void testWithAbstractFactoryBeanForInterface() {
-		ApplicationContext context = new AnnotationConfigApplicationContext(ConfigWithAbstractFactoryBeanForInterface.class);
-		assertEquals("x", context.getBean(Bar.class).foo.toString());
-		assertSame(context.getBean(FooInterface.class), context.getBean(Bar.class).foo);
-	}
+    @Test
+    public void testWithAbstractFactoryBeanForInterface() {
+        ApplicationContext context = new AnnotationConfigApplicationContext(ConfigWithAbstractFactoryBeanForInterface.class);
+        assertEquals("x", context.getBean(Bar.class).foo.toString());
+        assertSame(context.getBean(FooInterface.class), context.getBean(Bar.class).foo);
+    }
 
-	@Test
-	public void testWithAbstractFactoryBeanAsReturnType() {
-		ApplicationContext context = new AnnotationConfigApplicationContext(ConfigWithAbstractFactoryBeanAsReturnType.class);
-		assertEquals("x", context.getBean(Bar.class).foo.toString());
-		assertSame(context.getBean(FooInterface.class), context.getBean(Bar.class).foo);
-	}
+    @Test
+    public void testWithAbstractFactoryBeanAsReturnType() {
+        ApplicationContext context = new AnnotationConfigApplicationContext(ConfigWithAbstractFactoryBeanAsReturnType.class);
+        assertEquals("x", context.getBean(Bar.class).foo.toString());
+        assertSame(context.getBean(FooInterface.class), context.getBean(Bar.class).foo);
+    }
 
-	@Test
-	public void testWithFinalFactoryBean() {
-		ApplicationContext context = new AnnotationConfigApplicationContext(ConfigWithFinalFactoryBean.class);
-		assertEquals("x", context.getBean(Bar.class).foo.toString());
-		assertSame(context.getBean(FooInterface.class), context.getBean(Bar.class).foo);
-	}
+    @Test
+    public void testWithFinalFactoryBean() {
+        ApplicationContext context = new AnnotationConfigApplicationContext(ConfigWithFinalFactoryBean.class);
+        assertEquals("x", context.getBean(Bar.class).foo.toString());
+        assertSame(context.getBean(FooInterface.class), context.getBean(Bar.class).foo);
+    }
 
-	@Test
-	public void testWithFinalFactoryBeanAsReturnType() {
-		ApplicationContext context = new AnnotationConfigApplicationContext(ConfigWithFinalFactoryBeanAsReturnType.class);
-		assertEquals("x", context.getBean(Bar.class).foo.toString());
-		// not same due to fallback to raw FinalFactoryBean instance with repeated getObject() invocations
-		assertNotSame(context.getBean(FooInterface.class), context.getBean(Bar.class).foo);
-	}
-
-
-	@Configuration
-	protected static class ConfigWithFactoryBean {
-
-		@Bean
-		public FactoryBean<Foo> foo() {
-			return new FactoryBean<Foo>() {
-				@Override
-				public Foo getObject() {
-					return new Foo("x");
-				}
-				@Override
-				public Class<?> getObjectType() {
-					return Foo.class;
-				}
-			};
-		}
-
-		@Bean
-		public Bar bar() throws Exception {
-			assertTrue(foo().isSingleton());
-			return new Bar(foo().getObject());
-		}
-	}
+    @Test
+    public void testWithFinalFactoryBeanAsReturnType() {
+        ApplicationContext context = new AnnotationConfigApplicationContext(ConfigWithFinalFactoryBeanAsReturnType.class);
+        assertEquals("x", context.getBean(Bar.class).foo.toString());
+        // not same due to fallback to raw FinalFactoryBean instance with repeated getObject() invocations
+        assertNotSame(context.getBean(FooInterface.class), context.getBean(Bar.class).foo);
+    }
 
 
-	@Configuration
-	protected static class ConfigWithAbstractFactoryBean {
+    @Configuration
+    protected static class ConfigWithFactoryBean {
 
-		@Bean
-		public FactoryBean<Foo> foo() {
-			return new AbstractFactoryBean<Foo>() {
-				@Override
-				public Foo createInstance() {
-					return new Foo("x");
-				}
-				@Override
-				public Class<?> getObjectType() {
-					return Foo.class;
-				}
-			};
-		}
+        @Bean
+        public FactoryBean<Foo> foo() {
+            return new FactoryBean<Foo>() {
+                @Override
+                public Foo getObject() {
+                    return new Foo("x");
+                }
 
-		@Bean
-		public Bar bar() throws Exception {
-			assertTrue(foo().isSingleton());
-			return new Bar(foo().getObject());
-		}
-	}
+                @Override
+                public Class<?> getObjectType() {
+                    return Foo.class;
+                }
+            };
+        }
 
-
-	@Configuration
-	protected static class ConfigWithAbstractFactoryBeanForInterface {
-
-		@Bean
-		public FactoryBean<FooInterface> foo() {
-			return new AbstractFactoryBean<FooInterface>() {
-				@Override
-				public FooInterface createInstance() {
-					return new Foo("x");
-				}
-				@Override
-				public Class<?> getObjectType() {
-					return FooInterface.class;
-				}
-			};
-		}
-
-		@Bean
-		public Bar bar() throws Exception {
-			assertTrue(foo().isSingleton());
-			return new Bar(foo().getObject());
-		}
-	}
+        @Bean
+        public Bar bar() throws Exception {
+            assertTrue(foo().isSingleton());
+            return new Bar(foo().getObject());
+        }
+    }
 
 
-	@Configuration
-	protected static class ConfigWithAbstractFactoryBeanAsReturnType {
+    @Configuration
+    protected static class ConfigWithAbstractFactoryBean {
 
-		@Bean
-		public AbstractFactoryBean<FooInterface> foo() {
-			return new AbstractFactoryBean<FooInterface>() {
-				@Override
-				public FooInterface createInstance() {
-					return new Foo("x");
-				}
-				@Override
-				public Class<?> getObjectType() {
-					return Foo.class;
-				}
-			};
-		}
+        @Bean
+        public FactoryBean<Foo> foo() {
+            return new AbstractFactoryBean<Foo>() {
+                @Override
+                public Foo createInstance() {
+                    return new Foo("x");
+                }
 
-		@Bean
-		public Bar bar() throws Exception {
-			assertTrue(foo().isSingleton());
-			return new Bar(foo().getObject());
-		}
-	}
+                @Override
+                public Class<?> getObjectType() {
+                    return Foo.class;
+                }
+            };
+        }
 
-
-	@Configuration
-	protected static class ConfigWithFinalFactoryBean {
-
-		@Bean
-		public FactoryBean<FooInterface> foo() {
-			return new FinalFactoryBean();
-		}
-
-		@Bean
-		public Bar bar() throws Exception {
-			assertTrue(foo().isSingleton());
-			return new Bar(foo().getObject());
-		}
-	}
+        @Bean
+        public Bar bar() throws Exception {
+            assertTrue(foo().isSingleton());
+            return new Bar(foo().getObject());
+        }
+    }
 
 
-	@Configuration
-	protected static class ConfigWithFinalFactoryBeanAsReturnType {
+    @Configuration
+    protected static class ConfigWithAbstractFactoryBeanForInterface {
 
-		@Bean
-		public FinalFactoryBean foo() {
-			return new FinalFactoryBean();
-		}
+        @Bean
+        public FactoryBean<FooInterface> foo() {
+            return new AbstractFactoryBean<FooInterface>() {
+                @Override
+                public FooInterface createInstance() {
+                    return new Foo("x");
+                }
 
-		@Bean
-		public Bar bar() throws Exception {
-			assertTrue(foo().isSingleton());
-			return new Bar(foo().getObject());
-		}
-	}
+                @Override
+                public Class<?> getObjectType() {
+                    return FooInterface.class;
+                }
+            };
+        }
 
-
-	private static final class FinalFactoryBean implements FactoryBean<FooInterface> {
-
-		@Override
-		public Foo getObject() {
-			return new Foo("x");
-		}
-
-		@Override
-		public Class<?> getObjectType() {
-			return FooInterface.class;
-		}
-	}
+        @Bean
+        public Bar bar() throws Exception {
+            assertTrue(foo().isSingleton());
+            return new Bar(foo().getObject());
+        }
+    }
 
 
-	protected interface FooInterface {
-	}
+    @Configuration
+    protected static class ConfigWithAbstractFactoryBeanAsReturnType {
+
+        @Bean
+        public AbstractFactoryBean<FooInterface> foo() {
+            return new AbstractFactoryBean<FooInterface>() {
+                @Override
+                public FooInterface createInstance() {
+                    return new Foo("x");
+                }
+
+                @Override
+                public Class<?> getObjectType() {
+                    return Foo.class;
+                }
+            };
+        }
+
+        @Bean
+        public Bar bar() throws Exception {
+            assertTrue(foo().isSingleton());
+            return new Bar(foo().getObject());
+        }
+    }
 
 
-	protected static class Foo implements FooInterface {
+    @Configuration
+    protected static class ConfigWithFinalFactoryBean {
 
-		private final String value;
+        @Bean
+        public FactoryBean<FooInterface> foo() {
+            return new FinalFactoryBean();
+        }
 
-		public Foo(String value) {
-			this.value = value;
-		}
-
-		@Override
-		public String toString() {
-			return this.value;
-		}
-	}
+        @Bean
+        public Bar bar() throws Exception {
+            assertTrue(foo().isSingleton());
+            return new Bar(foo().getObject());
+        }
+    }
 
 
-	protected static class Bar {
+    @Configuration
+    protected static class ConfigWithFinalFactoryBeanAsReturnType {
 
-		public final FooInterface foo;
+        @Bean
+        public FinalFactoryBean foo() {
+            return new FinalFactoryBean();
+        }
 
-		public Bar(FooInterface foo) {
-			this.foo = foo;
-		}
-	}
+        @Bean
+        public Bar bar() throws Exception {
+            assertTrue(foo().isSingleton());
+            return new Bar(foo().getObject());
+        }
+    }
+
+
+    private static final class FinalFactoryBean implements FactoryBean<FooInterface> {
+
+        @Override
+        public Foo getObject() {
+            return new Foo("x");
+        }
+
+        @Override
+        public Class<?> getObjectType() {
+            return FooInterface.class;
+        }
+    }
+
+
+    protected interface FooInterface {
+    }
+
+
+    protected static class Foo implements FooInterface {
+
+        private final String value;
+
+        public Foo(String value) {
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return this.value;
+        }
+    }
+
+
+    protected static class Bar {
+
+        public final FooInterface foo;
+
+        public Bar(FooInterface foo) {
+            this.foo = foo;
+        }
+    }
 
 }

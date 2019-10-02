@@ -46,138 +46,136 @@ import static org.junit.Assert.*;
  */
 public abstract class AbstractEntityManagerFactoryIntegrationTests {
 
-	protected static final String[] ECLIPSELINK_CONFIG_LOCATIONS = new String[] {
-			"/org/springframework/orm/jpa/eclipselink/eclipselink-manager.xml",
-			"/org/springframework/orm/jpa/memdb.xml", "/org/springframework/orm/jpa/inject.xml"};
+    protected static final String[] ECLIPSELINK_CONFIG_LOCATIONS = new String[]{
+            "/org/springframework/orm/jpa/eclipselink/eclipselink-manager.xml",
+            "/org/springframework/orm/jpa/memdb.xml", "/org/springframework/orm/jpa/inject.xml"};
 
 
-	private static ConfigurableApplicationContext applicationContext;
+    private static ConfigurableApplicationContext applicationContext;
 
-	protected EntityManagerFactory entityManagerFactory;
+    protected EntityManagerFactory entityManagerFactory;
 
-	protected EntityManager sharedEntityManager;
+    protected EntityManager sharedEntityManager;
 
-	protected PlatformTransactionManager transactionManager;
+    protected PlatformTransactionManager transactionManager;
 
-	protected DefaultTransactionDefinition transactionDefinition = new DefaultTransactionDefinition();
+    protected DefaultTransactionDefinition transactionDefinition = new DefaultTransactionDefinition();
 
-	protected TransactionStatus transactionStatus;
+    protected TransactionStatus transactionStatus;
 
-	private boolean complete = false;
+    private boolean complete = false;
 
-	protected JdbcTemplate jdbcTemplate;
+    protected JdbcTemplate jdbcTemplate;
 
-	private boolean zappedTables = false;
-
-
-	@Autowired
-	public void setEntityManagerFactory(EntityManagerFactory entityManagerFactory) {
-		this.entityManagerFactory = entityManagerFactory;
-		this.sharedEntityManager = SharedEntityManagerCreator.createSharedEntityManager(this.entityManagerFactory);
-	}
-
-	@Autowired
-	public void setTransactionManager(PlatformTransactionManager transactionManager) {
-		this.transactionManager = transactionManager;
-	}
-
-	@Autowired
-	public void setDataSource(DataSource dataSource) {
-		this.jdbcTemplate = new JdbcTemplate(dataSource);
-	}
+    private boolean zappedTables = false;
 
 
-	@Before
-	public void setup() {
-		if (applicationContext == null) {
-			applicationContext = new ClassPathXmlApplicationContext(getConfigLocations());
-		}
-		applicationContext.getAutowireCapableBeanFactory().autowireBean(this);
+    @Autowired
+    public void setEntityManagerFactory(EntityManagerFactory entityManagerFactory) {
+        this.entityManagerFactory = entityManagerFactory;
+        this.sharedEntityManager = SharedEntityManagerCreator.createSharedEntityManager(this.entityManagerFactory);
+    }
 
-		if (this.transactionManager != null && this.transactionDefinition != null) {
-			startNewTransaction();
-		}
-	}
+    @Autowired
+    public void setTransactionManager(PlatformTransactionManager transactionManager) {
+        this.transactionManager = transactionManager;
+    }
 
-	protected String[] getConfigLocations() {
-		return ECLIPSELINK_CONFIG_LOCATIONS;
-	}
-
-	@After
-	public void cleanup() {
-		if (this.transactionStatus != null && !this.transactionStatus.isCompleted()) {
-			endTransaction();
-		}
-
-		assertTrue(TransactionSynchronizationManager.getResourceMap().isEmpty());
-		assertFalse(TransactionSynchronizationManager.isSynchronizationActive());
-		assertFalse(TransactionSynchronizationManager.isCurrentTransactionReadOnly());
-		assertFalse(TransactionSynchronizationManager.isActualTransactionActive());
-	}
-
-	@AfterClass
-	public static void closeContext() {
-		if (applicationContext != null) {
-			applicationContext.close();
-			applicationContext = null;
-		}
-	}
+    @Autowired
+    public void setDataSource(DataSource dataSource) {
+        this.jdbcTemplate = new JdbcTemplate(dataSource);
+    }
 
 
-	protected EntityManager createContainerManagedEntityManager() {
-		return ExtendedEntityManagerCreator.createContainerManagedEntityManager(this.entityManagerFactory);
-	}
+    @Before
+    public void setup() {
+        if (applicationContext == null) {
+            applicationContext = new ClassPathXmlApplicationContext(getConfigLocations());
+        }
+        applicationContext.getAutowireCapableBeanFactory().autowireBean(this);
 
-	protected void setComplete() {
-		if (this.transactionManager == null) {
-			throw new IllegalStateException("No transaction manager set");
-		}
-		if (this.zappedTables) {
-			throw new IllegalStateException("Cannot set complete after deleting tables");
-		}
-		this.complete = true;
-	}
+        if (this.transactionManager != null && this.transactionDefinition != null) {
+            startNewTransaction();
+        }
+    }
 
-	protected void endTransaction() {
-		final boolean commit = this.complete;
-		if (this.transactionStatus != null) {
-			try {
-				if (commit) {
-					this.transactionManager.commit(this.transactionStatus);
-				}
-				else {
-					this.transactionManager.rollback(this.transactionStatus);
-				}
-			}
-			finally {
-				this.transactionStatus = null;
-			}
-		}
-	}
+    protected String[] getConfigLocations() {
+        return ECLIPSELINK_CONFIG_LOCATIONS;
+    }
 
-	protected void startNewTransaction() throws TransactionException {
-		this.transactionStatus = this.transactionManager.getTransaction(this.transactionDefinition);
-	}
+    @After
+    public void cleanup() {
+        if (this.transactionStatus != null && !this.transactionStatus.isCompleted()) {
+            endTransaction();
+        }
 
-	protected void deleteFromTables(String... tableNames) {
-		for (String tableName : tableNames) {
-			this.jdbcTemplate.update("DELETE FROM " + tableName);
-		}
-		this.zappedTables = true;
-	}
+        assertTrue(TransactionSynchronizationManager.getResourceMap().isEmpty());
+        assertFalse(TransactionSynchronizationManager.isSynchronizationActive());
+        assertFalse(TransactionSynchronizationManager.isCurrentTransactionReadOnly());
+        assertFalse(TransactionSynchronizationManager.isActualTransactionActive());
+    }
 
-	protected int countRowsInTable(EntityManager em, String tableName) {
-		Query query = em.createNativeQuery("SELECT COUNT(0) FROM " + tableName);
-		return ((Number) query.getSingleResult()).intValue();
-	}
+    @AfterClass
+    public static void closeContext() {
+        if (applicationContext != null) {
+            applicationContext.close();
+            applicationContext = null;
+        }
+    }
 
-	protected int countRowsInTable(String tableName) {
-		return this.jdbcTemplate.queryForObject("SELECT COUNT(0) FROM " + tableName, Integer.class);
-	}
 
-	protected void executeSqlScript(String sqlResourcePath) throws DataAccessException {
-		Resource resource = applicationContext.getResource(sqlResourcePath);
-		new ResourceDatabasePopulator(resource).execute(this.jdbcTemplate.getDataSource());
-	}
+    protected EntityManager createContainerManagedEntityManager() {
+        return ExtendedEntityManagerCreator.createContainerManagedEntityManager(this.entityManagerFactory);
+    }
+
+    protected void setComplete() {
+        if (this.transactionManager == null) {
+            throw new IllegalStateException("No transaction manager set");
+        }
+        if (this.zappedTables) {
+            throw new IllegalStateException("Cannot set complete after deleting tables");
+        }
+        this.complete = true;
+    }
+
+    protected void endTransaction() {
+        final boolean commit = this.complete;
+        if (this.transactionStatus != null) {
+            try {
+                if (commit) {
+                    this.transactionManager.commit(this.transactionStatus);
+                } else {
+                    this.transactionManager.rollback(this.transactionStatus);
+                }
+            } finally {
+                this.transactionStatus = null;
+            }
+        }
+    }
+
+    protected void startNewTransaction() throws TransactionException {
+        this.transactionStatus = this.transactionManager.getTransaction(this.transactionDefinition);
+    }
+
+    protected void deleteFromTables(String... tableNames) {
+        for (String tableName : tableNames) {
+            this.jdbcTemplate.update("DELETE FROM " + tableName);
+        }
+        this.zappedTables = true;
+    }
+
+    protected int countRowsInTable(EntityManager em, String tableName) {
+        Query query = em.createNativeQuery("SELECT COUNT(0) FROM " + tableName);
+        return ((Number) query.getSingleResult()).intValue();
+    }
+
+    protected int countRowsInTable(String tableName) {
+        return this.jdbcTemplate.queryForObject("SELECT COUNT(0) FROM " + tableName, Integer.class);
+    }
+
+    protected void executeSqlScript(String sqlResourcePath) throws DataAccessException {
+        Resource resource = applicationContext.getResource(sqlResourcePath);
+        new ResourceDatabasePopulator(resource).execute(this.jdbcTemplate.getDataSource());
+    }
 
 }

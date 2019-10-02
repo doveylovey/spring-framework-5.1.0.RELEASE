@@ -41,100 +41,100 @@ import org.springframework.http.MockHttpOutputMessage;
  */
 public class RssChannelHttpMessageConverterTests {
 
-	private RssChannelHttpMessageConverter converter;
+    private RssChannelHttpMessageConverter converter;
 
 
-	@Before
-	public void setUp() {
-		converter = new RssChannelHttpMessageConverter();
-	}
+    @Before
+    public void setUp() {
+        converter = new RssChannelHttpMessageConverter();
+    }
 
 
-	@Test
-	public void canRead() {
-		assertTrue(converter.canRead(Channel.class, new MediaType("application", "rss+xml")));
-		assertTrue(converter.canRead(Channel.class, new MediaType("application", "rss+xml", StandardCharsets.UTF_8)));
-	}
+    @Test
+    public void canRead() {
+        assertTrue(converter.canRead(Channel.class, new MediaType("application", "rss+xml")));
+        assertTrue(converter.canRead(Channel.class, new MediaType("application", "rss+xml", StandardCharsets.UTF_8)));
+    }
 
-	@Test
-	public void canWrite() {
-		assertTrue(converter.canWrite(Channel.class, new MediaType("application", "rss+xml")));
-		assertTrue(converter.canWrite(Channel.class, new MediaType("application", "rss+xml", StandardCharsets.UTF_8)));
-	}
+    @Test
+    public void canWrite() {
+        assertTrue(converter.canWrite(Channel.class, new MediaType("application", "rss+xml")));
+        assertTrue(converter.canWrite(Channel.class, new MediaType("application", "rss+xml", StandardCharsets.UTF_8)));
+    }
 
-	@Test
-	public void read() throws IOException {
-		InputStream is = getClass().getResourceAsStream("rss.xml");
-		MockHttpInputMessage inputMessage = new MockHttpInputMessage(is);
-		inputMessage.getHeaders().setContentType(new MediaType("application", "rss+xml", StandardCharsets.UTF_8));
-		Channel result = converter.read(Channel.class, inputMessage);
-		assertEquals("title", result.getTitle());
-		assertEquals("http://example.com", result.getLink());
-		assertEquals("description", result.getDescription());
+    @Test
+    public void read() throws IOException {
+        InputStream is = getClass().getResourceAsStream("rss.xml");
+        MockHttpInputMessage inputMessage = new MockHttpInputMessage(is);
+        inputMessage.getHeaders().setContentType(new MediaType("application", "rss+xml", StandardCharsets.UTF_8));
+        Channel result = converter.read(Channel.class, inputMessage);
+        assertEquals("title", result.getTitle());
+        assertEquals("http://example.com", result.getLink());
+        assertEquals("description", result.getDescription());
 
-		List<?> items = result.getItems();
-		assertEquals(2, items.size());
+        List<?> items = result.getItems();
+        assertEquals(2, items.size());
 
-		Item item1 = (Item) items.get(0);
-		assertEquals("title1", item1.getTitle());
+        Item item1 = (Item) items.get(0);
+        assertEquals("title1", item1.getTitle());
 
-		Item item2 = (Item) items.get(1);
-		assertEquals("title2", item2.getTitle());
-	}
+        Item item2 = (Item) items.get(1);
+        assertEquals("title2", item2.getTitle());
+    }
 
-	@Test
-	public void write() throws IOException, SAXException {
-		Channel channel = new Channel("rss_2.0");
-		channel.setTitle("title");
-		channel.setLink("http://example.com");
-		channel.setDescription("description");
+    @Test
+    public void write() throws IOException, SAXException {
+        Channel channel = new Channel("rss_2.0");
+        channel.setTitle("title");
+        channel.setLink("http://example.com");
+        channel.setDescription("description");
 
-		Item item1 = new Item();
-		item1.setTitle("title1");
+        Item item1 = new Item();
+        item1.setTitle("title1");
 
-		Item item2 = new Item();
-		item2.setTitle("title2");
+        Item item2 = new Item();
+        item2.setTitle("title2");
 
-		List<Item> items = new ArrayList<>(2);
-		items.add(item1);
-		items.add(item2);
-		channel.setItems(items);
+        List<Item> items = new ArrayList<>(2);
+        items.add(item1);
+        items.add(item2);
+        channel.setItems(items);
 
-		MockHttpOutputMessage outputMessage = new MockHttpOutputMessage();
-		converter.write(channel, null, outputMessage);
+        MockHttpOutputMessage outputMessage = new MockHttpOutputMessage();
+        converter.write(channel, null, outputMessage);
 
-		assertEquals("Invalid content-type", new MediaType("application", "rss+xml", StandardCharsets.UTF_8),
-				outputMessage.getHeaders().getContentType());
-		String expected = "<rss version=\"2.0\">" +
-				"<channel><title>title</title><link>http://example.com</link><description>description</description>" +
-				"<item><title>title1</title></item>" +
-				"<item><title>title2</title></item>" +
-				"</channel></rss>";
-		assertThat(outputMessage.getBodyAsString(StandardCharsets.UTF_8), isSimilarTo(expected));
-	}
+        assertEquals("Invalid content-type", new MediaType("application", "rss+xml", StandardCharsets.UTF_8),
+                outputMessage.getHeaders().getContentType());
+        String expected = "<rss version=\"2.0\">" +
+                "<channel><title>title</title><link>http://example.com</link><description>description</description>" +
+                "<item><title>title1</title></item>" +
+                "<item><title>title2</title></item>" +
+                "</channel></rss>";
+        assertThat(outputMessage.getBodyAsString(StandardCharsets.UTF_8), isSimilarTo(expected));
+    }
 
-	@Test
-	public void writeOtherCharset() throws IOException, SAXException {
-		Channel channel = new Channel("rss_2.0");
-		channel.setTitle("title");
-		channel.setLink("http://example.com");
-		channel.setDescription("description");
+    @Test
+    public void writeOtherCharset() throws IOException, SAXException {
+        Channel channel = new Channel("rss_2.0");
+        channel.setTitle("title");
+        channel.setLink("http://example.com");
+        channel.setDescription("description");
 
-		String encoding = "ISO-8859-1";
-		channel.setEncoding(encoding);
+        String encoding = "ISO-8859-1";
+        channel.setEncoding(encoding);
 
-		Item item1 = new Item();
-		item1.setTitle("title1");
+        Item item1 = new Item();
+        item1.setTitle("title1");
 
-		MockHttpOutputMessage outputMessage = new MockHttpOutputMessage();
-		converter.write(channel, null, outputMessage);
+        MockHttpOutputMessage outputMessage = new MockHttpOutputMessage();
+        converter.write(channel, null, outputMessage);
 
-		assertEquals("Invalid content-type", new MediaType("application", "rss+xml", Charset.forName(encoding)),
-				outputMessage.getHeaders().getContentType());
-	}
+        assertEquals("Invalid content-type", new MediaType("application", "rss+xml", Charset.forName(encoding)),
+                outputMessage.getHeaders().getContentType());
+    }
 
-	private static CompareMatcher isSimilarTo(final String content) {
-		return CompareMatcher.isSimilarTo(content)
-				.ignoreWhitespace();
-	}
+    private static CompareMatcher isSimilarTo(final String content) {
+        return CompareMatcher.isSimilarTo(content)
+                .ignoreWhitespace();
+    }
 }

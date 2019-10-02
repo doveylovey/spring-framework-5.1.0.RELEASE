@@ -39,59 +39,59 @@ import static org.junit.Assert.assertTrue;
  */
 public class ListenerReadPublisherTests {
 
-	@Test
-	@SuppressWarnings("unchecked")
-	public void testReceiveTwoRequestCallsWhenOnSubscribe() {
-		Subscriber<DataBuffer> subscriber = mock(Subscriber.class);
-		doAnswer(new SubscriptionAnswer()).when(subscriber).onSubscribe(isA(Subscription.class));
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testReceiveTwoRequestCallsWhenOnSubscribe() {
+        Subscriber<DataBuffer> subscriber = mock(Subscriber.class);
+        doAnswer(new SubscriptionAnswer()).when(subscriber).onSubscribe(isA(Subscription.class));
 
-		TestListenerReadPublisher publisher = new TestListenerReadPublisher();
-		publisher.subscribe(subscriber);
-		publisher.onDataAvailable();
+        TestListenerReadPublisher publisher = new TestListenerReadPublisher();
+        publisher.subscribe(subscriber);
+        publisher.onDataAvailable();
 
-		assertTrue(publisher.getReadCalls() == 2);
-	}
+        assertTrue(publisher.getReadCalls() == 2);
+    }
 
-	private static final class TestListenerReadPublisher extends AbstractListenerReadPublisher {
+    private static final class TestListenerReadPublisher extends AbstractListenerReadPublisher {
 
-		private int readCalls = 0;
+        private int readCalls = 0;
 
-		public TestListenerReadPublisher() {
-			super("");
-		}
+        public TestListenerReadPublisher() {
+            super("");
+        }
 
-		@Override
-		protected void checkOnDataAvailable() {
-			// no-op
-		}
+        @Override
+        protected void checkOnDataAvailable() {
+            // no-op
+        }
 
-		@Override
-		protected DataBuffer read() throws IOException {
-			readCalls++;
-			return mock(DataBuffer.class);
-		}
+        @Override
+        protected DataBuffer read() throws IOException {
+            readCalls++;
+            return mock(DataBuffer.class);
+        }
 
-		@Override
-		protected void readingPaused() {
-			// No-op
-		}
+        @Override
+        protected void readingPaused() {
+            // No-op
+        }
 
-		public int getReadCalls() {
-			return this.readCalls;
-		}
+        public int getReadCalls() {
+            return this.readCalls;
+        }
 
-	}
+    }
 
-	private static final class SubscriptionAnswer implements Answer<Subscription> {
+    private static final class SubscriptionAnswer implements Answer<Subscription> {
 
-		@Override
-		public Subscription answer(InvocationOnMock invocation) throws Throwable {
-			Subscription arg = (Subscription) invocation.getArguments()[0];
-			arg.request(1);
-			arg.request(1);
-			return arg;
-		}
+        @Override
+        public Subscription answer(InvocationOnMock invocation) throws Throwable {
+            Subscription arg = (Subscription) invocation.getArguments()[0];
+            arg.request(1);
+            arg.request(1);
+            return arg;
+        }
 
-	}
+    }
 
 }

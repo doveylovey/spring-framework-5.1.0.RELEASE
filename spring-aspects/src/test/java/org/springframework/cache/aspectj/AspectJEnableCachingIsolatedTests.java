@@ -50,236 +50,233 @@ import static org.junit.Assert.*;
  */
 public class AspectJEnableCachingIsolatedTests {
 
-	private ConfigurableApplicationContext ctx;
+    private ConfigurableApplicationContext ctx;
 
 
-	private void load(Class<?>... config) {
-		this.ctx = new AnnotationConfigApplicationContext(config);
-	}
+    private void load(Class<?>... config) {
+        this.ctx = new AnnotationConfigApplicationContext(config);
+    }
 
-	@After
-	public void closeContext() {
-		if (this.ctx != null) {
-			this.ctx.close();
-		}
-	}
-
-
-	@Test
-	public void testKeyStrategy() {
-		load(EnableCachingConfig.class);
-		AnnotationCacheAspect aspect = this.ctx.getBean(AnnotationCacheAspect.class);
-		assertSame(this.ctx.getBean("keyGenerator", KeyGenerator.class), aspect.getKeyGenerator());
-	}
-
-	@Test
-	public void testCacheErrorHandler() {
-		load(EnableCachingConfig.class);
-		AnnotationCacheAspect aspect = this.ctx.getBean(AnnotationCacheAspect.class);
-		assertSame(this.ctx.getBean("errorHandler", CacheErrorHandler.class), aspect.getErrorHandler());
-	}
+    @After
+    public void closeContext() {
+        if (this.ctx != null) {
+            this.ctx.close();
+        }
+    }
 
 
-	// --- local tests -------
+    @Test
+    public void testKeyStrategy() {
+        load(EnableCachingConfig.class);
+        AnnotationCacheAspect aspect = this.ctx.getBean(AnnotationCacheAspect.class);
+        assertSame(this.ctx.getBean("keyGenerator", KeyGenerator.class), aspect.getKeyGenerator());
+    }
 
-	@Test
-	public void singleCacheManagerBean() {
-		load(SingleCacheManagerConfig.class);
-	}
-
-	@Test
-	public void multipleCacheManagerBeans() {
-		try {
-			load(MultiCacheManagerConfig.class);
-		}
-		catch (IllegalStateException ex) {
-			assertTrue(ex.getMessage().contains("bean of type CacheManager"));
-		}
-	}
-
-	@Test
-	public void multipleCacheManagerBeans_implementsCachingConfigurer() {
-		load(MultiCacheManagerConfigurer.class); // does not throw
-	}
-
-	@Test
-	public void multipleCachingConfigurers() {
-		try {
-			load(MultiCacheManagerConfigurer.class, EnableCachingConfig.class);
-		}
-		catch (BeanCreationException ex) {
-			Throwable root = ex.getRootCause();
-			assertTrue(root instanceof IllegalStateException);
-			assertTrue(ex.getMessage().contains("implementations of CachingConfigurer"));
-		}
-	}
-
-	@Test
-	public void noCacheManagerBeans() {
-		try {
-			load(EmptyConfig.class);
-		}
-		catch (IllegalStateException ex) {
-			assertTrue(ex.getMessage().contains("no bean of type CacheManager"));
-		}
-	}
-
-	@Test
-	@Ignore("AspectJ has some sort of caching that makes this one fail")
-	public void emptyConfigSupport() {
-		load(EmptyConfigSupportConfig.class);
-		AnnotationCacheAspect aspect = this.ctx.getBean(AnnotationCacheAspect.class);
-		assertNotNull(aspect.getCacheResolver());
-		assertEquals(SimpleCacheResolver.class, aspect.getCacheResolver().getClass());
-		assertSame(this.ctx.getBean(CacheManager.class),
-				((SimpleCacheResolver) aspect.getCacheResolver()).getCacheManager());
-	}
-
-	@Test
-	public void bothSetOnlyResolverIsUsed() {
-		load(FullCachingConfig.class);
-
-		AnnotationCacheAspect aspect = this.ctx.getBean(AnnotationCacheAspect.class);
-		assertSame(this.ctx.getBean("cacheResolver"), aspect.getCacheResolver());
-		assertSame(this.ctx.getBean("keyGenerator"), aspect.getKeyGenerator());
-	}
+    @Test
+    public void testCacheErrorHandler() {
+        load(EnableCachingConfig.class);
+        AnnotationCacheAspect aspect = this.ctx.getBean(AnnotationCacheAspect.class);
+        assertSame(this.ctx.getBean("errorHandler", CacheErrorHandler.class), aspect.getErrorHandler());
+    }
 
 
-	@Configuration
-	@EnableCaching(mode = AdviceMode.ASPECTJ)
-	static class EnableCachingConfig extends CachingConfigurerSupport {
+    // --- local tests -------
 
-		@Override
-		@Bean
-		public CacheManager cacheManager() {
-			return CacheTestUtils.createSimpleCacheManager("testCache", "primary", "secondary");
-		}
+    @Test
+    public void singleCacheManagerBean() {
+        load(SingleCacheManagerConfig.class);
+    }
 
-		@Bean
-		public CacheableService<?> service() {
-			return new DefaultCacheableService();
-		}
+    @Test
+    public void multipleCacheManagerBeans() {
+        try {
+            load(MultiCacheManagerConfig.class);
+        } catch (IllegalStateException ex) {
+            assertTrue(ex.getMessage().contains("bean of type CacheManager"));
+        }
+    }
 
-		@Bean
-		public CacheableService<?> classService() {
-			return new AnnotatedClassCacheableService();
-		}
+    @Test
+    public void multipleCacheManagerBeans_implementsCachingConfigurer() {
+        load(MultiCacheManagerConfigurer.class); // does not throw
+    }
 
-		@Override
-		@Bean
-		public KeyGenerator keyGenerator() {
-			return new SomeKeyGenerator();
-		}
+    @Test
+    public void multipleCachingConfigurers() {
+        try {
+            load(MultiCacheManagerConfigurer.class, EnableCachingConfig.class);
+        } catch (BeanCreationException ex) {
+            Throwable root = ex.getRootCause();
+            assertTrue(root instanceof IllegalStateException);
+            assertTrue(ex.getMessage().contains("implementations of CachingConfigurer"));
+        }
+    }
 
-		@Override
-		@Bean
-		public CacheErrorHandler errorHandler() {
-			return new SimpleCacheErrorHandler();
-		}
+    @Test
+    public void noCacheManagerBeans() {
+        try {
+            load(EmptyConfig.class);
+        } catch (IllegalStateException ex) {
+            assertTrue(ex.getMessage().contains("no bean of type CacheManager"));
+        }
+    }
 
-		@Bean
-		public KeyGenerator customKeyGenerator() {
-			return new SomeCustomKeyGenerator();
-		}
+    @Test
+    @Ignore("AspectJ has some sort of caching that makes this one fail")
+    public void emptyConfigSupport() {
+        load(EmptyConfigSupportConfig.class);
+        AnnotationCacheAspect aspect = this.ctx.getBean(AnnotationCacheAspect.class);
+        assertNotNull(aspect.getCacheResolver());
+        assertEquals(SimpleCacheResolver.class, aspect.getCacheResolver().getClass());
+        assertSame(this.ctx.getBean(CacheManager.class),
+                ((SimpleCacheResolver) aspect.getCacheResolver()).getCacheManager());
+    }
 
-		@Bean
-		public CacheManager customCacheManager() {
-			return CacheTestUtils.createSimpleCacheManager("testCache");
-		}
-	}
+    @Test
+    public void bothSetOnlyResolverIsUsed() {
+        load(FullCachingConfig.class);
 
-
-	@Configuration
-	@EnableCaching(mode = AdviceMode.ASPECTJ)
-	static class EmptyConfig {
-	}
-
-
-	@Configuration
-	@EnableCaching(mode = AdviceMode.ASPECTJ)
-	static class SingleCacheManagerConfig {
-
-		@Bean
-		public CacheManager cm1() {
-			return new NoOpCacheManager();
-		}
-	}
-
-
-	@Configuration
-	@EnableCaching(mode = AdviceMode.ASPECTJ)
-	static class MultiCacheManagerConfig {
-
-		@Bean
-		public CacheManager cm1() {
-			return new NoOpCacheManager();
-		}
-
-		@Bean
-		public CacheManager cm2() {
-			return new NoOpCacheManager();
-		}
-	}
+        AnnotationCacheAspect aspect = this.ctx.getBean(AnnotationCacheAspect.class);
+        assertSame(this.ctx.getBean("cacheResolver"), aspect.getCacheResolver());
+        assertSame(this.ctx.getBean("keyGenerator"), aspect.getKeyGenerator());
+    }
 
 
-	@Configuration
-	@EnableCaching(mode = AdviceMode.ASPECTJ)
-	static class MultiCacheManagerConfigurer extends CachingConfigurerSupport {
+    @Configuration
+    @EnableCaching(mode = AdviceMode.ASPECTJ)
+    static class EnableCachingConfig extends CachingConfigurerSupport {
 
-		@Bean
-		public CacheManager cm1() {
-			return new NoOpCacheManager();
-		}
+        @Override
+        @Bean
+        public CacheManager cacheManager() {
+            return CacheTestUtils.createSimpleCacheManager("testCache", "primary", "secondary");
+        }
 
-		@Bean
-		public CacheManager cm2() {
-			return new NoOpCacheManager();
-		}
+        @Bean
+        public CacheableService<?> service() {
+            return new DefaultCacheableService();
+        }
 
-		@Override
-		public CacheManager cacheManager() {
-			return cm1();
-		}
+        @Bean
+        public CacheableService<?> classService() {
+            return new AnnotatedClassCacheableService();
+        }
 
-		@Override
-		public KeyGenerator keyGenerator() {
-			return null;
-		}
-	}
+        @Override
+        @Bean
+        public KeyGenerator keyGenerator() {
+            return new SomeKeyGenerator();
+        }
+
+        @Override
+        @Bean
+        public CacheErrorHandler errorHandler() {
+            return new SimpleCacheErrorHandler();
+        }
+
+        @Bean
+        public KeyGenerator customKeyGenerator() {
+            return new SomeCustomKeyGenerator();
+        }
+
+        @Bean
+        public CacheManager customCacheManager() {
+            return CacheTestUtils.createSimpleCacheManager("testCache");
+        }
+    }
 
 
-	@Configuration
-	@EnableCaching(mode = AdviceMode.ASPECTJ)
-	static class EmptyConfigSupportConfig extends CachingConfigurerSupport {
-
-		@Bean
-		public CacheManager cm() {
-			return new NoOpCacheManager();
-		}
-
-	}
+    @Configuration
+    @EnableCaching(mode = AdviceMode.ASPECTJ)
+    static class EmptyConfig {
+    }
 
 
-	@Configuration
-	@EnableCaching(mode = AdviceMode.ASPECTJ)
-	static class FullCachingConfig extends CachingConfigurerSupport {
+    @Configuration
+    @EnableCaching(mode = AdviceMode.ASPECTJ)
+    static class SingleCacheManagerConfig {
 
-		@Override
-		@Bean
-		public CacheManager cacheManager() {
-			return new NoOpCacheManager();
-		}
+        @Bean
+        public CacheManager cm1() {
+            return new NoOpCacheManager();
+        }
+    }
 
-		@Override
-		@Bean
-		public KeyGenerator keyGenerator() {
-			return new SomeKeyGenerator();
-		}
 
-		@Override
-		@Bean
-		public CacheResolver cacheResolver() {
-			return new NamedCacheResolver(cacheManager(), "foo");
-		}
-	}
+    @Configuration
+    @EnableCaching(mode = AdviceMode.ASPECTJ)
+    static class MultiCacheManagerConfig {
+
+        @Bean
+        public CacheManager cm1() {
+            return new NoOpCacheManager();
+        }
+
+        @Bean
+        public CacheManager cm2() {
+            return new NoOpCacheManager();
+        }
+    }
+
+
+    @Configuration
+    @EnableCaching(mode = AdviceMode.ASPECTJ)
+    static class MultiCacheManagerConfigurer extends CachingConfigurerSupport {
+
+        @Bean
+        public CacheManager cm1() {
+            return new NoOpCacheManager();
+        }
+
+        @Bean
+        public CacheManager cm2() {
+            return new NoOpCacheManager();
+        }
+
+        @Override
+        public CacheManager cacheManager() {
+            return cm1();
+        }
+
+        @Override
+        public KeyGenerator keyGenerator() {
+            return null;
+        }
+    }
+
+
+    @Configuration
+    @EnableCaching(mode = AdviceMode.ASPECTJ)
+    static class EmptyConfigSupportConfig extends CachingConfigurerSupport {
+
+        @Bean
+        public CacheManager cm() {
+            return new NoOpCacheManager();
+        }
+
+    }
+
+
+    @Configuration
+    @EnableCaching(mode = AdviceMode.ASPECTJ)
+    static class FullCachingConfig extends CachingConfigurerSupport {
+
+        @Override
+        @Bean
+        public CacheManager cacheManager() {
+            return new NoOpCacheManager();
+        }
+
+        @Override
+        @Bean
+        public KeyGenerator keyGenerator() {
+            return new SomeKeyGenerator();
+        }
+
+        @Override
+        @Bean
+        public CacheResolver cacheResolver() {
+            return new NamedCacheResolver(cacheManager(), "foo");
+        }
+    }
 }

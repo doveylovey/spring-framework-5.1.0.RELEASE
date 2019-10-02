@@ -28,9 +28,9 @@ import org.springframework.beans.factory.xml.AbstractSimpleBeanDefinitionParser;
  */
 class JibxMarshallerBeanDefinitionParser extends AbstractSimpleBeanDefinitionParser {
 
-	@Override
-	protected String getBeanClassName(Element element) {
-		return "org.springframework.oxm.jibx.JibxMarshaller";
-	}
+    @Override
+    protected String getBeanClassName(Element element) {
+        return "org.springframework.oxm.jibx.JibxMarshaller";
+    }
 
 }

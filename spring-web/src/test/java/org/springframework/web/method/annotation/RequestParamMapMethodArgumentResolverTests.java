@@ -45,77 +45,77 @@ import static org.springframework.web.method.MvcAnnotationPredicates.requestPara
  */
 public class RequestParamMapMethodArgumentResolverTests {
 
-	private RequestParamMapMethodArgumentResolver resolver;
+    private RequestParamMapMethodArgumentResolver resolver;
 
-	private NativeWebRequest webRequest;
+    private NativeWebRequest webRequest;
 
-	private MockHttpServletRequest request;
+    private MockHttpServletRequest request;
 
-	private ResolvableMethod testMethod = ResolvableMethod.on(getClass()).named("handle").build();
-
-
-	@Before
-	public void setUp() throws Exception {
-		resolver = new RequestParamMapMethodArgumentResolver();
-
-		request = new MockHttpServletRequest();
-		webRequest = new ServletWebRequest(request, new MockHttpServletResponse());
-	}
+    private ResolvableMethod testMethod = ResolvableMethod.on(getClass()).named("handle").build();
 
 
-	@Test
-	public void supportsParameter() {
-		MethodParameter param = this.testMethod.annot(requestParam().noName()).arg(Map.class);
-		assertTrue(resolver.supportsParameter(param));
+    @Before
+    public void setUp() throws Exception {
+        resolver = new RequestParamMapMethodArgumentResolver();
 
-		param = this.testMethod.annotPresent(RequestParam.class).arg(MultiValueMap.class);
-		assertTrue(resolver.supportsParameter(param));
-
-		param = this.testMethod.annot(requestParam().name("name")).arg(Map.class);
-		assertFalse(resolver.supportsParameter(param));
-
-		param = this.testMethod.annotNotPresent(RequestParam.class).arg(Map.class);
-		assertFalse(resolver.supportsParameter(param));
-	}
-
-	@Test
-	public void resolveMapArgument() throws Exception {
-		String name = "foo";
-		String value = "bar";
-		request.addParameter(name, value);
-		Map<String, String> expected = Collections.singletonMap(name, value);
-
-		MethodParameter param = this.testMethod.annot(requestParam().noName()).arg(Map.class);
-		Object result = resolver.resolveArgument(param, null, webRequest, null);
-
-		assertTrue(result instanceof Map);
-		assertEquals("Invalid result", expected, result);
-	}
-
-	@Test
-	public void resolveMultiValueMapArgument() throws Exception {
-		String name = "foo";
-		String value1 = "bar";
-		String value2 = "baz";
-		request.addParameter(name, value1, value2);
-
-		MultiValueMap<String, String> expected = new LinkedMultiValueMap<>(1);
-		expected.add(name, value1);
-		expected.add(name, value2);
-
-		MethodParameter param = this.testMethod.annotPresent(RequestParam.class).arg(MultiValueMap.class);
-		Object result = resolver.resolveArgument(param, null, webRequest, null);
-
-		assertTrue(result instanceof MultiValueMap);
-		assertEquals("Invalid result", expected, result);
-	}
+        request = new MockHttpServletRequest();
+        webRequest = new ServletWebRequest(request, new MockHttpServletResponse());
+    }
 
 
-	public void handle(
-			@RequestParam Map<?, ?> param1,
-			@RequestParam MultiValueMap<?, ?> param2,
-			@RequestParam("name") Map<?, ?> param3,
-			Map<?, ?> param4) {
-	}
+    @Test
+    public void supportsParameter() {
+        MethodParameter param = this.testMethod.annot(requestParam().noName()).arg(Map.class);
+        assertTrue(resolver.supportsParameter(param));
+
+        param = this.testMethod.annotPresent(RequestParam.class).arg(MultiValueMap.class);
+        assertTrue(resolver.supportsParameter(param));
+
+        param = this.testMethod.annot(requestParam().name("name")).arg(Map.class);
+        assertFalse(resolver.supportsParameter(param));
+
+        param = this.testMethod.annotNotPresent(RequestParam.class).arg(Map.class);
+        assertFalse(resolver.supportsParameter(param));
+    }
+
+    @Test
+    public void resolveMapArgument() throws Exception {
+        String name = "foo";
+        String value = "bar";
+        request.addParameter(name, value);
+        Map<String, String> expected = Collections.singletonMap(name, value);
+
+        MethodParameter param = this.testMethod.annot(requestParam().noName()).arg(Map.class);
+        Object result = resolver.resolveArgument(param, null, webRequest, null);
+
+        assertTrue(result instanceof Map);
+        assertEquals("Invalid result", expected, result);
+    }
+
+    @Test
+    public void resolveMultiValueMapArgument() throws Exception {
+        String name = "foo";
+        String value1 = "bar";
+        String value2 = "baz";
+        request.addParameter(name, value1, value2);
+
+        MultiValueMap<String, String> expected = new LinkedMultiValueMap<>(1);
+        expected.add(name, value1);
+        expected.add(name, value2);
+
+        MethodParameter param = this.testMethod.annotPresent(RequestParam.class).arg(MultiValueMap.class);
+        Object result = resolver.resolveArgument(param, null, webRequest, null);
+
+        assertTrue(result instanceof MultiValueMap);
+        assertEquals("Invalid result", expected, result);
+    }
+
+
+    public void handle(
+            @RequestParam Map<?, ?> param1,
+            @RequestParam MultiValueMap<?, ?> param2,
+            @RequestParam("name") Map<?, ?> param3,
+            Map<?, ?> param4) {
+    }
 
 }

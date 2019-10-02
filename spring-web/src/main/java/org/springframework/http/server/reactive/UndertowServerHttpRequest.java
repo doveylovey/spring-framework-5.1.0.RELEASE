@@ -56,321 +56,318 @@ import org.springframework.util.StringUtils;
  */
 class UndertowServerHttpRequest extends AbstractServerHttpRequest {
 
-	private final HttpServerExchange exchange;
+    private final HttpServerExchange exchange;
 
-	private final RequestBodyPublisher body;
-
-
-	public UndertowServerHttpRequest(HttpServerExchange exchange, DataBufferFactory bufferFactory)
-			throws URISyntaxException {
-
-		super(initUri(exchange), "", initHeaders(exchange));
-		this.exchange = exchange;
-		this.body = new RequestBodyPublisher(exchange, bufferFactory);
-		this.body.registerListeners(exchange);
-	}
-
-	private static URI initUri(HttpServerExchange exchange) throws URISyntaxException {
-		Assert.notNull(exchange, "HttpServerExchange is required.");
-		String requestURL = exchange.getRequestURL();
-		String query = exchange.getQueryString();
-		String requestUriAndQuery = StringUtils.isEmpty(query) ? requestURL : requestURL + "?" + query;
-		return new URI(requestUriAndQuery);
-	}
-
-	private static HttpHeaders initHeaders(HttpServerExchange exchange) {
-		HttpHeaders headers = new HttpHeaders();
-		for (HeaderValues values : exchange.getRequestHeaders()) {
-			headers.put(values.getHeaderName().toString(), values);
-		}
-		return headers;
-	}
-
-	@Override
-	public String getMethodValue() {
-		return this.exchange.getRequestMethod().toString();
-	}
-
-	@Override
-	protected MultiValueMap<String, HttpCookie> initCookies() {
-		MultiValueMap<String, HttpCookie> cookies = new LinkedMultiValueMap<>();
-		for (String name : this.exchange.getRequestCookies().keySet()) {
-			Cookie cookie = this.exchange.getRequestCookies().get(name);
-			HttpCookie httpCookie = new HttpCookie(name, cookie.getValue());
-			cookies.add(name, httpCookie);
-		}
-		return cookies;
-	}
-
-	@Override
-	public InetSocketAddress getRemoteAddress() {
-		return this.exchange.getSourceAddress();
-	}
-
-	@Nullable
-	@Override
-	protected SslInfo initSslInfo() {
-		SSLSession session = this.exchange.getConnection().getSslSession();
-		if (session != null) {
-			return new DefaultSslInfo(session);
-		}
-		return null;
-	}
-
-	@Override
-	public Flux<DataBuffer> getBody() {
-		return Flux.from(this.body)
-				.doOnDiscard(PooledDataBuffer.class, DataBufferUtils::release);
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public <T> T getNativeRequest() {
-		return (T) this.exchange;
-	}
-
-	@Override
-	protected String initId() {
-		return ObjectUtils.getIdentityHexString(this.exchange.getConnection());
-	}
+    private final RequestBodyPublisher body;
 
 
-	private class RequestBodyPublisher extends AbstractListenerReadPublisher<DataBuffer> {
+    public UndertowServerHttpRequest(HttpServerExchange exchange, DataBufferFactory bufferFactory)
+            throws URISyntaxException {
 
-		private final StreamSourceChannel channel;
+        super(initUri(exchange), "", initHeaders(exchange));
+        this.exchange = exchange;
+        this.body = new RequestBodyPublisher(exchange, bufferFactory);
+        this.body.registerListeners(exchange);
+    }
 
-		private final DataBufferFactory bufferFactory;
+    private static URI initUri(HttpServerExchange exchange) throws URISyntaxException {
+        Assert.notNull(exchange, "HttpServerExchange is required.");
+        String requestURL = exchange.getRequestURL();
+        String query = exchange.getQueryString();
+        String requestUriAndQuery = StringUtils.isEmpty(query) ? requestURL : requestURL + "?" + query;
+        return new URI(requestUriAndQuery);
+    }
 
-		private final ByteBufferPool byteBufferPool;
+    private static HttpHeaders initHeaders(HttpServerExchange exchange) {
+        HttpHeaders headers = new HttpHeaders();
+        for (HeaderValues values : exchange.getRequestHeaders()) {
+            headers.put(values.getHeaderName().toString(), values);
+        }
+        return headers;
+    }
+
+    @Override
+    public String getMethodValue() {
+        return this.exchange.getRequestMethod().toString();
+    }
+
+    @Override
+    protected MultiValueMap<String, HttpCookie> initCookies() {
+        MultiValueMap<String, HttpCookie> cookies = new LinkedMultiValueMap<>();
+        for (String name : this.exchange.getRequestCookies().keySet()) {
+            Cookie cookie = this.exchange.getRequestCookies().get(name);
+            HttpCookie httpCookie = new HttpCookie(name, cookie.getValue());
+            cookies.add(name, httpCookie);
+        }
+        return cookies;
+    }
+
+    @Override
+    public InetSocketAddress getRemoteAddress() {
+        return this.exchange.getSourceAddress();
+    }
+
+    @Nullable
+    @Override
+    protected SslInfo initSslInfo() {
+        SSLSession session = this.exchange.getConnection().getSslSession();
+        if (session != null) {
+            return new DefaultSslInfo(session);
+        }
+        return null;
+    }
+
+    @Override
+    public Flux<DataBuffer> getBody() {
+        return Flux.from(this.body)
+                .doOnDiscard(PooledDataBuffer.class, DataBufferUtils::release);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> T getNativeRequest() {
+        return (T) this.exchange;
+    }
+
+    @Override
+    protected String initId() {
+        return ObjectUtils.getIdentityHexString(this.exchange.getConnection());
+    }
 
 
-		public RequestBodyPublisher(HttpServerExchange exchange, DataBufferFactory bufferFactory) {
-			super(UndertowServerHttpRequest.this.getLogPrefix());
-			this.channel = exchange.getRequestChannel();
-			this.bufferFactory = bufferFactory;
-			this.byteBufferPool = exchange.getConnection().getByteBufferPool();
-		}
+    private class RequestBodyPublisher extends AbstractListenerReadPublisher<DataBuffer> {
 
-		private void registerListeners(HttpServerExchange exchange) {
-			exchange.addExchangeCompleteListener((ex, next) -> {
-				onAllDataRead();
-				next.proceed();
-			});
-			this.channel.getReadSetter().set(c -> onDataAvailable());
-			this.channel.getCloseSetter().set(c -> onAllDataRead());
-			this.channel.resumeReads();
-		}
+        private final StreamSourceChannel channel;
 
-		@Override
-		protected void checkOnDataAvailable() {
-			this.channel.resumeReads();
-			// We are allowed to try, it will return null if data is not available
-			onDataAvailable();
-		}
+        private final DataBufferFactory bufferFactory;
 
-		@Override
-		protected void readingPaused() {
-			this.channel.suspendReads();
-		}
+        private final ByteBufferPool byteBufferPool;
 
-		@Override
-		@Nullable
-		protected DataBuffer read() throws IOException {
-			PooledByteBuffer pooledByteBuffer = this.byteBufferPool.allocate();
-			boolean release = true;
-			try {
-				ByteBuffer byteBuffer = pooledByteBuffer.getBuffer();
-				int read = this.channel.read(byteBuffer);
 
-				if (rsReadLogger.isTraceEnabled()) {
-					rsReadLogger.trace(getLogPrefix() + "Read " + read + (read != -1 ? " bytes" : ""));
-				}
+        public RequestBodyPublisher(HttpServerExchange exchange, DataBufferFactory bufferFactory) {
+            super(UndertowServerHttpRequest.this.getLogPrefix());
+            this.channel = exchange.getRequestChannel();
+            this.bufferFactory = bufferFactory;
+            this.byteBufferPool = exchange.getConnection().getByteBufferPool();
+        }
 
-				if (read > 0) {
-					byteBuffer.flip();
-					DataBuffer dataBuffer = this.bufferFactory.wrap(byteBuffer);
-					release = false;
-					return new UndertowDataBuffer(dataBuffer, pooledByteBuffer);
-				}
-				else if (read == -1) {
-					onAllDataRead();
-				}
-				return null;
-			}
-			finally {
-				if (release && pooledByteBuffer.isOpen()) {
-					pooledByteBuffer.close();
-				}
-			}
-		}
+        private void registerListeners(HttpServerExchange exchange) {
+            exchange.addExchangeCompleteListener((ex, next) -> {
+                onAllDataRead();
+                next.proceed();
+            });
+            this.channel.getReadSetter().set(c -> onDataAvailable());
+            this.channel.getCloseSetter().set(c -> onAllDataRead());
+            this.channel.resumeReads();
+        }
 
-	}
+        @Override
+        protected void checkOnDataAvailable() {
+            this.channel.resumeReads();
+            // We are allowed to try, it will return null if data is not available
+            onDataAvailable();
+        }
 
-	private static class UndertowDataBuffer implements PooledDataBuffer {
+        @Override
+        protected void readingPaused() {
+            this.channel.suspendReads();
+        }
 
-		private final DataBuffer dataBuffer;
+        @Override
+        @Nullable
+        protected DataBuffer read() throws IOException {
+            PooledByteBuffer pooledByteBuffer = this.byteBufferPool.allocate();
+            boolean release = true;
+            try {
+                ByteBuffer byteBuffer = pooledByteBuffer.getBuffer();
+                int read = this.channel.read(byteBuffer);
 
-		private final PooledByteBuffer pooledByteBuffer;
+                if (rsReadLogger.isTraceEnabled()) {
+                    rsReadLogger.trace(getLogPrefix() + "Read " + read + (read != -1 ? " bytes" : ""));
+                }
 
-		public UndertowDataBuffer(DataBuffer dataBuffer, PooledByteBuffer pooledByteBuffer) {
-			this.dataBuffer = dataBuffer;
-			this.pooledByteBuffer = pooledByteBuffer;
-		}
+                if (read > 0) {
+                    byteBuffer.flip();
+                    DataBuffer dataBuffer = this.bufferFactory.wrap(byteBuffer);
+                    release = false;
+                    return new UndertowDataBuffer(dataBuffer, pooledByteBuffer);
+                } else if (read == -1) {
+                    onAllDataRead();
+                }
+                return null;
+            } finally {
+                if (release && pooledByteBuffer.isOpen()) {
+                    pooledByteBuffer.close();
+                }
+            }
+        }
 
-		@Override
-		public boolean isAllocated() {
-			return this.pooledByteBuffer.isOpen();
-		}
+    }
 
-		@Override
-		public PooledDataBuffer retain() {
-			return this;
-		}
+    private static class UndertowDataBuffer implements PooledDataBuffer {
 
-		@Override
-		public boolean release() {
-			boolean result;
-			try {
-				result = DataBufferUtils.release(this.dataBuffer);
-			}
-			finally {
-				this.pooledByteBuffer.close();
-			}
-			return result && this.pooledByteBuffer.isOpen();
-		}
+        private final DataBuffer dataBuffer;
 
-		@Override
-		public DataBufferFactory factory() {
-			return this.dataBuffer.factory();
-		}
+        private final PooledByteBuffer pooledByteBuffer;
 
-		@Override
-		public int indexOf(IntPredicate predicate, int fromIndex) {
-			return this.dataBuffer.indexOf(predicate, fromIndex);
-		}
+        public UndertowDataBuffer(DataBuffer dataBuffer, PooledByteBuffer pooledByteBuffer) {
+            this.dataBuffer = dataBuffer;
+            this.pooledByteBuffer = pooledByteBuffer;
+        }
 
-		@Override
-		public int lastIndexOf(IntPredicate predicate, int fromIndex) {
-			return this.dataBuffer.lastIndexOf(predicate, fromIndex);
-		}
+        @Override
+        public boolean isAllocated() {
+            return this.pooledByteBuffer.isOpen();
+        }
 
-		@Override
-		public int readableByteCount() {
-			return this.dataBuffer.readableByteCount();
-		}
+        @Override
+        public PooledDataBuffer retain() {
+            return this;
+        }
 
-		@Override
-		public int writableByteCount() {
-			return this.dataBuffer.writableByteCount();
-		}
+        @Override
+        public boolean release() {
+            boolean result;
+            try {
+                result = DataBufferUtils.release(this.dataBuffer);
+            } finally {
+                this.pooledByteBuffer.close();
+            }
+            return result && this.pooledByteBuffer.isOpen();
+        }
 
-		@Override
-		public int readPosition() {
-			return this.dataBuffer.readPosition();
-		}
+        @Override
+        public DataBufferFactory factory() {
+            return this.dataBuffer.factory();
+        }
 
-		@Override
-		public DataBuffer readPosition(int readPosition) {
-			return this.dataBuffer.readPosition(readPosition);
-		}
+        @Override
+        public int indexOf(IntPredicate predicate, int fromIndex) {
+            return this.dataBuffer.indexOf(predicate, fromIndex);
+        }
 
-		@Override
-		public int writePosition() {
-			return this.dataBuffer.writePosition();
-		}
+        @Override
+        public int lastIndexOf(IntPredicate predicate, int fromIndex) {
+            return this.dataBuffer.lastIndexOf(predicate, fromIndex);
+        }
 
-		@Override
-		public DataBuffer writePosition(int writePosition) {
-			return this.dataBuffer.writePosition(writePosition);
-		}
+        @Override
+        public int readableByteCount() {
+            return this.dataBuffer.readableByteCount();
+        }
 
-		@Override
-		public int capacity() {
-			return this.dataBuffer.capacity();
-		}
+        @Override
+        public int writableByteCount() {
+            return this.dataBuffer.writableByteCount();
+        }
 
-		@Override
-		public DataBuffer capacity(int newCapacity) {
-			return this.dataBuffer.capacity(newCapacity);
-		}
+        @Override
+        public int readPosition() {
+            return this.dataBuffer.readPosition();
+        }
 
-		@Override
-		public byte getByte(int index) {
-			return this.dataBuffer.getByte(index);
-		}
+        @Override
+        public DataBuffer readPosition(int readPosition) {
+            return this.dataBuffer.readPosition(readPosition);
+        }
 
-		@Override
-		public byte read() {
-			return this.dataBuffer.read();
-		}
+        @Override
+        public int writePosition() {
+            return this.dataBuffer.writePosition();
+        }
 
-		@Override
-		public DataBuffer read(byte[] destination) {
-			return this.dataBuffer.read(destination);
-		}
+        @Override
+        public DataBuffer writePosition(int writePosition) {
+            return this.dataBuffer.writePosition(writePosition);
+        }
 
-		@Override
-		public DataBuffer read(byte[] destination, int offset,
-				int length) {
-			return this.dataBuffer.read(destination, offset, length);
-		}
+        @Override
+        public int capacity() {
+            return this.dataBuffer.capacity();
+        }
 
-		@Override
-		public DataBuffer write(byte b) {
-			return this.dataBuffer.write(b);
-		}
+        @Override
+        public DataBuffer capacity(int newCapacity) {
+            return this.dataBuffer.capacity(newCapacity);
+        }
 
-		@Override
-		public DataBuffer write(byte[] source) {
-			return this.dataBuffer.write(source);
-		}
+        @Override
+        public byte getByte(int index) {
+            return this.dataBuffer.getByte(index);
+        }
 
-		@Override
-		public DataBuffer write(byte[] source, int offset,
-				int length) {
-			return this.dataBuffer.write(source, offset, length);
-		}
+        @Override
+        public byte read() {
+            return this.dataBuffer.read();
+        }
 
-		@Override
-		public DataBuffer write(
-				DataBuffer... buffers) {
-			return this.dataBuffer.write(buffers);
-		}
+        @Override
+        public DataBuffer read(byte[] destination) {
+            return this.dataBuffer.read(destination);
+        }
 
-		@Override
-		public DataBuffer write(
-				ByteBuffer... byteBuffers) {
-			return this.dataBuffer.write(byteBuffers);
-		}
+        @Override
+        public DataBuffer read(byte[] destination, int offset,
+                               int length) {
+            return this.dataBuffer.read(destination, offset, length);
+        }
 
-		@Override
-		public DataBuffer slice(int index, int length) {
-			return this.dataBuffer.slice(index, length);
-		}
+        @Override
+        public DataBuffer write(byte b) {
+            return this.dataBuffer.write(b);
+        }
 
-		@Override
-		public ByteBuffer asByteBuffer() {
-			return this.dataBuffer.asByteBuffer();
-		}
+        @Override
+        public DataBuffer write(byte[] source) {
+            return this.dataBuffer.write(source);
+        }
 
-		@Override
-		public ByteBuffer asByteBuffer(int index, int length) {
-			return this.dataBuffer.asByteBuffer(index, length);
-		}
+        @Override
+        public DataBuffer write(byte[] source, int offset,
+                                int length) {
+            return this.dataBuffer.write(source, offset, length);
+        }
 
-		@Override
-		public InputStream asInputStream() {
-			return this.dataBuffer.asInputStream();
-		}
+        @Override
+        public DataBuffer write(
+                DataBuffer... buffers) {
+            return this.dataBuffer.write(buffers);
+        }
 
-		@Override
-		public InputStream asInputStream(boolean releaseOnClose) {
-			return this.dataBuffer.asInputStream(releaseOnClose);
-		}
+        @Override
+        public DataBuffer write(
+                ByteBuffer... byteBuffers) {
+            return this.dataBuffer.write(byteBuffers);
+        }
 
-		@Override
-		public OutputStream asOutputStream() {
-			return this.dataBuffer.asOutputStream();
-		}
-	}
+        @Override
+        public DataBuffer slice(int index, int length) {
+            return this.dataBuffer.slice(index, length);
+        }
+
+        @Override
+        public ByteBuffer asByteBuffer() {
+            return this.dataBuffer.asByteBuffer();
+        }
+
+        @Override
+        public ByteBuffer asByteBuffer(int index, int length) {
+            return this.dataBuffer.asByteBuffer(index, length);
+        }
+
+        @Override
+        public InputStream asInputStream() {
+            return this.dataBuffer.asInputStream();
+        }
+
+        @Override
+        public InputStream asInputStream(boolean releaseOnClose) {
+            return this.dataBuffer.asInputStream(releaseOnClose);
+        }
+
+        @Override
+        public OutputStream asOutputStream() {
+            return this.dataBuffer.asOutputStream();
+        }
+    }
 }

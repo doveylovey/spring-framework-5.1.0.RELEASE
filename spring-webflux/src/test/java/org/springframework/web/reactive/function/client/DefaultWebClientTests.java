@@ -39,228 +39,228 @@ import static org.mockito.Mockito.*;
 
 /**
  * Unit tests for {@link DefaultWebClient}.
+ *
  * @author Rossen Stoyanchev
  */
 public class DefaultWebClientTests {
 
-	private WebClient.Builder builder;
+    private WebClient.Builder builder;
 
-	private ExchangeFunction exchangeFunction;
+    private ExchangeFunction exchangeFunction;
 
-	@Captor
-	private ArgumentCaptor<ClientRequest> captor;
-
-
-	@Before
-	public void setup() {
-		MockitoAnnotations.initMocks(this);
-		this.exchangeFunction = mock(ExchangeFunction.class);
-		when(this.exchangeFunction.exchange(this.captor.capture())).thenReturn(Mono.empty());
-		this.builder = WebClient.builder().baseUrl("/base").exchangeFunction(this.exchangeFunction);
-	}
+    @Captor
+    private ArgumentCaptor<ClientRequest> captor;
 
 
-	@Test
-	public void basic() {
+    @Before
+    public void setup() {
+        MockitoAnnotations.initMocks(this);
+        this.exchangeFunction = mock(ExchangeFunction.class);
+        when(this.exchangeFunction.exchange(this.captor.capture())).thenReturn(Mono.empty());
+        this.builder = WebClient.builder().baseUrl("/base").exchangeFunction(this.exchangeFunction);
+    }
 
-		this.builder.build().get().uri("/path").exchange();
 
-		ClientRequest request = verifyAndGetRequest();
-		assertEquals("/base/path", request.url().toString());
-		assertEquals(new HttpHeaders(), request.headers());
-		assertEquals(Collections.emptyMap(), request.cookies());
-	}
+    @Test
+    public void basic() {
 
-	@Test
-	public void uriBuilder() {
+        this.builder.build().get().uri("/path").exchange();
 
-		this.builder.build().get()
-				.uri(builder -> builder.path("/path").queryParam("q", "12").build())
-				.exchange();
+        ClientRequest request = verifyAndGetRequest();
+        assertEquals("/base/path", request.url().toString());
+        assertEquals(new HttpHeaders(), request.headers());
+        assertEquals(Collections.emptyMap(), request.cookies());
+    }
 
-		ClientRequest request = verifyAndGetRequest();
-		assertEquals("/base/path?q=12", request.url().toString());
-		verifyNoMoreInteractions(this.exchangeFunction);
-	}
+    @Test
+    public void uriBuilder() {
 
-	@Test
-	public void uriBuilderWithPathOverride() {
+        this.builder.build().get()
+                .uri(builder -> builder.path("/path").queryParam("q", "12").build())
+                .exchange();
 
-		this.builder.build().get()
-				.uri(builder -> builder.replacePath("/path").build())
-				.exchange();
+        ClientRequest request = verifyAndGetRequest();
+        assertEquals("/base/path?q=12", request.url().toString());
+        verifyNoMoreInteractions(this.exchangeFunction);
+    }
 
-		ClientRequest request = verifyAndGetRequest();
-		assertEquals("/path", request.url().toString());
-		verifyNoMoreInteractions(this.exchangeFunction);
-	}
+    @Test
+    public void uriBuilderWithPathOverride() {
 
-	@Test
-	public void requestHeaderAndCookie() {
+        this.builder.build().get()
+                .uri(builder -> builder.replacePath("/path").build())
+                .exchange();
 
-		this.builder.build().get().uri("/path").accept(MediaType.APPLICATION_JSON)
-				.cookies(cookies -> cookies.add("id", "123"))	// SPR-16178
-				.exchange();
+        ClientRequest request = verifyAndGetRequest();
+        assertEquals("/path", request.url().toString());
+        verifyNoMoreInteractions(this.exchangeFunction);
+    }
 
-		ClientRequest request = verifyAndGetRequest();
-		assertEquals("application/json", request.headers().getFirst("Accept"));
-		assertEquals("123", request.cookies().getFirst("id"));
-		verifyNoMoreInteractions(this.exchangeFunction);
-	}
+    @Test
+    public void requestHeaderAndCookie() {
 
-	@Test
-	public void defaultHeaderAndCookie() {
+        this.builder.build().get().uri("/path").accept(MediaType.APPLICATION_JSON)
+                .cookies(cookies -> cookies.add("id", "123"))    // SPR-16178
+                .exchange();
 
-		WebClient client = this.builder
-				.defaultHeader("Accept", "application/json").defaultCookie("id", "123")
-				.build();
+        ClientRequest request = verifyAndGetRequest();
+        assertEquals("application/json", request.headers().getFirst("Accept"));
+        assertEquals("123", request.cookies().getFirst("id"));
+        verifyNoMoreInteractions(this.exchangeFunction);
+    }
 
-		client.get().uri("/path").exchange();
+    @Test
+    public void defaultHeaderAndCookie() {
 
-		ClientRequest request = verifyAndGetRequest();
-		assertEquals("application/json", request.headers().getFirst("Accept"));
-		assertEquals("123", request.cookies().getFirst("id"));
-		verifyNoMoreInteractions(this.exchangeFunction);
-	}
+        WebClient client = this.builder
+                .defaultHeader("Accept", "application/json").defaultCookie("id", "123")
+                .build();
 
-	@Test
-	public void defaultHeaderAndCookieOverrides() {
+        client.get().uri("/path").exchange();
 
-		WebClient client = this.builder
-				.defaultHeader("Accept", "application/json")
-				.defaultCookie("id", "123")
-				.build();
+        ClientRequest request = verifyAndGetRequest();
+        assertEquals("application/json", request.headers().getFirst("Accept"));
+        assertEquals("123", request.cookies().getFirst("id"));
+        verifyNoMoreInteractions(this.exchangeFunction);
+    }
 
-		client.get().uri("/path").header("Accept", "application/xml").cookie("id", "456").exchange();
+    @Test
+    public void defaultHeaderAndCookieOverrides() {
 
-		ClientRequest request = verifyAndGetRequest();
-		assertEquals("application/xml", request.headers().getFirst("Accept"));
-		assertEquals("456", request.cookies().getFirst("id"));
-		verifyNoMoreInteractions(this.exchangeFunction);
-	}
+        WebClient client = this.builder
+                .defaultHeader("Accept", "application/json")
+                .defaultCookie("id", "123")
+                .build();
 
-	@Test
-	public void defaultRequest() {
+        client.get().uri("/path").header("Accept", "application/xml").cookie("id", "456").exchange();
 
-		ThreadLocal<String> context = new NamedThreadLocal<>("foo");
+        ClientRequest request = verifyAndGetRequest();
+        assertEquals("application/xml", request.headers().getFirst("Accept"));
+        assertEquals("456", request.cookies().getFirst("id"));
+        verifyNoMoreInteractions(this.exchangeFunction);
+    }
 
-		Map<String, Object> actual = new HashMap<>();
-		ExchangeFilterFunction filter = (request, next) -> {
-			actual.putAll(request.attributes());
-			return next.exchange(request);
-		};
+    @Test
+    public void defaultRequest() {
 
-		WebClient client = this.builder
-				.defaultRequest(spec -> spec.attribute("foo", context.get()))
-				.filter(filter)
-				.build();
+        ThreadLocal<String> context = new NamedThreadLocal<>("foo");
 
-		try {
-			context.set("bar");
-			client.get().uri("/path").attribute("foo", "bar").exchange();
-		}
-		finally {
-			context.remove();
-		}
+        Map<String, Object> actual = new HashMap<>();
+        ExchangeFilterFunction filter = (request, next) -> {
+            actual.putAll(request.attributes());
+            return next.exchange(request);
+        };
 
-		assertEquals("bar", actual.get("foo"));
-	}
+        WebClient client = this.builder
+                .defaultRequest(spec -> spec.attribute("foo", context.get()))
+                .filter(filter)
+                .build();
 
-	@Test(expected = IllegalArgumentException.class)
-	public void bodyObjectPublisher() {
-		Mono<Void> mono = Mono.empty();
-		WebClient client = this.builder.build();
+        try {
+            context.set("bar");
+            client.get().uri("/path").attribute("foo", "bar").exchange();
+        } finally {
+            context.remove();
+        }
 
-		client.post().uri("http://example.com").syncBody(mono);
-	}
+        assertEquals("bar", actual.get("foo"));
+    }
 
-	@Test
-	public void mutateDoesCopy() {
+    @Test(expected = IllegalArgumentException.class)
+    public void bodyObjectPublisher() {
+        Mono<Void> mono = Mono.empty();
+        WebClient client = this.builder.build();
 
-		// First, build the clients
+        client.post().uri("http://example.com").syncBody(mono);
+    }
 
-		WebClient.Builder builder = WebClient.builder()
-				.filter((request, next) -> next.exchange(request))
-				.defaultHeader("foo", "bar")
-				.defaultCookie("foo", "bar");
+    @Test
+    public void mutateDoesCopy() {
 
-		WebClient client1 = builder.build();
+        // First, build the clients
 
-		WebClient client2 = builder.filter((request, next) -> next.exchange(request))
-				.defaultHeader("baz", "qux")
-				.defaultCookie("baz", "qux")
-				.build();
+        WebClient.Builder builder = WebClient.builder()
+                .filter((request, next) -> next.exchange(request))
+                .defaultHeader("foo", "bar")
+                .defaultCookie("foo", "bar");
 
-		WebClient client1a = client1.mutate()
-				.filter((request, next) -> next.exchange(request))
-				.defaultHeader("baz", "qux")
-				.defaultCookie("baz", "qux")
-				.build();
+        WebClient client1 = builder.build();
 
-		// Now, verify what each client has..
+        WebClient client2 = builder.filter((request, next) -> next.exchange(request))
+                .defaultHeader("baz", "qux")
+                .defaultCookie("baz", "qux")
+                .build();
 
-		WebClient.Builder builder1 = client1.mutate();
-		builder1.filters(filters -> assertEquals(1, filters.size()));
-		builder1.defaultHeaders(headers -> assertEquals(1, headers.size()));
-		builder1.defaultCookies(cookies -> assertEquals(1, cookies.size()));
+        WebClient client1a = client1.mutate()
+                .filter((request, next) -> next.exchange(request))
+                .defaultHeader("baz", "qux")
+                .defaultCookie("baz", "qux")
+                .build();
 
-		WebClient.Builder builder2 = client2.mutate();
-		builder2.filters(filters -> assertEquals(2, filters.size()));
-		builder2.defaultHeaders(headers -> assertEquals(2, headers.size()));
-		builder2.defaultCookies(cookies -> assertEquals(2, cookies.size()));
+        // Now, verify what each client has..
 
-		WebClient.Builder builder1a = client1a.mutate();
-		builder1a.filters(filters -> assertEquals(2, filters.size()));
-		builder1a.defaultHeaders(headers -> assertEquals(2, headers.size()));
-		builder1a.defaultCookies(cookies -> assertEquals(2, cookies.size()));
-	}
+        WebClient.Builder builder1 = client1.mutate();
+        builder1.filters(filters -> assertEquals(1, filters.size()));
+        builder1.defaultHeaders(headers -> assertEquals(1, headers.size()));
+        builder1.defaultCookies(cookies -> assertEquals(1, cookies.size()));
 
-	@Test
-	public void attributes() {
+        WebClient.Builder builder2 = client2.mutate();
+        builder2.filters(filters -> assertEquals(2, filters.size()));
+        builder2.defaultHeaders(headers -> assertEquals(2, headers.size()));
+        builder2.defaultCookies(cookies -> assertEquals(2, cookies.size()));
 
-		Map<String, Object> actual = new HashMap<>();
-		ExchangeFilterFunction filter = (request, next) -> {
-			actual.putAll(request.attributes());
-			return next.exchange(request);
-		};
+        WebClient.Builder builder1a = client1a.mutate();
+        builder1a.filters(filters -> assertEquals(2, filters.size()));
+        builder1a.defaultHeaders(headers -> assertEquals(2, headers.size()));
+        builder1a.defaultCookies(cookies -> assertEquals(2, cookies.size()));
+    }
 
-		this.builder.filter(filter).build()
-				.get().uri("/path")
-				.attribute("foo", "bar")
-				.exchange();
+    @Test
+    public void attributes() {
 
-		assertEquals("bar", actual.get("foo"));
-	}
+        Map<String, Object> actual = new HashMap<>();
+        ExchangeFilterFunction filter = (request, next) -> {
+            actual.putAll(request.attributes());
+            return next.exchange(request);
+        };
 
-	@Test
-	public void apply() {
+        this.builder.filter(filter).build()
+                .get().uri("/path")
+                .attribute("foo", "bar")
+                .exchange();
 
-		WebClient client = this.builder
-				.apply(builder -> builder
-						.defaultHeader("Accept", "application/json")
-						.defaultCookie("id", "123"))
-				.build();
+        assertEquals("bar", actual.get("foo"));
+    }
 
-		client.get().uri("/path").exchange();
+    @Test
+    public void apply() {
 
-		ClientRequest request = verifyAndGetRequest();
-		assertEquals("application/json", request.headers().getFirst("Accept"));
-		assertEquals("123", request.cookies().getFirst("id"));
-		verifyNoMoreInteractions(this.exchangeFunction);
-	}
+        WebClient client = this.builder
+                .apply(builder -> builder
+                        .defaultHeader("Accept", "application/json")
+                        .defaultCookie("id", "123"))
+                .build();
 
-	@Test
-	public void switchToErrorOnEmptyClientResponseMono() {
-		StepVerifier.create(builder.build().get().uri("/path").exchange())
-				.expectErrorMessage("The underlying HTTP client completed without emitting a response.")
-				.verify(Duration.ofSeconds(5));
-	}
+        client.get().uri("/path").exchange();
 
-	private ClientRequest verifyAndGetRequest() {
-		ClientRequest request = this.captor.getValue();
-		Mockito.verify(this.exchangeFunction).exchange(request);
-		verifyNoMoreInteractions(this.exchangeFunction);
-		return request;
-	}
+        ClientRequest request = verifyAndGetRequest();
+        assertEquals("application/json", request.headers().getFirst("Accept"));
+        assertEquals("123", request.cookies().getFirst("id"));
+        verifyNoMoreInteractions(this.exchangeFunction);
+    }
+
+    @Test
+    public void switchToErrorOnEmptyClientResponseMono() {
+        StepVerifier.create(builder.build().get().uri("/path").exchange())
+                .expectErrorMessage("The underlying HTTP client completed without emitting a response.")
+                .verify(Duration.ofSeconds(5));
+    }
+
+    private ClientRequest verifyAndGetRequest() {
+        ClientRequest request = this.captor.getValue();
+        Mockito.verify(this.exchangeFunction).exchange(request);
+        verifyNoMoreInteractions(this.exchangeFunction);
+        return request;
+    }
 
 }

@@ -23,13 +23,13 @@ import org.springframework.jmx.export.metadata.JmxAttributeSource;
  */
 public abstract class AbstractMetadataAssemblerAutodetectTests extends AbstractAutodetectTests {
 
-	@Override
-	protected AutodetectCapableMBeanInfoAssembler getAssembler() {
-		MetadataMBeanInfoAssembler assembler = new MetadataMBeanInfoAssembler();
-		assembler.setAttributeSource(getAttributeSource());
-		return assembler;
-	}
+    @Override
+    protected AutodetectCapableMBeanInfoAssembler getAssembler() {
+        MetadataMBeanInfoAssembler assembler = new MetadataMBeanInfoAssembler();
+        assembler.setAttributeSource(getAttributeSource());
+        return assembler;
+    }
 
-	protected abstract JmxAttributeSource getAttributeSource();
+    protected abstract JmxAttributeSource getAttributeSource();
 
 }

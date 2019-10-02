@@ -37,6 +37,6 @@ import org.testng.annotations.Test;
 @Commit
 public class CommitForRequiresNewEjbTxDaoTestNGTests extends AbstractEjbTxDaoTestNGTests {
 
-	/* test methods in superclass */
+    /* test methods in superclass */
 
 }

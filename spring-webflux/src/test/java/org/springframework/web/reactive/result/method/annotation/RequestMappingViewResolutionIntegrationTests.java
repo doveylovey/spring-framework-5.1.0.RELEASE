@@ -53,89 +53,89 @@ import static org.junit.Assert.assertNull;
  */
 public class RequestMappingViewResolutionIntegrationTests extends AbstractRequestMappingIntegrationTests {
 
-	@Override
-	protected ApplicationContext initApplicationContext() {
-		AnnotationConfigApplicationContext wac = new AnnotationConfigApplicationContext();
-		wac.register(WebConfig.class);
-		wac.refresh();
-		return wac;
-	}
+    @Override
+    protected ApplicationContext initApplicationContext() {
+        AnnotationConfigApplicationContext wac = new AnnotationConfigApplicationContext();
+        wac.register(WebConfig.class);
+        wac.refresh();
+        return wac;
+    }
 
 
-	@Test
-	public void html() throws Exception {
-		String expected = "<html><body>Hello: Jason!</body></html>";
-		assertEquals(expected, performGet("/html?name=Jason", MediaType.TEXT_HTML, String.class).getBody());
-	}
+    @Test
+    public void html() throws Exception {
+        String expected = "<html><body>Hello: Jason!</body></html>";
+        assertEquals(expected, performGet("/html?name=Jason", MediaType.TEXT_HTML, String.class).getBody());
+    }
 
-	@Test
-	public void etagCheckWithNotModifiedResponse() throws Exception {
-		URI uri = new URI("http://localhost:" + this.port + "/html");
-		RequestEntity<Void> request = RequestEntity.get(uri).ifNoneMatch("\"deadb33f8badf00d\"").build();
-		ResponseEntity<String> response = getRestTemplate().exchange(request, String.class);
+    @Test
+    public void etagCheckWithNotModifiedResponse() throws Exception {
+        URI uri = new URI("http://localhost:" + this.port + "/html");
+        RequestEntity<Void> request = RequestEntity.get(uri).ifNoneMatch("\"deadb33f8badf00d\"").build();
+        ResponseEntity<String> response = getRestTemplate().exchange(request, String.class);
 
-		assertEquals(HttpStatus.NOT_MODIFIED, response.getStatusCode());
-		assertNull(response.getBody());
-	}
+        assertEquals(HttpStatus.NOT_MODIFIED, response.getStatusCode());
+        assertNull(response.getBody());
+    }
 
-	@Test // SPR-15291
-	public void redirect() throws Exception {
-		SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory() {
+    @Test // SPR-15291
+    public void redirect() throws Exception {
+        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory() {
 
-			@Override
-			protected void prepareConnection(HttpURLConnection conn, String method) throws IOException {
-				super.prepareConnection(conn, method);
-				conn.setInstanceFollowRedirects(false);
-			}
-		};
+            @Override
+            protected void prepareConnection(HttpURLConnection conn, String method) throws IOException {
+                super.prepareConnection(conn, method);
+                conn.setInstanceFollowRedirects(false);
+            }
+        };
 
-		URI uri = new URI("http://localhost:" + this.port + "/redirect");
-		RequestEntity<Void> request = RequestEntity.get(uri).accept(MediaType.ALL).build();
-		ResponseEntity<Void> response = new RestTemplate(factory).exchange(request, Void.class);
+        URI uri = new URI("http://localhost:" + this.port + "/redirect");
+        RequestEntity<Void> request = RequestEntity.get(uri).accept(MediaType.ALL).build();
+        ResponseEntity<Void> response = new RestTemplate(factory).exchange(request, Void.class);
 
-		assertEquals(HttpStatus.SEE_OTHER, response.getStatusCode());
-		assertEquals("/", response.getHeaders().getLocation().toString());
-	}
-
-
-	@Configuration
-	@EnableWebFlux
-	@ComponentScan(resourcePattern = "**/RequestMappingViewResolutionIntegrationTests$*.class")
-	@SuppressWarnings({"unused", "WeakerAccess"})
-	static class WebConfig implements WebFluxConfigurer {
-
-		@Override
-		public void configureViewResolvers(ViewResolverRegistry registry) {
-			registry.freeMarker();
-		}
-
-		@Bean
-		public FreeMarkerConfigurer freeMarkerConfig() {
-			FreeMarkerConfigurer configurer = new FreeMarkerConfigurer();
-			configurer.setPreferFileSystemAccess(false);
-			configurer.setTemplateLoaderPath("classpath*:org/springframework/web/reactive/view/freemarker/");
-			return configurer;
-		}
-	}
+        assertEquals(HttpStatus.SEE_OTHER, response.getStatusCode());
+        assertEquals("/", response.getHeaders().getLocation().toString());
+    }
 
 
-	@Controller
-	@SuppressWarnings({"unused", "OptionalUsedAsFieldOrParameterType"})
-	private static class TestController {
+    @Configuration
+    @EnableWebFlux
+    @ComponentScan(resourcePattern = "**/RequestMappingViewResolutionIntegrationTests$*.class")
+    @SuppressWarnings({"unused", "WeakerAccess"})
+    static class WebConfig implements WebFluxConfigurer {
 
-		@GetMapping("/html")
-		public String getHtmlPage(Optional<String> name, Model model, ServerWebExchange exchange) {
-			if (exchange.checkNotModified("deadb33f8badf00d")) {
-				return null;
-			}
-			model.addAttribute("hello", "Hello: " + name.orElse("<no name>") + "!");
-			return "test";
-		}
+        @Override
+        public void configureViewResolvers(ViewResolverRegistry registry) {
+            registry.freeMarker();
+        }
 
-		@GetMapping("/redirect")
-		public String redirect() {
-			return "redirect:/";
-		}
-	}
+        @Bean
+        public FreeMarkerConfigurer freeMarkerConfig() {
+            FreeMarkerConfigurer configurer = new FreeMarkerConfigurer();
+            configurer.setPreferFileSystemAccess(false);
+            configurer.setTemplateLoaderPath("classpath*:org/springframework/web/reactive/view/freemarker/");
+            return configurer;
+        }
+    }
+
+
+    @Controller
+    @SuppressWarnings({"unused", "OptionalUsedAsFieldOrParameterType"})
+    private static class TestController {
+
+        @GetMapping("/html")
+        public String getHtmlPage(Optional<String> name, Model model, ServerWebExchange exchange) {
+            if (exchange.checkNotModified("deadb33f8badf00d")) {
+                return null;
+            }
+            model.addAttribute("hello", "Hello: " + name.orElse("<no name>") + "!");
+            return "test";
+        }
+
+        @GetMapping("/redirect")
+        public String redirect() {
+            return "redirect:/";
+        }
+    }
 
 }

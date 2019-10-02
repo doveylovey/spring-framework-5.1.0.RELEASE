@@ -33,13 +33,13 @@ import static org.junit.Assert.*;
  */
 @ContextConfiguration(classes = DefaultLoaderBeanOverridingDefaultConfigClassesInheritedTests.Config.class)
 public class DefaultLoaderBeanOverridingExplicitConfigClassesInheritedTests extends
-		DefaultLoaderExplicitConfigClassesBaseTests {
+        DefaultLoaderExplicitConfigClassesBaseTests {
 
-	@Test
-	@Override
-	public void verifyEmployeeSetFromBaseContextConfig() {
-		assertNotNull("The employee should have been autowired.", this.employee);
-		assertEquals("The employee bean should have been overridden.", "Yoda", this.employee.getName());
-	}
+    @Test
+    @Override
+    public void verifyEmployeeSetFromBaseContextConfig() {
+        assertNotNull("The employee should have been autowired.", this.employee);
+        assertEquals("The employee bean should have been overridden.", "Yoda", this.employee.getName());
+    }
 
 }

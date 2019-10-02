@@ -47,65 +47,62 @@ import static org.springframework.core.ResolvableType.forClass;
  */
 public class ProtobufEncoderTests extends AbstractDataBufferAllocatingTestCase {
 
-	private final static MimeType PROTOBUF_MIME_TYPE = new MimeType("application", "x-protobuf");
+    private final static MimeType PROTOBUF_MIME_TYPE = new MimeType("application", "x-protobuf");
 
-	private final Msg testMsg = Msg.newBuilder().setFoo("Foo").setBlah(SecondMsg.newBuilder().setBlah(123).build()).build();
+    private final Msg testMsg = Msg.newBuilder().setFoo("Foo").setBlah(SecondMsg.newBuilder().setBlah(123).build()).build();
 
-	private final ProtobufEncoder encoder = new ProtobufEncoder();
+    private final ProtobufEncoder encoder = new ProtobufEncoder();
 
-	@Test
-	public void canEncode() {
-		assertTrue(this.encoder.canEncode(forClass(Msg.class), null));
-		assertTrue(this.encoder.canEncode(forClass(Msg.class), PROTOBUF_MIME_TYPE));
-		assertTrue(this.encoder.canEncode(forClass(Msg.class), MediaType.APPLICATION_OCTET_STREAM));
-		assertFalse(this.encoder.canEncode(forClass(Msg.class), MediaType.APPLICATION_JSON));
-		assertFalse(this.encoder.canEncode(forClass(Object.class), PROTOBUF_MIME_TYPE));
-	}
+    @Test
+    public void canEncode() {
+        assertTrue(this.encoder.canEncode(forClass(Msg.class), null));
+        assertTrue(this.encoder.canEncode(forClass(Msg.class), PROTOBUF_MIME_TYPE));
+        assertTrue(this.encoder.canEncode(forClass(Msg.class), MediaType.APPLICATION_OCTET_STREAM));
+        assertFalse(this.encoder.canEncode(forClass(Msg.class), MediaType.APPLICATION_JSON));
+        assertFalse(this.encoder.canEncode(forClass(Object.class), PROTOBUF_MIME_TYPE));
+    }
 
-	@Test
-	public void encode() {
-		Mono<Message> message = Mono.just(this.testMsg);
-		ResolvableType elementType = forClass(Msg.class);
-		Flux<DataBuffer> output = this.encoder.encode(message, this.bufferFactory, elementType, PROTOBUF_MIME_TYPE, emptyMap());
-		StepVerifier.create(output)
-				.consumeNextWith(dataBuffer -> {
-					try {
-						assertEquals(this.testMsg, Msg.parseFrom(dataBuffer.asInputStream()));
-						DataBufferUtils.release(dataBuffer);
-					}
-					catch (IOException ex) {
-						throw new UncheckedIOException(ex);
-					}
-				})
-				.verifyComplete();
-	}
+    @Test
+    public void encode() {
+        Mono<Message> message = Mono.just(this.testMsg);
+        ResolvableType elementType = forClass(Msg.class);
+        Flux<DataBuffer> output = this.encoder.encode(message, this.bufferFactory, elementType, PROTOBUF_MIME_TYPE, emptyMap());
+        StepVerifier.create(output)
+                .consumeNextWith(dataBuffer -> {
+                    try {
+                        assertEquals(this.testMsg, Msg.parseFrom(dataBuffer.asInputStream()));
+                        DataBufferUtils.release(dataBuffer);
+                    } catch (IOException ex) {
+                        throw new UncheckedIOException(ex);
+                    }
+                })
+                .verifyComplete();
+    }
 
-	@Test
-	public void encodeStream() {
-		Msg testMsg2 = Msg.newBuilder().setFoo("Bar").setBlah(SecondMsg.newBuilder().setBlah(456).build()).build();
-		Flux<Message> messages = Flux.just(this.testMsg, testMsg2);
-		ResolvableType elementType = forClass(Msg.class);
-		Flux<DataBuffer> output = this.encoder.encode(messages, this.bufferFactory, elementType, PROTOBUF_MIME_TYPE, emptyMap());
-		StepVerifier.create(output)
-				.consumeNextWith(dataBuffer -> {
-					try {
-						assertEquals(this.testMsg, Msg.parseDelimitedFrom(dataBuffer.asInputStream()));
-						DataBufferUtils.release(dataBuffer);
-					}
-					catch (IOException ex) {
-						throw new UncheckedIOException(ex);
-					}
-				})
-				.consumeNextWith(dataBuffer -> {
-					try {
-						assertEquals(testMsg2, Msg.parseDelimitedFrom(dataBuffer.asInputStream()));
-						DataBufferUtils.release(dataBuffer);
-					}
-					catch (IOException ex) {
-						throw new UncheckedIOException(ex);
-					}
-				})
-				.verifyComplete();
-	}
+    @Test
+    public void encodeStream() {
+        Msg testMsg2 = Msg.newBuilder().setFoo("Bar").setBlah(SecondMsg.newBuilder().setBlah(456).build()).build();
+        Flux<Message> messages = Flux.just(this.testMsg, testMsg2);
+        ResolvableType elementType = forClass(Msg.class);
+        Flux<DataBuffer> output = this.encoder.encode(messages, this.bufferFactory, elementType, PROTOBUF_MIME_TYPE, emptyMap());
+        StepVerifier.create(output)
+                .consumeNextWith(dataBuffer -> {
+                    try {
+                        assertEquals(this.testMsg, Msg.parseDelimitedFrom(dataBuffer.asInputStream()));
+                        DataBufferUtils.release(dataBuffer);
+                    } catch (IOException ex) {
+                        throw new UncheckedIOException(ex);
+                    }
+                })
+                .consumeNextWith(dataBuffer -> {
+                    try {
+                        assertEquals(testMsg2, Msg.parseDelimitedFrom(dataBuffer.asInputStream()));
+                        DataBufferUtils.release(dataBuffer);
+                    } catch (IOException ex) {
+                        throw new UncheckedIOException(ex);
+                    }
+                })
+                .verifyComplete();
+    }
 
 }

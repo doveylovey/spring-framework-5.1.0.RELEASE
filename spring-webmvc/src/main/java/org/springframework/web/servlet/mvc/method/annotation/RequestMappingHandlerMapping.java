@@ -58,357 +58,360 @@ import org.springframework.web.servlet.mvc.method.RequestMappingInfoHandlerMappi
  * @since 3.1
  */
 public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMapping
-		implements MatchableHandlerMapping, EmbeddedValueResolverAware {
+        implements MatchableHandlerMapping, EmbeddedValueResolverAware {
 
-	private boolean useSuffixPatternMatch = true;
+    private boolean useSuffixPatternMatch = true;
 
-	private boolean useRegisteredSuffixPatternMatch = false;
+    private boolean useRegisteredSuffixPatternMatch = false;
 
-	private boolean useTrailingSlashMatch = true;
+    private boolean useTrailingSlashMatch = true;
 
-	private Map<String, Predicate<Class<?>>> pathPrefixes = new LinkedHashMap<>();
+    private Map<String, Predicate<Class<?>>> pathPrefixes = new LinkedHashMap<>();
 
-	private ContentNegotiationManager contentNegotiationManager = new ContentNegotiationManager();
+    private ContentNegotiationManager contentNegotiationManager = new ContentNegotiationManager();
 
-	@Nullable
-	private StringValueResolver embeddedValueResolver;
+    @Nullable
+    private StringValueResolver embeddedValueResolver;
 
-	private RequestMappingInfo.BuilderConfiguration config = new RequestMappingInfo.BuilderConfiguration();
-
-
-	/**
-	 * Whether to use suffix pattern match (".*") when matching patterns to
-	 * requests. If enabled a method mapped to "/users" also matches to "/users.*".
-	 * <p>The default value is {@code true}.
-	 * <p>Also see {@link #setUseRegisteredSuffixPatternMatch(boolean)} for
-	 * more fine-grained control over specific suffixes to allow.
-	 */
-	public void setUseSuffixPatternMatch(boolean useSuffixPatternMatch) {
-		this.useSuffixPatternMatch = useSuffixPatternMatch;
-	}
-
-	/**
-	 * Whether suffix pattern matching should work only against path extensions
-	 * explicitly registered with the {@link ContentNegotiationManager}. This
-	 * is generally recommended to reduce ambiguity and to avoid issues such as
-	 * when a "." appears in the path for other reasons.
-	 * <p>By default this is set to "false".
-	 */
-	public void setUseRegisteredSuffixPatternMatch(boolean useRegisteredSuffixPatternMatch) {
-		this.useRegisteredSuffixPatternMatch = useRegisteredSuffixPatternMatch;
-		this.useSuffixPatternMatch = (useRegisteredSuffixPatternMatch || this.useSuffixPatternMatch);
-	}
-
-	/**
-	 * Whether to match to URLs irrespective of the presence of a trailing slash.
-	 * If enabled a method mapped to "/users" also matches to "/users/".
-	 * <p>The default value is {@code true}.
-	 */
-	public void setUseTrailingSlashMatch(boolean useTrailingSlashMatch) {
-		this.useTrailingSlashMatch = useTrailingSlashMatch;
-	}
-
-	/**
-	 * Configure path prefixes to apply to controller methods.
-	 * <p>Prefixes are used to enrich the mappings of every {@code @RequestMapping}
-	 * method whose controller type is matched by the corresponding
-	 * {@code Predicate}. The prefix for the first matching predicate is used.
-	 * <p>Consider using {@link org.springframework.web.method.HandlerTypePredicate
-	 * HandlerTypePredicate} to group controllers.
-	 * @param prefixes a map with path prefixes as key
-	 * @since 5.1
-	 */
-	public void setPathPrefixes(Map<String, Predicate<Class<?>>> prefixes) {
-		this.pathPrefixes = Collections.unmodifiableMap(new LinkedHashMap<>(prefixes));
-	}
-
-	/**
-	 * The configured path prefixes as a read-only, possibly empty map.
-	 * @since 5.1
-	 */
-	public Map<String, Predicate<Class<?>>> getPathPrefixes() {
-		return this.pathPrefixes;
-	}
-
-	/**
-	 * Set the {@link ContentNegotiationManager} to use to determine requested media types.
-	 * If not set, the default constructor is used.
-	 */
-	public void setContentNegotiationManager(ContentNegotiationManager contentNegotiationManager) {
-		Assert.notNull(contentNegotiationManager, "ContentNegotiationManager must not be null");
-		this.contentNegotiationManager = contentNegotiationManager;
-	}
-
-	/**
-	 * Return the configured {@link ContentNegotiationManager}.
-	 */
-	public ContentNegotiationManager getContentNegotiationManager() {
-		return this.contentNegotiationManager;
-	}
-
-	@Override
-	public void setEmbeddedValueResolver(StringValueResolver resolver) {
-		this.embeddedValueResolver = resolver;
-	}
-
-	@Override
-	public void afterPropertiesSet() {
-		this.config = new RequestMappingInfo.BuilderConfiguration();
-		this.config.setUrlPathHelper(getUrlPathHelper());
-		this.config.setPathMatcher(getPathMatcher());
-		this.config.setSuffixPatternMatch(this.useSuffixPatternMatch);
-		this.config.setTrailingSlashMatch(this.useTrailingSlashMatch);
-		this.config.setRegisteredSuffixPatternMatch(this.useRegisteredSuffixPatternMatch);
-		this.config.setContentNegotiationManager(getContentNegotiationManager());
-
-		super.afterPropertiesSet();
-	}
+    private RequestMappingInfo.BuilderConfiguration config = new RequestMappingInfo.BuilderConfiguration();
 
 
-	/**
-	 * Whether to use suffix pattern matching.
-	 */
-	public boolean useSuffixPatternMatch() {
-		return this.useSuffixPatternMatch;
-	}
+    /**
+     * Whether to use suffix pattern match (".*") when matching patterns to
+     * requests. If enabled a method mapped to "/users" also matches to "/users.*".
+     * <p>The default value is {@code true}.
+     * <p>Also see {@link #setUseRegisteredSuffixPatternMatch(boolean)} for
+     * more fine-grained control over specific suffixes to allow.
+     */
+    public void setUseSuffixPatternMatch(boolean useSuffixPatternMatch) {
+        this.useSuffixPatternMatch = useSuffixPatternMatch;
+    }
 
-	/**
-	 * Whether to use registered suffixes for pattern matching.
-	 */
-	public boolean useRegisteredSuffixPatternMatch() {
-		return this.useRegisteredSuffixPatternMatch;
-	}
+    /**
+     * Whether suffix pattern matching should work only against path extensions
+     * explicitly registered with the {@link ContentNegotiationManager}. This
+     * is generally recommended to reduce ambiguity and to avoid issues such as
+     * when a "." appears in the path for other reasons.
+     * <p>By default this is set to "false".
+     */
+    public void setUseRegisteredSuffixPatternMatch(boolean useRegisteredSuffixPatternMatch) {
+        this.useRegisteredSuffixPatternMatch = useRegisteredSuffixPatternMatch;
+        this.useSuffixPatternMatch = (useRegisteredSuffixPatternMatch || this.useSuffixPatternMatch);
+    }
 
-	/**
-	 * Whether to match to URLs irrespective of the presence of a trailing slash.
-	 */
-	public boolean useTrailingSlashMatch() {
-		return this.useTrailingSlashMatch;
-	}
+    /**
+     * Whether to match to URLs irrespective of the presence of a trailing slash.
+     * If enabled a method mapped to "/users" also matches to "/users/".
+     * <p>The default value is {@code true}.
+     */
+    public void setUseTrailingSlashMatch(boolean useTrailingSlashMatch) {
+        this.useTrailingSlashMatch = useTrailingSlashMatch;
+    }
 
-	/**
-	 * Return the file extensions to use for suffix pattern matching.
-	 */
-	@Nullable
-	public List<String> getFileExtensions() {
-		return this.config.getFileExtensions();
-	}
+    /**
+     * Configure path prefixes to apply to controller methods.
+     * <p>Prefixes are used to enrich the mappings of every {@code @RequestMapping}
+     * method whose controller type is matched by the corresponding
+     * {@code Predicate}. The prefix for the first matching predicate is used.
+     * <p>Consider using {@link org.springframework.web.method.HandlerTypePredicate
+     * HandlerTypePredicate} to group controllers.
+     *
+     * @param prefixes a map with path prefixes as key
+     * @since 5.1
+     */
+    public void setPathPrefixes(Map<String, Predicate<Class<?>>> prefixes) {
+        this.pathPrefixes = Collections.unmodifiableMap(new LinkedHashMap<>(prefixes));
+    }
+
+    /**
+     * The configured path prefixes as a read-only, possibly empty map.
+     *
+     * @since 5.1
+     */
+    public Map<String, Predicate<Class<?>>> getPathPrefixes() {
+        return this.pathPrefixes;
+    }
+
+    /**
+     * Set the {@link ContentNegotiationManager} to use to determine requested media types.
+     * If not set, the default constructor is used.
+     */
+    public void setContentNegotiationManager(ContentNegotiationManager contentNegotiationManager) {
+        Assert.notNull(contentNegotiationManager, "ContentNegotiationManager must not be null");
+        this.contentNegotiationManager = contentNegotiationManager;
+    }
+
+    /**
+     * Return the configured {@link ContentNegotiationManager}.
+     */
+    public ContentNegotiationManager getContentNegotiationManager() {
+        return this.contentNegotiationManager;
+    }
+
+    @Override
+    public void setEmbeddedValueResolver(StringValueResolver resolver) {
+        this.embeddedValueResolver = resolver;
+    }
+
+    @Override
+    public void afterPropertiesSet() {
+        this.config = new RequestMappingInfo.BuilderConfiguration();
+        this.config.setUrlPathHelper(getUrlPathHelper());
+        this.config.setPathMatcher(getPathMatcher());
+        this.config.setSuffixPatternMatch(this.useSuffixPatternMatch);
+        this.config.setTrailingSlashMatch(this.useTrailingSlashMatch);
+        this.config.setRegisteredSuffixPatternMatch(this.useRegisteredSuffixPatternMatch);
+        this.config.setContentNegotiationManager(getContentNegotiationManager());
+
+        super.afterPropertiesSet();
+    }
 
 
-	/**
-	 * {@inheritDoc}
-	 * <p>Expects a handler to have either a type-level @{@link Controller}
-	 * annotation or a type-level @{@link RequestMapping} annotation.
-	 */
-	@Override
-	protected boolean isHandler(Class<?> beanType) {
-		return (AnnotatedElementUtils.hasAnnotation(beanType, Controller.class) ||
-				AnnotatedElementUtils.hasAnnotation(beanType, RequestMapping.class));
-	}
+    /**
+     * Whether to use suffix pattern matching.
+     */
+    public boolean useSuffixPatternMatch() {
+        return this.useSuffixPatternMatch;
+    }
 
-	/**
-	 * Uses method and type-level @{@link RequestMapping} annotations to create
-	 * the RequestMappingInfo.
-	 * @return the created RequestMappingInfo, or {@code null} if the method
-	 * does not have a {@code @RequestMapping} annotation.
-	 * @see #getCustomMethodCondition(Method)
-	 * @see #getCustomTypeCondition(Class)
-	 */
-	@Override
-	@Nullable
-	protected RequestMappingInfo getMappingForMethod(Method method, Class<?> handlerType) {
-		RequestMappingInfo info = createRequestMappingInfo(method);
-		if (info != null) {
-			RequestMappingInfo typeInfo = createRequestMappingInfo(handlerType);
-			if (typeInfo != null) {
-				info = typeInfo.combine(info);
-			}
-			String prefix = getPathPrefix(handlerType);
-			if (prefix != null) {
-				info = RequestMappingInfo.paths(prefix).build().combine(info);
-			}
-		}
-		return info;
-	}
+    /**
+     * Whether to use registered suffixes for pattern matching.
+     */
+    public boolean useRegisteredSuffixPatternMatch() {
+        return this.useRegisteredSuffixPatternMatch;
+    }
 
-	@Nullable
-	String getPathPrefix(Class<?> handlerType) {
-		for (Map.Entry<String, Predicate<Class<?>>> entry : this.pathPrefixes.entrySet()) {
-			if (entry.getValue().test(handlerType)) {
-				String prefix = entry.getKey();
-				if (this.embeddedValueResolver != null) {
-					prefix = this.embeddedValueResolver.resolveStringValue(prefix);
-				}
-				return prefix;
-			}
-		}
-		return null;
-	}
+    /**
+     * Whether to match to URLs irrespective of the presence of a trailing slash.
+     */
+    public boolean useTrailingSlashMatch() {
+        return this.useTrailingSlashMatch;
+    }
 
-	/**
-	 * Delegates to {@link #createRequestMappingInfo(RequestMapping, RequestCondition)},
-	 * supplying the appropriate custom {@link RequestCondition} depending on whether
-	 * the supplied {@code annotatedElement} is a class or method.
-	 * @see #getCustomTypeCondition(Class)
-	 * @see #getCustomMethodCondition(Method)
-	 */
-	@Nullable
-	private RequestMappingInfo createRequestMappingInfo(AnnotatedElement element) {
-		RequestMapping requestMapping = AnnotatedElementUtils.findMergedAnnotation(element, RequestMapping.class);
-		RequestCondition<?> condition = (element instanceof Class ?
-				getCustomTypeCondition((Class<?>) element) : getCustomMethodCondition((Method) element));
-		return (requestMapping != null ? createRequestMappingInfo(requestMapping, condition) : null);
-	}
+    /**
+     * Return the file extensions to use for suffix pattern matching.
+     */
+    @Nullable
+    public List<String> getFileExtensions() {
+        return this.config.getFileExtensions();
+    }
 
-	/**
-	 * Provide a custom type-level request condition.
-	 * The custom {@link RequestCondition} can be of any type so long as the
-	 * same condition type is returned from all calls to this method in order
-	 * to ensure custom request conditions can be combined and compared.
-	 * <p>Consider extending {@link AbstractRequestCondition} for custom
-	 * condition types and using {@link CompositeRequestCondition} to provide
-	 * multiple custom conditions.
-	 * @param handlerType the handler type for which to create the condition
-	 * @return the condition, or {@code null}
-	 */
-	@Nullable
-	protected RequestCondition<?> getCustomTypeCondition(Class<?> handlerType) {
-		return null;
-	}
 
-	/**
-	 * Provide a custom method-level request condition.
-	 * The custom {@link RequestCondition} can be of any type so long as the
-	 * same condition type is returned from all calls to this method in order
-	 * to ensure custom request conditions can be combined and compared.
-	 * <p>Consider extending {@link AbstractRequestCondition} for custom
-	 * condition types and using {@link CompositeRequestCondition} to provide
-	 * multiple custom conditions.
-	 * @param method the handler method for which to create the condition
-	 * @return the condition, or {@code null}
-	 */
-	@Nullable
-	protected RequestCondition<?> getCustomMethodCondition(Method method) {
-		return null;
-	}
+    /**
+     * {@inheritDoc}
+     * <p>Expects a handler to have either a type-level @{@link Controller}
+     * annotation or a type-level @{@link RequestMapping} annotation.
+     */
+    @Override
+    protected boolean isHandler(Class<?> beanType) {
+        return (AnnotatedElementUtils.hasAnnotation(beanType, Controller.class) ||
+                AnnotatedElementUtils.hasAnnotation(beanType, RequestMapping.class));
+    }
 
-	/**
-	 * Create a {@link RequestMappingInfo} from the supplied
-	 * {@link RequestMapping @RequestMapping} annotation, which is either
-	 * a directly declared annotation, a meta-annotation, or the synthesized
-	 * result of merging annotation attributes within an annotation hierarchy.
-	 */
-	protected RequestMappingInfo createRequestMappingInfo(
-			RequestMapping requestMapping, @Nullable RequestCondition<?> customCondition) {
+    /**
+     * Uses method and type-level @{@link RequestMapping} annotations to create
+     * the RequestMappingInfo.
+     *
+     * @return the created RequestMappingInfo, or {@code null} if the method
+     * does not have a {@code @RequestMapping} annotation.
+     * @see #getCustomMethodCondition(Method)
+     * @see #getCustomTypeCondition(Class)
+     */
+    @Override
+    @Nullable
+    protected RequestMappingInfo getMappingForMethod(Method method, Class<?> handlerType) {
+        RequestMappingInfo info = createRequestMappingInfo(method);
+        if (info != null) {
+            RequestMappingInfo typeInfo = createRequestMappingInfo(handlerType);
+            if (typeInfo != null) {
+                info = typeInfo.combine(info);
+            }
+            String prefix = getPathPrefix(handlerType);
+            if (prefix != null) {
+                info = RequestMappingInfo.paths(prefix).build().combine(info);
+            }
+        }
+        return info;
+    }
 
-		RequestMappingInfo.Builder builder = RequestMappingInfo
-				.paths(resolveEmbeddedValuesInPatterns(requestMapping.path()))
-				.methods(requestMapping.method())
-				.params(requestMapping.params())
-				.headers(requestMapping.headers())
-				.consumes(requestMapping.consumes())
-				.produces(requestMapping.produces())
-				.mappingName(requestMapping.name());
-		if (customCondition != null) {
-			builder.customCondition(customCondition);
-		}
-		return builder.options(this.config).build();
-	}
+    @Nullable
+    String getPathPrefix(Class<?> handlerType) {
+        for (Map.Entry<String, Predicate<Class<?>>> entry : this.pathPrefixes.entrySet()) {
+            if (entry.getValue().test(handlerType)) {
+                String prefix = entry.getKey();
+                if (this.embeddedValueResolver != null) {
+                    prefix = this.embeddedValueResolver.resolveStringValue(prefix);
+                }
+                return prefix;
+            }
+        }
+        return null;
+    }
 
-	/**
-	 * Resolve placeholder values in the given array of patterns.
-	 * @return a new array with updated patterns
-	 */
-	protected String[] resolveEmbeddedValuesInPatterns(String[] patterns) {
-		if (this.embeddedValueResolver == null) {
-			return patterns;
-		}
-		else {
-			String[] resolvedPatterns = new String[patterns.length];
-			for (int i = 0; i < patterns.length; i++) {
-				resolvedPatterns[i] = this.embeddedValueResolver.resolveStringValue(patterns[i]);
-			}
-			return resolvedPatterns;
-		}
-	}
+    /**
+     * Delegates to {@link #createRequestMappingInfo(RequestMapping, RequestCondition)},
+     * supplying the appropriate custom {@link RequestCondition} depending on whether
+     * the supplied {@code annotatedElement} is a class or method.
+     *
+     * @see #getCustomTypeCondition(Class)
+     * @see #getCustomMethodCondition(Method)
+     */
+    @Nullable
+    private RequestMappingInfo createRequestMappingInfo(AnnotatedElement element) {
+        RequestMapping requestMapping = AnnotatedElementUtils.findMergedAnnotation(element, RequestMapping.class);
+        RequestCondition<?> condition = (element instanceof Class ?
+                getCustomTypeCondition((Class<?>) element) : getCustomMethodCondition((Method) element));
+        return (requestMapping != null ? createRequestMappingInfo(requestMapping, condition) : null);
+    }
 
-	@Override
-	public RequestMatchResult match(HttpServletRequest request, String pattern) {
-		RequestMappingInfo info = RequestMappingInfo.paths(pattern).options(this.config).build();
-		RequestMappingInfo matchingInfo = info.getMatchingCondition(request);
-		if (matchingInfo == null) {
-			return null;
-		}
-		Set<String> patterns = matchingInfo.getPatternsCondition().getPatterns();
-		String lookupPath = getUrlPathHelper().getLookupPathForRequest(request);
-		return new RequestMatchResult(patterns.iterator().next(), lookupPath, getPathMatcher());
-	}
+    /**
+     * Provide a custom type-level request condition.
+     * The custom {@link RequestCondition} can be of any type so long as the
+     * same condition type is returned from all calls to this method in order
+     * to ensure custom request conditions can be combined and compared.
+     * <p>Consider extending {@link AbstractRequestCondition} for custom
+     * condition types and using {@link CompositeRequestCondition} to provide
+     * multiple custom conditions.
+     *
+     * @param handlerType the handler type for which to create the condition
+     * @return the condition, or {@code null}
+     */
+    @Nullable
+    protected RequestCondition<?> getCustomTypeCondition(Class<?> handlerType) {
+        return null;
+    }
 
-	@Override
-	protected CorsConfiguration initCorsConfiguration(Object handler, Method method, RequestMappingInfo mappingInfo) {
-		HandlerMethod handlerMethod = createHandlerMethod(handler, method);
-		Class<?> beanType = handlerMethod.getBeanType();
-		CrossOrigin typeAnnotation = AnnotatedElementUtils.findMergedAnnotation(beanType, CrossOrigin.class);
-		CrossOrigin methodAnnotation = AnnotatedElementUtils.findMergedAnnotation(method, CrossOrigin.class);
+    /**
+     * Provide a custom method-level request condition.
+     * The custom {@link RequestCondition} can be of any type so long as the
+     * same condition type is returned from all calls to this method in order
+     * to ensure custom request conditions can be combined and compared.
+     * <p>Consider extending {@link AbstractRequestCondition} for custom
+     * condition types and using {@link CompositeRequestCondition} to provide
+     * multiple custom conditions.
+     *
+     * @param method the handler method for which to create the condition
+     * @return the condition, or {@code null}
+     */
+    @Nullable
+    protected RequestCondition<?> getCustomMethodCondition(Method method) {
+        return null;
+    }
 
-		if (typeAnnotation == null && methodAnnotation == null) {
-			return null;
-		}
+    /**
+     * Create a {@link RequestMappingInfo} from the supplied
+     * {@link RequestMapping @RequestMapping} annotation, which is either
+     * a directly declared annotation, a meta-annotation, or the synthesized
+     * result of merging annotation attributes within an annotation hierarchy.
+     */
+    protected RequestMappingInfo createRequestMappingInfo(
+            RequestMapping requestMapping, @Nullable RequestCondition<?> customCondition) {
 
-		CorsConfiguration config = new CorsConfiguration();
-		updateCorsConfig(config, typeAnnotation);
-		updateCorsConfig(config, methodAnnotation);
+        RequestMappingInfo.Builder builder = RequestMappingInfo
+                .paths(resolveEmbeddedValuesInPatterns(requestMapping.path()))
+                .methods(requestMapping.method())
+                .params(requestMapping.params())
+                .headers(requestMapping.headers())
+                .consumes(requestMapping.consumes())
+                .produces(requestMapping.produces())
+                .mappingName(requestMapping.name());
+        if (customCondition != null) {
+            builder.customCondition(customCondition);
+        }
+        return builder.options(this.config).build();
+    }
 
-		if (CollectionUtils.isEmpty(config.getAllowedMethods())) {
-			for (RequestMethod allowedMethod : mappingInfo.getMethodsCondition().getMethods()) {
-				config.addAllowedMethod(allowedMethod.name());
-			}
-		}
-		return config.applyPermitDefaultValues();
-	}
+    /**
+     * Resolve placeholder values in the given array of patterns.
+     *
+     * @return a new array with updated patterns
+     */
+    protected String[] resolveEmbeddedValuesInPatterns(String[] patterns) {
+        if (this.embeddedValueResolver == null) {
+            return patterns;
+        } else {
+            String[] resolvedPatterns = new String[patterns.length];
+            for (int i = 0; i < patterns.length; i++) {
+                resolvedPatterns[i] = this.embeddedValueResolver.resolveStringValue(patterns[i]);
+            }
+            return resolvedPatterns;
+        }
+    }
 
-	private void updateCorsConfig(CorsConfiguration config, @Nullable CrossOrigin annotation) {
-		if (annotation == null) {
-			return;
-		}
-		for (String origin : annotation.origins()) {
-			config.addAllowedOrigin(resolveCorsAnnotationValue(origin));
-		}
-		for (RequestMethod method : annotation.methods()) {
-			config.addAllowedMethod(method.name());
-		}
-		for (String header : annotation.allowedHeaders()) {
-			config.addAllowedHeader(resolveCorsAnnotationValue(header));
-		}
-		for (String header : annotation.exposedHeaders()) {
-			config.addExposedHeader(resolveCorsAnnotationValue(header));
-		}
+    @Override
+    public RequestMatchResult match(HttpServletRequest request, String pattern) {
+        RequestMappingInfo info = RequestMappingInfo.paths(pattern).options(this.config).build();
+        RequestMappingInfo matchingInfo = info.getMatchingCondition(request);
+        if (matchingInfo == null) {
+            return null;
+        }
+        Set<String> patterns = matchingInfo.getPatternsCondition().getPatterns();
+        String lookupPath = getUrlPathHelper().getLookupPathForRequest(request);
+        return new RequestMatchResult(patterns.iterator().next(), lookupPath, getPathMatcher());
+    }
 
-		String allowCredentials = resolveCorsAnnotationValue(annotation.allowCredentials());
-		if ("true".equalsIgnoreCase(allowCredentials)) {
-			config.setAllowCredentials(true);
-		}
-		else if ("false".equalsIgnoreCase(allowCredentials)) {
-			config.setAllowCredentials(false);
-		}
-		else if (!allowCredentials.isEmpty()) {
-			throw new IllegalStateException("@CrossOrigin's allowCredentials value must be \"true\", \"false\", " +
-					"or an empty string (\"\"): current value is [" + allowCredentials + "]");
-		}
+    @Override
+    protected CorsConfiguration initCorsConfiguration(Object handler, Method method, RequestMappingInfo mappingInfo) {
+        HandlerMethod handlerMethod = createHandlerMethod(handler, method);
+        Class<?> beanType = handlerMethod.getBeanType();
+        CrossOrigin typeAnnotation = AnnotatedElementUtils.findMergedAnnotation(beanType, CrossOrigin.class);
+        CrossOrigin methodAnnotation = AnnotatedElementUtils.findMergedAnnotation(method, CrossOrigin.class);
 
-		if (annotation.maxAge() >= 0 && config.getMaxAge() == null) {
-			config.setMaxAge(annotation.maxAge());
-		}
-	}
+        if (typeAnnotation == null && methodAnnotation == null) {
+            return null;
+        }
 
-	private String resolveCorsAnnotationValue(String value) {
-		if (this.embeddedValueResolver != null) {
-			String resolved = this.embeddedValueResolver.resolveStringValue(value);
-			return (resolved != null ? resolved : "");
-		}
-		else {
-			return value;
-		}
-	}
+        CorsConfiguration config = new CorsConfiguration();
+        updateCorsConfig(config, typeAnnotation);
+        updateCorsConfig(config, methodAnnotation);
+
+        if (CollectionUtils.isEmpty(config.getAllowedMethods())) {
+            for (RequestMethod allowedMethod : mappingInfo.getMethodsCondition().getMethods()) {
+                config.addAllowedMethod(allowedMethod.name());
+            }
+        }
+        return config.applyPermitDefaultValues();
+    }
+
+    private void updateCorsConfig(CorsConfiguration config, @Nullable CrossOrigin annotation) {
+        if (annotation == null) {
+            return;
+        }
+        for (String origin : annotation.origins()) {
+            config.addAllowedOrigin(resolveCorsAnnotationValue(origin));
+        }
+        for (RequestMethod method : annotation.methods()) {
+            config.addAllowedMethod(method.name());
+        }
+        for (String header : annotation.allowedHeaders()) {
+            config.addAllowedHeader(resolveCorsAnnotationValue(header));
+        }
+        for (String header : annotation.exposedHeaders()) {
+            config.addExposedHeader(resolveCorsAnnotationValue(header));
+        }
+
+        String allowCredentials = resolveCorsAnnotationValue(annotation.allowCredentials());
+        if ("true".equalsIgnoreCase(allowCredentials)) {
+            config.setAllowCredentials(true);
+        } else if ("false".equalsIgnoreCase(allowCredentials)) {
+            config.setAllowCredentials(false);
+        } else if (!allowCredentials.isEmpty()) {
+            throw new IllegalStateException("@CrossOrigin's allowCredentials value must be \"true\", \"false\", " +
+                    "or an empty string (\"\"): current value is [" + allowCredentials + "]");
+        }
+
+        if (annotation.maxAge() >= 0 && config.getMaxAge() == null) {
+            config.setMaxAge(annotation.maxAge());
+        }
+    }
+
+    private String resolveCorsAnnotationValue(String value) {
+        if (this.embeddedValueResolver != null) {
+            String resolved = this.embeddedValueResolver.resolveStringValue(value);
+            return (resolved != null ? resolved : "");
+        } else {
+            return value;
+        }
+    }
 
 }

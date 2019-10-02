@@ -50,198 +50,200 @@ import org.springframework.web.server.ServerWebExchange;
 /**
  * Default {@link EntityResponse.Builder} implementation.
  *
+ * @param <T> a self reference to the builder type
  * @author Arjen Poutsma
  * @author Juergen Hoeller
  * @since 5.0
- * @param <T> a self reference to the builder type
  */
 class DefaultEntityResponseBuilder<T> implements EntityResponse.Builder<T> {
 
-	private final T entity;
+    private final T entity;
 
-	private final BodyInserter<T, ? super ServerHttpResponse> inserter;
+    private final BodyInserter<T, ? super ServerHttpResponse> inserter;
 
-	private int status = HttpStatus.OK.value();
+    private int status = HttpStatus.OK.value();
 
-	private final HttpHeaders headers = new HttpHeaders();
+    private final HttpHeaders headers = new HttpHeaders();
 
-	private final MultiValueMap<String, ResponseCookie> cookies = new LinkedMultiValueMap<>();
+    private final MultiValueMap<String, ResponseCookie> cookies = new LinkedMultiValueMap<>();
 
-	private final Map<String, Object> hints = new HashMap<>();
-
-
-	public DefaultEntityResponseBuilder(T entity, BodyInserter<T, ? super ServerHttpResponse> inserter) {
-		this.entity = entity;
-		this.inserter = inserter;
-	}
+    private final Map<String, Object> hints = new HashMap<>();
 
 
-	@Override
-	public EntityResponse.Builder<T> status(HttpStatus status) {
-		Assert.notNull(status, "HttpStatus must not be null");
-		this.status = status.value();
-		return this;
-	}
-
-	@Override
-	public EntityResponse.Builder<T> status(int status) {
-		this.status = status;
-		return this;
-	}
-
-	@Override
-	public EntityResponse.Builder<T> cookie(ResponseCookie cookie) {
-		Assert.notNull(cookie, "ResponseCookie must not be null");
-		this.cookies.add(cookie.getName(), cookie);
-		return this;
-	}
-
-	@Override
-	public EntityResponse.Builder<T> cookies(Consumer<MultiValueMap<String, ResponseCookie>> cookiesConsumer) {
-		cookiesConsumer.accept(this.cookies);
-		return this;
-	}
-
-	@Override
-	public EntityResponse.Builder<T> header(String headerName, String... headerValues) {
-		for (String headerValue : headerValues) {
-			this.headers.add(headerName, headerValue);
-		}
-		return this;
-	}
-
-	@Override
-	public EntityResponse.Builder<T> headers(HttpHeaders headers) {
-		this.headers.putAll(headers);
-		return this;
-	}
-
-	@Override
-	public EntityResponse.Builder<T> allow(HttpMethod... allowedMethods) {
-		this.headers.setAllow(new LinkedHashSet<>(Arrays.asList(allowedMethods)));
-		return this;
-	}
-
-	@Override
-	public EntityResponse.Builder<T> allow(Set<HttpMethod> allowedMethods) {
-		this.headers.setAllow(allowedMethods);
-		return this;
-	}
-
-	@Override
-	public EntityResponse.Builder<T> contentLength(long contentLength) {
-		this.headers.setContentLength(contentLength);
-		return this;
-	}
-
-	@Override
-	public EntityResponse.Builder<T> contentType(MediaType contentType) {
-		this.headers.setContentType(contentType);
-		return this;
-	}
-
-	@Override
-	public EntityResponse.Builder<T> eTag(String etag) {
-		if (!etag.startsWith("\"") && !etag.startsWith("W/\"")) {
-			etag = "\"" + etag;
-		}
-		if (!etag.endsWith("\"")) {
-			etag = etag + "\"";
-		}
-		this.headers.setETag(etag);
-		return this;
-	}
-
-	@Override
-	public EntityResponse.Builder<T> hint(String key, Object value) {
-		this.hints.put(key, value);
-		return this;
-	}
-
-	@Override
-	public EntityResponse.Builder<T> lastModified(ZonedDateTime lastModified) {
-		ZonedDateTime gmt = lastModified.withZoneSameInstant(ZoneId.of("GMT"));
-		String headerValue = DateTimeFormatter.RFC_1123_DATE_TIME.format(gmt);
-		this.headers.set(HttpHeaders.LAST_MODIFIED, headerValue);
-		return this;
-	}
-
-	@Override
-	public EntityResponse.Builder<T> location(URI location) {
-		this.headers.setLocation(location);
-		return this;
-	}
-
-	@Override
-	public EntityResponse.Builder<T> cacheControl(CacheControl cacheControl) {
-		String ccValue = cacheControl.getHeaderValue();
-		if (ccValue != null) {
-			this.headers.setCacheControl(cacheControl.getHeaderValue());
-		}
-		return this;
-	}
-
-	@Override
-	public EntityResponse.Builder<T> varyBy(String... requestHeaders) {
-		this.headers.setVary(Arrays.asList(requestHeaders));
-		return this;
-	}
-
-	@Override
-	public Mono<EntityResponse<T>> build() {
-		return Mono.just(new DefaultEntityResponse<T>(
-				this.status, this.headers, this.cookies, this.entity, this.inserter, this.hints));
-	}
+    public DefaultEntityResponseBuilder(T entity, BodyInserter<T, ? super ServerHttpResponse> inserter) {
+        this.entity = entity;
+        this.inserter = inserter;
+    }
 
 
-	private static final class DefaultEntityResponse<T>
-			extends DefaultServerResponseBuilder.AbstractServerResponse
-			implements EntityResponse<T> {
+    @Override
+    public EntityResponse.Builder<T> status(HttpStatus status) {
+        Assert.notNull(status, "HttpStatus must not be null");
+        this.status = status.value();
+        return this;
+    }
 
-		private final T entity;
+    @Override
+    public EntityResponse.Builder<T> status(int status) {
+        this.status = status;
+        return this;
+    }
 
-		private final BodyInserter<T, ? super ServerHttpResponse> inserter;
+    @Override
+    public EntityResponse.Builder<T> cookie(ResponseCookie cookie) {
+        Assert.notNull(cookie, "ResponseCookie must not be null");
+        this.cookies.add(cookie.getName(), cookie);
+        return this;
+    }
 
-		private final Map<String, Object> hints;
+    @Override
+    public EntityResponse.Builder<T> cookies(Consumer<MultiValueMap<String, ResponseCookie>> cookiesConsumer) {
+        cookiesConsumer.accept(this.cookies);
+        return this;
+    }
 
-		public DefaultEntityResponse(int statusCode, HttpHeaders headers,
-				MultiValueMap<String, ResponseCookie> cookies, T entity,
-				BodyInserter<T, ? super ServerHttpResponse> inserter, Map<String, Object> hints) {
+    @Override
+    public EntityResponse.Builder<T> header(String headerName, String... headerValues) {
+        for (String headerValue : headerValues) {
+            this.headers.add(headerName, headerValue);
+        }
+        return this;
+    }
 
-			super(statusCode, headers, cookies);
-			this.entity = entity;
-			this.inserter = inserter;
-			this.hints = hints;
-		}
+    @Override
+    public EntityResponse.Builder<T> headers(HttpHeaders headers) {
+        this.headers.putAll(headers);
+        return this;
+    }
 
-		@Override
-		public T entity() {
-			return this.entity;
-		}
+    @Override
+    public EntityResponse.Builder<T> allow(HttpMethod... allowedMethods) {
+        this.headers.setAllow(new LinkedHashSet<>(Arrays.asList(allowedMethods)));
+        return this;
+    }
 
-		@Override
-		public BodyInserter<T, ? super ServerHttpResponse> inserter() {
-			return this.inserter;
-		}
+    @Override
+    public EntityResponse.Builder<T> allow(Set<HttpMethod> allowedMethods) {
+        this.headers.setAllow(allowedMethods);
+        return this;
+    }
 
-		@Override
-		protected Mono<Void> writeToInternal(ServerWebExchange exchange, Context context) {
-			return inserter().insert(exchange.getResponse(), new BodyInserter.Context() {
-				@Override
-				public List<HttpMessageWriter<?>> messageWriters() {
-					return context.messageWriters();
-				}
-				@Override
-				public Optional<ServerHttpRequest> serverRequest() {
-					return Optional.of(exchange.getRequest());
-				}
-				@Override
-				public Map<String, Object> hints() {
-					hints.put(Hints.LOG_PREFIX_HINT, exchange.getLogPrefix());
-					return hints;
-				}
-			});
-		}
-	}
+    @Override
+    public EntityResponse.Builder<T> contentLength(long contentLength) {
+        this.headers.setContentLength(contentLength);
+        return this;
+    }
+
+    @Override
+    public EntityResponse.Builder<T> contentType(MediaType contentType) {
+        this.headers.setContentType(contentType);
+        return this;
+    }
+
+    @Override
+    public EntityResponse.Builder<T> eTag(String etag) {
+        if (!etag.startsWith("\"") && !etag.startsWith("W/\"")) {
+            etag = "\"" + etag;
+        }
+        if (!etag.endsWith("\"")) {
+            etag = etag + "\"";
+        }
+        this.headers.setETag(etag);
+        return this;
+    }
+
+    @Override
+    public EntityResponse.Builder<T> hint(String key, Object value) {
+        this.hints.put(key, value);
+        return this;
+    }
+
+    @Override
+    public EntityResponse.Builder<T> lastModified(ZonedDateTime lastModified) {
+        ZonedDateTime gmt = lastModified.withZoneSameInstant(ZoneId.of("GMT"));
+        String headerValue = DateTimeFormatter.RFC_1123_DATE_TIME.format(gmt);
+        this.headers.set(HttpHeaders.LAST_MODIFIED, headerValue);
+        return this;
+    }
+
+    @Override
+    public EntityResponse.Builder<T> location(URI location) {
+        this.headers.setLocation(location);
+        return this;
+    }
+
+    @Override
+    public EntityResponse.Builder<T> cacheControl(CacheControl cacheControl) {
+        String ccValue = cacheControl.getHeaderValue();
+        if (ccValue != null) {
+            this.headers.setCacheControl(cacheControl.getHeaderValue());
+        }
+        return this;
+    }
+
+    @Override
+    public EntityResponse.Builder<T> varyBy(String... requestHeaders) {
+        this.headers.setVary(Arrays.asList(requestHeaders));
+        return this;
+    }
+
+    @Override
+    public Mono<EntityResponse<T>> build() {
+        return Mono.just(new DefaultEntityResponse<T>(
+                this.status, this.headers, this.cookies, this.entity, this.inserter, this.hints));
+    }
+
+
+    private static final class DefaultEntityResponse<T>
+            extends DefaultServerResponseBuilder.AbstractServerResponse
+            implements EntityResponse<T> {
+
+        private final T entity;
+
+        private final BodyInserter<T, ? super ServerHttpResponse> inserter;
+
+        private final Map<String, Object> hints;
+
+        public DefaultEntityResponse(int statusCode, HttpHeaders headers,
+                                     MultiValueMap<String, ResponseCookie> cookies, T entity,
+                                     BodyInserter<T, ? super ServerHttpResponse> inserter, Map<String, Object> hints) {
+
+            super(statusCode, headers, cookies);
+            this.entity = entity;
+            this.inserter = inserter;
+            this.hints = hints;
+        }
+
+        @Override
+        public T entity() {
+            return this.entity;
+        }
+
+        @Override
+        public BodyInserter<T, ? super ServerHttpResponse> inserter() {
+            return this.inserter;
+        }
+
+        @Override
+        protected Mono<Void> writeToInternal(ServerWebExchange exchange, Context context) {
+            return inserter().insert(exchange.getResponse(), new BodyInserter.Context() {
+                @Override
+                public List<HttpMessageWriter<?>> messageWriters() {
+                    return context.messageWriters();
+                }
+
+                @Override
+                public Optional<ServerHttpRequest> serverRequest() {
+                    return Optional.of(exchange.getRequest());
+                }
+
+                @Override
+                public Map<String, Object> hints() {
+                    hints.put(Hints.LOG_PREFIX_HINT, exchange.getLogPrefix());
+                    return hints;
+                }
+            });
+        }
+    }
 
 }

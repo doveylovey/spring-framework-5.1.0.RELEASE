@@ -32,21 +32,21 @@ import static org.junit.Assert.*;
  */
 public class PersistenceInjectionIntegrationTests extends AbstractEntityManagerFactoryIntegrationTests {
 
-	@Autowired
-	private DefaultPublicPersistenceContextSetter defaultSetterInjected;
+    @Autowired
+    private DefaultPublicPersistenceContextSetter defaultSetterInjected;
 
-	@Autowired
-	private DefaultPublicPersistenceUnitSetterNamedPerson namedSetterInjected;
+    @Autowired
+    private DefaultPublicPersistenceUnitSetterNamedPerson namedSetterInjected;
 
 
-	@Test
-	public void testDefaultPersistenceContextSetterInjection() {
-		assertNotNull(defaultSetterInjected.getEntityManager());
-	}
+    @Test
+    public void testDefaultPersistenceContextSetterInjection() {
+        assertNotNull(defaultSetterInjected.getEntityManager());
+    }
 
-	@Test
-	public void testSetterInjectionOfNamedPersistenceContext() {
-		assertNotNull(namedSetterInjected.getEntityManagerFactory());
-	}
+    @Test
+    public void testSetterInjectionOfNamedPersistenceContext() {
+        assertNotNull(namedSetterInjected.getEntityManagerFactory());
+    }
 
 }

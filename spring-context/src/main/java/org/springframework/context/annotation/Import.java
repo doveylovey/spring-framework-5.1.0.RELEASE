@@ -43,20 +43,20 @@ import java.lang.annotation.Target;
  *
  * @author Chris Beams
  * @author Juergen Hoeller
- * @since 3.0
  * @see Configuration
  * @see ImportSelector
  * @see ImportResource
+ * @since 3.0
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface Import {
 
-	/**
-	 * {@link Configuration}, {@link ImportSelector}, {@link ImportBeanDefinitionRegistrar}
-	 * or regular component classes to import.
-	 */
-	Class<?>[] value();
+    /**
+     * {@link Configuration}, {@link ImportSelector}, {@link ImportBeanDefinitionRegistrar}
+     * or regular component classes to import.
+     */
+    Class<?>[] value();
 
 }

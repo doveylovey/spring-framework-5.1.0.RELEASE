@@ -53,195 +53,194 @@ import static org.junit.Assert.*;
  */
 public class JCacheJavaConfigTests extends AbstractJCacheAnnotationTests {
 
-	@Rule
-	public final ExpectedException thrown = ExpectedException.none();
+    @Rule
+    public final ExpectedException thrown = ExpectedException.none();
 
-	@Override
-	protected ApplicationContext getApplicationContext() {
-		return new AnnotationConfigApplicationContext(EnableCachingConfig.class);
-	}
-
-
-	@Test
-	public void fullCachingConfig() throws Exception {
-		AnnotationConfigApplicationContext context =
-				new AnnotationConfigApplicationContext(FullCachingConfig.class);
-
-		DefaultJCacheOperationSource cos = context.getBean(DefaultJCacheOperationSource.class);
-		assertSame(context.getBean(KeyGenerator.class), cos.getKeyGenerator());
-		assertSame(context.getBean("cacheResolver", CacheResolver.class),
-				cos.getCacheResolver());
-		assertSame(context.getBean("exceptionCacheResolver", CacheResolver.class),
-				cos.getExceptionCacheResolver());
-		JCacheInterceptor interceptor = context.getBean(JCacheInterceptor.class);
-		assertSame(context.getBean("errorHandler", CacheErrorHandler.class), interceptor.getErrorHandler());
-	}
-
-	@Test
-	public void emptyConfigSupport() {
-		ConfigurableApplicationContext context =
-				new AnnotationConfigApplicationContext(EmptyConfigSupportConfig.class);
-
-		DefaultJCacheOperationSource cos = context.getBean(DefaultJCacheOperationSource.class);
-		assertNotNull(cos.getCacheResolver());
-		assertEquals(SimpleCacheResolver.class, cos.getCacheResolver().getClass());
-		assertSame(context.getBean(CacheManager.class),
-				((SimpleCacheResolver) cos.getCacheResolver()).getCacheManager());
-		assertNull(cos.getExceptionCacheResolver());
-		context.close();
-	}
-
-	@Test
-	public void bothSetOnlyResolverIsUsed() {
-		ConfigurableApplicationContext context =
-				new AnnotationConfigApplicationContext(FullCachingConfigSupport.class);
-
-		DefaultJCacheOperationSource cos = context.getBean(DefaultJCacheOperationSource.class);
-		assertSame(context.getBean("cacheResolver"), cos.getCacheResolver());
-		assertSame(context.getBean("keyGenerator"), cos.getKeyGenerator());
-		assertSame(context.getBean("exceptionCacheResolver"), cos.getExceptionCacheResolver());
-		context.close();
-	}
-
-	@Test
-	public void exceptionCacheResolverLazilyRequired() {
-		ConfigurableApplicationContext context =
-				new AnnotationConfigApplicationContext(NoExceptionCacheResolverConfig.class);
-
-		try {
-			DefaultJCacheOperationSource cos = context.getBean(DefaultJCacheOperationSource.class);
-			assertSame(context.getBean("cacheResolver"), cos.getCacheResolver());
-
-			JCacheableService<?> service = context.getBean(JCacheableService.class);
-			service.cache("id");
-
-			// This call requires the cache manager to be set
-			thrown.expect(IllegalStateException.class);
-			service.cacheWithException("test", false);
-		}
-		finally {
-			context.close();
-		}
-	}
+    @Override
+    protected ApplicationContext getApplicationContext() {
+        return new AnnotationConfigApplicationContext(EnableCachingConfig.class);
+    }
 
 
-	@Configuration
-	@EnableCaching
-	public static class EnableCachingConfig {
+    @Test
+    public void fullCachingConfig() throws Exception {
+        AnnotationConfigApplicationContext context =
+                new AnnotationConfigApplicationContext(FullCachingConfig.class);
 
-		@Bean
-		public CacheManager cacheManager() {
-			SimpleCacheManager cm = new SimpleCacheManager();
-			cm.setCaches(Arrays.asList(
-					defaultCache(),
-					new ConcurrentMapCache("primary"),
-					new ConcurrentMapCache("secondary"),
-					new ConcurrentMapCache("exception")));
-			return cm;
-		}
+        DefaultJCacheOperationSource cos = context.getBean(DefaultJCacheOperationSource.class);
+        assertSame(context.getBean(KeyGenerator.class), cos.getKeyGenerator());
+        assertSame(context.getBean("cacheResolver", CacheResolver.class),
+                cos.getCacheResolver());
+        assertSame(context.getBean("exceptionCacheResolver", CacheResolver.class),
+                cos.getExceptionCacheResolver());
+        JCacheInterceptor interceptor = context.getBean(JCacheInterceptor.class);
+        assertSame(context.getBean("errorHandler", CacheErrorHandler.class), interceptor.getErrorHandler());
+    }
 
-		@Bean
-		public JCacheableService<?> cacheableService() {
-			return new AnnotatedJCacheableService(defaultCache());
-		}
+    @Test
+    public void emptyConfigSupport() {
+        ConfigurableApplicationContext context =
+                new AnnotationConfigApplicationContext(EmptyConfigSupportConfig.class);
 
-		@Bean
-		public Cache defaultCache() {
-			return new ConcurrentMapCache("default");
-		}
-	}
+        DefaultJCacheOperationSource cos = context.getBean(DefaultJCacheOperationSource.class);
+        assertNotNull(cos.getCacheResolver());
+        assertEquals(SimpleCacheResolver.class, cos.getCacheResolver().getClass());
+        assertSame(context.getBean(CacheManager.class),
+                ((SimpleCacheResolver) cos.getCacheResolver()).getCacheManager());
+        assertNull(cos.getExceptionCacheResolver());
+        context.close();
+    }
 
+    @Test
+    public void bothSetOnlyResolverIsUsed() {
+        ConfigurableApplicationContext context =
+                new AnnotationConfigApplicationContext(FullCachingConfigSupport.class);
 
-	@Configuration
-	@EnableCaching
-	public static class FullCachingConfig implements JCacheConfigurer {
+        DefaultJCacheOperationSource cos = context.getBean(DefaultJCacheOperationSource.class);
+        assertSame(context.getBean("cacheResolver"), cos.getCacheResolver());
+        assertSame(context.getBean("keyGenerator"), cos.getKeyGenerator());
+        assertSame(context.getBean("exceptionCacheResolver"), cos.getExceptionCacheResolver());
+        context.close();
+    }
 
-		@Override
-		@Bean
-		public CacheManager cacheManager() {
-			return new NoOpCacheManager();
-		}
+    @Test
+    public void exceptionCacheResolverLazilyRequired() {
+        ConfigurableApplicationContext context =
+                new AnnotationConfigApplicationContext(NoExceptionCacheResolverConfig.class);
 
-		@Override
-		@Bean
-		public KeyGenerator keyGenerator() {
-			return new SimpleKeyGenerator();
-		}
+        try {
+            DefaultJCacheOperationSource cos = context.getBean(DefaultJCacheOperationSource.class);
+            assertSame(context.getBean("cacheResolver"), cos.getCacheResolver());
 
-		@Override
-		@Bean
-		public CacheErrorHandler errorHandler() {
-			return new SimpleCacheErrorHandler();
-		}
+            JCacheableService<?> service = context.getBean(JCacheableService.class);
+            service.cache("id");
 
-		@Override
-		@Bean
-		public CacheResolver cacheResolver() {
-			return new SimpleCacheResolver(cacheManager());
-		}
-
-		@Override
-		@Bean
-		public CacheResolver exceptionCacheResolver() {
-			return new SimpleCacheResolver(cacheManager());
-		}
-	}
-
-
-	@Configuration
-	@EnableCaching
-	public static class EmptyConfigSupportConfig extends JCacheConfigurerSupport {
-		@Bean
-		public CacheManager cm() {
-			return new NoOpCacheManager();
-		}
-	}
+            // This call requires the cache manager to be set
+            thrown.expect(IllegalStateException.class);
+            service.cacheWithException("test", false);
+        } finally {
+            context.close();
+        }
+    }
 
 
-	@Configuration
-	@EnableCaching
-	static class FullCachingConfigSupport extends JCacheConfigurerSupport {
+    @Configuration
+    @EnableCaching
+    public static class EnableCachingConfig {
 
-		@Override
-		@Bean
-		public CacheManager cacheManager() {
-			return new NoOpCacheManager();
-		}
+        @Bean
+        public CacheManager cacheManager() {
+            SimpleCacheManager cm = new SimpleCacheManager();
+            cm.setCaches(Arrays.asList(
+                    defaultCache(),
+                    new ConcurrentMapCache("primary"),
+                    new ConcurrentMapCache("secondary"),
+                    new ConcurrentMapCache("exception")));
+            return cm;
+        }
 
-		@Override
-		@Bean
-		public KeyGenerator keyGenerator() {
-			return new SomeKeyGenerator();
-		}
+        @Bean
+        public JCacheableService<?> cacheableService() {
+            return new AnnotatedJCacheableService(defaultCache());
+        }
 
-		@Override
-		@Bean
-		public CacheResolver cacheResolver() {
-			return new NamedCacheResolver(cacheManager(), "foo");
-		}
-
-		@Override
-		@Bean
-		public CacheResolver exceptionCacheResolver() {
-			return new NamedCacheResolver(cacheManager(), "exception");
-		}
-	}
+        @Bean
+        public Cache defaultCache() {
+            return new ConcurrentMapCache("default");
+        }
+    }
 
 
-	@Configuration
-	@EnableCaching
-	static class NoExceptionCacheResolverConfig extends JCacheConfigurerSupport {
+    @Configuration
+    @EnableCaching
+    public static class FullCachingConfig implements JCacheConfigurer {
 
-		@Override
-		@Bean
-		public CacheResolver cacheResolver() {
-			return new NamedCacheResolver(new ConcurrentMapCacheManager(), "default");
-		}
+        @Override
+        @Bean
+        public CacheManager cacheManager() {
+            return new NoOpCacheManager();
+        }
 
-		@Bean
-		public JCacheableService<?> cacheableService() {
-			return new AnnotatedJCacheableService(new ConcurrentMapCache("default"));
-		}
-	}
+        @Override
+        @Bean
+        public KeyGenerator keyGenerator() {
+            return new SimpleKeyGenerator();
+        }
+
+        @Override
+        @Bean
+        public CacheErrorHandler errorHandler() {
+            return new SimpleCacheErrorHandler();
+        }
+
+        @Override
+        @Bean
+        public CacheResolver cacheResolver() {
+            return new SimpleCacheResolver(cacheManager());
+        }
+
+        @Override
+        @Bean
+        public CacheResolver exceptionCacheResolver() {
+            return new SimpleCacheResolver(cacheManager());
+        }
+    }
+
+
+    @Configuration
+    @EnableCaching
+    public static class EmptyConfigSupportConfig extends JCacheConfigurerSupport {
+        @Bean
+        public CacheManager cm() {
+            return new NoOpCacheManager();
+        }
+    }
+
+
+    @Configuration
+    @EnableCaching
+    static class FullCachingConfigSupport extends JCacheConfigurerSupport {
+
+        @Override
+        @Bean
+        public CacheManager cacheManager() {
+            return new NoOpCacheManager();
+        }
+
+        @Override
+        @Bean
+        public KeyGenerator keyGenerator() {
+            return new SomeKeyGenerator();
+        }
+
+        @Override
+        @Bean
+        public CacheResolver cacheResolver() {
+            return new NamedCacheResolver(cacheManager(), "foo");
+        }
+
+        @Override
+        @Bean
+        public CacheResolver exceptionCacheResolver() {
+            return new NamedCacheResolver(cacheManager(), "exception");
+        }
+    }
+
+
+    @Configuration
+    @EnableCaching
+    static class NoExceptionCacheResolverConfig extends JCacheConfigurerSupport {
+
+        @Override
+        @Bean
+        public CacheResolver cacheResolver() {
+            return new NamedCacheResolver(new ConcurrentMapCacheManager(), "default");
+        }
+
+        @Bean
+        public JCacheableService<?> cacheableService() {
+            return new AnnotatedJCacheableService(new ConcurrentMapCache("default"));
+        }
+    }
 
 }

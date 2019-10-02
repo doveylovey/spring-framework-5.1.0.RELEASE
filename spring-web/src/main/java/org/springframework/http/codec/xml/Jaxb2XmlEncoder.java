@@ -49,56 +49,53 @@ import org.springframework.util.MimeTypeUtils;
  *
  * @author Sebastien Deleuze
  * @author Arjen Poutsma
- * @since 5.0
  * @see Jaxb2XmlDecoder
+ * @since 5.0
  */
 public class Jaxb2XmlEncoder extends AbstractSingleValueEncoder<Object> {
 
-	private final JaxbContextContainer jaxbContexts = new JaxbContextContainer();
+    private final JaxbContextContainer jaxbContexts = new JaxbContextContainer();
 
 
-	public Jaxb2XmlEncoder() {
-		super(MimeTypeUtils.APPLICATION_XML, MimeTypeUtils.TEXT_XML);
-	}
+    public Jaxb2XmlEncoder() {
+        super(MimeTypeUtils.APPLICATION_XML, MimeTypeUtils.TEXT_XML);
+    }
 
 
-	@Override
-	public boolean canEncode(ResolvableType elementType, @Nullable MimeType mimeType) {
-		if (super.canEncode(elementType, mimeType)) {
-			Class<?> outputClass = elementType.toClass();
-			return (outputClass.isAnnotationPresent(XmlRootElement.class) ||
-					outputClass.isAnnotationPresent(XmlType.class));
-		}
-		else {
-			return false;
-		}
+    @Override
+    public boolean canEncode(ResolvableType elementType, @Nullable MimeType mimeType) {
+        if (super.canEncode(elementType, mimeType)) {
+            Class<?> outputClass = elementType.toClass();
+            return (outputClass.isAnnotationPresent(XmlRootElement.class) ||
+                    outputClass.isAnnotationPresent(XmlType.class));
+        } else {
+            return false;
+        }
 
-	}
+    }
 
-	@Override
-	protected Flux<DataBuffer> encode(Object value, DataBufferFactory dataBufferFactory,
-			ResolvableType type, @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
-		try {
-			if (!Hints.isLoggingSuppressed(hints)) {
-				LogFormatUtils.traceDebug(logger, traceOn -> {
-					String formatted = LogFormatUtils.formatValue(value, !traceOn);
-					return Hints.getLogPrefix(hints) + "Encoding [" + formatted + "]";
-				});
-			}
-			DataBuffer buffer = dataBufferFactory.allocateBuffer(1024);
-			OutputStream outputStream = buffer.asOutputStream();
-			Class<?> clazz = ClassUtils.getUserClass(value);
-			Marshaller marshaller = this.jaxbContexts.createMarshaller(clazz);
-			marshaller.setProperty(Marshaller.JAXB_ENCODING, StandardCharsets.UTF_8.name());
-			marshaller.marshal(value, outputStream);
-			return Flux.just(buffer);
-		}
-		catch (MarshalException ex) {
-			return Flux.error(new EncodingException("Could not marshal " + value.getClass() + " to XML", ex));
-		}
-		catch (JAXBException ex) {
-			return Flux.error(new CodecException("Invalid JAXB configuration", ex));
-		}
-	}
+    @Override
+    protected Flux<DataBuffer> encode(Object value, DataBufferFactory dataBufferFactory,
+                                      ResolvableType type, @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
+        try {
+            if (!Hints.isLoggingSuppressed(hints)) {
+                LogFormatUtils.traceDebug(logger, traceOn -> {
+                    String formatted = LogFormatUtils.formatValue(value, !traceOn);
+                    return Hints.getLogPrefix(hints) + "Encoding [" + formatted + "]";
+                });
+            }
+            DataBuffer buffer = dataBufferFactory.allocateBuffer(1024);
+            OutputStream outputStream = buffer.asOutputStream();
+            Class<?> clazz = ClassUtils.getUserClass(value);
+            Marshaller marshaller = this.jaxbContexts.createMarshaller(clazz);
+            marshaller.setProperty(Marshaller.JAXB_ENCODING, StandardCharsets.UTF_8.name());
+            marshaller.marshal(value, outputStream);
+            return Flux.just(buffer);
+        } catch (MarshalException ex) {
+            return Flux.error(new EncodingException("Could not marshal " + value.getClass() + " to XML", ex));
+        } catch (JAXBException ex) {
+            return Flux.error(new CodecException("Invalid JAXB configuration", ex));
+        }
+    }
 
 }

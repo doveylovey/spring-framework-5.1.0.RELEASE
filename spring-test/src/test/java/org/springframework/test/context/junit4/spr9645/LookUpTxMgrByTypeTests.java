@@ -43,36 +43,36 @@ import static org.junit.Assert.*;
 @Transactional
 public class LookUpTxMgrByTypeTests {
 
-	private static final CallCountingTransactionManager txManager = new CallCountingTransactionManager();
+    private static final CallCountingTransactionManager txManager = new CallCountingTransactionManager();
 
-	@Configuration
-	static class Config {
+    @Configuration
+    static class Config {
 
-		@Bean
-		public PlatformTransactionManager txManager() {
-			return txManager;
-		}
-	}
+        @Bean
+        public PlatformTransactionManager txManager() {
+            return txManager;
+        }
+    }
 
-	@BeforeTransaction
-	public void beforeTransaction() {
-		txManager.clear();
-	}
+    @BeforeTransaction
+    public void beforeTransaction() {
+        txManager.clear();
+    }
 
-	@Test
-	public void transactionalTest() {
-		assertEquals(1, txManager.begun);
-		assertEquals(1, txManager.inflight);
-		assertEquals(0, txManager.commits);
-		assertEquals(0, txManager.rollbacks);
-	}
+    @Test
+    public void transactionalTest() {
+        assertEquals(1, txManager.begun);
+        assertEquals(1, txManager.inflight);
+        assertEquals(0, txManager.commits);
+        assertEquals(0, txManager.rollbacks);
+    }
 
-	@AfterTransaction
-	public void afterTransaction() {
-		assertEquals(1, txManager.begun);
-		assertEquals(0, txManager.inflight);
-		assertEquals(0, txManager.commits);
-		assertEquals(1, txManager.rollbacks);
-	}
+    @AfterTransaction
+    public void afterTransaction() {
+        assertEquals(1, txManager.begun);
+        assertEquals(0, txManager.inflight);
+        assertEquals(0, txManager.commits);
+        assertEquals(1, txManager.rollbacks);
+    }
 
 }

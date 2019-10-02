@@ -42,144 +42,144 @@ import static org.junit.Assert.assertTrue;
  */
 public class ChannelSendOperatorTests {
 
-	private OneByOneAsyncWriter writer;
+    private OneByOneAsyncWriter writer;
 
 
-	@Before
-	public void setUp() throws Exception {
-		this.writer = new OneByOneAsyncWriter();
-	}
+    @Before
+    public void setUp() throws Exception {
+        this.writer = new OneByOneAsyncWriter();
+    }
 
-	private <T> Mono<Void> sendOperator(Publisher<String> source){
-		return new ChannelSendOperator<>(source, writer::send);
-	}
+    private <T> Mono<Void> sendOperator(Publisher<String> source) {
+        return new ChannelSendOperator<>(source, writer::send);
+    }
 
-	@Test
-	public void errorBeforeFirstItem() throws Exception {
-		IllegalStateException error = new IllegalStateException("boo");
-		Mono<Void> completion = Mono.<String>error(error).as(this::sendOperator);
-		Signal<Void> signal = completion.materialize().block();
+    @Test
+    public void errorBeforeFirstItem() throws Exception {
+        IllegalStateException error = new IllegalStateException("boo");
+        Mono<Void> completion = Mono.<String>error(error).as(this::sendOperator);
+        Signal<Void> signal = completion.materialize().block();
 
-		assertNotNull(signal);
-		assertSame("Unexpected signal: " + signal, error, signal.getThrowable());
-	}
+        assertNotNull(signal);
+        assertSame("Unexpected signal: " + signal, error, signal.getThrowable());
+    }
 
-	@Test
-	public void completionBeforeFirstItem() throws Exception {
-		Mono<Void> completion = Flux.<String>empty().as(this::sendOperator);
-		Signal<Void> signal = completion.materialize().block();
+    @Test
+    public void completionBeforeFirstItem() throws Exception {
+        Mono<Void> completion = Flux.<String>empty().as(this::sendOperator);
+        Signal<Void> signal = completion.materialize().block();
 
-		assertNotNull(signal);
-		assertTrue("Unexpected signal: " + signal, signal.isOnComplete());
+        assertNotNull(signal);
+        assertTrue("Unexpected signal: " + signal, signal.isOnComplete());
 
-		assertEquals(0, this.writer.items.size());
-		assertTrue(this.writer.completed);
-	}
+        assertEquals(0, this.writer.items.size());
+        assertTrue(this.writer.completed);
+    }
 
-	@Test
-	public void writeOneItem() throws Exception {
-		Mono<Void> completion = Flux.just("one").as(this::sendOperator);
-		Signal<Void> signal = completion.materialize().block();
+    @Test
+    public void writeOneItem() throws Exception {
+        Mono<Void> completion = Flux.just("one").as(this::sendOperator);
+        Signal<Void> signal = completion.materialize().block();
 
-		assertNotNull(signal);
-		assertTrue("Unexpected signal: " + signal, signal.isOnComplete());
+        assertNotNull(signal);
+        assertTrue("Unexpected signal: " + signal, signal.isOnComplete());
 
-		assertEquals(1, this.writer.items.size());
-		assertEquals("one", this.writer.items.get(0));
-		assertTrue(this.writer.completed);
-	}
-
-
-	@Test
-	public void writeMultipleItems() throws Exception {
-		List<String> items = Arrays.asList("one", "two", "three");
-		Mono<Void> completion = Flux.fromIterable(items).as(this::sendOperator);
-		Signal<Void> signal = completion.materialize().block();
-
-		assertNotNull(signal);
-		assertTrue("Unexpected signal: " + signal, signal.isOnComplete());
-
-		assertEquals(3, this.writer.items.size());
-		assertEquals("one", this.writer.items.get(0));
-		assertEquals("two", this.writer.items.get(1));
-		assertEquals("three", this.writer.items.get(2));
-		assertTrue(this.writer.completed);
-	}
-
-	@Test
-	public void errorAfterMultipleItems() throws Exception {
-		IllegalStateException error = new IllegalStateException("boo");
-		Flux<String> publisher = Flux.generate(() -> 0, (idx , subscriber) -> {
-			int i = ++idx;
-			subscriber.next(String.valueOf(i));
-			if (i == 3) {
-				subscriber.error(error);
-			}
-			return i;
-		});
-		Mono<Void> completion = publisher.as(this::sendOperator);
-		Signal<Void> signal = completion.materialize().block();
-
-		assertNotNull(signal);
-		assertSame("Unexpected signal: " + signal, error, signal.getThrowable());
-
-		assertEquals(3, this.writer.items.size());
-		assertEquals("1", this.writer.items.get(0));
-		assertEquals("2", this.writer.items.get(1));
-		assertEquals("3", this.writer.items.get(2));
-		assertSame(error, this.writer.error);
-	}
+        assertEquals(1, this.writer.items.size());
+        assertEquals("one", this.writer.items.get(0));
+        assertTrue(this.writer.completed);
+    }
 
 
-	private static class OneByOneAsyncWriter {
+    @Test
+    public void writeMultipleItems() throws Exception {
+        List<String> items = Arrays.asList("one", "two", "three");
+        Mono<Void> completion = Flux.fromIterable(items).as(this::sendOperator);
+        Signal<Void> signal = completion.materialize().block();
 
-		private List<String> items = new ArrayList<>();
+        assertNotNull(signal);
+        assertTrue("Unexpected signal: " + signal, signal.isOnComplete());
 
-		private boolean completed = false;
+        assertEquals(3, this.writer.items.size());
+        assertEquals("one", this.writer.items.get(0));
+        assertEquals("two", this.writer.items.get(1));
+        assertEquals("three", this.writer.items.get(2));
+        assertTrue(this.writer.completed);
+    }
 
-		private Throwable error;
+    @Test
+    public void errorAfterMultipleItems() throws Exception {
+        IllegalStateException error = new IllegalStateException("boo");
+        Flux<String> publisher = Flux.generate(() -> 0, (idx, subscriber) -> {
+            int i = ++idx;
+            subscriber.next(String.valueOf(i));
+            if (i == 3) {
+                subscriber.error(error);
+            }
+            return i;
+        });
+        Mono<Void> completion = publisher.as(this::sendOperator);
+        Signal<Void> signal = completion.materialize().block();
+
+        assertNotNull(signal);
+        assertSame("Unexpected signal: " + signal, error, signal.getThrowable());
+
+        assertEquals(3, this.writer.items.size());
+        assertEquals("1", this.writer.items.get(0));
+        assertEquals("2", this.writer.items.get(1));
+        assertEquals("3", this.writer.items.get(2));
+        assertSame(error, this.writer.error);
+    }
 
 
-		public Publisher<Void> send(Publisher<String> publisher) {
-			return subscriber -> Executors.newSingleThreadScheduledExecutor().schedule(() ->
-							publisher.subscribe(new WriteSubscriber(subscriber)),50, TimeUnit.MILLISECONDS);
-		}
+    private static class OneByOneAsyncWriter {
+
+        private List<String> items = new ArrayList<>();
+
+        private boolean completed = false;
+
+        private Throwable error;
 
 
-		private class WriteSubscriber implements Subscriber<String> {
+        public Publisher<Void> send(Publisher<String> publisher) {
+            return subscriber -> Executors.newSingleThreadScheduledExecutor().schedule(() ->
+                    publisher.subscribe(new WriteSubscriber(subscriber)), 50, TimeUnit.MILLISECONDS);
+        }
 
-			private Subscription subscription;
 
-			private final Subscriber<? super Void> subscriber;
+        private class WriteSubscriber implements Subscriber<String> {
 
-			public WriteSubscriber(Subscriber<? super Void> subscriber) {
-				this.subscriber = subscriber;
-			}
+            private Subscription subscription;
 
-			@Override
-			public void onSubscribe(Subscription subscription) {
-				this.subscription = subscription;
-				this.subscription.request(1);
-			}
+            private final Subscriber<? super Void> subscriber;
 
-			@Override
-			public void onNext(String item) {
-				items.add(item);
-				this.subscription.request(1);
-			}
+            public WriteSubscriber(Subscriber<? super Void> subscriber) {
+                this.subscriber = subscriber;
+            }
 
-			@Override
-			public void onError(Throwable ex) {
-				error = ex;
-				this.subscriber.onError(ex);
-			}
+            @Override
+            public void onSubscribe(Subscription subscription) {
+                this.subscription = subscription;
+                this.subscription.request(1);
+            }
 
-			@Override
-			public void onComplete() {
-				completed = true;
-				this.subscriber.onComplete();
-			}
-		}
-	}
+            @Override
+            public void onNext(String item) {
+                items.add(item);
+                this.subscription.request(1);
+            }
+
+            @Override
+            public void onError(Throwable ex) {
+                error = ex;
+                this.subscriber.onError(ex);
+            }
+
+            @Override
+            public void onComplete() {
+                completed = true;
+                this.subscriber.onComplete();
+            }
+        }
+    }
 
 }

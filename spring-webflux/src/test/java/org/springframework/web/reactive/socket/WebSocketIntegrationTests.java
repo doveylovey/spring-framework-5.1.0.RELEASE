@@ -47,158 +47,159 @@ import static org.junit.Assert.*;
  */
 public class WebSocketIntegrationTests extends AbstractWebSocketIntegrationTests {
 
-	private static final Log logger = LogFactory.getLog(WebSocketIntegrationTests.class);
+    private static final Log logger = LogFactory.getLog(WebSocketIntegrationTests.class);
 
-	private static final Duration TIMEOUT = Duration.ofMillis(5000);
-
-
-	@Override
-	protected Class<?> getWebConfigClass() {
-		return WebConfig.class;
-	}
+    private static final Duration TIMEOUT = Duration.ofMillis(5000);
 
 
-	@Test
-	public void echo() throws Exception {
-		int count = 100;
-		Flux<String> input = Flux.range(1, count).map(index -> "msg-" + index);
-		ReplayProcessor<Object> output = ReplayProcessor.create(count);
-
-		this.client.execute(getUrl("/echo"), session -> session
-				.send(input.map(session::textMessage))
-				.thenMany(session.receive().take(count).map(WebSocketMessage::getPayloadAsText))
-				.subscribeWith(output)
-				.then())
-				.block(TIMEOUT);
-
-		assertEquals(input.collectList().block(TIMEOUT), output.collectList().block(TIMEOUT));
-	}
-
-	@Test
-	public void subProtocol() throws Exception {
-		String protocol = "echo-v1";
-		AtomicReference<HandshakeInfo> infoRef = new AtomicReference<>();
-		MonoProcessor<Object> output = MonoProcessor.create();
-
-		this.client.execute(getUrl("/sub-protocol"),
-				new WebSocketHandler() {
-					@Override
-					public List<String> getSubProtocols() {
-						return Collections.singletonList(protocol);
-					}
-					@Override
-					public Mono<Void> handle(WebSocketSession session) {
-						infoRef.set(session.getHandshakeInfo());
-						return session.receive()
-								.map(WebSocketMessage::getPayloadAsText)
-								.subscribeWith(output)
-								.then();
-					}
-				})
-				.block(TIMEOUT);
-
-		HandshakeInfo info = infoRef.get();
-		assertThat(info.getHeaders().getFirst("Upgrade"), Matchers.equalToIgnoringCase("websocket"));
-		assertEquals(protocol, info.getHeaders().getFirst("Sec-WebSocket-Protocol"));
-		assertEquals("Wrong protocol accepted", protocol, info.getSubProtocol());
-		assertEquals("Wrong protocol detected on the server side", protocol, output.block(TIMEOUT));
-	}
-
-	@Test
-	public void customHeader() throws Exception {
-		HttpHeaders headers = new HttpHeaders();
-		headers.add("my-header", "my-value");
-		MonoProcessor<Object> output = MonoProcessor.create();
-
-		this.client.execute(getUrl("/custom-header"), headers,
-				session -> session.receive()
-						.map(WebSocketMessage::getPayloadAsText)
-						.subscribeWith(output)
-						.then())
-				.block(TIMEOUT);
-
-		assertEquals("my-header:my-value", output.block(TIMEOUT));
-	}
-
-	@Test
-	public void sessionClosing() throws Exception {
-		this.client.execute(getUrl("/close"),
-				session -> {
-					logger.debug("Starting..");
-					return session.receive()
-							.doOnNext(s -> logger.debug("inbound " + s))
-							.then()
-							.doFinally(signalType -> {
-								logger.debug("Completed with: " + signalType);
-							});
-				})
-				.block(TIMEOUT);
-	}
+    @Override
+    protected Class<?> getWebConfigClass() {
+        return WebConfig.class;
+    }
 
 
-	@Configuration
-	static class WebConfig {
+    @Test
+    public void echo() throws Exception {
+        int count = 100;
+        Flux<String> input = Flux.range(1, count).map(index -> "msg-" + index);
+        ReplayProcessor<Object> output = ReplayProcessor.create(count);
 
-		@Bean
-		public HandlerMapping handlerMapping() {
-			Map<String, WebSocketHandler> map = new HashMap<>();
-			map.put("/echo", new EchoWebSocketHandler());
-			map.put("/sub-protocol", new SubProtocolWebSocketHandler());
-			map.put("/custom-header", new CustomHeaderHandler());
-			map.put("/close", new SessionClosingHandler());
+        this.client.execute(getUrl("/echo"), session -> session
+                .send(input.map(session::textMessage))
+                .thenMany(session.receive().take(count).map(WebSocketMessage::getPayloadAsText))
+                .subscribeWith(output)
+                .then())
+                .block(TIMEOUT);
 
-			SimpleUrlHandlerMapping mapping = new SimpleUrlHandlerMapping();
-			mapping.setUrlMap(map);
-			return mapping;
-		}
+        assertEquals(input.collectList().block(TIMEOUT), output.collectList().block(TIMEOUT));
+    }
 
-	}
+    @Test
+    public void subProtocol() throws Exception {
+        String protocol = "echo-v1";
+        AtomicReference<HandshakeInfo> infoRef = new AtomicReference<>();
+        MonoProcessor<Object> output = MonoProcessor.create();
+
+        this.client.execute(getUrl("/sub-protocol"),
+                new WebSocketHandler() {
+                    @Override
+                    public List<String> getSubProtocols() {
+                        return Collections.singletonList(protocol);
+                    }
+
+                    @Override
+                    public Mono<Void> handle(WebSocketSession session) {
+                        infoRef.set(session.getHandshakeInfo());
+                        return session.receive()
+                                .map(WebSocketMessage::getPayloadAsText)
+                                .subscribeWith(output)
+                                .then();
+                    }
+                })
+                .block(TIMEOUT);
+
+        HandshakeInfo info = infoRef.get();
+        assertThat(info.getHeaders().getFirst("Upgrade"), Matchers.equalToIgnoringCase("websocket"));
+        assertEquals(protocol, info.getHeaders().getFirst("Sec-WebSocket-Protocol"));
+        assertEquals("Wrong protocol accepted", protocol, info.getSubProtocol());
+        assertEquals("Wrong protocol detected on the server side", protocol, output.block(TIMEOUT));
+    }
+
+    @Test
+    public void customHeader() throws Exception {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("my-header", "my-value");
+        MonoProcessor<Object> output = MonoProcessor.create();
+
+        this.client.execute(getUrl("/custom-header"), headers,
+                session -> session.receive()
+                        .map(WebSocketMessage::getPayloadAsText)
+                        .subscribeWith(output)
+                        .then())
+                .block(TIMEOUT);
+
+        assertEquals("my-header:my-value", output.block(TIMEOUT));
+    }
+
+    @Test
+    public void sessionClosing() throws Exception {
+        this.client.execute(getUrl("/close"),
+                session -> {
+                    logger.debug("Starting..");
+                    return session.receive()
+                            .doOnNext(s -> logger.debug("inbound " + s))
+                            .then()
+                            .doFinally(signalType -> {
+                                logger.debug("Completed with: " + signalType);
+                            });
+                })
+                .block(TIMEOUT);
+    }
 
 
-	private static class EchoWebSocketHandler implements WebSocketHandler {
+    @Configuration
+    static class WebConfig {
 
-		@Override
-		public Mono<Void> handle(WebSocketSession session) {
-			// Use retain() for Reactor Netty
-			return session.send(session.receive().doOnNext(WebSocketMessage::retain));
-		}
-	}
+        @Bean
+        public HandlerMapping handlerMapping() {
+            Map<String, WebSocketHandler> map = new HashMap<>();
+            map.put("/echo", new EchoWebSocketHandler());
+            map.put("/sub-protocol", new SubProtocolWebSocketHandler());
+            map.put("/custom-header", new CustomHeaderHandler());
+            map.put("/close", new SessionClosingHandler());
 
+            SimpleUrlHandlerMapping mapping = new SimpleUrlHandlerMapping();
+            mapping.setUrlMap(map);
+            return mapping;
+        }
 
-	private static class SubProtocolWebSocketHandler implements WebSocketHandler {
-
-		@Override
-		public List<String> getSubProtocols() {
-			return Collections.singletonList("echo-v1");
-		}
-
-		@Override
-		public Mono<Void> handle(WebSocketSession session) {
-			String protocol = session.getHandshakeInfo().getSubProtocol();
-			WebSocketMessage message = session.textMessage(protocol != null ? protocol : "none");
-			return session.send(Mono.just(message));
-		}
-	}
+    }
 
 
-	private static class CustomHeaderHandler implements WebSocketHandler {
+    private static class EchoWebSocketHandler implements WebSocketHandler {
 
-		@Override
-		public Mono<Void> handle(WebSocketSession session) {
-			HttpHeaders headers = session.getHandshakeInfo().getHeaders();
-			String payload = "my-header:" + headers.getFirst("my-header");
-			WebSocketMessage message = session.textMessage(payload);
-			return session.send(Mono.just(message));
-		}
-	}
+        @Override
+        public Mono<Void> handle(WebSocketSession session) {
+            // Use retain() for Reactor Netty
+            return session.send(session.receive().doOnNext(WebSocketMessage::retain));
+        }
+    }
 
 
-	private static class SessionClosingHandler implements WebSocketHandler {
+    private static class SubProtocolWebSocketHandler implements WebSocketHandler {
 
-		@Override
-		public Mono<Void> handle(WebSocketSession session) {
-			return Flux.never().mergeWith(session.close(CloseStatus.GOING_AWAY)).then();
-		}
-	}
+        @Override
+        public List<String> getSubProtocols() {
+            return Collections.singletonList("echo-v1");
+        }
+
+        @Override
+        public Mono<Void> handle(WebSocketSession session) {
+            String protocol = session.getHandshakeInfo().getSubProtocol();
+            WebSocketMessage message = session.textMessage(protocol != null ? protocol : "none");
+            return session.send(Mono.just(message));
+        }
+    }
+
+
+    private static class CustomHeaderHandler implements WebSocketHandler {
+
+        @Override
+        public Mono<Void> handle(WebSocketSession session) {
+            HttpHeaders headers = session.getHandshakeInfo().getHeaders();
+            String payload = "my-header:" + headers.getFirst("my-header");
+            WebSocketMessage message = session.textMessage(payload);
+            return session.send(Mono.just(message));
+        }
+    }
+
+
+    private static class SessionClosingHandler implements WebSocketHandler {
+
+        @Override
+        public Mono<Void> handle(WebSocketSession session) {
+            return Flux.never().mergeWith(session.close(CloseStatus.GOING_AWAY)).then();
+        }
+    }
 
 }

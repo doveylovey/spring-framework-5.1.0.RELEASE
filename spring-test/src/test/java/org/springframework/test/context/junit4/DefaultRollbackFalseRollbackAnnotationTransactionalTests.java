@@ -40,10 +40,10 @@ import static org.springframework.test.transaction.TransactionTestUtils.*;
  * via {@link Transactional @Transactional}.
  *
  * @author Sam Brannen
- * @since 4.2
  * @see Rollback
  * @see Transactional#transactionManager
  * @see DefaultRollbackFalseTransactionalTests
+ * @since 4.2
  */
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = EmbeddedPersonDatabaseTestsConfig.class, inheritLocations = false)
@@ -51,37 +51,37 @@ import static org.springframework.test.transaction.TransactionTestUtils.*;
 @Rollback(false)
 public class DefaultRollbackFalseRollbackAnnotationTransactionalTests extends AbstractTransactionalSpringRunnerTests {
 
-	private static JdbcTemplate jdbcTemplate;
+    private static JdbcTemplate jdbcTemplate;
 
 
-	@Autowired
-	public void setDataSource(DataSource dataSource) {
-		jdbcTemplate = new JdbcTemplate(dataSource);
-	}
+    @Autowired
+    public void setDataSource(DataSource dataSource) {
+        jdbcTemplate = new JdbcTemplate(dataSource);
+    }
 
 
-	@Before
-	public void verifyInitialTestData() {
-		clearPersonTable(jdbcTemplate);
-		assertEquals("Adding bob", 1, addPerson(jdbcTemplate, BOB));
-		assertEquals("Verifying the initial number of rows in the person table.", 1,
-			countRowsInPersonTable(jdbcTemplate));
-	}
+    @Before
+    public void verifyInitialTestData() {
+        clearPersonTable(jdbcTemplate);
+        assertEquals("Adding bob", 1, addPerson(jdbcTemplate, BOB));
+        assertEquals("Verifying the initial number of rows in the person table.", 1,
+                countRowsInPersonTable(jdbcTemplate));
+    }
 
-	@Test
-	public void modifyTestDataWithinTransaction() {
-		assertInTransaction(true);
-		assertEquals("Deleting bob", 1, deletePerson(jdbcTemplate, BOB));
-		assertEquals("Adding jane", 1, addPerson(jdbcTemplate, JANE));
-		assertEquals("Adding sue", 1, addPerson(jdbcTemplate, SUE));
-		assertEquals("Verifying the number of rows in the person table within a transaction.", 2,
-			countRowsInPersonTable(jdbcTemplate));
-	}
+    @Test
+    public void modifyTestDataWithinTransaction() {
+        assertInTransaction(true);
+        assertEquals("Deleting bob", 1, deletePerson(jdbcTemplate, BOB));
+        assertEquals("Adding jane", 1, addPerson(jdbcTemplate, JANE));
+        assertEquals("Adding sue", 1, addPerson(jdbcTemplate, SUE));
+        assertEquals("Verifying the number of rows in the person table within a transaction.", 2,
+                countRowsInPersonTable(jdbcTemplate));
+    }
 
-	@AfterClass
-	public static void verifyFinalTestData() {
-		assertEquals("Verifying the final number of rows in the person table after all tests.", 2,
-			countRowsInPersonTable(jdbcTemplate));
-	}
+    @AfterClass
+    public static void verifyFinalTestData() {
+        assertEquals("Verifying the final number of rows in the person table after all tests.", 2,
+                countRowsInPersonTable(jdbcTemplate));
+    }
 
 }

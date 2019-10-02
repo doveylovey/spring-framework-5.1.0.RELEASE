@@ -37,60 +37,60 @@ import static org.junit.Assert.*;
  */
 public class ByteBufferDecoderTests extends AbstractDataBufferAllocatingTestCase {
 
-	private final ByteBufferDecoder decoder = new ByteBufferDecoder();
+    private final ByteBufferDecoder decoder = new ByteBufferDecoder();
 
-	@Test
-	public void canDecode() {
-		assertTrue(this.decoder.canDecode(ResolvableType.forClass(ByteBuffer.class),
-				MimeTypeUtils.TEXT_PLAIN));
-		assertFalse(this.decoder.canDecode(ResolvableType.forClass(Integer.class),
-				MimeTypeUtils.TEXT_PLAIN));
-		assertTrue(this.decoder.canDecode(ResolvableType.forClass(ByteBuffer.class),
-				MimeTypeUtils.APPLICATION_JSON));
-	}
+    @Test
+    public void canDecode() {
+        assertTrue(this.decoder.canDecode(ResolvableType.forClass(ByteBuffer.class),
+                MimeTypeUtils.TEXT_PLAIN));
+        assertFalse(this.decoder.canDecode(ResolvableType.forClass(Integer.class),
+                MimeTypeUtils.TEXT_PLAIN));
+        assertTrue(this.decoder.canDecode(ResolvableType.forClass(ByteBuffer.class),
+                MimeTypeUtils.APPLICATION_JSON));
+    }
 
-	@Test
-	public void decode() {
-		DataBuffer fooBuffer = stringBuffer("foo");
-		DataBuffer barBuffer = stringBuffer("bar");
-		Flux<DataBuffer> source = Flux.just(fooBuffer, barBuffer);
-		Flux<ByteBuffer> output = this.decoder.decode(source,
-				ResolvableType.forClassWithGenerics(Publisher.class, ByteBuffer.class),
-				null, Collections.emptyMap());
+    @Test
+    public void decode() {
+        DataBuffer fooBuffer = stringBuffer("foo");
+        DataBuffer barBuffer = stringBuffer("bar");
+        Flux<DataBuffer> source = Flux.just(fooBuffer, barBuffer);
+        Flux<ByteBuffer> output = this.decoder.decode(source,
+                ResolvableType.forClassWithGenerics(Publisher.class, ByteBuffer.class),
+                null, Collections.emptyMap());
 
-		StepVerifier.create(output)
-				.expectNext(ByteBuffer.wrap("foo".getBytes()), ByteBuffer.wrap("bar".getBytes()))
-				.expectComplete()
-				.verify();
-	}
+        StepVerifier.create(output)
+                .expectNext(ByteBuffer.wrap("foo".getBytes()), ByteBuffer.wrap("bar".getBytes()))
+                .expectComplete()
+                .verify();
+    }
 
-	@Test
-	public void decodeError() {
-		DataBuffer fooBuffer = stringBuffer("foo");
-		Flux<DataBuffer> source =
-				Flux.just(fooBuffer).concatWith(Flux.error(new RuntimeException()));
-		Flux<ByteBuffer> output = this.decoder.decode(source,
-				ResolvableType.forClassWithGenerics(Publisher.class, ByteBuffer.class),
-				null, Collections.emptyMap());
+    @Test
+    public void decodeError() {
+        DataBuffer fooBuffer = stringBuffer("foo");
+        Flux<DataBuffer> source =
+                Flux.just(fooBuffer).concatWith(Flux.error(new RuntimeException()));
+        Flux<ByteBuffer> output = this.decoder.decode(source,
+                ResolvableType.forClassWithGenerics(Publisher.class, ByteBuffer.class),
+                null, Collections.emptyMap());
 
-		StepVerifier.create(output)
-				.expectNext(ByteBuffer.wrap("foo".getBytes()))
-				.expectError()
-				.verify();
-	}
+        StepVerifier.create(output)
+                .expectNext(ByteBuffer.wrap("foo".getBytes()))
+                .expectError()
+                .verify();
+    }
 
-	@Test
-	public void decodeToMono() {
-		DataBuffer fooBuffer = stringBuffer("foo");
-		DataBuffer barBuffer = stringBuffer("bar");
-		Flux<DataBuffer> source = Flux.just(fooBuffer, barBuffer);
-		Mono<ByteBuffer> output = this.decoder.decodeToMono(source,
-				ResolvableType.forClassWithGenerics(Publisher.class, ByteBuffer.class),
-				null, Collections.emptyMap());
+    @Test
+    public void decodeToMono() {
+        DataBuffer fooBuffer = stringBuffer("foo");
+        DataBuffer barBuffer = stringBuffer("bar");
+        Flux<DataBuffer> source = Flux.just(fooBuffer, barBuffer);
+        Mono<ByteBuffer> output = this.decoder.decodeToMono(source,
+                ResolvableType.forClassWithGenerics(Publisher.class, ByteBuffer.class),
+                null, Collections.emptyMap());
 
-		StepVerifier.create(output)
-				.expectNext(ByteBuffer.wrap("foobar".getBytes()))
-				.expectComplete()
-				.verify();
-	}
+        StepVerifier.create(output)
+                .expectNext(ByteBuffer.wrap("foobar".getBytes()))
+                .expectComplete()
+                .verify();
+    }
 }

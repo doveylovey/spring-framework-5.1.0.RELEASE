@@ -34,34 +34,34 @@ import org.springframework.util.concurrent.ListenableFuture;
  */
 public class ReactiveReturnValueHandler extends AbstractAsyncReturnValueHandler {
 
-	private final ReactiveAdapterRegistry adapterRegistry;
+    private final ReactiveAdapterRegistry adapterRegistry;
 
 
-	public ReactiveReturnValueHandler() {
-		this(ReactiveAdapterRegistry.getSharedInstance());
-	}
+    public ReactiveReturnValueHandler() {
+        this(ReactiveAdapterRegistry.getSharedInstance());
+    }
 
-	public ReactiveReturnValueHandler(ReactiveAdapterRegistry adapterRegistry) {
-		this.adapterRegistry = adapterRegistry;
-	}
+    public ReactiveReturnValueHandler(ReactiveAdapterRegistry adapterRegistry) {
+        this.adapterRegistry = adapterRegistry;
+    }
 
 
-	@Override
-	public boolean supportsReturnType(MethodParameter returnType) {
-		return this.adapterRegistry.getAdapter(returnType.getParameterType()) != null;
-	}
+    @Override
+    public boolean supportsReturnType(MethodParameter returnType) {
+        return this.adapterRegistry.getAdapter(returnType.getParameterType()) != null;
+    }
 
-	@Override
-	public boolean isAsyncReturnValue(Object returnValue, MethodParameter returnType) {
-		ReactiveAdapter adapter = this.adapterRegistry.getAdapter(returnType.getParameterType(), returnValue);
-		return (adapter != null && !adapter.isMultiValue() && !adapter.isNoValue());
-	}
+    @Override
+    public boolean isAsyncReturnValue(Object returnValue, MethodParameter returnType) {
+        ReactiveAdapter adapter = this.adapterRegistry.getAdapter(returnType.getParameterType(), returnValue);
+        return (adapter != null && !adapter.isMultiValue() && !adapter.isNoValue());
+    }
 
-	@Override
-	public ListenableFuture<?> toListenableFuture(Object returnValue, MethodParameter returnType) {
-		ReactiveAdapter adapter = this.adapterRegistry.getAdapter(returnType.getParameterType(), returnValue);
-		Assert.state(adapter != null, () -> "No ReactiveAdapter found for " + returnType.getParameterType());
-		return new MonoToListenableFutureAdapter<>(Mono.from(adapter.toPublisher(returnValue)));
-	}
+    @Override
+    public ListenableFuture<?> toListenableFuture(Object returnValue, MethodParameter returnType) {
+        ReactiveAdapter adapter = this.adapterRegistry.getAdapter(returnType.getParameterType(), returnValue);
+        Assert.state(adapter != null, () -> "No ReactiveAdapter found for " + returnType.getParameterType());
+        return new MonoToListenableFutureAdapter<>(Mono.from(adapter.toPublisher(returnValue)));
+    }
 
 }

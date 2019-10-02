@@ -42,105 +42,106 @@ import static org.junit.Assert.*;
 
 /**
  * Tests for {@link JettyWebSocketClient}.
+ *
  * @author Rossen Stoyanchev
  */
 public class JettyWebSocketClientTests {
 
-	private JettyWebSocketClient client;
+    private JettyWebSocketClient client;
 
-	private TestJettyWebSocketServer server;
+    private TestJettyWebSocketServer server;
 
-	private String wsUrl;
+    private String wsUrl;
 
-	private WebSocketSession wsSession;
-
-
-	@Before
-	public void setup() throws Exception {
-
-		this.server = new TestJettyWebSocketServer(new TextWebSocketHandler());
-		this.server.start();
-
-		this.client = new JettyWebSocketClient();
-		this.client.start();
-
-		this.wsUrl = "ws://localhost:" + this.server.getPort() + "/test";
-	}
-
-	@After
-	public void teardown() throws Exception {
-		this.wsSession.close();
-		this.client.stop();
-		this.server.stop();
-	}
+    private WebSocketSession wsSession;
 
 
-	@Test
-	public void doHandshake() throws Exception {
+    @Before
+    public void setup() throws Exception {
 
-		WebSocketHttpHeaders headers = new WebSocketHttpHeaders();
-		headers.setSecWebSocketProtocol(Arrays.asList("echo"));
+        this.server = new TestJettyWebSocketServer(new TextWebSocketHandler());
+        this.server.start();
 
-		this.wsSession = this.client.doHandshake(new TextWebSocketHandler(), headers, new URI(this.wsUrl)).get();
+        this.client = new JettyWebSocketClient();
+        this.client.start();
 
-		assertEquals(this.wsUrl, this.wsSession.getUri().toString());
-		assertEquals("echo", this.wsSession.getAcceptedProtocol());
-	}
+        this.wsUrl = "ws://localhost:" + this.server.getPort() + "/test";
+    }
 
-	@Test
-	public void doHandshakeWithTaskExecutor() throws Exception {
-
-		WebSocketHttpHeaders headers = new WebSocketHttpHeaders();
-		headers.setSecWebSocketProtocol(Arrays.asList("echo"));
-
-		this.client.setTaskExecutor(new SimpleAsyncTaskExecutor());
-		this.wsSession = this.client.doHandshake(new TextWebSocketHandler(), headers, new URI(this.wsUrl)).get();
-
-		assertEquals(this.wsUrl, this.wsSession.getUri().toString());
-		assertEquals("echo", this.wsSession.getAcceptedProtocol());
-	}
+    @After
+    public void teardown() throws Exception {
+        this.wsSession.close();
+        this.client.stop();
+        this.server.stop();
+    }
 
 
-	private static class TestJettyWebSocketServer {
+    @Test
+    public void doHandshake() throws Exception {
 
-		private final Server server;
+        WebSocketHttpHeaders headers = new WebSocketHttpHeaders();
+        headers.setSecWebSocketProtocol(Arrays.asList("echo"));
+
+        this.wsSession = this.client.doHandshake(new TextWebSocketHandler(), headers, new URI(this.wsUrl)).get();
+
+        assertEquals(this.wsUrl, this.wsSession.getUri().toString());
+        assertEquals("echo", this.wsSession.getAcceptedProtocol());
+    }
+
+    @Test
+    public void doHandshakeWithTaskExecutor() throws Exception {
+
+        WebSocketHttpHeaders headers = new WebSocketHttpHeaders();
+        headers.setSecWebSocketProtocol(Arrays.asList("echo"));
+
+        this.client.setTaskExecutor(new SimpleAsyncTaskExecutor());
+        this.wsSession = this.client.doHandshake(new TextWebSocketHandler(), headers, new URI(this.wsUrl)).get();
+
+        assertEquals(this.wsUrl, this.wsSession.getUri().toString());
+        assertEquals("echo", this.wsSession.getAcceptedProtocol());
+    }
 
 
-		public TestJettyWebSocketServer(final WebSocketHandler webSocketHandler) {
+    private static class TestJettyWebSocketServer {
 
-			this.server = new Server();
-			ServerConnector connector = new ServerConnector(this.server);
-			connector.setPort(0);
+        private final Server server;
 
-			this.server.addConnector(connector);
-			this.server.setHandler(new org.eclipse.jetty.websocket.server.WebSocketHandler() {
-				@Override
-				public void configure(WebSocketServletFactory factory) {
-					factory.setCreator(new WebSocketCreator() {
-						@Override
-						public Object createWebSocket(ServletUpgradeRequest req, ServletUpgradeResponse resp) {
-							if (!CollectionUtils.isEmpty(req.getSubProtocols())) {
-								resp.setAcceptedSubProtocol(req.getSubProtocols().get(0));
-							}
-							JettyWebSocketSession session = new JettyWebSocketSession(null, null);
-							return new JettyWebSocketHandlerAdapter(webSocketHandler, session);
-						}
-					});
-				}
-			});
-		}
 
-		public void start() throws Exception {
-			this.server.start();
-		}
+        public TestJettyWebSocketServer(final WebSocketHandler webSocketHandler) {
 
-		public void stop() throws Exception {
-			this.server.stop();
-		}
+            this.server = new Server();
+            ServerConnector connector = new ServerConnector(this.server);
+            connector.setPort(0);
 
-		public int getPort() {
-			return ((ServerConnector) this.server.getConnectors()[0]).getLocalPort();
-		}
-	}
+            this.server.addConnector(connector);
+            this.server.setHandler(new org.eclipse.jetty.websocket.server.WebSocketHandler() {
+                @Override
+                public void configure(WebSocketServletFactory factory) {
+                    factory.setCreator(new WebSocketCreator() {
+                        @Override
+                        public Object createWebSocket(ServletUpgradeRequest req, ServletUpgradeResponse resp) {
+                            if (!CollectionUtils.isEmpty(req.getSubProtocols())) {
+                                resp.setAcceptedSubProtocol(req.getSubProtocols().get(0));
+                            }
+                            JettyWebSocketSession session = new JettyWebSocketSession(null, null);
+                            return new JettyWebSocketHandlerAdapter(webSocketHandler, session);
+                        }
+                    });
+                }
+            });
+        }
+
+        public void start() throws Exception {
+            this.server.start();
+        }
+
+        public void stop() throws Exception {
+            this.server.stop();
+        }
+
+        public int getPort() {
+            return ((ServerConnector) this.server.getConnectors()[0]).getLocalPort();
+        }
+    }
 
 }

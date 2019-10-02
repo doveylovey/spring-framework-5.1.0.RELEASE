@@ -37,53 +37,53 @@ import static org.junit.Assert.*;
  */
 public class UriComponentsBuilderMethodArgumentResolverTests {
 
-	private UriComponentsBuilderMethodArgumentResolver resolver;
+    private UriComponentsBuilderMethodArgumentResolver resolver;
 
-	private ServletWebRequest webRequest;
+    private ServletWebRequest webRequest;
 
-	private MockHttpServletRequest servletRequest;
+    private MockHttpServletRequest servletRequest;
 
-	private MethodParameter builderParam;
-	private MethodParameter servletBuilderParam;
-	private MethodParameter intParam;
-
-
-	@Before
-	public void setup() throws Exception {
-		this.resolver = new UriComponentsBuilderMethodArgumentResolver();
-		this.servletRequest = new MockHttpServletRequest();
-		this.webRequest = new ServletWebRequest(this.servletRequest);
-
-		Method method = this.getClass().getDeclaredMethod(
-				"handle", UriComponentsBuilder.class, ServletUriComponentsBuilder.class, int.class);
-		this.builderParam = new MethodParameter(method, 0);
-		this.servletBuilderParam = new MethodParameter(method, 1);
-		this.intParam = new MethodParameter(method, 2);
-	}
+    private MethodParameter builderParam;
+    private MethodParameter servletBuilderParam;
+    private MethodParameter intParam;
 
 
-	@Test
-	public void supportsParameter() throws Exception {
-		assertTrue(this.resolver.supportsParameter(this.builderParam));
-		assertTrue(this.resolver.supportsParameter(this.servletBuilderParam));
-		assertFalse(this.resolver.supportsParameter(this.intParam));
-	}
+    @Before
+    public void setup() throws Exception {
+        this.resolver = new UriComponentsBuilderMethodArgumentResolver();
+        this.servletRequest = new MockHttpServletRequest();
+        this.webRequest = new ServletWebRequest(this.servletRequest);
 
-	@Test
-	public void resolveArgument() throws Exception {
-		this.servletRequest.setContextPath("/myapp");
-		this.servletRequest.setServletPath("/main");
-		this.servletRequest.setPathInfo("/accounts");
-
-		Object actual = this.resolver.resolveArgument(this.builderParam, new ModelAndViewContainer(), this.webRequest, null);
-
-		assertNotNull(actual);
-		assertEquals(ServletUriComponentsBuilder.class, actual.getClass());
-		assertEquals("http://localhost/myapp/main", ((ServletUriComponentsBuilder) actual).build().toUriString());
-	}
+        Method method = this.getClass().getDeclaredMethod(
+                "handle", UriComponentsBuilder.class, ServletUriComponentsBuilder.class, int.class);
+        this.builderParam = new MethodParameter(method, 0);
+        this.servletBuilderParam = new MethodParameter(method, 1);
+        this.intParam = new MethodParameter(method, 2);
+    }
 
 
-	void handle(UriComponentsBuilder builder, ServletUriComponentsBuilder servletBuilder, int value) {
-	}
+    @Test
+    public void supportsParameter() throws Exception {
+        assertTrue(this.resolver.supportsParameter(this.builderParam));
+        assertTrue(this.resolver.supportsParameter(this.servletBuilderParam));
+        assertFalse(this.resolver.supportsParameter(this.intParam));
+    }
+
+    @Test
+    public void resolveArgument() throws Exception {
+        this.servletRequest.setContextPath("/myapp");
+        this.servletRequest.setServletPath("/main");
+        this.servletRequest.setPathInfo("/accounts");
+
+        Object actual = this.resolver.resolveArgument(this.builderParam, new ModelAndViewContainer(), this.webRequest, null);
+
+        assertNotNull(actual);
+        assertEquals(ServletUriComponentsBuilder.class, actual.getClass());
+        assertEquals("http://localhost/myapp/main", ((ServletUriComponentsBuilder) actual).build().toUriString());
+    }
+
+
+    void handle(UriComponentsBuilder builder, ServletUriComponentsBuilder servletBuilder, int value) {
+    }
 
 }

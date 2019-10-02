@@ -34,48 +34,48 @@ import static org.springframework.tests.TestResourceUtils.*;
  */
 public class ScopedProxyAutowireTests {
 
-	private static final Resource SCOPED_AUTOWIRE_FALSE_CONTEXT =
-			qualifiedResource(ScopedProxyAutowireTests.class, "scopedAutowireFalse.xml");
-	private static final Resource SCOPED_AUTOWIRE_TRUE_CONTEXT =
-			qualifiedResource(ScopedProxyAutowireTests.class, "scopedAutowireTrue.xml");
+    private static final Resource SCOPED_AUTOWIRE_FALSE_CONTEXT =
+            qualifiedResource(ScopedProxyAutowireTests.class, "scopedAutowireFalse.xml");
+    private static final Resource SCOPED_AUTOWIRE_TRUE_CONTEXT =
+            qualifiedResource(ScopedProxyAutowireTests.class, "scopedAutowireTrue.xml");
 
 
-	@Test
-	public void testScopedProxyInheritsAutowireCandidateFalse() {
-		DefaultListableBeanFactory bf = new DefaultListableBeanFactory();
-		new XmlBeanDefinitionReader(bf).loadBeanDefinitions(SCOPED_AUTOWIRE_FALSE_CONTEXT);
-		assertTrue(Arrays.asList(bf.getBeanNamesForType(TestBean.class, false, false)).contains("scoped"));
-		assertTrue(Arrays.asList(bf.getBeanNamesForType(TestBean.class, true, false)).contains("scoped"));
-		assertFalse(bf.containsSingleton("scoped"));
-		TestBean autowired = (TestBean) bf.getBean("autowired");
-		TestBean unscoped = (TestBean) bf.getBean("unscoped");
-		assertSame(unscoped, autowired.getChild());
-	}
+    @Test
+    public void testScopedProxyInheritsAutowireCandidateFalse() {
+        DefaultListableBeanFactory bf = new DefaultListableBeanFactory();
+        new XmlBeanDefinitionReader(bf).loadBeanDefinitions(SCOPED_AUTOWIRE_FALSE_CONTEXT);
+        assertTrue(Arrays.asList(bf.getBeanNamesForType(TestBean.class, false, false)).contains("scoped"));
+        assertTrue(Arrays.asList(bf.getBeanNamesForType(TestBean.class, true, false)).contains("scoped"));
+        assertFalse(bf.containsSingleton("scoped"));
+        TestBean autowired = (TestBean) bf.getBean("autowired");
+        TestBean unscoped = (TestBean) bf.getBean("unscoped");
+        assertSame(unscoped, autowired.getChild());
+    }
 
-	@Test
-	public void testScopedProxyReplacesAutowireCandidateTrue() {
-		DefaultListableBeanFactory bf = new DefaultListableBeanFactory();
-		new XmlBeanDefinitionReader(bf).loadBeanDefinitions(SCOPED_AUTOWIRE_TRUE_CONTEXT);
-		assertTrue(Arrays.asList(bf.getBeanNamesForType(TestBean.class, true, false)).contains("scoped"));
-		assertTrue(Arrays.asList(bf.getBeanNamesForType(TestBean.class, false, false)).contains("scoped"));
-		assertFalse(bf.containsSingleton("scoped"));
-		TestBean autowired = (TestBean) bf.getBean("autowired");
-		TestBean scoped = (TestBean) bf.getBean("scoped");
-		assertSame(scoped, autowired.getChild());
-	}
+    @Test
+    public void testScopedProxyReplacesAutowireCandidateTrue() {
+        DefaultListableBeanFactory bf = new DefaultListableBeanFactory();
+        new XmlBeanDefinitionReader(bf).loadBeanDefinitions(SCOPED_AUTOWIRE_TRUE_CONTEXT);
+        assertTrue(Arrays.asList(bf.getBeanNamesForType(TestBean.class, true, false)).contains("scoped"));
+        assertTrue(Arrays.asList(bf.getBeanNamesForType(TestBean.class, false, false)).contains("scoped"));
+        assertFalse(bf.containsSingleton("scoped"));
+        TestBean autowired = (TestBean) bf.getBean("autowired");
+        TestBean scoped = (TestBean) bf.getBean("scoped");
+        assertSame(scoped, autowired.getChild());
+    }
 
 
-	static class TestBean {
+    static class TestBean {
 
-		private TestBean child;
+        private TestBean child;
 
-		public void setChild(TestBean child) {
-			this.child = child;
-		}
+        public void setChild(TestBean child) {
+            this.child = child;
+        }
 
-		public TestBean getChild() {
-			return this.child;
-		}
-	}
+        public TestBean getChild() {
+            return this.child;
+        }
+    }
 
 }

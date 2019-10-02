@@ -19,6 +19,8 @@ package org.springframework.aop.aspectj;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.junit.Test;
 
+import java.lang.reflect.Method;
+
 /**
  * Additional parameter name discover tests that need Java 5.
  * Yes this will re-run the tests from the superclass, but that
@@ -29,16 +31,17 @@ import org.junit.Test;
  */
 public class AspectJAdviceParameterNameDiscoverAnnotationTests extends AspectJAdviceParameterNameDiscovererTests {
 
-	@Test
-	public void testAnnotationBinding() {
-		assertParameterNames(getMethod("pjpAndAnAnnotation"),
-				"execution(* *(..)) && @annotation(ann)",
-				new String[] {"thisJoinPoint","ann"});
-	}
+    @Test
+    public void testAnnotationBinding() {
+        Method method = getMethod("pjpAndAnAnnotation");
+        String pointcut = "execution(* *(..)) && @annotation(ann)";
+        String[] parameterNames = new String[]{"thisJoinPoint", "ann"};
+        assertParameterNames(method, pointcut, parameterNames);
+    }
 
+    public void pjpAndAnAnnotation(ProceedingJoinPoint pjp, MyAnnotation ann) {
+    }
 
-	public void pjpAndAnAnnotation(ProceedingJoinPoint pjp, MyAnnotation ann) {}
-
-	@interface MyAnnotation {}
-
+    @interface MyAnnotation {
+    }
 }

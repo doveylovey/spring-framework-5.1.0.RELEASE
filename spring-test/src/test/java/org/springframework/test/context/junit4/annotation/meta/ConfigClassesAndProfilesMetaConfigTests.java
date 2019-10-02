@@ -39,33 +39,33 @@ import static org.junit.Assert.*;
 @ConfigClassesAndProfilesMetaConfig(profiles = "dev")
 public class ConfigClassesAndProfilesMetaConfigTests {
 
-	@Configuration
-	@Profile("dev")
-	static class DevConfig {
+    @Configuration
+    @Profile("dev")
+    static class DevConfig {
 
-		@Bean
-		public String foo() {
-			return "Local Dev Foo";
-		}
-	}
+        @Bean
+        public String foo() {
+            return "Local Dev Foo";
+        }
+    }
 
-	@Configuration
-	@Profile("prod")
-	static class ProductionConfig {
+    @Configuration
+    @Profile("prod")
+    static class ProductionConfig {
 
-		@Bean
-		public String foo() {
-			return "Local Production Foo";
-		}
-	}
-
-
-	@Autowired
-	private String foo;
+        @Bean
+        public String foo() {
+            return "Local Production Foo";
+        }
+    }
 
 
-	@Test
-	public void foo() {
-		assertEquals("Local Dev Foo", foo);
-	}
+    @Autowired
+    private String foo;
+
+
+    @Test
+    public void foo() {
+        assertEquals("Local Dev Foo", foo);
+    }
 }

@@ -31,101 +31,104 @@ import org.springframework.util.Assert;
  */
 public class DefaultDataBufferFactory implements DataBufferFactory {
 
-	/**
-	 * The default capacity when none is specified.
-	 * @see #DefaultDataBufferFactory()
-	 * @see #DefaultDataBufferFactory(boolean)
-	 */
-	public static final int DEFAULT_INITIAL_CAPACITY = 256;
+    /**
+     * The default capacity when none is specified.
+     *
+     * @see #DefaultDataBufferFactory()
+     * @see #DefaultDataBufferFactory(boolean)
+     */
+    public static final int DEFAULT_INITIAL_CAPACITY = 256;
 
 
-	private final boolean preferDirect;
+    private final boolean preferDirect;
 
-	private final int defaultInitialCapacity;
-
-
-	/**
-	 * Creates a new {@code DefaultDataBufferFactory} with default settings.
-	 */
-	public DefaultDataBufferFactory() {
-		this(false);
-	}
-
-	/**
-	 * Creates a new {@code DefaultDataBufferFactory}, indicating whether direct
-	 * buffers should be created by {@link #allocateBuffer()} and
-	 * {@link #allocateBuffer(int)}.
-	 * @param preferDirect {@code true} if direct buffers are to be preferred;
-	 * {@code false} otherwise
-	 */
-	public DefaultDataBufferFactory(boolean preferDirect) {
-		this(preferDirect, DEFAULT_INITIAL_CAPACITY);
-	}
-
-	/**
-	 * Creates a new {@code DefaultDataBufferFactory}, indicating whether direct
-	 * buffers should be created by {@link #allocateBuffer()} and
-	 * {@link #allocateBuffer(int)}, and what the capacity is to be used for
-	 * {@link #allocateBuffer()}.
-	 * @param preferDirect {@code true} if direct buffers are to be preferred;
-	 * {@code false} otherwise
-	 */
-	public DefaultDataBufferFactory(boolean preferDirect, int defaultInitialCapacity) {
-		Assert.isTrue(defaultInitialCapacity > 0, "'defaultInitialCapacity' should be larger than 0");
-		this.preferDirect = preferDirect;
-		this.defaultInitialCapacity = defaultInitialCapacity;
-	}
+    private final int defaultInitialCapacity;
 
 
-	@Override
-	public DefaultDataBuffer allocateBuffer() {
-		return allocateBuffer(this.defaultInitialCapacity);
-	}
+    /**
+     * Creates a new {@code DefaultDataBufferFactory} with default settings.
+     */
+    public DefaultDataBufferFactory() {
+        this(false);
+    }
 
-	@Override
-	public DefaultDataBuffer allocateBuffer(int initialCapacity) {
-		ByteBuffer byteBuffer = (this.preferDirect ?
-				ByteBuffer.allocateDirect(initialCapacity) :
-				ByteBuffer.allocate(initialCapacity));
+    /**
+     * Creates a new {@code DefaultDataBufferFactory}, indicating whether direct
+     * buffers should be created by {@link #allocateBuffer()} and
+     * {@link #allocateBuffer(int)}.
+     *
+     * @param preferDirect {@code true} if direct buffers are to be preferred;
+     *                     {@code false} otherwise
+     */
+    public DefaultDataBufferFactory(boolean preferDirect) {
+        this(preferDirect, DEFAULT_INITIAL_CAPACITY);
+    }
 
-		return DefaultDataBuffer.fromEmptyByteBuffer(this, byteBuffer);
-	}
+    /**
+     * Creates a new {@code DefaultDataBufferFactory}, indicating whether direct
+     * buffers should be created by {@link #allocateBuffer()} and
+     * {@link #allocateBuffer(int)}, and what the capacity is to be used for
+     * {@link #allocateBuffer()}.
+     *
+     * @param preferDirect {@code true} if direct buffers are to be preferred;
+     *                     {@code false} otherwise
+     */
+    public DefaultDataBufferFactory(boolean preferDirect, int defaultInitialCapacity) {
+        Assert.isTrue(defaultInitialCapacity > 0, "'defaultInitialCapacity' should be larger than 0");
+        this.preferDirect = preferDirect;
+        this.defaultInitialCapacity = defaultInitialCapacity;
+    }
 
-	@Override
-	public DefaultDataBuffer wrap(ByteBuffer byteBuffer) {
-		ByteBuffer sliced = byteBuffer.slice();
-		return DefaultDataBuffer.fromFilledByteBuffer(this, sliced);
-	}
 
-	@Override
-	public DataBuffer wrap(byte[] bytes) {
-		ByteBuffer wrapper = ByteBuffer.wrap(bytes);
-		return DefaultDataBuffer.fromFilledByteBuffer(this, wrapper);
-	}
+    @Override
+    public DefaultDataBuffer allocateBuffer() {
+        return allocateBuffer(this.defaultInitialCapacity);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 * <p>This implementation creates a single {@link DefaultDataBuffer} to contain the data
-	 * in {@code dataBuffers}.
-	 */
-	@Override
-	public DataBuffer join(List<? extends DataBuffer> dataBuffers) {
-		Assert.notEmpty(dataBuffers, "'dataBuffers' must not be empty");
+    @Override
+    public DefaultDataBuffer allocateBuffer(int initialCapacity) {
+        ByteBuffer byteBuffer = (this.preferDirect ?
+                ByteBuffer.allocateDirect(initialCapacity) :
+                ByteBuffer.allocate(initialCapacity));
 
-		int capacity = dataBuffers.stream()
-				.mapToInt(DataBuffer::readableByteCount)
-				.sum();
-		DefaultDataBuffer dataBuffer = allocateBuffer(capacity);
-		DataBuffer result = dataBuffers.stream()
-				.map(o -> (DataBuffer) o)
-				.reduce(dataBuffer, DataBuffer::write);
-		dataBuffers.forEach(DataBufferUtils::release);
-		return result;
-	}
+        return DefaultDataBuffer.fromEmptyByteBuffer(this, byteBuffer);
+    }
 
-	@Override
-	public String toString() {
-		return "DefaultDataBufferFactory (preferDirect=" + this.preferDirect + ")";
-	}
+    @Override
+    public DefaultDataBuffer wrap(ByteBuffer byteBuffer) {
+        ByteBuffer sliced = byteBuffer.slice();
+        return DefaultDataBuffer.fromFilledByteBuffer(this, sliced);
+    }
+
+    @Override
+    public DataBuffer wrap(byte[] bytes) {
+        ByteBuffer wrapper = ByteBuffer.wrap(bytes);
+        return DefaultDataBuffer.fromFilledByteBuffer(this, wrapper);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>This implementation creates a single {@link DefaultDataBuffer} to contain the data
+     * in {@code dataBuffers}.
+     */
+    @Override
+    public DataBuffer join(List<? extends DataBuffer> dataBuffers) {
+        Assert.notEmpty(dataBuffers, "'dataBuffers' must not be empty");
+
+        int capacity = dataBuffers.stream()
+                .mapToInt(DataBuffer::readableByteCount)
+                .sum();
+        DefaultDataBuffer dataBuffer = allocateBuffer(capacity);
+        DataBuffer result = dataBuffers.stream()
+                .map(o -> (DataBuffer) o)
+                .reduce(dataBuffer, DataBuffer::write);
+        dataBuffers.forEach(DataBufferUtils::release);
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return "DefaultDataBufferFactory (preferDirect=" + this.preferDirect + ")";
+    }
 
 }

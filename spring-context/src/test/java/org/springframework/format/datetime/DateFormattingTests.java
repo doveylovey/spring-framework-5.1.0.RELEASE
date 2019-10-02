@@ -46,288 +46,288 @@ import static org.junit.Assert.*;
  */
 public class DateFormattingTests {
 
-	private final FormattingConversionService conversionService = new FormattingConversionService();
+    private final FormattingConversionService conversionService = new FormattingConversionService();
 
-	private DataBinder binder;
-
-
-	@Before
-	public void setup() {
-		DateFormatterRegistrar registrar = new DateFormatterRegistrar();
-		setup(registrar);
-	}
-
-	private void setup(DateFormatterRegistrar registrar) {
-		DefaultConversionService.addDefaultConverters(conversionService);
-		registrar.registerFormatters(conversionService);
-
-		SimpleDateBean bean = new SimpleDateBean();
-		bean.getChildren().add(new SimpleDateBean());
-		binder = new DataBinder(bean);
-		binder.setConversionService(conversionService);
-
-		LocaleContextHolder.setLocale(Locale.US);
-	}
-
-	@After
-	public void tearDown() {
-		LocaleContextHolder.setLocale(null);
-	}
+    private DataBinder binder;
 
 
-	@Test
-	public void testBindLong() {
-		MutablePropertyValues propertyValues = new MutablePropertyValues();
-		propertyValues.add("millis", "1256961600");
-		binder.bind(propertyValues);
-		assertEquals(0, binder.getBindingResult().getErrorCount());
-		assertEquals("1256961600", binder.getBindingResult().getFieldValue("millis"));
-	}
+    @Before
+    public void setup() {
+        DateFormatterRegistrar registrar = new DateFormatterRegistrar();
+        setup(registrar);
+    }
 
-	@Test
-	public void testBindLongAnnotated() {
-		MutablePropertyValues propertyValues = new MutablePropertyValues();
-		propertyValues.add("millisAnnotated", "10/31/09");
-		binder.bind(propertyValues);
-		assertEquals(0, binder.getBindingResult().getErrorCount());
-		assertEquals("10/31/09", binder.getBindingResult().getFieldValue("millisAnnotated"));
-	}
+    private void setup(DateFormatterRegistrar registrar) {
+        DefaultConversionService.addDefaultConverters(conversionService);
+        registrar.registerFormatters(conversionService);
 
-	@Test
-	public void testBindCalendarAnnotated() {
-		MutablePropertyValues propertyValues = new MutablePropertyValues();
-		propertyValues.add("calendarAnnotated", "10/31/09");
-		binder.bind(propertyValues);
-		assertEquals(0, binder.getBindingResult().getErrorCount());
-		assertEquals("10/31/09", binder.getBindingResult().getFieldValue("calendarAnnotated"));
-	}
+        SimpleDateBean bean = new SimpleDateBean();
+        bean.getChildren().add(new SimpleDateBean());
+        binder = new DataBinder(bean);
+        binder.setConversionService(conversionService);
 
-	@Test
-	public void testBindDateAnnotated() {
-		MutablePropertyValues propertyValues = new MutablePropertyValues();
-		propertyValues.add("dateAnnotated", "10/31/09");
-		binder.bind(propertyValues);
-		assertEquals(0, binder.getBindingResult().getErrorCount());
-		assertEquals("10/31/09", binder.getBindingResult().getFieldValue("dateAnnotated"));
-	}
+        LocaleContextHolder.setLocale(Locale.US);
+    }
 
-	@Test
-	public void testBindDateArray() {
-		MutablePropertyValues propertyValues = new MutablePropertyValues();
-		propertyValues.add("dateAnnotated", new String[]{"10/31/09 12:00 PM"});
-		binder.bind(propertyValues);
-		assertEquals(0, binder.getBindingResult().getErrorCount());
-	}
-
-	@Test
-	public void testBindDateAnnotatedWithError() {
-		MutablePropertyValues propertyValues = new MutablePropertyValues();
-		propertyValues.add("dateAnnotated", "Oct X31, 2009");
-		binder.bind(propertyValues);
-		assertEquals(1, binder.getBindingResult().getFieldErrorCount("dateAnnotated"));
-		assertEquals("Oct X31, 2009", binder.getBindingResult().getFieldValue("dateAnnotated"));
-	}
-
-	@Test
-	@Ignore
-	public void testBindDateAnnotatedWithFallbackError() {
-		// TODO This currently passes because of the Date(String) constructor fallback is used
-		MutablePropertyValues propertyValues = new MutablePropertyValues();
-		propertyValues.add("dateAnnotated", "Oct 031, 2009");
-		binder.bind(propertyValues);
-		assertEquals(1, binder.getBindingResult().getFieldErrorCount("dateAnnotated"));
-		assertEquals("Oct 031, 2009", binder.getBindingResult().getFieldValue("dateAnnotated"));
-	}
-
-	@Test
-	public void testBindDateAnnotatedPattern() {
-		MutablePropertyValues propertyValues = new MutablePropertyValues();
-		propertyValues.add("dateAnnotatedPattern", "10/31/09 1:05");
-		binder.bind(propertyValues);
-		assertEquals(0, binder.getBindingResult().getErrorCount());
-		assertEquals("10/31/09 1:05", binder.getBindingResult().getFieldValue("dateAnnotatedPattern"));
-	}
-
-	@Test
-	public void testBindDateTimeOverflow() {
-		MutablePropertyValues propertyValues = new MutablePropertyValues();
-		propertyValues.add("dateAnnotatedPattern", "02/29/09 12:00 PM");
-		binder.bind(propertyValues);
-		assertEquals(1, binder.getBindingResult().getErrorCount());
-	}
-
-	@Test
-	public void testBindISODate() {
-		MutablePropertyValues propertyValues = new MutablePropertyValues();
-		propertyValues.add("isoDate", "2009-10-31");
-		binder.bind(propertyValues);
-		assertEquals(0, binder.getBindingResult().getErrorCount());
-		assertEquals("2009-10-31", binder.getBindingResult().getFieldValue("isoDate"));
-	}
-
-	@Test
-	public void testBindISOTime() {
-		MutablePropertyValues propertyValues = new MutablePropertyValues();
-		propertyValues.add("isoTime", "12:00:00.000-05:00");
-		binder.bind(propertyValues);
-		assertEquals(0, binder.getBindingResult().getErrorCount());
-		assertEquals("17:00:00.000Z", binder.getBindingResult().getFieldValue("isoTime"));
-	}
-
-	@Test
-	public void testBindISODateTime() {
-		MutablePropertyValues propertyValues = new MutablePropertyValues();
-		propertyValues.add("isoDateTime", "2009-10-31T12:00:00.000-08:00");
-		binder.bind(propertyValues);
-		assertEquals(0, binder.getBindingResult().getErrorCount());
-		assertEquals("2009-10-31T20:00:00.000Z", binder.getBindingResult().getFieldValue("isoDateTime"));
-	}
-
-	@Test
-	public void testBindNestedDateAnnotated() {
-		MutablePropertyValues propertyValues = new MutablePropertyValues();
-		propertyValues.add("children[0].dateAnnotated", "10/31/09");
-		binder.bind(propertyValues);
-		assertEquals(0, binder.getBindingResult().getErrorCount());
-		assertEquals("10/31/09", binder.getBindingResult().getFieldValue("children[0].dateAnnotated"));
-	}
-
-	@Test
-	public void dateToStringWithoutGlobalFormat() {
-		Date date = new Date();
-		Object actual = this.conversionService.convert(date, TypeDescriptor.valueOf(Date.class), TypeDescriptor.valueOf(String.class));
-		String expected = date.toString();
-		assertEquals(expected, actual);
-	}
-
-	@Test
-	public void dateToStringWithGlobalFormat() {
-		DateFormatterRegistrar registrar = new DateFormatterRegistrar();
-		registrar.setFormatter(new DateFormatter());
-		setup(registrar);
-		Date date = new Date();
-		Object actual = this.conversionService.convert(date, TypeDescriptor.valueOf(Date.class), TypeDescriptor.valueOf(String.class));
-		String expected = new DateFormatter().print(date, Locale.US);
-		assertEquals(expected, actual);
-	}
-
-	@Test  // SPR-10105
-	@SuppressWarnings("deprecation")
-	public void stringToDateWithoutGlobalFormat() {
-		String string = "Sat, 12 Aug 1995 13:30:00 GM";
-		Date date = this.conversionService.convert(string, Date.class);
-		assertThat(date, equalTo(new Date(string)));
-	}
-
-	@Test  // SPR-10105
-	public void stringToDateWithGlobalFormat() {
-		DateFormatterRegistrar registrar = new DateFormatterRegistrar();
-		DateFormatter dateFormatter = new DateFormatter();
-		dateFormatter.setIso(ISO.DATE_TIME);
-		registrar.setFormatter(dateFormatter);
-		setup(registrar);
-		// This is a format that cannot be parsed by new Date(String)
-		String string = "2009-06-01T14:23:05.003+00:00";
-		Date date = this.conversionService.convert(string, Date.class);
-		assertNotNull(date);
-	}
+    @After
+    public void tearDown() {
+        LocaleContextHolder.setLocale(null);
+    }
 
 
-	@SuppressWarnings("unused")
-	private static class SimpleDateBean {
+    @Test
+    public void testBindLong() {
+        MutablePropertyValues propertyValues = new MutablePropertyValues();
+        propertyValues.add("millis", "1256961600");
+        binder.bind(propertyValues);
+        assertEquals(0, binder.getBindingResult().getErrorCount());
+        assertEquals("1256961600", binder.getBindingResult().getFieldValue("millis"));
+    }
 
-		private Long millis;
+    @Test
+    public void testBindLongAnnotated() {
+        MutablePropertyValues propertyValues = new MutablePropertyValues();
+        propertyValues.add("millisAnnotated", "10/31/09");
+        binder.bind(propertyValues);
+        assertEquals(0, binder.getBindingResult().getErrorCount());
+        assertEquals("10/31/09", binder.getBindingResult().getFieldValue("millisAnnotated"));
+    }
 
-		private Long millisAnnotated;
+    @Test
+    public void testBindCalendarAnnotated() {
+        MutablePropertyValues propertyValues = new MutablePropertyValues();
+        propertyValues.add("calendarAnnotated", "10/31/09");
+        binder.bind(propertyValues);
+        assertEquals(0, binder.getBindingResult().getErrorCount());
+        assertEquals("10/31/09", binder.getBindingResult().getFieldValue("calendarAnnotated"));
+    }
 
-		@DateTimeFormat(style="S-")
-		private Calendar calendarAnnotated;
+    @Test
+    public void testBindDateAnnotated() {
+        MutablePropertyValues propertyValues = new MutablePropertyValues();
+        propertyValues.add("dateAnnotated", "10/31/09");
+        binder.bind(propertyValues);
+        assertEquals(0, binder.getBindingResult().getErrorCount());
+        assertEquals("10/31/09", binder.getBindingResult().getFieldValue("dateAnnotated"));
+    }
 
-		@DateTimeFormat(style="S-")
-		private Date dateAnnotated;
+    @Test
+    public void testBindDateArray() {
+        MutablePropertyValues propertyValues = new MutablePropertyValues();
+        propertyValues.add("dateAnnotated", new String[]{"10/31/09 12:00 PM"});
+        binder.bind(propertyValues);
+        assertEquals(0, binder.getBindingResult().getErrorCount());
+    }
 
-		@DateTimeFormat(pattern="M/d/yy h:mm")
-		private Date dateAnnotatedPattern;
+    @Test
+    public void testBindDateAnnotatedWithError() {
+        MutablePropertyValues propertyValues = new MutablePropertyValues();
+        propertyValues.add("dateAnnotated", "Oct X31, 2009");
+        binder.bind(propertyValues);
+        assertEquals(1, binder.getBindingResult().getFieldErrorCount("dateAnnotated"));
+        assertEquals("Oct X31, 2009", binder.getBindingResult().getFieldValue("dateAnnotated"));
+    }
 
-		@DateTimeFormat(iso=ISO.DATE)
-		private Date isoDate;
+    @Test
+    @Ignore
+    public void testBindDateAnnotatedWithFallbackError() {
+        // TODO This currently passes because of the Date(String) constructor fallback is used
+        MutablePropertyValues propertyValues = new MutablePropertyValues();
+        propertyValues.add("dateAnnotated", "Oct 031, 2009");
+        binder.bind(propertyValues);
+        assertEquals(1, binder.getBindingResult().getFieldErrorCount("dateAnnotated"));
+        assertEquals("Oct 031, 2009", binder.getBindingResult().getFieldValue("dateAnnotated"));
+    }
 
-		@DateTimeFormat(iso=ISO.TIME)
-		private Date isoTime;
+    @Test
+    public void testBindDateAnnotatedPattern() {
+        MutablePropertyValues propertyValues = new MutablePropertyValues();
+        propertyValues.add("dateAnnotatedPattern", "10/31/09 1:05");
+        binder.bind(propertyValues);
+        assertEquals(0, binder.getBindingResult().getErrorCount());
+        assertEquals("10/31/09 1:05", binder.getBindingResult().getFieldValue("dateAnnotatedPattern"));
+    }
 
-		@DateTimeFormat(iso=ISO.DATE_TIME)
-		private Date isoDateTime;
+    @Test
+    public void testBindDateTimeOverflow() {
+        MutablePropertyValues propertyValues = new MutablePropertyValues();
+        propertyValues.add("dateAnnotatedPattern", "02/29/09 12:00 PM");
+        binder.bind(propertyValues);
+        assertEquals(1, binder.getBindingResult().getErrorCount());
+    }
 
-		private final List<SimpleDateBean> children = new ArrayList<>();
+    @Test
+    public void testBindISODate() {
+        MutablePropertyValues propertyValues = new MutablePropertyValues();
+        propertyValues.add("isoDate", "2009-10-31");
+        binder.bind(propertyValues);
+        assertEquals(0, binder.getBindingResult().getErrorCount());
+        assertEquals("2009-10-31", binder.getBindingResult().getFieldValue("isoDate"));
+    }
 
-		public Long getMillis() {
-			return millis;
-		}
+    @Test
+    public void testBindISOTime() {
+        MutablePropertyValues propertyValues = new MutablePropertyValues();
+        propertyValues.add("isoTime", "12:00:00.000-05:00");
+        binder.bind(propertyValues);
+        assertEquals(0, binder.getBindingResult().getErrorCount());
+        assertEquals("17:00:00.000Z", binder.getBindingResult().getFieldValue("isoTime"));
+    }
 
-		public void setMillis(Long millis) {
-			this.millis = millis;
-		}
+    @Test
+    public void testBindISODateTime() {
+        MutablePropertyValues propertyValues = new MutablePropertyValues();
+        propertyValues.add("isoDateTime", "2009-10-31T12:00:00.000-08:00");
+        binder.bind(propertyValues);
+        assertEquals(0, binder.getBindingResult().getErrorCount());
+        assertEquals("2009-10-31T20:00:00.000Z", binder.getBindingResult().getFieldValue("isoDateTime"));
+    }
 
-		@DateTimeFormat(style="S-")
-		public Long getMillisAnnotated() {
-			return millisAnnotated;
-		}
+    @Test
+    public void testBindNestedDateAnnotated() {
+        MutablePropertyValues propertyValues = new MutablePropertyValues();
+        propertyValues.add("children[0].dateAnnotated", "10/31/09");
+        binder.bind(propertyValues);
+        assertEquals(0, binder.getBindingResult().getErrorCount());
+        assertEquals("10/31/09", binder.getBindingResult().getFieldValue("children[0].dateAnnotated"));
+    }
 
-		public void setMillisAnnotated(@DateTimeFormat(style="S-") Long millisAnnotated) {
-			this.millisAnnotated = millisAnnotated;
-		}
+    @Test
+    public void dateToStringWithoutGlobalFormat() {
+        Date date = new Date();
+        Object actual = this.conversionService.convert(date, TypeDescriptor.valueOf(Date.class), TypeDescriptor.valueOf(String.class));
+        String expected = date.toString();
+        assertEquals(expected, actual);
+    }
 
-		public Calendar getCalendarAnnotated() {
-			return calendarAnnotated;
-		}
+    @Test
+    public void dateToStringWithGlobalFormat() {
+        DateFormatterRegistrar registrar = new DateFormatterRegistrar();
+        registrar.setFormatter(new DateFormatter());
+        setup(registrar);
+        Date date = new Date();
+        Object actual = this.conversionService.convert(date, TypeDescriptor.valueOf(Date.class), TypeDescriptor.valueOf(String.class));
+        String expected = new DateFormatter().print(date, Locale.US);
+        assertEquals(expected, actual);
+    }
 
-		public void setCalendarAnnotated(Calendar calendarAnnotated) {
-			this.calendarAnnotated = calendarAnnotated;
-		}
+    @Test  // SPR-10105
+    @SuppressWarnings("deprecation")
+    public void stringToDateWithoutGlobalFormat() {
+        String string = "Sat, 12 Aug 1995 13:30:00 GM";
+        Date date = this.conversionService.convert(string, Date.class);
+        assertThat(date, equalTo(new Date(string)));
+    }
 
-		public Date getDateAnnotated() {
-			return dateAnnotated;
-		}
+    @Test  // SPR-10105
+    public void stringToDateWithGlobalFormat() {
+        DateFormatterRegistrar registrar = new DateFormatterRegistrar();
+        DateFormatter dateFormatter = new DateFormatter();
+        dateFormatter.setIso(ISO.DATE_TIME);
+        registrar.setFormatter(dateFormatter);
+        setup(registrar);
+        // This is a format that cannot be parsed by new Date(String)
+        String string = "2009-06-01T14:23:05.003+00:00";
+        Date date = this.conversionService.convert(string, Date.class);
+        assertNotNull(date);
+    }
 
-		public void setDateAnnotated(Date dateAnnotated) {
-			this.dateAnnotated = dateAnnotated;
-		}
 
-		public Date getDateAnnotatedPattern() {
-			return dateAnnotatedPattern;
-		}
+    @SuppressWarnings("unused")
+    private static class SimpleDateBean {
 
-		public void setDateAnnotatedPattern(Date dateAnnotatedPattern) {
-			this.dateAnnotatedPattern = dateAnnotatedPattern;
-		}
+        private Long millis;
 
-		public Date getIsoDate() {
-			return isoDate;
-		}
+        private Long millisAnnotated;
 
-		public void setIsoDate(Date isoDate) {
-			this.isoDate = isoDate;
-		}
+        @DateTimeFormat(style = "S-")
+        private Calendar calendarAnnotated;
 
-		public Date getIsoTime() {
-			return isoTime;
-		}
+        @DateTimeFormat(style = "S-")
+        private Date dateAnnotated;
 
-		public void setIsoTime(Date isoTime) {
-			this.isoTime = isoTime;
-		}
+        @DateTimeFormat(pattern = "M/d/yy h:mm")
+        private Date dateAnnotatedPattern;
 
-		public Date getIsoDateTime() {
-			return isoDateTime;
-		}
+        @DateTimeFormat(iso = ISO.DATE)
+        private Date isoDate;
 
-		public void setIsoDateTime(Date isoDateTime) {
-			this.isoDateTime = isoDateTime;
-		}
+        @DateTimeFormat(iso = ISO.TIME)
+        private Date isoTime;
 
-		public List<SimpleDateBean> getChildren() {
-			return children;
-		}
-	}
+        @DateTimeFormat(iso = ISO.DATE_TIME)
+        private Date isoDateTime;
+
+        private final List<SimpleDateBean> children = new ArrayList<>();
+
+        public Long getMillis() {
+            return millis;
+        }
+
+        public void setMillis(Long millis) {
+            this.millis = millis;
+        }
+
+        @DateTimeFormat(style = "S-")
+        public Long getMillisAnnotated() {
+            return millisAnnotated;
+        }
+
+        public void setMillisAnnotated(@DateTimeFormat(style = "S-") Long millisAnnotated) {
+            this.millisAnnotated = millisAnnotated;
+        }
+
+        public Calendar getCalendarAnnotated() {
+            return calendarAnnotated;
+        }
+
+        public void setCalendarAnnotated(Calendar calendarAnnotated) {
+            this.calendarAnnotated = calendarAnnotated;
+        }
+
+        public Date getDateAnnotated() {
+            return dateAnnotated;
+        }
+
+        public void setDateAnnotated(Date dateAnnotated) {
+            this.dateAnnotated = dateAnnotated;
+        }
+
+        public Date getDateAnnotatedPattern() {
+            return dateAnnotatedPattern;
+        }
+
+        public void setDateAnnotatedPattern(Date dateAnnotatedPattern) {
+            this.dateAnnotatedPattern = dateAnnotatedPattern;
+        }
+
+        public Date getIsoDate() {
+            return isoDate;
+        }
+
+        public void setIsoDate(Date isoDate) {
+            this.isoDate = isoDate;
+        }
+
+        public Date getIsoTime() {
+            return isoTime;
+        }
+
+        public void setIsoTime(Date isoTime) {
+            this.isoTime = isoTime;
+        }
+
+        public Date getIsoDateTime() {
+            return isoDateTime;
+        }
+
+        public void setIsoDateTime(Date isoDateTime) {
+            this.isoDateTime = isoDateTime;
+        }
+
+        public List<SimpleDateBean> getChildren() {
+            return children;
+        }
+    }
 
 }

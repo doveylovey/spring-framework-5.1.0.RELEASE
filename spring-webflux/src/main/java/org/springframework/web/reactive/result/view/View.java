@@ -44,30 +44,31 @@ import org.springframework.web.server.ServerWebExchange;
  */
 public interface View {
 
-	/**
-	 * Return the list of media types this View supports, or an empty list.
-	 */
-	default List<MediaType> getSupportedMediaTypes() {
-		return Collections.emptyList();
-	}
+    /**
+     * Return the list of media types this View supports, or an empty list.
+     */
+    default List<MediaType> getSupportedMediaTypes() {
+        return Collections.emptyList();
+    }
 
-	/**
-	 * Whether this View does rendering by performing a redirect.
-	 */
-	default boolean isRedirectView() {
-		return false;
-	}
+    /**
+     * Whether this View does rendering by performing a redirect.
+     */
+    default boolean isRedirectView() {
+        return false;
+    }
 
-	/**
-	 * Render the view based on the given {@link HandlerResult}. Implementations
-	 * can access and use the model or only a specific attribute in it.
-	 * @param model a Map with name Strings as keys and corresponding model
-	 * objects as values (Map can also be {@code null} in case of empty model)
-	 * @param contentType the content type selected to render with which should
-	 * match one of the {@link #getSupportedMediaTypes() supported media types}.
-	 * @param exchange the current exchange
-	 * @return {@code Mono} to represent when and if rendering succeeds
-	 */
-	Mono<Void> render(@Nullable Map<String, ?> model, @Nullable MediaType contentType, ServerWebExchange exchange);
+    /**
+     * Render the view based on the given {@link HandlerResult}. Implementations
+     * can access and use the model or only a specific attribute in it.
+     *
+     * @param model       a Map with name Strings as keys and corresponding model
+     *                    objects as values (Map can also be {@code null} in case of empty model)
+     * @param contentType the content type selected to render with which should
+     *                    match one of the {@link #getSupportedMediaTypes() supported media types}.
+     * @param exchange    the current exchange
+     * @return {@code Mono} to represent when and if rendering succeeds
+     */
+    Mono<Void> render(@Nullable Map<String, ?> model, @Nullable MediaType contentType, ServerWebExchange exchange);
 
 }

@@ -40,23 +40,23 @@ import static org.junit.Assert.*;
 @TestPropertySource("explicit.properties")
 public class ExplicitPropertiesFileTestPropertySourceTests {
 
-	@Autowired
-	protected Environment env;
+    @Autowired
+    protected Environment env;
 
 
-	@Test
-	public void verifyPropertiesAreAvailableInEnvironment() {
-		String userHomeKey = "user.home";
-		assertEquals(System.getProperty(userHomeKey), env.getProperty(userHomeKey));
-		assertEquals("enigma", env.getProperty("explicit"));
-	}
+    @Test
+    public void verifyPropertiesAreAvailableInEnvironment() {
+        String userHomeKey = "user.home";
+        assertEquals(System.getProperty(userHomeKey), env.getProperty(userHomeKey));
+        assertEquals("enigma", env.getProperty("explicit"));
+    }
 
 
-	// -------------------------------------------------------------------
+    // -------------------------------------------------------------------
 
-	@Configuration
-	static class Config {
-		/* no user beans required for these tests */
-	}
+    @Configuration
+    static class Config {
+        /* no user beans required for these tests */
+    }
 
 }

@@ -53,136 +53,136 @@ import static org.mockito.BDDMockito.*;
  */
 public class RequestResponseBodyAdviceChainTests {
 
-	private String body;
+    private String body;
 
-	private MediaType contentType;
+    private MediaType contentType;
 
-	private Class<? extends HttpMessageConverter<?>> converterType;
+    private Class<? extends HttpMessageConverter<?>> converterType;
 
-	private MethodParameter paramType;
-	private MethodParameter returnType;
+    private MethodParameter paramType;
+    private MethodParameter returnType;
 
-	private ServerHttpRequest request;
-	private ServerHttpResponse response;
-
-
-	@Before
-	public void setup() {
-		this.body = "body";
-		this.contentType = MediaType.TEXT_PLAIN;
-		this.converterType = StringHttpMessageConverter.class;
-		this.paramType = new MethodParameter(ClassUtils.getMethod(this.getClass(), "handle", String.class), 0);
-		this.returnType = new MethodParameter(ClassUtils.getMethod(this.getClass(), "handle", String.class), -1);
-		this.request = new ServletServerHttpRequest(new MockHttpServletRequest());
-		this.response = new ServletServerHttpResponse(new MockHttpServletResponse());
-	}
+    private ServerHttpRequest request;
+    private ServerHttpResponse response;
 
 
-	@SuppressWarnings("unchecked")
-	@Test
-	public void requestBodyAdvice() throws IOException {
-		RequestBodyAdvice requestAdvice = Mockito.mock(RequestBodyAdvice.class);
-		ResponseBodyAdvice<String> responseAdvice = Mockito.mock(ResponseBodyAdvice.class);
-		List<Object> advice = Arrays.asList(requestAdvice, responseAdvice);
-		RequestResponseBodyAdviceChain chain = new RequestResponseBodyAdviceChain(advice);
-
-		HttpInputMessage wrapped = new ServletServerHttpRequest(new MockHttpServletRequest());
-		given(requestAdvice.supports(this.paramType, String.class, this.converterType)).willReturn(true);
-		given(requestAdvice.beforeBodyRead(eq(this.request), eq(this.paramType), eq(String.class),
-				eq(this.converterType))).willReturn(wrapped);
-
-		assertSame(wrapped, chain.beforeBodyRead(this.request, this.paramType, String.class, this.converterType));
-
-		String modified = "body++";
-		given(requestAdvice.afterBodyRead(eq(this.body), eq(this.request), eq(this.paramType),
-				eq(String.class), eq(this.converterType))).willReturn(modified);
-
-		assertEquals(modified, chain.afterBodyRead(this.body, this.request, this.paramType,
-				String.class, this.converterType));
-	}
-
-	@SuppressWarnings("unchecked")
-	@Test
-	public void responseBodyAdvice() {
-		RequestBodyAdvice requestAdvice = Mockito.mock(RequestBodyAdvice.class);
-		ResponseBodyAdvice<String> responseAdvice = Mockito.mock(ResponseBodyAdvice.class);
-		List<Object> advice = Arrays.asList(requestAdvice, responseAdvice);
-		RequestResponseBodyAdviceChain chain = new RequestResponseBodyAdviceChain(advice);
-
-		String expected = "body++";
-		given(responseAdvice.supports(this.returnType, this.converterType)).willReturn(true);
-		given(responseAdvice.beforeBodyWrite(eq(this.body), eq(this.returnType), eq(this.contentType),
-				eq(this.converterType), same(this.request), same(this.response))).willReturn(expected);
-
-		String actual = (String) chain.beforeBodyWrite(this.body, this.returnType, this.contentType,
-				this.converterType, this.request, this.response);
-
-		assertEquals(expected, actual);
-	}
-
-	@Test
-	public void controllerAdvice() {
-		Object adviceBean = new ControllerAdviceBean(new MyControllerAdvice());
-		RequestResponseBodyAdviceChain chain = new RequestResponseBodyAdviceChain(Collections.singletonList(adviceBean));
-
-		String actual = (String) chain.beforeBodyWrite(this.body, this.returnType, this.contentType,
-				this.converterType, this.request, this.response);
-
-		assertEquals("body-MyControllerAdvice", actual);
-	}
-
-	@Test
-	public void controllerAdviceNotApplicable() {
-		Object adviceBean = new ControllerAdviceBean(new TargetedControllerAdvice());
-		RequestResponseBodyAdviceChain chain = new RequestResponseBodyAdviceChain(Collections.singletonList(adviceBean));
-
-		String actual = (String) chain.beforeBodyWrite(this.body, this.returnType, this.contentType,
-				this.converterType, this.request, this.response);
-
-		assertEquals(this.body, actual);
-	}
+    @Before
+    public void setup() {
+        this.body = "body";
+        this.contentType = MediaType.TEXT_PLAIN;
+        this.converterType = StringHttpMessageConverter.class;
+        this.paramType = new MethodParameter(ClassUtils.getMethod(this.getClass(), "handle", String.class), 0);
+        this.returnType = new MethodParameter(ClassUtils.getMethod(this.getClass(), "handle", String.class), -1);
+        this.request = new ServletServerHttpRequest(new MockHttpServletRequest());
+        this.response = new ServletServerHttpResponse(new MockHttpServletResponse());
+    }
 
 
-	@ControllerAdvice
-	private static class MyControllerAdvice implements ResponseBodyAdvice<String> {
+    @SuppressWarnings("unchecked")
+    @Test
+    public void requestBodyAdvice() throws IOException {
+        RequestBodyAdvice requestAdvice = Mockito.mock(RequestBodyAdvice.class);
+        ResponseBodyAdvice<String> responseAdvice = Mockito.mock(ResponseBodyAdvice.class);
+        List<Object> advice = Arrays.asList(requestAdvice, responseAdvice);
+        RequestResponseBodyAdviceChain chain = new RequestResponseBodyAdviceChain(advice);
 
-		@Override
-		public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
-			return true;
-		}
+        HttpInputMessage wrapped = new ServletServerHttpRequest(new MockHttpServletRequest());
+        given(requestAdvice.supports(this.paramType, String.class, this.converterType)).willReturn(true);
+        given(requestAdvice.beforeBodyRead(eq(this.request), eq(this.paramType), eq(String.class),
+                eq(this.converterType))).willReturn(wrapped);
 
-		@Override
-		public String beforeBodyWrite(String body, MethodParameter returnType,
-				MediaType contentType, Class<? extends HttpMessageConverter<?>> converterType,
-				ServerHttpRequest request, ServerHttpResponse response) {
+        assertSame(wrapped, chain.beforeBodyRead(this.request, this.paramType, String.class, this.converterType));
 
-			return body + "-MyControllerAdvice";
-		}
-	}
+        String modified = "body++";
+        given(requestAdvice.afterBodyRead(eq(this.body), eq(this.request), eq(this.paramType),
+                eq(String.class), eq(this.converterType))).willReturn(modified);
+
+        assertEquals(modified, chain.afterBodyRead(this.body, this.request, this.paramType,
+                String.class, this.converterType));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void responseBodyAdvice() {
+        RequestBodyAdvice requestAdvice = Mockito.mock(RequestBodyAdvice.class);
+        ResponseBodyAdvice<String> responseAdvice = Mockito.mock(ResponseBodyAdvice.class);
+        List<Object> advice = Arrays.asList(requestAdvice, responseAdvice);
+        RequestResponseBodyAdviceChain chain = new RequestResponseBodyAdviceChain(advice);
+
+        String expected = "body++";
+        given(responseAdvice.supports(this.returnType, this.converterType)).willReturn(true);
+        given(responseAdvice.beforeBodyWrite(eq(this.body), eq(this.returnType), eq(this.contentType),
+                eq(this.converterType), same(this.request), same(this.response))).willReturn(expected);
+
+        String actual = (String) chain.beforeBodyWrite(this.body, this.returnType, this.contentType,
+                this.converterType, this.request, this.response);
+
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void controllerAdvice() {
+        Object adviceBean = new ControllerAdviceBean(new MyControllerAdvice());
+        RequestResponseBodyAdviceChain chain = new RequestResponseBodyAdviceChain(Collections.singletonList(adviceBean));
+
+        String actual = (String) chain.beforeBodyWrite(this.body, this.returnType, this.contentType,
+                this.converterType, this.request, this.response);
+
+        assertEquals("body-MyControllerAdvice", actual);
+    }
+
+    @Test
+    public void controllerAdviceNotApplicable() {
+        Object adviceBean = new ControllerAdviceBean(new TargetedControllerAdvice());
+        RequestResponseBodyAdviceChain chain = new RequestResponseBodyAdviceChain(Collections.singletonList(adviceBean));
+
+        String actual = (String) chain.beforeBodyWrite(this.body, this.returnType, this.contentType,
+                this.converterType, this.request, this.response);
+
+        assertEquals(this.body, actual);
+    }
 
 
-	@ControllerAdvice(annotations = Controller.class)
-	private static class TargetedControllerAdvice implements ResponseBodyAdvice<String> {
+    @ControllerAdvice
+    private static class MyControllerAdvice implements ResponseBodyAdvice<String> {
 
-		@Override
-		public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
-			return true;
-		}
+        @Override
+        public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
+            return true;
+        }
 
-		@Override
-		public String beforeBodyWrite(String body, MethodParameter returnType,
-				MediaType contentType, Class<? extends HttpMessageConverter<?>> converterType,
-				ServerHttpRequest request, ServerHttpResponse response) {
+        @Override
+        public String beforeBodyWrite(String body, MethodParameter returnType,
+                                      MediaType contentType, Class<? extends HttpMessageConverter<?>> converterType,
+                                      ServerHttpRequest request, ServerHttpResponse response) {
 
-			return body + "-TargetedControllerAdvice";
-		}
-	}
+            return body + "-MyControllerAdvice";
+        }
+    }
 
 
-	@SuppressWarnings("unused")
-	@ResponseBody
-	public String handle(String body) {
-		return "";
-	}
+    @ControllerAdvice(annotations = Controller.class)
+    private static class TargetedControllerAdvice implements ResponseBodyAdvice<String> {
+
+        @Override
+        public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
+            return true;
+        }
+
+        @Override
+        public String beforeBodyWrite(String body, MethodParameter returnType,
+                                      MediaType contentType, Class<? extends HttpMessageConverter<?>> converterType,
+                                      ServerHttpRequest request, ServerHttpResponse response) {
+
+            return body + "-TargetedControllerAdvice";
+        }
+    }
+
+
+    @SuppressWarnings("unused")
+    @ResponseBody
+    public String handle(String body) {
+        return "";
+    }
 
 }

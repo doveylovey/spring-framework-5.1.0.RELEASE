@@ -32,33 +32,33 @@ import static org.junit.Assert.*;
  * Groovy script (as opposed to a default XML config file).
  *
  * @author Sam Brannen
- * @since 4.1
  * @see DefaultScriptDetectionGroovySpringContextTestsContext
+ * @since 4.1
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 // Config loaded from DefaultScriptDetectionGroovySpringContextTestsContext.groovy
 @ContextConfiguration
 public class DefaultScriptDetectionGroovySpringContextTests {
 
-	@Autowired
-	private Employee employee;
+    @Autowired
+    private Employee employee;
 
-	@Autowired
-	private Pet pet;
+    @Autowired
+    private Pet pet;
 
-	@Autowired
-	protected String foo;
+    @Autowired
+    protected String foo;
 
 
-	@Test
-	public final void verifyAnnotationAutowiredFields() {
-		assertNotNull("The employee field should have been autowired.", this.employee);
-		assertEquals("Dilbert", this.employee.getName());
+    @Test
+    public final void verifyAnnotationAutowiredFields() {
+        assertNotNull("The employee field should have been autowired.", this.employee);
+        assertEquals("Dilbert", this.employee.getName());
 
-		assertNotNull("The pet field should have been autowired.", this.pet);
-		assertEquals("Dogbert", this.pet.getName());
+        assertNotNull("The pet field should have been autowired.", this.pet);
+        assertEquals("Dogbert", this.pet.getName());
 
-		assertEquals("The foo field should have been autowired.", "Foo", this.foo);
-	}
+        assertEquals("The foo field should have been autowired.", "Foo", this.foo);
+    }
 
 }

@@ -48,246 +48,246 @@ import static org.junit.Assert.*;
  */
 public class ImportAwareTests {
 
-	@Test
-	public void directlyAnnotatedWithImport() {
-		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
-		ctx.register(ImportingConfig.class);
-		ctx.refresh();
-		assertNotNull(ctx.getBean("importedConfigBean"));
+    @Test
+    public void directlyAnnotatedWithImport() {
+        AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+        ctx.register(ImportingConfig.class);
+        ctx.refresh();
+        assertNotNull(ctx.getBean("importedConfigBean"));
 
-		ImportedConfig importAwareConfig = ctx.getBean(ImportedConfig.class);
-		AnnotationMetadata importMetadata = importAwareConfig.importMetadata;
-		assertThat("import metadata was not injected", importMetadata, notNullValue());
-		assertThat(importMetadata.getClassName(), is(ImportingConfig.class.getName()));
-		AnnotationAttributes importAttribs = AnnotationConfigUtils.attributesFor(importMetadata, Import.class);
-		Class<?>[] importedClasses = importAttribs.getClassArray("value");
-		assertThat(importedClasses[0].getName(), is(ImportedConfig.class.getName()));
-	}
+        ImportedConfig importAwareConfig = ctx.getBean(ImportedConfig.class);
+        AnnotationMetadata importMetadata = importAwareConfig.importMetadata;
+        assertThat("import metadata was not injected", importMetadata, notNullValue());
+        assertThat(importMetadata.getClassName(), is(ImportingConfig.class.getName()));
+        AnnotationAttributes importAttribs = AnnotationConfigUtils.attributesFor(importMetadata, Import.class);
+        Class<?>[] importedClasses = importAttribs.getClassArray("value");
+        assertThat(importedClasses[0].getName(), is(ImportedConfig.class.getName()));
+    }
 
-	@Test
-	public void indirectlyAnnotatedWithImport() {
-		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
-		ctx.register(IndirectlyImportingConfig.class);
-		ctx.refresh();
-		assertNotNull(ctx.getBean("importedConfigBean"));
+    @Test
+    public void indirectlyAnnotatedWithImport() {
+        AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+        ctx.register(IndirectlyImportingConfig.class);
+        ctx.refresh();
+        assertNotNull(ctx.getBean("importedConfigBean"));
 
-		ImportedConfig importAwareConfig = ctx.getBean(ImportedConfig.class);
-		AnnotationMetadata importMetadata = importAwareConfig.importMetadata;
-		assertThat("import metadata was not injected", importMetadata, notNullValue());
-		assertThat(importMetadata.getClassName(), is(IndirectlyImportingConfig.class.getName()));
-		AnnotationAttributes enableAttribs = AnnotationConfigUtils.attributesFor(importMetadata, EnableImportedConfig.class);
-		String foo = enableAttribs.getString("foo");
-		assertThat(foo, is("xyz"));
-	}
+        ImportedConfig importAwareConfig = ctx.getBean(ImportedConfig.class);
+        AnnotationMetadata importMetadata = importAwareConfig.importMetadata;
+        assertThat("import metadata was not injected", importMetadata, notNullValue());
+        assertThat(importMetadata.getClassName(), is(IndirectlyImportingConfig.class.getName()));
+        AnnotationAttributes enableAttribs = AnnotationConfigUtils.attributesFor(importMetadata, EnableImportedConfig.class);
+        String foo = enableAttribs.getString("foo");
+        assertThat(foo, is("xyz"));
+    }
 
-	@Test
-	public void importRegistrar() throws Exception {
-		ImportedRegistrar.called = false;
-		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
-		ctx.register(ImportingRegistrarConfig.class);
-		ctx.refresh();
-		assertNotNull(ctx.getBean("registrarImportedBean"));
-		assertNotNull(ctx.getBean("otherImportedConfigBean"));
-	}
+    @Test
+    public void importRegistrar() throws Exception {
+        ImportedRegistrar.called = false;
+        AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+        ctx.register(ImportingRegistrarConfig.class);
+        ctx.refresh();
+        assertNotNull(ctx.getBean("registrarImportedBean"));
+        assertNotNull(ctx.getBean("otherImportedConfigBean"));
+    }
 
-	@Test
-	public void importRegistrarWithImport() throws Exception {
-		ImportedRegistrar.called = false;
-		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
-		ctx.register(ImportingRegistrarConfigWithImport.class);
-		ctx.refresh();
-		assertNotNull(ctx.getBean("registrarImportedBean"));
-		assertNotNull(ctx.getBean("otherImportedConfigBean"));
-		assertNotNull(ctx.getBean("importedConfigBean"));
-		assertNotNull(ctx.getBean(ImportedConfig.class));
-	}
+    @Test
+    public void importRegistrarWithImport() throws Exception {
+        ImportedRegistrar.called = false;
+        AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+        ctx.register(ImportingRegistrarConfigWithImport.class);
+        ctx.refresh();
+        assertNotNull(ctx.getBean("registrarImportedBean"));
+        assertNotNull(ctx.getBean("otherImportedConfigBean"));
+        assertNotNull(ctx.getBean("importedConfigBean"));
+        assertNotNull(ctx.getBean(ImportedConfig.class));
+    }
 
-	@Test
-	public void metadataFromImportsOneThenTwo() {
-		AnnotationMetadata importMetadata = new AnnotationConfigApplicationContext(
-				ConfigurationOne.class, ConfigurationTwo.class)
-				.getBean(MetadataHolder.class).importMetadata;
-		assertEquals(ConfigurationOne.class,
-				((StandardAnnotationMetadata) importMetadata).getIntrospectedClass());
-	}
+    @Test
+    public void metadataFromImportsOneThenTwo() {
+        AnnotationMetadata importMetadata = new AnnotationConfigApplicationContext(
+                ConfigurationOne.class, ConfigurationTwo.class)
+                .getBean(MetadataHolder.class).importMetadata;
+        assertEquals(ConfigurationOne.class,
+                ((StandardAnnotationMetadata) importMetadata).getIntrospectedClass());
+    }
 
-	@Test
-	public void metadataFromImportsTwoThenOne() {
-		AnnotationMetadata importMetadata = new AnnotationConfigApplicationContext(
-				ConfigurationTwo.class, ConfigurationOne.class)
-				.getBean(MetadataHolder.class).importMetadata;
-		assertEquals(ConfigurationOne.class,
-				((StandardAnnotationMetadata) importMetadata).getIntrospectedClass());
-	}
-
-
-	@Configuration
-	@Import(ImportedConfig.class)
-	static class ImportingConfig {
-	}
+    @Test
+    public void metadataFromImportsTwoThenOne() {
+        AnnotationMetadata importMetadata = new AnnotationConfigApplicationContext(
+                ConfigurationTwo.class, ConfigurationOne.class)
+                .getBean(MetadataHolder.class).importMetadata;
+        assertEquals(ConfigurationOne.class,
+                ((StandardAnnotationMetadata) importMetadata).getIntrospectedClass());
+    }
 
 
-	@Configuration
-	@EnableImportedConfig(foo="xyz")
-	static class IndirectlyImportingConfig {
-	}
+    @Configuration
+    @Import(ImportedConfig.class)
+    static class ImportingConfig {
+    }
 
 
-	@Target(ElementType.TYPE)
-	@Retention(RetentionPolicy.RUNTIME)
-	@Import(ImportedConfig.class)
-	public @interface EnableImportedConfig {
-		String foo() default "";
-	}
+    @Configuration
+    @EnableImportedConfig(foo = "xyz")
+    static class IndirectlyImportingConfig {
+    }
 
 
-	@Configuration
-	static class ImportedConfig implements ImportAware {
-
-		AnnotationMetadata importMetadata;
-
-		@Override
-		public void setImportMetadata(AnnotationMetadata importMetadata) {
-			this.importMetadata = importMetadata;
-		}
-
-		@Bean
-		public BPP importedConfigBean() {
-			return new BPP();
-		}
-
-		@Bean
-		public AsyncAnnotationBeanPostProcessor asyncBPP() {
-			return new AsyncAnnotationBeanPostProcessor();
-		}
-	}
+    @Target(ElementType.TYPE)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Import(ImportedConfig.class)
+    public @interface EnableImportedConfig {
+        String foo() default "";
+    }
 
 
-	@Configuration
-	static class OtherImportedConfig {
+    @Configuration
+    static class ImportedConfig implements ImportAware {
 
-		@Bean
-		public String otherImportedConfigBean() {
-			return "";
-		}
-	}
+        AnnotationMetadata importMetadata;
 
+        @Override
+        public void setImportMetadata(AnnotationMetadata importMetadata) {
+            this.importMetadata = importMetadata;
+        }
 
-	static class BPP implements BeanPostProcessor, BeanFactoryAware {
+        @Bean
+        public BPP importedConfigBean() {
+            return new BPP();
+        }
 
-		@Override
-		public void setBeanFactory(BeanFactory beanFactory) {
-		}
-
-		@Override
-		public Object postProcessBeforeInitialization(Object bean, String beanName) {
-			return bean;
-		}
-
-		@Override
-		public Object postProcessAfterInitialization(Object bean, String beanName) {
-			return bean;
-		}
-	}
+        @Bean
+        public AsyncAnnotationBeanPostProcessor asyncBPP() {
+            return new AsyncAnnotationBeanPostProcessor();
+        }
+    }
 
 
-	@Configuration
-	@EnableImportRegistrar
-	static class ImportingRegistrarConfig {
-	}
+    @Configuration
+    static class OtherImportedConfig {
+
+        @Bean
+        public String otherImportedConfigBean() {
+            return "";
+        }
+    }
 
 
-	@Configuration
-	@EnableImportRegistrar
-	@Import(ImportedConfig.class)
-	static class ImportingRegistrarConfigWithImport {
-	}
+    static class BPP implements BeanPostProcessor, BeanFactoryAware {
 
-	@Target(ElementType.TYPE)
-	@Retention(RetentionPolicy.RUNTIME)
-	@Import(ImportedRegistrar.class)
-	public @interface EnableImportRegistrar {
-	}
+        @Override
+        public void setBeanFactory(BeanFactory beanFactory) {
+        }
 
+        @Override
+        public Object postProcessBeforeInitialization(Object bean, String beanName) {
+            return bean;
+        }
 
-	static class ImportedRegistrar implements ImportBeanDefinitionRegistrar {
-
-		static boolean called;
-
-		@Override
-		public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
-			GenericBeanDefinition beanDefinition = new GenericBeanDefinition();
-			beanDefinition.setBeanClassName(String.class.getName());
-			registry.registerBeanDefinition("registrarImportedBean", beanDefinition);
-			GenericBeanDefinition beanDefinition2 = new GenericBeanDefinition();
-			beanDefinition2.setBeanClass(OtherImportedConfig.class);
-			registry.registerBeanDefinition("registrarImportedConfig", beanDefinition2);
-			Assert.state(!called, "ImportedRegistrar called twice");
-			called = true;
-		}
-	}
+        @Override
+        public Object postProcessAfterInitialization(Object bean, String beanName) {
+            return bean;
+        }
+    }
 
 
-	@EnableSomeConfiguration("bar")
-	@Configuration
-	public static class ConfigurationOne {
-	}
+    @Configuration
+    @EnableImportRegistrar
+    static class ImportingRegistrarConfig {
+    }
 
 
-	@Conditional(OnMissingBeanCondition.class)
-	@EnableSomeConfiguration("foo")
-	@Configuration
-	public static class ConfigurationTwo {
-	}
+    @Configuration
+    @EnableImportRegistrar
+    @Import(ImportedConfig.class)
+    static class ImportingRegistrarConfigWithImport {
+    }
+
+    @Target(ElementType.TYPE)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Import(ImportedRegistrar.class)
+    public @interface EnableImportRegistrar {
+    }
 
 
-	@Import(SomeConfiguration.class)
-	@Target(ElementType.TYPE)
-	@Retention(RetentionPolicy.RUNTIME)
-	public @interface EnableSomeConfiguration {
+    static class ImportedRegistrar implements ImportBeanDefinitionRegistrar {
 
-		String value() default "";
-	}
+        static boolean called;
 
-
-	@Configuration
-	public static class SomeConfiguration implements ImportAware {
-
-		private AnnotationMetadata importMetadata;
-
-		@Override
-		public void setImportMetadata(AnnotationMetadata importMetadata) {
-			this.importMetadata = importMetadata;
-		}
-
-		@Bean
-		public MetadataHolder holder() {
-			return new MetadataHolder(this.importMetadata);
-		}
-	}
+        @Override
+        public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
+            GenericBeanDefinition beanDefinition = new GenericBeanDefinition();
+            beanDefinition.setBeanClassName(String.class.getName());
+            registry.registerBeanDefinition("registrarImportedBean", beanDefinition);
+            GenericBeanDefinition beanDefinition2 = new GenericBeanDefinition();
+            beanDefinition2.setBeanClass(OtherImportedConfig.class);
+            registry.registerBeanDefinition("registrarImportedConfig", beanDefinition2);
+            Assert.state(!called, "ImportedRegistrar called twice");
+            called = true;
+        }
+    }
 
 
-	public static class MetadataHolder {
-
-		private final AnnotationMetadata importMetadata;
-
-		public MetadataHolder(AnnotationMetadata importMetadata) {
-			this.importMetadata = importMetadata;
-		}
-	}
+    @EnableSomeConfiguration("bar")
+    @Configuration
+    public static class ConfigurationOne {
+    }
 
 
-	private static final class OnMissingBeanCondition implements ConfigurationCondition {
+    @Conditional(OnMissingBeanCondition.class)
+    @EnableSomeConfiguration("foo")
+    @Configuration
+    public static class ConfigurationTwo {
+    }
 
-		@Override
-		public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
-			return (context.getBeanFactory().getBeanNamesForType(MetadataHolder.class, true, false).length == 0);
-		}
 
-		@Override
-		public ConfigurationPhase getConfigurationPhase() {
-			return ConfigurationPhase.REGISTER_BEAN;
-		}
-	}
+    @Import(SomeConfiguration.class)
+    @Target(ElementType.TYPE)
+    @Retention(RetentionPolicy.RUNTIME)
+    public @interface EnableSomeConfiguration {
+
+        String value() default "";
+    }
+
+
+    @Configuration
+    public static class SomeConfiguration implements ImportAware {
+
+        private AnnotationMetadata importMetadata;
+
+        @Override
+        public void setImportMetadata(AnnotationMetadata importMetadata) {
+            this.importMetadata = importMetadata;
+        }
+
+        @Bean
+        public MetadataHolder holder() {
+            return new MetadataHolder(this.importMetadata);
+        }
+    }
+
+
+    public static class MetadataHolder {
+
+        private final AnnotationMetadata importMetadata;
+
+        public MetadataHolder(AnnotationMetadata importMetadata) {
+            this.importMetadata = importMetadata;
+        }
+    }
+
+
+    private static final class OnMissingBeanCondition implements ConfigurationCondition {
+
+        @Override
+        public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
+            return (context.getBeanFactory().getBeanNamesForType(MetadataHolder.class, true, false).length == 0);
+        }
+
+        @Override
+        public ConfigurationPhase getConfigurationPhase() {
+            return ConfigurationPhase.REGISTER_BEAN;
+        }
+    }
 
 }

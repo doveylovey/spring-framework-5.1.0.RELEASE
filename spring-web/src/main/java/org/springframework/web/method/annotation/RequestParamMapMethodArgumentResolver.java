@@ -43,42 +43,41 @@ import org.springframework.web.method.support.ModelAndViewContainer;
  *
  * @author Arjen Poutsma
  * @author Rossen Stoyanchev
- * @since 3.1
  * @see RequestParamMethodArgumentResolver
+ * @since 3.1
  */
 public class RequestParamMapMethodArgumentResolver implements HandlerMethodArgumentResolver {
 
-	@Override
-	public boolean supportsParameter(MethodParameter parameter) {
-		RequestParam requestParam = parameter.getParameterAnnotation(RequestParam.class);
-		return (requestParam != null && Map.class.isAssignableFrom(parameter.getParameterType()) &&
-				!StringUtils.hasText(requestParam.name()));
-	}
+    @Override
+    public boolean supportsParameter(MethodParameter parameter) {
+        RequestParam requestParam = parameter.getParameterAnnotation(RequestParam.class);
+        return (requestParam != null && Map.class.isAssignableFrom(parameter.getParameterType()) &&
+                !StringUtils.hasText(requestParam.name()));
+    }
 
-	@Override
-	public Object resolveArgument(MethodParameter parameter, @Nullable ModelAndViewContainer mavContainer,
-			NativeWebRequest webRequest, @Nullable WebDataBinderFactory binderFactory) throws Exception {
+    @Override
+    public Object resolveArgument(MethodParameter parameter, @Nullable ModelAndViewContainer mavContainer,
+                                  NativeWebRequest webRequest, @Nullable WebDataBinderFactory binderFactory) throws Exception {
 
-		Class<?> paramType = parameter.getParameterType();
+        Class<?> paramType = parameter.getParameterType();
 
-		Map<String, String[]> parameterMap = webRequest.getParameterMap();
-		if (MultiValueMap.class.isAssignableFrom(paramType)) {
-			MultiValueMap<String, String> result = new LinkedMultiValueMap<>(parameterMap.size());
-			parameterMap.forEach((key, values) -> {
-				for (String value : values) {
-					result.add(key, value);
-				}
-			});
-			return result;
-		}
-		else {
-			Map<String, String> result = new LinkedHashMap<>(parameterMap.size());
-			parameterMap.forEach((key, values) -> {
-				if (values.length > 0) {
-					result.put(key, values[0]);
-				}
-			});
-			return result;
-		}
-	}
+        Map<String, String[]> parameterMap = webRequest.getParameterMap();
+        if (MultiValueMap.class.isAssignableFrom(paramType)) {
+            MultiValueMap<String, String> result = new LinkedMultiValueMap<>(parameterMap.size());
+            parameterMap.forEach((key, values) -> {
+                for (String value : values) {
+                    result.add(key, value);
+                }
+            });
+            return result;
+        } else {
+            Map<String, String> result = new LinkedHashMap<>(parameterMap.size());
+            parameterMap.forEach((key, values) -> {
+                if (values.length > 0) {
+                    result.put(key, values[0]);
+                }
+            });
+            return result;
+        }
+    }
 }

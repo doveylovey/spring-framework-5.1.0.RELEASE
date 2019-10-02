@@ -50,117 +50,117 @@ import static org.junit.Assert.assertTrue;
  */
 public class ResourceRegionEncoderTests extends AbstractDataBufferAllocatingTestCase {
 
-	private ResourceRegionEncoder encoder;
+    private ResourceRegionEncoder encoder;
 
-	@Before
-	public void setUp() {
-		this.encoder = new ResourceRegionEncoder();
-		this.bufferFactory = new DefaultDataBufferFactory();
-	}
+    @Before
+    public void setUp() {
+        this.encoder = new ResourceRegionEncoder();
+        this.bufferFactory = new DefaultDataBufferFactory();
+    }
 
-	@Test
-	public void canEncode() {
-		ResolvableType resourceRegion = ResolvableType.forClass(ResourceRegion.class);
-		MimeType allMimeType = MimeType.valueOf("*/*");
+    @Test
+    public void canEncode() {
+        ResolvableType resourceRegion = ResolvableType.forClass(ResourceRegion.class);
+        MimeType allMimeType = MimeType.valueOf("*/*");
 
-		assertFalse(this.encoder.canEncode(ResolvableType.forClass(Resource.class),
-				MimeTypeUtils.APPLICATION_OCTET_STREAM));
-		assertFalse(this.encoder.canEncode(ResolvableType.forClass(Resource.class), allMimeType));
-		assertTrue(this.encoder.canEncode(resourceRegion, MimeTypeUtils.APPLICATION_OCTET_STREAM));
-		assertTrue(this.encoder.canEncode(resourceRegion, allMimeType));
+        assertFalse(this.encoder.canEncode(ResolvableType.forClass(Resource.class),
+                MimeTypeUtils.APPLICATION_OCTET_STREAM));
+        assertFalse(this.encoder.canEncode(ResolvableType.forClass(Resource.class), allMimeType));
+        assertTrue(this.encoder.canEncode(resourceRegion, MimeTypeUtils.APPLICATION_OCTET_STREAM));
+        assertTrue(this.encoder.canEncode(resourceRegion, allMimeType));
 
-		// SPR-15464
-		assertFalse(this.encoder.canEncode(ResolvableType.NONE, null));
-	}
+        // SPR-15464
+        assertFalse(this.encoder.canEncode(ResolvableType.NONE, null));
+    }
 
-	@Test
-	public void shouldEncodeResourceRegionFileResource() throws Exception {
-		shouldEncodeResourceRegion(
-				new ClassPathResource("ResourceRegionEncoderTests.txt", getClass()));
-	}
+    @Test
+    public void shouldEncodeResourceRegionFileResource() throws Exception {
+        shouldEncodeResourceRegion(
+                new ClassPathResource("ResourceRegionEncoderTests.txt", getClass()));
+    }
 
-	@Test
-	public void shouldEncodeResourceRegionByteArrayResource() throws Exception {
-		String content = "Spring Framework test resource content.";
-		shouldEncodeResourceRegion(new ByteArrayResource(content.getBytes(StandardCharsets.UTF_8)));
-	}
+    @Test
+    public void shouldEncodeResourceRegionByteArrayResource() throws Exception {
+        String content = "Spring Framework test resource content.";
+        shouldEncodeResourceRegion(new ByteArrayResource(content.getBytes(StandardCharsets.UTF_8)));
+    }
 
-	private void shouldEncodeResourceRegion(Resource resource) {
-		ResourceRegion region = new ResourceRegion(resource, 0, 6);
-		Flux<DataBuffer> result = this.encoder.encode(Mono.just(region), this.bufferFactory,
-				ResolvableType.forClass(ResourceRegion.class),
-				MimeTypeUtils.APPLICATION_OCTET_STREAM,
-				Collections.emptyMap());
+    private void shouldEncodeResourceRegion(Resource resource) {
+        ResourceRegion region = new ResourceRegion(resource, 0, 6);
+        Flux<DataBuffer> result = this.encoder.encode(Mono.just(region), this.bufferFactory,
+                ResolvableType.forClass(ResourceRegion.class),
+                MimeTypeUtils.APPLICATION_OCTET_STREAM,
+                Collections.emptyMap());
 
-		StepVerifier.create(result)
-				.consumeNextWith(stringConsumer("Spring"))
-				.expectComplete()
-				.verify();
-	}
+        StepVerifier.create(result)
+                .consumeNextWith(stringConsumer("Spring"))
+                .expectComplete()
+                .verify();
+    }
 
-	@Test
-	public void shouldEncodeMultipleResourceRegionsFileResource() throws Exception {
-		shouldEncodeMultipleResourceRegions(
-				new ClassPathResource("ResourceRegionEncoderTests.txt", getClass()));
-	}
+    @Test
+    public void shouldEncodeMultipleResourceRegionsFileResource() throws Exception {
+        shouldEncodeMultipleResourceRegions(
+                new ClassPathResource("ResourceRegionEncoderTests.txt", getClass()));
+    }
 
-	@Test
-	public void shouldEncodeMultipleResourceRegionsByteArrayResource() throws Exception {
-		String content = "Spring Framework test resource content.";
-		shouldEncodeMultipleResourceRegions(
-				new ByteArrayResource(content.getBytes(StandardCharsets.UTF_8)));
-	}
+    @Test
+    public void shouldEncodeMultipleResourceRegionsByteArrayResource() throws Exception {
+        String content = "Spring Framework test resource content.";
+        shouldEncodeMultipleResourceRegions(
+                new ByteArrayResource(content.getBytes(StandardCharsets.UTF_8)));
+    }
 
-	private void shouldEncodeMultipleResourceRegions(Resource resource) {
-		Flux<ResourceRegion> regions = Flux.just(
-				new ResourceRegion(resource, 0, 6),
-				new ResourceRegion(resource, 7, 9),
-				new ResourceRegion(resource, 17, 4),
-				new ResourceRegion(resource, 22, 17)
-		);
-		String boundary = MimeTypeUtils.generateMultipartBoundaryString();
+    private void shouldEncodeMultipleResourceRegions(Resource resource) {
+        Flux<ResourceRegion> regions = Flux.just(
+                new ResourceRegion(resource, 0, 6),
+                new ResourceRegion(resource, 7, 9),
+                new ResourceRegion(resource, 17, 4),
+                new ResourceRegion(resource, 22, 17)
+        );
+        String boundary = MimeTypeUtils.generateMultipartBoundaryString();
 
-		Flux<DataBuffer> result = this.encoder.encode(regions, this.bufferFactory,
-				ResolvableType.forClass(ResourceRegion.class),
-				MimeType.valueOf("text/plain"),
-				Collections.singletonMap(ResourceRegionEncoder.BOUNDARY_STRING_HINT, boundary)
-		);
+        Flux<DataBuffer> result = this.encoder.encode(regions, this.bufferFactory,
+                ResolvableType.forClass(ResourceRegion.class),
+                MimeType.valueOf("text/plain"),
+                Collections.singletonMap(ResourceRegionEncoder.BOUNDARY_STRING_HINT, boundary)
+        );
 
-		Mono<DataBuffer> reduced = result
-				.reduce(bufferFactory.allocateBuffer(), (previous, current) -> {
-					previous.write(current);
-					DataBufferUtils.release(current);
-					return previous;
-				});
+        Mono<DataBuffer> reduced = result
+                .reduce(bufferFactory.allocateBuffer(), (previous, current) -> {
+                    previous.write(current);
+                    DataBufferUtils.release(current);
+                    return previous;
+                });
 
-		StepVerifier.create(reduced)
-				.consumeNextWith(buf -> {
-					String content = DataBufferTestUtils.dumpString(buf, StandardCharsets.UTF_8);
-					String[] ranges = StringUtils.tokenizeToStringArray(content, "\r\n",
-							false, true);
-					String[] expected = new String[] {
-							"--" + boundary,
-							"Content-Type: text/plain",
-							"Content-Range: bytes 0-5/39",
-							"Spring",
-							"--" + boundary,
-							"Content-Type: text/plain",
-							"Content-Range: bytes 7-15/39",
-							"Framework",
-							"--" + boundary,
-							"Content-Type: text/plain",
-							"Content-Range: bytes 17-20/39",
-							"test",
-							"--" + boundary,
-							"Content-Type: text/plain",
-							"Content-Range: bytes 22-38/39",
-							"resource content.",
-							"--" + boundary + "--"
-					};
-					assertArrayEquals(expected, ranges);
-				})
-				.expectComplete()
-				.verify();
-	}
+        StepVerifier.create(reduced)
+                .consumeNextWith(buf -> {
+                    String content = DataBufferTestUtils.dumpString(buf, StandardCharsets.UTF_8);
+                    String[] ranges = StringUtils.tokenizeToStringArray(content, "\r\n",
+                            false, true);
+                    String[] expected = new String[]{
+                            "--" + boundary,
+                            "Content-Type: text/plain",
+                            "Content-Range: bytes 0-5/39",
+                            "Spring",
+                            "--" + boundary,
+                            "Content-Type: text/plain",
+                            "Content-Range: bytes 7-15/39",
+                            "Framework",
+                            "--" + boundary,
+                            "Content-Type: text/plain",
+                            "Content-Range: bytes 17-20/39",
+                            "test",
+                            "--" + boundary,
+                            "Content-Type: text/plain",
+                            "Content-Range: bytes 22-38/39",
+                            "resource content.",
+                            "--" + boundary + "--"
+                    };
+                    assertArrayEquals(expected, ranges);
+                })
+                .expectComplete()
+                .verify();
+    }
 
 }

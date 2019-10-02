@@ -31,52 +31,52 @@ import org.springframework.util.ClassUtils;
  *
  * @author Rod Johnson
  * @author Juergen Hoeller
- * @since 2.0
  * @see Configurable
  * @see org.springframework.beans.factory.wiring.ClassNameBeanWiringInfoResolver
+ * @since 2.0
  */
 public class AnnotationBeanWiringInfoResolver implements BeanWiringInfoResolver {
 
-	@Override
-	@Nullable
-	public BeanWiringInfo resolveWiringInfo(Object beanInstance) {
-		Assert.notNull(beanInstance, "Bean instance must not be null");
-		Configurable annotation = beanInstance.getClass().getAnnotation(Configurable.class);
-		return (annotation != null ? buildWiringInfo(beanInstance, annotation) : null);
-	}
+    @Override
+    @Nullable
+    public BeanWiringInfo resolveWiringInfo(Object beanInstance) {
+        Assert.notNull(beanInstance, "Bean instance must not be null");
+        Configurable annotation = beanInstance.getClass().getAnnotation(Configurable.class);
+        return (annotation != null ? buildWiringInfo(beanInstance, annotation) : null);
+    }
 
-	/**
-	 * Build the BeanWiringInfo for the given Configurable annotation.
-	 * @param beanInstance the bean instance
-	 * @param annotation the Configurable annotation found on the bean class
-	 * @return the resolved BeanWiringInfo
-	 */
-	protected BeanWiringInfo buildWiringInfo(Object beanInstance, Configurable annotation) {
-		if (!Autowire.NO.equals(annotation.autowire())) {
-			return new BeanWiringInfo(annotation.autowire().value(), annotation.dependencyCheck());
-		}
-		else {
-			if (!"".equals(annotation.value())) {
-				// explicitly specified bean name
-				return new BeanWiringInfo(annotation.value(), false);
-			}
-			else {
-				// default bean name
-				return new BeanWiringInfo(getDefaultBeanName(beanInstance), true);
-			}
-		}
-	}
+    /**
+     * Build the BeanWiringInfo for the given Configurable annotation.
+     *
+     * @param beanInstance the bean instance
+     * @param annotation   the Configurable annotation found on the bean class
+     * @return the resolved BeanWiringInfo
+     */
+    protected BeanWiringInfo buildWiringInfo(Object beanInstance, Configurable annotation) {
+        if (!Autowire.NO.equals(annotation.autowire())) {
+            return new BeanWiringInfo(annotation.autowire().value(), annotation.dependencyCheck());
+        } else {
+            if (!"".equals(annotation.value())) {
+                // explicitly specified bean name
+                return new BeanWiringInfo(annotation.value(), false);
+            } else {
+                // default bean name
+                return new BeanWiringInfo(getDefaultBeanName(beanInstance), true);
+            }
+        }
+    }
 
-	/**
-	 * Determine the default bean name for the specified bean instance.
-	 * <p>The default implementation returns the superclass name for a CGLIB
-	 * proxy and the name of the plain bean class else.
-	 * @param beanInstance the bean instance to build a default name for
-	 * @return the default bean name to use
-	 * @see org.springframework.util.ClassUtils#getUserClass(Class)
-	 */
-	protected String getDefaultBeanName(Object beanInstance) {
-		return ClassUtils.getUserClass(beanInstance).getName();
-	}
+    /**
+     * Determine the default bean name for the specified bean instance.
+     * <p>The default implementation returns the superclass name for a CGLIB
+     * proxy and the name of the plain bean class else.
+     *
+     * @param beanInstance the bean instance to build a default name for
+     * @return the default bean name to use
+     * @see org.springframework.util.ClassUtils#getUserClass(Class)
+     */
+    protected String getDefaultBeanName(Object beanInstance) {
+        return ClassUtils.getUserClass(beanInstance).getName();
+    }
 
 }

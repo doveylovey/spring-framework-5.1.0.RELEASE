@@ -42,98 +42,99 @@ import static org.junit.Assert.*;
 @SuppressWarnings("resource")
 public class Spr8954Tests {
 
-	@Test
-	public void repro() {
-		AnnotationConfigApplicationContext bf = new AnnotationConfigApplicationContext();
-		bf.registerBeanDefinition("fooConfig", new RootBeanDefinition(FooConfig.class));
-		bf.getBeanFactory().addBeanPostProcessor(new PredictingBPP());
-		bf.refresh();
+    @Test
+    public void repro() {
+        AnnotationConfigApplicationContext bf = new AnnotationConfigApplicationContext();
+        bf.registerBeanDefinition("fooConfig", new RootBeanDefinition(FooConfig.class));
+        bf.getBeanFactory().addBeanPostProcessor(new PredictingBPP());
+        bf.refresh();
 
-		assertThat(bf.getBean("foo"), instanceOf(Foo.class));
-		assertThat(bf.getBean("&foo"), instanceOf(FooFactoryBean.class));
+        assertThat(bf.getBean("foo"), instanceOf(Foo.class));
+        assertThat(bf.getBean("&foo"), instanceOf(FooFactoryBean.class));
 
-		assertThat(bf.isTypeMatch("&foo", FactoryBean.class), is(true));
+        assertThat(bf.isTypeMatch("&foo", FactoryBean.class), is(true));
 
-		@SuppressWarnings("rawtypes")
-		Map<String, FactoryBean> fbBeans = bf.getBeansOfType(FactoryBean.class);
-		assertThat(1, equalTo(fbBeans.size()));
-		assertThat("&foo", equalTo(fbBeans.keySet().iterator().next()));
+        @SuppressWarnings("rawtypes")
+        Map<String, FactoryBean> fbBeans = bf.getBeansOfType(FactoryBean.class);
+        assertThat(1, equalTo(fbBeans.size()));
+        assertThat("&foo", equalTo(fbBeans.keySet().iterator().next()));
 
-		Map<String, AnInterface> aiBeans = bf.getBeansOfType(AnInterface.class);
-		assertThat(1, equalTo(aiBeans.size()));
-		assertThat("&foo", equalTo(aiBeans.keySet().iterator().next()));
-	}
+        Map<String, AnInterface> aiBeans = bf.getBeansOfType(AnInterface.class);
+        assertThat(1, equalTo(aiBeans.size()));
+        assertThat("&foo", equalTo(aiBeans.keySet().iterator().next()));
+    }
 
-	@Test
-	public void findsBeansByTypeIfNotInstantiated() {
-		AnnotationConfigApplicationContext bf = new AnnotationConfigApplicationContext();
-		bf.registerBeanDefinition("fooConfig", new RootBeanDefinition(FooConfig.class));
-		bf.getBeanFactory().addBeanPostProcessor(new PredictingBPP());
-		bf.refresh();
+    @Test
+    public void findsBeansByTypeIfNotInstantiated() {
+        AnnotationConfigApplicationContext bf = new AnnotationConfigApplicationContext();
+        bf.registerBeanDefinition("fooConfig", new RootBeanDefinition(FooConfig.class));
+        bf.getBeanFactory().addBeanPostProcessor(new PredictingBPP());
+        bf.refresh();
 
-		assertThat(bf.isTypeMatch("&foo", FactoryBean.class), is(true));
+        assertThat(bf.isTypeMatch("&foo", FactoryBean.class), is(true));
 
-		@SuppressWarnings("rawtypes")
-		Map<String, FactoryBean> fbBeans = bf.getBeansOfType(FactoryBean.class);
-		assertThat(1, equalTo(fbBeans.size()));
-		assertThat("&foo", equalTo(fbBeans.keySet().iterator().next()));
+        @SuppressWarnings("rawtypes")
+        Map<String, FactoryBean> fbBeans = bf.getBeansOfType(FactoryBean.class);
+        assertThat(1, equalTo(fbBeans.size()));
+        assertThat("&foo", equalTo(fbBeans.keySet().iterator().next()));
 
-		Map<String, AnInterface> aiBeans = bf.getBeansOfType(AnInterface.class);
-		assertThat(1, equalTo(aiBeans.size()));
-		assertThat("&foo", equalTo(aiBeans.keySet().iterator().next()));
-	}
-
-
-	static class FooConfig {
-
-		@Bean FooFactoryBean foo() {
-			return new FooFactoryBean();
-		}
-	}
+        Map<String, AnInterface> aiBeans = bf.getBeansOfType(AnInterface.class);
+        assertThat(1, equalTo(aiBeans.size()));
+        assertThat("&foo", equalTo(aiBeans.keySet().iterator().next()));
+    }
 
 
-	static class FooFactoryBean implements FactoryBean<Foo>, AnInterface {
+    static class FooConfig {
 
-		@Override
-		public Foo getObject() {
-			return new Foo();
-		}
-
-		@Override
-		public Class<?> getObjectType() {
-			return Foo.class;
-		}
-
-		@Override
-		public boolean isSingleton() {
-			return true;
-		}
-	}
+        @Bean
+        FooFactoryBean foo() {
+            return new FooFactoryBean();
+        }
+    }
 
 
-	interface AnInterface {
-	}
+    static class FooFactoryBean implements FactoryBean<Foo>, AnInterface {
+
+        @Override
+        public Foo getObject() {
+            return new Foo();
+        }
+
+        @Override
+        public Class<?> getObjectType() {
+            return Foo.class;
+        }
+
+        @Override
+        public boolean isSingleton() {
+            return true;
+        }
+    }
 
 
-	static class Foo {
-	}
+    interface AnInterface {
+    }
 
 
-	interface PredictedType {
-	}
+    static class Foo {
+    }
 
 
-	static class PredictingBPP extends InstantiationAwareBeanPostProcessorAdapter {
+    interface PredictedType {
+    }
 
-		@Override
-		public Class<?> predictBeanType(Class<?> beanClass, String beanName) {
-			return FactoryBean.class.isAssignableFrom(beanClass) ? PredictedType.class : null;
-		}
 
-		@Override
-		public PropertyValues postProcessProperties(PropertyValues pvs, Object bean, String beanName) {
-			return pvs;
-		}
-	}
+    static class PredictingBPP extends InstantiationAwareBeanPostProcessorAdapter {
+
+        @Override
+        public Class<?> predictBeanType(Class<?> beanClass, String beanName) {
+            return FactoryBean.class.isAssignableFrom(beanClass) ? PredictedType.class : null;
+        }
+
+        @Override
+        public PropertyValues postProcessProperties(PropertyValues pvs, Object bean, String beanName) {
+            return pvs;
+        }
+    }
 
 }
