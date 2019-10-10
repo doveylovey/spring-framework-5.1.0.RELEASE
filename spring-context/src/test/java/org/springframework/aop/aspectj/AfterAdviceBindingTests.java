@@ -37,18 +37,13 @@ import static org.mockito.BDDMockito.*;
  * @author Chris Beams
  */
 public class AfterAdviceBindingTests {
-
     private AdviceBindingCollaborator mockCollaborator;
-
     private ITestBean testBeanProxy;
-
     private TestBean testBeanTarget;
-
 
     @Before
     public void setup() throws Exception {
-        ClassPathXmlApplicationContext ctx =
-                new ClassPathXmlApplicationContext(getClass().getSimpleName() + ".xml", getClass());
+        ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext(getClass().getSimpleName() + ".xml", getClass());
         AdviceBindingTestAspect afterAdviceAspect = (AdviceBindingTestAspect) ctx.getBean("testAspect");
 
         testBeanProxy = (ITestBean) ctx.getBean("testBean");
@@ -97,5 +92,4 @@ public class AfterAdviceBindingTests {
         testBeanProxy.getAge();
         verify(mockCollaborator).needsJoinPointStaticPart("getAge");
     }
-
 }
