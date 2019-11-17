@@ -21,6 +21,9 @@ import org.springframework.core.ResolvableType;
 import org.springframework.lang.Nullable;
 
 /**
+ * 该接口是用于访问Spring bean容器的根接口。它提供了OC容器最基本的形式，给具体的IOC容器实现提供了规范。
+ * 该接口是Spring容器的核心接口，负责：实例化、定位、配置应用程序中的对象及建立这些对象间的依赖。
+ * <p>
  * The root interface for accessing a Spring bean container.
  * This is the basic client view of a bean container;
  * further interfaces such as {@link ListableBeanFactory} and
@@ -114,15 +117,16 @@ import org.springframework.lang.Nullable;
  * @since 13 April 2001
  */
 public interface BeanFactory {
-
     /**
+     * 用于取消引用{@link FactoryBean}实例，并将其与由FactoryBean创建的bean区别开。
+     * 例如：如果名为myJndiObject的bean是FactoryBean，则获取＆myJndiObject将返回工厂，而不是工厂返回的实例。
+     * <p>
      * Used to dereference a {@link FactoryBean} instance and distinguish it from
      * beans <i>created</i> by the FactoryBean. For example, if the bean named
      * {@code myJndiObject} is a FactoryBean, getting {@code &myJndiObject}
      * will return the factory, not the instance returned by the factory.
      */
     String FACTORY_BEAN_PREFIX = "&";
-
 
     /**
      * Return an instance, which may be shared or independent, of the specified bean.
@@ -363,5 +367,4 @@ public interface BeanFactory {
      * @see #getBean
      */
     String[] getAliases(String name);
-
 }

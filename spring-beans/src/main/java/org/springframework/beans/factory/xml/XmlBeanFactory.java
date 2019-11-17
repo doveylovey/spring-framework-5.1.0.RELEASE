@@ -22,6 +22,9 @@ import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.core.io.Resource;
 
 /**
+ * Spring为我们提供了许多易用的BeanFactory实现，XmlBeanFactory就是常用的一个，该实现以XML方式描述组成应用的对象及对象间的依赖关系。XmlBeanFactory类将持有此XML配置元数据，并用它来构建一个完全可配置的系统或应用。
+ * 该类与 {@link XmlBeanDefinitionReader} 的不同点在于该类使用了自定义的XML读取器XmlBeanDefinitionReader，实现了自己的BeanDefinitionReader读取
+ * <p>
  * Convenience extension of {@link DefaultListableBeanFactory} that reads bean definitions
  * from an XML document. Delegates to {@link XmlBeanDefinitionReader} underneath; effectively
  * equivalent to using an XmlBeanDefinitionReader with a DefaultListableBeanFactory.
@@ -53,9 +56,10 @@ import org.springframework.core.io.Resource;
 @Deprecated
 @SuppressWarnings({"serial", "all"})
 public class XmlBeanFactory extends DefaultListableBeanFactory {
-
+    /**
+     * XmlBeanFactory加载bean的关键就在于XmlBeanDefinitionReader
+     */
     private final XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(this);
-
 
     /**
      * Create a new XmlBeanFactory with the given resource,
@@ -80,5 +84,4 @@ public class XmlBeanFactory extends DefaultListableBeanFactory {
         super(parentBeanFactory);
         this.reader.loadBeanDefinitions(resource);
     }
-
 }

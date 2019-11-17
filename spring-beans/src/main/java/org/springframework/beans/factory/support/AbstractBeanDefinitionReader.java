@@ -16,13 +16,8 @@
 
 package org.springframework.beans.factory.support;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.Set;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.EnvironmentCapable;
@@ -33,6 +28,10 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
+
+import java.io.IOException;
+import java.util.Collections;
+import java.util.Set;
 
 /**
  * Abstract base class for bean definition readers which implement
@@ -47,7 +46,6 @@ import org.springframework.util.Assert;
  * @since 11.12.2003
  */
 public abstract class AbstractBeanDefinitionReader implements BeanDefinitionReader, EnvironmentCapable {
-
     /**
      * Logger available to subclasses.
      */
@@ -64,7 +62,6 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
     private Environment environment;
 
     private BeanNameGenerator beanNameGenerator = new DefaultBeanNameGenerator();
-
 
     /**
      * Create a new AbstractBeanDefinitionReader for the given bean factory.
@@ -87,14 +84,12 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
     protected AbstractBeanDefinitionReader(BeanDefinitionRegistry registry) {
         Assert.notNull(registry, "BeanDefinitionRegistry must not be null");
         this.registry = registry;
-
         // Determine ResourceLoader to use.
         if (this.registry instanceof ResourceLoader) {
             this.resourceLoader = (ResourceLoader) this.registry;
         } else {
             this.resourceLoader = new PathMatchingResourcePatternResolver();
         }
-
         // Inherit Environment if possible
         if (this.registry instanceof EnvironmentCapable) {
             this.environment = ((EnvironmentCapable) this.registry).getEnvironment();
@@ -102,7 +97,6 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
             this.environment = new StandardEnvironment();
         }
     }
-
 
     public final BeanDefinitionRegistry getBeanFactory() {
         return this.registry;
@@ -182,7 +176,6 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
         return this.beanNameGenerator;
     }
 
-
     @Override
     public int loadBeanDefinitions(Resource... resources) throws BeanDefinitionStoreException {
         Assert.notNull(resources, "Resource array must not be null");
@@ -217,10 +210,8 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
     public int loadBeanDefinitions(String location, @Nullable Set<Resource> actualResources) throws BeanDefinitionStoreException {
         ResourceLoader resourceLoader = getResourceLoader();
         if (resourceLoader == null) {
-            throw new BeanDefinitionStoreException(
-                    "Cannot load bean definitions from location [" + location + "]: no ResourceLoader available");
+            throw new BeanDefinitionStoreException("Cannot load bean definitions from location [" + location + "]: no ResourceLoader available");
         }
-
         if (resourceLoader instanceof ResourcePatternResolver) {
             // Resource pattern matching available.
             try {
@@ -234,8 +225,7 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
                 }
                 return count;
             } catch (IOException ex) {
-                throw new BeanDefinitionStoreException(
-                        "Could not resolve bean definition resource pattern [" + location + "]", ex);
+                throw new BeanDefinitionStoreException("Could not resolve bean definition resource pattern [" + location + "]", ex);
             }
         } else {
             // Can only load single resources by absolute URL.
@@ -260,5 +250,4 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
         }
         return count;
     }
-
 }

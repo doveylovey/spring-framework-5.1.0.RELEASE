@@ -39,10 +39,8 @@ package org.springframework.core.env;
  * @since 3.1
  */
 public interface EnvironmentCapable {
-
     /**
      * Return the {@link Environment} associated with this component.
      */
     Environment getEnvironment();
-
 }

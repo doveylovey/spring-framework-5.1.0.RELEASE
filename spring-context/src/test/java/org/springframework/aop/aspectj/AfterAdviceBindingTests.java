@@ -56,7 +56,6 @@ public class AfterAdviceBindingTests {
         afterAdviceAspect.setCollaborator(mockCollaborator);
     }
 
-
     @Test
     public void testOneIntArg() {
         testBeanProxy.setAge(5);

@@ -38,7 +38,6 @@ import org.springframework.lang.Nullable;
  * @since 1.1
  */
 public interface BeanDefinitionReader {
-
     /**
      * Return the bean factory to register the bean definitions with.
      * <p>The factory is exposed through the BeanDefinitionRegistry interface,
@@ -82,7 +81,6 @@ public interface BeanDefinitionReader {
      */
     BeanNameGenerator getBeanNameGenerator();
 
-
     /**
      * Load bean definitions from the specified resource.
      *
@@ -125,5 +123,4 @@ public interface BeanDefinitionReader {
      * @throws BeanDefinitionStoreException in case of loading or parsing errors
      */
     int loadBeanDefinitions(String... locations) throws BeanDefinitionStoreException;
-
 }
