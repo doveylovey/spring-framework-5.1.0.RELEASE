@@ -1,6 +1,8 @@
 buildscript {
     repositories {
         maven { url "https://repo.spring.io/plugins-release" }
+        //添加阿里云镜像
+        maven { url "http://maven.aliyun.com/nexus/content/groups/public" }
     }
     dependencies {
         classpath("io.spring.gradle:propdeps-plugin:0.0.9.RELEASE")
@@ -148,6 +150,8 @@ configure(allprojects) { project ->
 
     repositories {
         maven { url "https://repo.spring.io/libs-release" }
+        //添加阿里云镜像
+        maven { url "http://maven.aliyun.com/nexus/content/groups/public" }
     }
 
     dependencies {
