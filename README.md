@@ -1,4 +1,4 @@
-# 使用 IntelliJ IDEA 2019.1、Gradle 5.4.1构建的 spring-framework-5.1.0.RELEASE 源码
+# 使用 IntelliJ IDEA 2018.3.6、Gradle 5.6.4 构建的 spring-framework-5.1.0.RELEASE 源码
 
 # spring源码环境搭建丢失spring-cglib-repack-3.2.8.jar和spring-objenesis-repack-3.0.1.jar的解决办法：
 在spring-framework目录下执行：gradle objenesisRepackJar、gradle cglibRepackJar，会在spring-framework-master\spring-core\build\libs 目录下生成jar包。
