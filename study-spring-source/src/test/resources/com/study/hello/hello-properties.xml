@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd"
+       profile="dev">
+
+    <bean id="springReadProperties" class="com.study.hello.SpringReadProperties">
+        <constructor-arg>
+            <value>com/study/hello/java.properties</value>
+        </constructor-arg>
+    </bean>
+
+    <bean id="springReadPropertiesClient" class="com.study.hello.SpringReadPropertiesClient">
+        <constructor-arg>
+            <ref bean="springReadProperties"/>
+        </constructor-arg>
+    </bean>
+</beans>
