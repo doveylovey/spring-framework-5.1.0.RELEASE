@@ -23,7 +23,7 @@ public class OuterInnerTests {
     public void beforeTest() {
         System.setProperty("spring.profiles.active", "dev");
         System.out.println("==========测试方法开始，即将读取XML配置文件……");
-        Resource resource = new ClassPathResource("com.study.bean/outer-inner-bean.xml");
+        Resource resource = new ClassPathResource("com/study/bean/outer-inner-bean.xml");
         // Spring3.1之前可以使用XmlBeanFactory
         beanFactory = new XmlBeanFactory(resource);
     }

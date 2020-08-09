@@ -27,7 +27,7 @@ public class InitBeanTests {
     public void beforeTest1() {
         System.setProperty("spring.profiles.active", "dev");
         System.out.println("==========测试方法开始，即将读取XML配置文件……");
-        Resource resource = new ClassPathResource("com.study.bean/init-bean-person.xml");
+        Resource resource = new ClassPathResource("com/study/bean/init-bean-person.xml");
         // Spring3.1之前可以使用XmlBeanFactory
         beanFactory = new XmlBeanFactory(resource);
     }
@@ -37,7 +37,7 @@ public class InitBeanTests {
         System.setProperty("spring.profiles.active", "dev");
         System.out.println("==========测试方法开始，即将读取XML配置文件……");
         // 创建IOC配置文件的抽象资源
-        Resource resource = new ClassPathResource("com.study/init-bean-person.xml");
+        Resource resource = new ClassPathResource("com/study/bean/init-bean-person.xml");
         // 创建一个BeanFactory
         listableBeanFactory = new DefaultListableBeanFactory();
         // 把读取配置信息的BeanDefinitionReader配置给BeanFactory
