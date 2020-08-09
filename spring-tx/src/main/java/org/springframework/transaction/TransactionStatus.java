@@ -37,7 +37,6 @@ import java.io.Flushable;
  * @since 27.03.2003
  */
 public interface TransactionStatus extends SavepointManager, Flushable {
-
     /**
      * Return whether the present transaction is new; otherwise participating
      * in an existing transaction, or potentially not running in an actual
@@ -98,5 +97,4 @@ public interface TransactionStatus extends SavepointManager, Flushable {
      * @see PlatformTransactionManager#rollback
      */
     boolean isCompleted();
-
 }

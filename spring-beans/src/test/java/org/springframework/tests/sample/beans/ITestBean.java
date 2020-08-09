@@ -28,7 +28,6 @@ import java.io.IOException;
  * @author Juergen Hoeller
  */
 public interface ITestBean extends AgeHolder {
-
     String getName();
 
     void setName(String name);
@@ -80,5 +79,4 @@ public interface ITestBean extends AgeHolder {
     int haveBirthday();
 
     void unreliableFileOperation() throws IOException;
-
 }

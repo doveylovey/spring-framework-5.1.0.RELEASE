@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd"
+       profile="dev">
+
+    <bean id="demoAdviceService" class="com.study.aop.IDemoAdviceServiceImpl"/>
+
+    <bean id="demoBeforeAdvice" class="com.study.aop.DemoBeforeAdvice"/>
+    <bean id="demoAfterReturningAdvice" class="com.study.aop.DemoAfterReturningAdvice"/>
+    <bean id="demoThrowsAdvice" class="com.study.aop.DemoThrowsAdvice"/>
+    <bean id="demoAroundAdvice" class="com.study.aop.DemoAroundAdvice"/>
+
+    <bean id="demoAdviceAop" class="org.springframework.aop.framework.ProxyFactoryBean">
+        <property name="proxyInterfaces">
+            <value>com.study.IDemoAdviceService</value>
+        </property>
+        <property name="target">
+            <ref bean="demoAdviceService"/>
+        </property>
+        <property name="interceptorNames">
+            <list>
+                <value>demoBeforeAdvice</value>
+                <value>demoAfterReturningAdvice</value>
+                <value>demoThrowsAdvice</value>
+                <value>demoAroundAdvice</value>
+            </list>
+        </property>
+    </bean>
+</beans>

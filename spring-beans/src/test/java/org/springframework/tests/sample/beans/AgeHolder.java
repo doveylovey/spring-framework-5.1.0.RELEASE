@@ -17,7 +17,6 @@
 package org.springframework.tests.sample.beans;
 
 public interface AgeHolder {
-
     default int age() {
         return getAge();
     }
@@ -25,5 +24,4 @@ public interface AgeHolder {
     int getAge();
 
     void setAge(int age);
-
 }

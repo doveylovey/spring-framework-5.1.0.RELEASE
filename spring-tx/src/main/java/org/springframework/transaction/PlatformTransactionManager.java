@@ -44,7 +44,6 @@ import org.springframework.lang.Nullable;
  * @since 16.05.2003
  */
 public interface PlatformTransactionManager {
-
     /**
      * Return a currently active transaction or create a new one, according to
      * the specified propagation behavior.
@@ -119,5 +118,4 @@ public interface PlatformTransactionManager {
      *                                          is already completed (that is, committed or rolled back)
      */
     void rollback(TransactionStatus status) throws TransactionException;
-
 }

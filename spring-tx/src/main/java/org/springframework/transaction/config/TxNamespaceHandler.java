@@ -36,25 +36,25 @@ import org.springframework.beans.factory.xml.NamespaceHandlerSupport;
  * @author Rob Harrop
  * @author Juergen Hoeller
  * @since 2.0
+ * <p>
+ * 无论是 xml 配置还是注解配置的方式，都需要 Spring 通过 TxNamespaceHandler 来解析事务标签
  */
+
 public class TxNamespaceHandler extends NamespaceHandlerSupport {
-
     static final String TRANSACTION_MANAGER_ATTRIBUTE = "transaction-manager";
-
     static final String DEFAULT_TRANSACTION_MANAGER_BEAN_NAME = "transactionManager";
-
 
     static String getTransactionManagerName(Element element) {
         return (element.hasAttribute(TRANSACTION_MANAGER_ATTRIBUTE) ?
-                element.getAttribute(TRANSACTION_MANAGER_ATTRIBUTE) : DEFAULT_TRANSACTION_MANAGER_BEAN_NAME);
+                element.getAttribute(TRANSACTION_MANAGER_ATTRIBUTE) :
+                DEFAULT_TRANSACTION_MANAGER_BEAN_NAME);
     }
-
 
     @Override
     public void init() {
         registerBeanDefinitionParser("advice", new TxAdviceBeanDefinitionParser());
+        // <tx:annotation-driven>标签(有一个 model 属性，它有两个值：proxy 和 aspectj)是由 AnnotationDrivenBeanDefinitionParser 类来解析的
         registerBeanDefinitionParser("annotation-driven", new AnnotationDrivenBeanDefinitionParser());
         registerBeanDefinitionParser("jta-transaction-manager", new JtaTransactionManagerBeanDefinitionParser());
     }
-
 }

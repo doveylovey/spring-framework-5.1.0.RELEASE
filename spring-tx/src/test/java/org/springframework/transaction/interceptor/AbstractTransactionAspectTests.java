@@ -16,23 +16,15 @@
 
 package org.springframework.transaction.interceptor;
 
-import java.lang.reflect.Method;
-
 import org.junit.Before;
 import org.junit.Test;
-
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.tests.sample.beans.ITestBean;
 import org.springframework.tests.sample.beans.TestBean;
-import org.springframework.transaction.CannotCreateTransactionException;
-import org.springframework.transaction.MockCallbackPreferringTransactionManager;
-import org.springframework.transaction.NoTransactionException;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionDefinition;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.TransactionSystemException;
-import org.springframework.transaction.UnexpectedRollbackException;
+import org.springframework.transaction.*;
 import org.springframework.transaction.interceptor.TransactionAspectSupport.TransactionInfo;
+
+import java.lang.reflect.Method;
 
 import static org.junit.Assert.*;
 import static org.mockito.BDDMockito.*;
@@ -50,11 +42,8 @@ import static org.mockito.BDDMockito.*;
  * @since 16.03.2003
  */
 public abstract class AbstractTransactionAspectTests {
-
     protected Method exceptionalMethod;
-
     protected Method getNameMethod;
-
     protected Method setNameMethod;
 
 

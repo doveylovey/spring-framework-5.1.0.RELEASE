@@ -34,7 +34,7 @@ import org.springframework.lang.Nullable;
  * <!-- 关联mybatis的配置文件 -->
  * <property name="configLocation" value="classpath:mybatis-cfg.xml"/>
  * <!-- 添加别名设置 -->
- * <property name="typeAliasesPackage" value="com.study.model"/>
+ * <property name="typeAliasesPackage" value="com.com.model"/>
  * <!-- 映射文件和接口文件不在同一个目录下的时候，需要单独指定映射文件的路径 -->
  * <property name="mapperLocations" value="classpath:mapper/*.xml"/>
  * </bean>

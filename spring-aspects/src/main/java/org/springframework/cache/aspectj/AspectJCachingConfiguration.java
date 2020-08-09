@@ -37,7 +37,6 @@ import org.springframework.context.annotation.Role;
 @Configuration
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 public class AspectJCachingConfiguration extends AbstractCachingConfiguration {
-
     @Bean(name = CacheManagementConfigUtils.CACHE_ASPECT_BEAN_NAME)
     @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
     public AnnotationCacheAspect cacheAspect() {
@@ -45,5 +44,4 @@ public class AspectJCachingConfiguration extends AbstractCachingConfiguration {
         cacheAspect.configure(this.errorHandler, this.keyGenerator, this.cacheResolver, this.cacheManager);
         return cacheAspect;
     }
-
 }

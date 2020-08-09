@@ -16,25 +16,16 @@
 
 package org.springframework.transaction.support;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.core.Constants;
+import org.springframework.lang.Nullable;
+import org.springframework.transaction.*;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.List;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import org.springframework.core.Constants;
-import org.springframework.lang.Nullable;
-import org.springframework.transaction.IllegalTransactionStateException;
-import org.springframework.transaction.InvalidTimeoutException;
-import org.springframework.transaction.NestedTransactionNotSupportedException;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionDefinition;
-import org.springframework.transaction.TransactionException;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.TransactionSuspensionNotSupportedException;
-import org.springframework.transaction.UnexpectedRollbackException;
 
 /**
  * Abstract base class that implements Spring's standard transaction workflow,
@@ -344,8 +335,8 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 
     /**
      * This implementation handles propagation behavior. Delegates to
-     * {@code doGetTransaction}, {@code isExistingTransaction}
-     * and {@code doBegin}.
+     * {@code doGetTransaction}, {@code isExistingTransaction} and {@code doBegin}.
+     * 获取当前事务的状态。
      *
      * @see #doGetTransaction
      * @see #isExistingTransaction
@@ -354,7 +345,6 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
     @Override
     public final TransactionStatus getTransaction(@Nullable TransactionDefinition definition) throws TransactionException {
         Object transaction = doGetTransaction();
-
         // Cache debug flag to avoid repeated checks.
         boolean debugEnabled = logger.isDebugEnabled();
 
@@ -375,8 +365,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 
         // No existing transaction found -> check propagation behavior to find out how to proceed.
         if (definition.getPropagationBehavior() == TransactionDefinition.PROPAGATION_MANDATORY) {
-            throw new IllegalTransactionStateException(
-                    "No existing transaction found for transaction marked with propagation 'mandatory'");
+            throw new IllegalTransactionStateException("No existing transaction found for transaction marked with propagation 'mandatory'");
         } else if (definition.getPropagationBehavior() == TransactionDefinition.PROPAGATION_REQUIRED ||
                 definition.getPropagationBehavior() == TransactionDefinition.PROPAGATION_REQUIRES_NEW ||
                 definition.getPropagationBehavior() == TransactionDefinition.PROPAGATION_NESTED) {
@@ -386,8 +375,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
             }
             try {
                 boolean newSynchronization = (getTransactionSynchronization() != SYNCHRONIZATION_NEVER);
-                DefaultTransactionStatus status = newTransactionStatus(
-                        definition, transaction, true, newSynchronization, debugEnabled, suspendedResources);
+                DefaultTransactionStatus status = newTransactionStatus(definition, transaction, true, newSynchronization, debugEnabled, suspendedResources);
                 doBegin(transaction, definition);
                 prepareSynchronization(status, definition);
                 return status;
@@ -398,8 +386,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
         } else {
             // Create "empty" transaction: no actual transaction, but potentially synchronization.
             if (definition.getIsolationLevel() != TransactionDefinition.ISOLATION_DEFAULT && logger.isWarnEnabled()) {
-                logger.warn("Custom isolation level specified but no actual transaction initiated; " +
-                        "isolation level will effectively be ignored: " + definition);
+                logger.warn("Custom isolation level specified but no actual transaction initiated; " + "isolation level will effectively be ignored: " + definition);
             }
             boolean newSynchronization = (getTransactionSynchronization() == SYNCHRONIZATION_ALWAYS);
             return prepareTransactionStatus(definition, null, true, newSynchronization, debugEnabled, null);

@@ -29,3 +29,7 @@ rootProject.name = "spring-framework-5.1.0.RELEASE"
 rootProject.children.each { project ->
     project.buildFileName = "${project.name}.gradle"
 }
+// 自定义测试模块
+include 'study-spring-source'
+findProject(':study-spring-source')?.name = 'study-spring-source'
+

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd"
+       profile="dev">
+
+    <!-- 自定义简单FactoryBean -->
+    <bean id="personFactoryBean" class="com.study.bean.factory.PersonFactoryBean"/>
+
+    <!-- 通过FactoryBean创建一个代理类来增强目标类 -->
+    <!-- 注册目标对象 -->
+    <bean id="personService" class="com.study.bean.factory.PersonServiceImpl"/>
+    <!-- 注册FactoryBean对象 -->
+    <bean id="personFactoryBeanEnhance" class="com.study.bean.factory.PersonFactoryBeanEnhance">
+        <property name="interfaceName" value="com.study.bean.factory.PersonService"/>
+        <property name="targetObject" ref="personService"/>
+    </bean>
+</beans>

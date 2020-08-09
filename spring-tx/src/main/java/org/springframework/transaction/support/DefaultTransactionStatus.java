@@ -49,7 +49,6 @@ import org.springframework.util.Assert;
  * @since 19.01.2004
  */
 public class DefaultTransactionStatus extends AbstractTransactionStatus {
-
     @Nullable
     private final Object transaction;
 
@@ -81,10 +80,9 @@ public class DefaultTransactionStatus extends AbstractTransactionStatus {
      * @param suspendedResources a holder for resources that have been suspended
      *                           for this transaction, if any
      */
-    public DefaultTransactionStatus(
-            @Nullable Object transaction, boolean newTransaction, boolean newSynchronization,
-            boolean readOnly, boolean debug, @Nullable Object suspendedResources) {
-
+    public DefaultTransactionStatus(@Nullable Object transaction, boolean newTransaction,
+                                    boolean newSynchronization, boolean readOnly,
+                                    boolean debug, @Nullable Object suspendedResources) {
         this.transaction = transaction;
         this.newTransaction = newTransaction;
         this.newSynchronization = newSynchronization;
@@ -192,8 +190,7 @@ public class DefaultTransactionStatus extends AbstractTransactionStatus {
     protected SavepointManager getSavepointManager() {
         Object transaction = this.transaction;
         if (!(transaction instanceof SavepointManager)) {
-            throw new NestedTransactionNotSupportedException(
-                    "Transaction object [" + this.transaction + "] does not support savepoints");
+            throw new NestedTransactionNotSupportedException("Transaction object [" + this.transaction + "] does not support savepoints");
         }
         return (SavepointManager) transaction;
     }
@@ -208,5 +205,4 @@ public class DefaultTransactionStatus extends AbstractTransactionStatus {
     public boolean isTransactionSavepointManager() {
         return (this.transaction instanceof SavepointManager);
     }
-
 }

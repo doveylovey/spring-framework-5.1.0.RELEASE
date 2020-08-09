@@ -16,9 +16,9 @@
 
 package org.springframework.transaction;
 
-import java.sql.Connection;
-
 import org.springframework.lang.Nullable;
+
+import java.sql.Connection;
 
 /**
  * Interface that defines Spring-compliant transaction properties.
@@ -44,7 +44,6 @@ import org.springframework.lang.Nullable;
  * @since 08.05.2003
  */
 public interface TransactionDefinition {
-
     /**
      * Support a current transaction; create a new one if none exists.
      * Analogous to the EJB transaction attribute of the same name.

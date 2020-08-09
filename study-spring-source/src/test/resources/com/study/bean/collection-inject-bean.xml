@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd"
+       profile="dev">
+
+    <!--
+        Spring的依赖注入方式大体上可以分为三种：
+        1、构造函数注入
+        2、Setter方法注入
+        3、方法注入(lookup-method注入和replace-method注入)
+    -->
+    <!-- Spring通过Setter方法注入集合属性 -->
+    <bean id="testCollection" class="com.study.bean.collection.TestCollection">
+        <!-- 注入List集合 -->
+        <property name="list">
+            <!-- merge属性含义：父子bean是否合并条目 -->
+            <list value-type="java.lang.String" merge="false">
+                <value>List-张三</value>
+                <value>List-李四</value>
+                <value>List-王五</value>
+            </list>
+        </property>
+
+        <!-- 注入Set集合 -->
+        <property name="set">
+            <!-- merge属性含义：父子bean是否合并条目 -->
+            <set value-type="java.lang.String" merge="true">
+                <value>Set-张三</value>
+                <value>Set-李四</value>
+                <value>Set-王五</value>
+            </set>
+        </property>
+
+        <!-- 注入Map集合 -->
+        <property name="map">
+            <!-- merge属性含义：父子bean是否合并条目 -->
+            <map key-type="java.lang.String" value-type="java.lang.Object" merge="default">
+                <entry key="name" value="Map-张三" value-type="java.lang.String"/>
+                <entry key="gender" value="false" value-type="java.lang.Boolean"/>
+                <entry key="salary" value="1234.5678" value-type="java.math.BigDecimal"/>
+            </map>
+        </property>
+
+        <!-- 注入Properties集合 -->
+        <property name="properties">
+            <!-- merge属性含义：父子bean是否合并条目 -->
+            <props value-type="java.lang.String">
+                <prop key="name">Properties-张三</prop>
+                <prop key="gender">false</prop>
+                <prop key="salary">1234.5678</prop>
+            </props>
+        </property>
+
+        <!--注入数组-->
+        <property name="array">
+            <array value-type="java.lang.String">
+                <value>Array-张三</value>
+                <value>Array-李四</value>
+                <value>Array-王五</value>
+            </array>
+        </property>
+    </bean>
+</beans>
