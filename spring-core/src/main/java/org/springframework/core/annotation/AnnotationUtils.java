@@ -1340,18 +1340,16 @@ public abstract class AnnotationUtils {
      * @since 4.2
      */
     static void postProcessAnnotationAttributes(@Nullable Object annotatedElement,
-                                                @Nullable AnnotationAttributes attributes, boolean classValuesAsString, boolean nestedAnnotationsAsMap) {
-
+                                                @Nullable AnnotationAttributes attributes,
+                                                boolean classValuesAsString,
+                                                boolean nestedAnnotationsAsMap) {
         if (attributes == null) {
             return;
         }
-
         Class<? extends Annotation> annotationType = attributes.annotationType();
-
         // Track which attribute values have already been replaced so that we can short
         // circuit the search algorithms.
         Set<String> valuesAlreadyReplaced = new HashSet<>();
-
         if (!attributes.validated) {
             // Validate @AliasFor configuration
             Map<String, List<String>> aliasMap = getAttributeAliasMap(annotationType);
@@ -1372,24 +1370,19 @@ public abstract class AnnotationUtils {
                         if (valuePresent && aliasPresent) {
                             // Since annotation attributes can be arrays, we must use ObjectUtils.nullSafeEquals().
                             if (!ObjectUtils.nullSafeEquals(value, aliasedValue)) {
-                                String elementAsString =
-                                        (annotatedElement != null ? annotatedElement.toString() : "unknown element");
-                                throw new AnnotationConfigurationException(String.format(
-                                        "In AnnotationAttributes for annotation [%s] declared on %s, " +
-                                                "attribute '%s' and its alias '%s' are declared with values of [%s] and [%s], " +
-                                                "but only one is permitted.", attributes.displayName, elementAsString,
+                                String elementAsString = (annotatedElement != null ? annotatedElement.toString() : "unknown element");
+                                throw new AnnotationConfigurationException(
+                                        String.format("In AnnotationAttributes for annotation [%s] declared on %s, attribute '%s' and its alias '%s' are declared with values of [%s] and [%s], but only one is permitted.", attributes.displayName, elementAsString,
                                         attributeName, aliasedAttributeName, ObjectUtils.nullSafeToString(value),
                                         ObjectUtils.nullSafeToString(aliasedValue)));
                             }
                         } else if (aliasPresent) {
                             // Replace value with aliasedValue
-                            attributes.put(attributeName,
-                                    adaptValue(annotatedElement, aliasedValue, classValuesAsString, nestedAnnotationsAsMap));
+                            attributes.put(attributeName, adaptValue(annotatedElement, aliasedValue, classValuesAsString, nestedAnnotationsAsMap));
                             valuesAlreadyReplaced.add(attributeName);
                         } else {
                             // Replace aliasedValue with value
-                            attributes.put(aliasedAttributeName,
-                                    adaptValue(annotatedElement, value, classValuesAsString, nestedAnnotationsAsMap));
+                            attributes.put(aliasedAttributeName, adaptValue(annotatedElement, value, classValuesAsString, nestedAnnotationsAsMap));
                             valuesAlreadyReplaced.add(aliasedAttributeName);
                         }
                     }
@@ -1407,8 +1400,7 @@ public abstract class AnnotationUtils {
             Object value = attributeEntry.getValue();
             if (value instanceof DefaultValueHolder) {
                 value = ((DefaultValueHolder) value).defaultValue;
-                attributes.put(attributeName,
-                        adaptValue(annotatedElement, value, classValuesAsString, nestedAnnotationsAsMap));
+                attributes.put(attributeName, adaptValue(annotatedElement, value, classValuesAsString, nestedAnnotationsAsMap));
             }
         }
     }

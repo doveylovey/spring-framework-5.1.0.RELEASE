@@ -650,8 +650,9 @@ public abstract class AnnotatedElementUtils {
      */
     @Nullable
     public static AnnotationAttributes findMergedAnnotationAttributes(AnnotatedElement element,
-                                                                      Class<? extends Annotation> annotationType, boolean classValuesAsString, boolean nestedAnnotationsAsMap) {
-
+                                                                      Class<? extends Annotation> annotationType,
+                                                                      boolean classValuesAsString,
+                                                                      boolean nestedAnnotationsAsMap) {
         AnnotationAttributes attributes = searchWithFindSemantics(element, annotationType, null,
                 new MergedAnnotationAttributesProcessor(classValuesAsString, nestedAnnotationsAsMap));
         AnnotationUtils.postProcessAnnotationAttributes(element, attributes, classValuesAsString, nestedAnnotationsAsMap);
@@ -687,9 +688,8 @@ public abstract class AnnotatedElementUtils {
      * @since 4.2
      */
     @Nullable
-    public static AnnotationAttributes findMergedAnnotationAttributes(AnnotatedElement element,
-                                                                      String annotationName, boolean classValuesAsString, boolean nestedAnnotationsAsMap) {
-
+    public static AnnotationAttributes findMergedAnnotationAttributes(AnnotatedElement element, String annotationName,
+                                                                      boolean classValuesAsString, boolean nestedAnnotationsAsMap) {
         AnnotationAttributes attributes = searchWithFindSemantics(element, null, annotationName,
                 new MergedAnnotationAttributesProcessor(classValuesAsString, nestedAnnotationsAsMap));
         AnnotationUtils.postProcessAnnotationAttributes(element, attributes, classValuesAsString, nestedAnnotationsAsMap);
@@ -1558,13 +1558,9 @@ public abstract class AnnotatedElementUtils {
      * @since 4.2
      */
     private static class MergedAnnotationAttributesProcessor implements Processor<AnnotationAttributes> {
-
         private final boolean classValuesAsString;
-
         private final boolean nestedAnnotationsAsMap;
-
         private final boolean aggregates;
-
         private final List<AnnotationAttributes> aggregatedResults;
 
         MergedAnnotationAttributesProcessor() {
@@ -1575,9 +1571,9 @@ public abstract class AnnotatedElementUtils {
             this(classValuesAsString, nestedAnnotationsAsMap, false);
         }
 
-        MergedAnnotationAttributesProcessor(boolean classValuesAsString, boolean nestedAnnotationsAsMap,
+        MergedAnnotationAttributesProcessor(boolean classValuesAsString,
+                                            boolean nestedAnnotationsAsMap,
                                             boolean aggregates) {
-
             this.classValuesAsString = classValuesAsString;
             this.nestedAnnotationsAsMap = nestedAnnotationsAsMap;
             this.aggregates = aggregates;
@@ -1602,8 +1598,7 @@ public abstract class AnnotatedElementUtils {
         @Override
         @Nullable
         public AnnotationAttributes process(@Nullable AnnotatedElement annotatedElement, Annotation annotation, int metaDepth) {
-            return AnnotationUtils.retrieveAnnotationAttributes(annotatedElement, annotation,
-                    this.classValuesAsString, this.nestedAnnotationsAsMap);
+            return AnnotationUtils.retrieveAnnotationAttributes(annotatedElement, annotation, this.classValuesAsString, this.nestedAnnotationsAsMap);
         }
 
         @Override
@@ -1650,28 +1645,24 @@ public abstract class AnnotatedElementUtils {
         }
 
         private void overrideAttributes(@Nullable AnnotatedElement element, Annotation annotation,
-                                        AnnotationAttributes attributes, String sourceAttributeName, List<String> targetAttributeNames) {
-
+                                        AnnotationAttributes attributes, String sourceAttributeName,
+                                        List<String> targetAttributeNames) {
             Object adaptedValue = getAdaptedValue(element, annotation, sourceAttributeName);
-
             for (String targetAttributeName : targetAttributeNames) {
                 attributes.put(targetAttributeName, adaptedValue);
             }
         }
 
         private void overrideAttribute(@Nullable AnnotatedElement element, Annotation annotation,
-                                       AnnotationAttributes attributes, String sourceAttributeName, String targetAttributeName) {
-
+                                       AnnotationAttributes attributes, String sourceAttributeName,
+                                       String targetAttributeName) {
             attributes.put(targetAttributeName, getAdaptedValue(element, annotation, sourceAttributeName));
         }
 
         @Nullable
-        private Object getAdaptedValue(
-                @Nullable AnnotatedElement element, Annotation annotation, String sourceAttributeName) {
-
+        private Object getAdaptedValue(@Nullable AnnotatedElement element, Annotation annotation, String sourceAttributeName) {
             Object value = AnnotationUtils.getValue(annotation, sourceAttributeName);
             return AnnotationUtils.adaptValue(element, value, this.classValuesAsString, this.nestedAnnotationsAsMap);
         }
     }
-
 }

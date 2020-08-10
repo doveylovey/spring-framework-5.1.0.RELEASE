@@ -1,8 +1,10 @@
 buildscript {
     repositories {
-        maven { url "https://repo.spring.io/plugins-release" }
+        mavenCentral()
         //添加阿里云镜像
-        maven { url "http://maven.aliyun.com/nexus/content/groups/public" }
+        maven { url "https://maven.aliyun.com/nexus/content/groups/public" }
+        maven { url "https://maven.aliyun.com/nexus/content/repositories/jcenter"}
+        maven { url "https://repo.spring.io/plugins-release" }
     }
     dependencies {
         classpath("io.spring.gradle:propdeps-plugin:0.0.9.RELEASE")
@@ -89,18 +91,11 @@ configure(allprojects) { project ->
         }
     }
 
-    def commonCompilerArgs =
-            ["-Xlint:serial", "-Xlint:cast", "-Xlint:classfile", "-Xlint:dep-ann",
-             "-Xlint:divzero", "-Xlint:empty", "-Xlint:finally", "-Xlint:overrides",
-             "-Xlint:path", "-Xlint:processing", "-Xlint:static", "-Xlint:try", "-Xlint:-options"]
+    def commonCompilerArgs = ["-Xlint:serial", "-Xlint:cast", "-Xlint:classfile", "-Xlint:dep-ann", "-Xlint:divzero", "-Xlint:empty", "-Xlint:finally", "-Xlint:overrides", "-Xlint:path", "-Xlint:processing", "-Xlint:static", "-Xlint:try", "-Xlint:-options"]
 
-    compileJava.options*.compilerArgs = commonCompilerArgs +
-            ["-Xlint:varargs", "-Xlint:fallthrough", "-Xlint:rawtypes",
-             "-Xlint:deprecation", "-Xlint:unchecked", "-Werror"]
+    compileJava.options*.compilerArgs = commonCompilerArgs + ["-Xlint:varargs", "-Xlint:fallthrough", "-Xlint:rawtypes", "-Xlint:deprecation", "-Xlint:unchecked", "-Werror"]
 
-    compileTestJava.options*.compilerArgs = commonCompilerArgs +
-            ["-Xlint:-varargs", "-Xlint:-fallthrough", "-Xlint:-rawtypes",
-             "-Xlint:-deprecation", "-Xlint:-unchecked"]
+    compileTestJava.options*.compilerArgs = commonCompilerArgs + ["-Xlint:-varargs", "-Xlint:-fallthrough", "-Xlint:-rawtypes", "-Xlint:-deprecation", "-Xlint:-unchecked"]
 
     compileJava {
         sourceCompatibility = 1.8  // can be switched to 10 for testing
@@ -149,9 +144,11 @@ configure(allprojects) { project ->
     }
 
     repositories {
-        maven { url "https://repo.spring.io/libs-release" }
+        mavenCentral()
         //添加阿里云镜像
-        maven { url "http://maven.aliyun.com/nexus/content/groups/public" }
+        maven { url "https://maven.aliyun.com/nexus/content/groups/public" }
+        maven { url "https://maven.aliyun.com/nexus/content/repositories/jcenter"}
+        maven { url "https://repo.spring.io/libs-release" }
     }
 
     dependencies {
@@ -203,8 +200,7 @@ configure(subprojects - project(":spring-build-src")) { subproject ->
         manifest.attributes["Implementation-Title"] = subproject.name
         manifest.attributes["Implementation-Version"] = subproject.version
         manifest.attributes["Automatic-Module-Name"] = subproject.name.replace('-', '.')  // for Jigsaw
-        manifest.attributes["Created-By"] =
-                "${System.getProperty("java.version")} (${System.getProperty("java.specification.vendor")})"
+        manifest.attributes["Created-By"] = "${System.getProperty("java.version")} (${System.getProperty("java.specification.vendor")})"
 
         from("${rootProject.projectDir}/src/docs/dist") {
             include "license.txt"
@@ -294,11 +290,9 @@ configure(rootProject) {
             def gradleOpts = "-XX:MaxMetaspaceSize=1024m -Xmx1024m"
             def gradleBatOpts = "$gradleOpts -XX:MaxHeapSize=256m"
             File wrapperFile = file("gradlew")
-            wrapperFile.text = wrapperFile.text.replace("DEFAULT_JVM_OPTS=",
-                    "GRADLE_OPTS=\"$gradleOpts \$GRADLE_OPTS\"\nDEFAULT_JVM_OPTS=")
+            wrapperFile.text = wrapperFile.text.replace("DEFAULT_JVM_OPTS=", "GRADLE_OPTS=\"$gradleOpts \$GRADLE_OPTS\"\nDEFAULT_JVM_OPTS=")
             File wrapperBatFile = file("gradlew.bat")
-            wrapperBatFile.text = wrapperBatFile.text.replace("set DEFAULT_JVM_OPTS=",
-                    "set GRADLE_OPTS=$gradleBatOpts %GRADLE_OPTS%\nset DEFAULT_JVM_OPTS=")
+            wrapperBatFile.text = wrapperBatFile.text.replace("set DEFAULT_JVM_OPTS=", "set GRADLE_OPTS=$gradleBatOpts %GRADLE_OPTS%\nset DEFAULT_JVM_OPTS=")
         }
     }
 }
