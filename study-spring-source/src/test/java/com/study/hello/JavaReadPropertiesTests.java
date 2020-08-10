@@ -65,7 +65,7 @@ class JavaReadProperties1 {
         try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(fileName)) {
             properties.load(inputStream);
             String value = properties.getProperty(propertiesKey, "指定键 " + propertiesKey + " 没有配置，这是默认值！");
-            result = new String(value.getBytes(), StandardCharsets.UTF_8);
+            result = new String(value.getBytes("ISO-8859-1"), StandardCharsets.UTF_8);
         } catch (IOException ex) {
             log.error(ex);
             ex.printStackTrace();
@@ -100,7 +100,7 @@ class JavaReadProperties2 implements IReadProperties {
         try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(fileName)) {
             properties.load(inputStream);
             String value = properties.getProperty(propertiesKey, "指定键 " + propertiesKey + " 没有配置，这是默认值！");
-            result = new String(value.getBytes(), StandardCharsets.UTF_8);
+            result = new String(value.getBytes("ISO-8859-1"), StandardCharsets.UTF_8);
         } catch (IOException ex) {
             log.error(ex);
             ex.printStackTrace();
