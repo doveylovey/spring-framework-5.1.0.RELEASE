@@ -9,6 +9,7 @@
     <!-- 通过FactoryBean创建一个代理类来增强目标类 -->
     <!-- 注册目标对象 -->
     <bean id="personService" class="com.study.bean.factory.PersonServiceImpl"/>
+
     <!-- 注册FactoryBean对象 -->
     <bean id="personFactoryBeanEnhance" class="com.study.bean.factory.PersonFactoryBeanEnhance">
         <property name="interfaceName" value="com.study.bean.factory.PersonService"/>

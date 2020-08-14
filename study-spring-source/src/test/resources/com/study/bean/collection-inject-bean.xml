@@ -10,7 +10,7 @@
         3、方法注入(lookup-method注入和replace-method注入)
     -->
     <!-- Spring通过Setter方法注入集合属性 -->
-    <bean id="testCollection" class="com.study.bean.collection.TestCollection">
+    <bean id="testCollection" class="com.study.bean.TestCollection">
         <!-- 注入List集合 -->
         <property name="list">
             <!-- merge属性含义：父子bean是否合并条目 -->

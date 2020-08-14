@@ -6,12 +6,12 @@
     <!-- 封装、继承、多态是java的面向对象的基本元素，同样，Spring中的bean也可以存在继承关系 -->
     <!-- 子bean必须与父bean保持兼容，也就是说子bean中必须有父bean定义的所有属性 -->
     <!-- 父bean必须是抽象bean(即定义abstract="true")或者定义lazy-init="true"，目的是不让bean工厂实例化该bean。 -->
-    <bean id="father" class="com.study.bean.child.Father" abstract="true">
+    <bean id="father" class="com.study.bean.Father" abstract="true">
         <property name="name" value="父bean"/>
         <!-- <property name="age" value="50"/> -->
     </bean>
 
-    <bean id="son" class="com.study.bean.child.Son" parent="father">
+    <bean id="son" class="com.study.bean.Son" parent="father">
         <!-- 同一属性，若在子类中未赋值，则会继承父类的 -->
         <!-- <property name="name" value="子bean"/> -->
         <property name="age" value="18"/>

@@ -1,4 +1,4 @@
-package com.study.bean.init;
+package com.study.bean;
 
 import com.study.model.Person;
 import org.junit.After;
@@ -85,5 +85,33 @@ public class InitBeanTests {
         System.out.println("【测试】使用静态工厂方法实例化bean");
         Person noConstructor = listableBeanFactory.getBean("staticFactoryInstance", Person.class);
         noConstructor.sayHello();
+    }
+}
+
+/**
+ * @Description: 静态工厂方法实例化
+ * @Author: TeGongX
+ * @Email: 1135782208@qq.com
+ * @Date: 2019年11月16日
+ * @Version: V1.0.0
+ * @Copyright: Copyright (c) 2019
+ */
+class PersonStaticFactory {
+    public static Person newInstance(String name, Integer age) {
+        return new Person(name, age);
+    }
+}
+
+/**
+ * @Description: 工厂方法实例化
+ * @Author: TeGongX
+ * @Email: 1135782208@qq.com
+ * @Date: 2019年11月16日
+ * @Version: V1.0.0
+ * @Copyright: Copyright (c) 2019
+ */
+class PersonFactory {
+    public Person newInstance(String name, Integer age) {
+        return new Person(name, age);
     }
 }

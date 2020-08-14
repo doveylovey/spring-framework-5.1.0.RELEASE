@@ -4,12 +4,12 @@
        profile="dev">
 
     <!-- 当希望一个bean只被某一个类使用时，就可以使用内部bean。此时内部bean作为类的属性，只能通过该类实例化 -->
-    <bean id="outer" class="com.study.bean.inner.Outer">
+    <bean id="outer" class="com.study.bean.Outer">
         <property name="name" value="外部bean"/>
         <property name="age" value="50"/>
         <!-- 注意这里是property属性，不是beanName -->
         <property name="inner">
-            <bean id="inner" class="com.study.bean.inner.Inner">
+            <bean id="inner" class="com.study.bean.Inner">
                 <property name="name" value="内部bean"/>
                 <property name="age" value="18"/>
             </bean>
