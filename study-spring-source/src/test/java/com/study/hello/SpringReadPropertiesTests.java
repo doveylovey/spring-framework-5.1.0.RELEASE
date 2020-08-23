@@ -5,9 +5,13 @@ import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanFactory;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -25,11 +29,34 @@ public class SpringReadPropertiesTests {
     protected static final Log log = LogFactory.getLog(JavaReadPropertiesTests.class);
 
     @Test
-    public void beforeAdviceTest() {
+    public void classPathResourceTest() {
         System.setProperty("spring.profiles.active", "dev");
         Resource resource = new ClassPathResource("com/study/hello/hello-properties.xml");
         // Spring3.1之前可以使用XmlBeanFactory
         BeanFactory beanFactory = new XmlBeanFactory(resource);
+        SpringReadPropertiesClient springReadPropertiesClient = (SpringReadPropertiesClient) beanFactory.getBean("springReadPropertiesClient");
+        String content = springReadPropertiesClient.readContent("java.key");
+        log.info(content);
+        System.out.println(content);
+    }
+
+    @Test
+    public void inputStreamTest() throws FileNotFoundException {
+        System.setProperty("spring.profiles.active", "dev");
+        InputStream is = new FileInputStream("com/study/hello/hello-properties.xml");
+        is = SpringReadPropertiesTests.class.getResourceAsStream("com/study/hello/hello-properties.xml");
+        BeanFactory beanFactory = new XmlBeanFactory(new InputStreamResource(is));
+        SpringReadPropertiesClient springReadPropertiesClient = (SpringReadPropertiesClient) beanFactory.getBean("springReadPropertiesClient");
+        String content = springReadPropertiesClient.readContent("java.key");
+        log.info(content);
+        System.out.println(content);
+    }
+
+    @Test
+    public void classPathXmlApplicationContextTest() {
+        System.setProperty("spring.profiles.active", "dev");
+        String[] xmlArray = new String[]{"com/study/hello/hello-properties.xml"};
+        BeanFactory beanFactory = new ClassPathXmlApplicationContext(xmlArray);
         SpringReadPropertiesClient springReadPropertiesClient = (SpringReadPropertiesClient) beanFactory.getBean("springReadPropertiesClient");
         String content = springReadPropertiesClient.readContent("java.key");
         log.info(content);
