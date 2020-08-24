@@ -7,11 +7,9 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanFactory;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -31,8 +29,8 @@ public class SpringReadPropertiesTests {
     @Test
     public void classPathResourceTest() {
         System.setProperty("spring.profiles.active", "dev");
-        Resource resource = new ClassPathResource("com/study/hello/hello-properties.xml");
-        // Spring3.1之前可以使用XmlBeanFactory
+        //Resource resource = new ClassPathResource("com/study/hello/hello-properties.xml");
+        Resource resource = new ClassPathResource("hello-properties.xml", this.getClass());
         BeanFactory beanFactory = new XmlBeanFactory(resource);
         SpringReadPropertiesClient springReadPropertiesClient = (SpringReadPropertiesClient) beanFactory.getBean("springReadPropertiesClient");
         String content = springReadPropertiesClient.readContent("java.key");
@@ -41,11 +39,17 @@ public class SpringReadPropertiesTests {
     }
 
     @Test
-    public void inputStreamTest() throws FileNotFoundException {
+    public void inputStreamTest() {
+        // 参考 https://www.cnblogs.com/harbin1900/p/9785882.html
         System.setProperty("spring.profiles.active", "dev");
-        InputStream is = new FileInputStream("com/study/hello/hello-properties.xml");
-        is = SpringReadPropertiesTests.class.getResourceAsStream("com/study/hello/hello-properties.xml");
-        BeanFactory beanFactory = new XmlBeanFactory(new InputStreamResource(is));
+        Resource resource0 = new FileSystemResource("E:/workspace-idea-study/开源框架/spring-framework-5.1.0.RELEASE/study-spring-source/build/resources/test/com/study/hello/hello-properties.xml");
+
+        String path = SpringReadPropertiesTests.class.getResource("/com/study/hello/hello-properties.xml").getPath();
+        //String path = this.getClass().getResource("/com/study/hello/hello-properties.xml").getPath();
+        //Resource resource1 = new FileSystemResource(new File(path));
+        Resource resource1 = new FileSystemResource(path);
+
+        BeanFactory beanFactory = new XmlBeanFactory(resource1);
         SpringReadPropertiesClient springReadPropertiesClient = (SpringReadPropertiesClient) beanFactory.getBean("springReadPropertiesClient");
         String content = springReadPropertiesClient.readContent("java.key");
         log.info(content);
@@ -55,8 +59,8 @@ public class SpringReadPropertiesTests {
     @Test
     public void classPathXmlApplicationContextTest() {
         System.setProperty("spring.profiles.active", "dev");
-        String[] xmlArray = new String[]{"com/study/hello/hello-properties.xml"};
-        BeanFactory beanFactory = new ClassPathXmlApplicationContext(xmlArray);
+        //BeanFactory beanFactory = new ClassPathXmlApplicationContext(new String[]{"com/study/hello/hello-properties.xml"});
+        BeanFactory beanFactory = new ClassPathXmlApplicationContext(new String[]{"hello-properties.xml"}, this.getClass());
         SpringReadPropertiesClient springReadPropertiesClient = (SpringReadPropertiesClient) beanFactory.getBean("springReadPropertiesClient");
         String content = springReadPropertiesClient.readContent("java.key");
         log.info(content);
