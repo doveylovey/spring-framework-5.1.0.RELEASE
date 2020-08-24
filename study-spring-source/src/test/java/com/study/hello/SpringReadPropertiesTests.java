@@ -27,19 +27,33 @@ public class SpringReadPropertiesTests {
     protected static final Log log = LogFactory.getLog(JavaReadPropertiesTests.class);
 
     @Test
-    public void classPathResourceTest() {
-        System.setProperty("spring.profiles.active", "dev");
-        //Resource resource = new ClassPathResource("com/study/hello/hello-properties.xml");
-        Resource resource = new ClassPathResource("hello-properties.xml", this.getClass());
-        BeanFactory beanFactory = new XmlBeanFactory(resource);
-        SpringReadPropertiesClient springReadPropertiesClient = (SpringReadPropertiesClient) beanFactory.getBean("springReadPropertiesClient");
-        String content = springReadPropertiesClient.readContent("java.key");
-        log.info(content);
-        System.out.println(content);
+    public void getProjectPathOrFilePathTest() {
+        // 参考 https://www.cnblogs.com/convict/p/11330449.html
+        // 写法一：结果为 file:/E:/xxx 的形式
+        String url1 = SpringReadPropertiesTests.class.getClassLoader().getResource("").toString();
+        log.info("【写法一】项目根路径：url1=" + url1);
+        String url2 = SpringReadPropertiesTests.class.getResource("/").toString();
+        log.info("【写法一】项目根路径：url2=" + url2);
+        String url3 = SpringReadPropertiesTests.class.getResource("").toString();
+        log.info("【写法一】文件根路径：url3=" + url3);
+        // 写法二：调用 getResource() 方法后再调用 getFile() 方法，这样就没有 file: 了，而是 /E:/xxx 的形式
+        String url4 = SpringReadPropertiesTests.class.getClassLoader().getResource("").getFile();
+        log.info("【写法二】项目根路径：url4=" + url4);
+        String url5 = SpringReadPropertiesTests.class.getResource("/").getFile();
+        log.info("【写法二】项目根路径：url5=" + url5);
+        String url6 = SpringReadPropertiesTests.class.getResource("").getFile();
+        log.info("【写法二】文件根路径：url6=" + url6);
+        // 写法三：调用 getResource() 方法后再调用 getPath() 方法，这样就没有 file: 了，而是 /E:/xxx 的形式
+        String url7 = SpringReadPropertiesTests.class.getClassLoader().getResource("").getPath();
+        log.info("【写法三】项目根路径：url7=" + url7);
+        String url8 = SpringReadPropertiesTests.class.getResource("/").getPath();
+        log.info("【写法三】项目根路径：url8=" + url8);
+        String url9 = SpringReadPropertiesTests.class.getResource("").getPath();
+        log.info("【写法三】文件根路径：url9=" + url9);
     }
 
     @Test
-    public void inputStreamTest() {
+    public void fileSystemResourceTest() {
         // 参考 https://www.cnblogs.com/harbin1900/p/9785882.html
         System.setProperty("spring.profiles.active", "dev");
         Resource resource0 = new FileSystemResource("E:/workspace-idea-study/开源框架/spring-framework-5.1.0.RELEASE/study-spring-source/build/resources/test/com/study/hello/hello-properties.xml");
@@ -50,6 +64,18 @@ public class SpringReadPropertiesTests {
         Resource resource1 = new FileSystemResource(path);
 
         BeanFactory beanFactory = new XmlBeanFactory(resource1);
+        SpringReadPropertiesClient springReadPropertiesClient = (SpringReadPropertiesClient) beanFactory.getBean("springReadPropertiesClient");
+        String content = springReadPropertiesClient.readContent("java.key");
+        log.info(content);
+        System.out.println(content);
+    }
+
+    @Test
+    public void classPathResourceTest() {
+        System.setProperty("spring.profiles.active", "dev");
+        //Resource resource = new ClassPathResource("com/study/hello/hello-properties.xml");
+        Resource resource = new ClassPathResource("hello-properties.xml", this.getClass());
+        BeanFactory beanFactory = new XmlBeanFactory(resource);
         SpringReadPropertiesClient springReadPropertiesClient = (SpringReadPropertiesClient) beanFactory.getBean("springReadPropertiesClient");
         String content = springReadPropertiesClient.readContent("java.key");
         log.info(content);
