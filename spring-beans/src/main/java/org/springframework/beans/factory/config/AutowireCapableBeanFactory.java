@@ -60,7 +60,6 @@ import org.springframework.lang.Nullable;
  * @since 04.12.2003
  */
 public interface AutowireCapableBeanFactory extends BeanFactory {
-
     /**
      * Constant that indicates no externally defined autowiring. Note that
      * BeanFactoryAware etc and annotation-driven injection will still be applied.
@@ -200,7 +199,8 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
      * @see #AUTOWIRE_BY_TYPE
      * @see #AUTOWIRE_CONSTRUCTOR
      */
-    Object createBean(Class<?> beanClass, int autowireMode, boolean dependencyCheck) throws BeansException;
+    Object createBean(Class<?> beanClass, int autowireMode, boolean dependencyCheck)
+            throws BeansException;
 
     /**
      * Instantiate a new bean instance of the given class with the specified autowire
@@ -229,7 +229,8 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
      * @see #applyBeanPostProcessorsBeforeInitialization
      * @see #applyBeanPostProcessorsAfterInitialization
      */
-    Object autowire(Class<?> beanClass, int autowireMode, boolean dependencyCheck) throws BeansException;
+    Object autowire(Class<?> beanClass, int autowireMode, boolean dependencyCheck)
+            throws BeansException;
 
     /**
      * Autowire the bean properties of the given bean instance by name or type.
@@ -377,7 +378,8 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
      * @since 2.5
      */
     @Nullable
-    Object resolveDependency(DependencyDescriptor descriptor, @Nullable String requestingBeanName) throws BeansException;
+    Object resolveDependency(DependencyDescriptor descriptor, @Nullable String requestingBeanName)
+            throws BeansException;
 
     /**
      * Resolve the specified dependency against the beans defined in this factory.
@@ -396,6 +398,6 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
      */
     @Nullable
     Object resolveDependency(DependencyDescriptor descriptor, @Nullable String requestingBeanName,
-                             @Nullable Set<String> autowiredBeanNames, @Nullable TypeConverter typeConverter) throws BeansException;
-
+                             @Nullable Set<String> autowiredBeanNames, @Nullable TypeConverter typeConverter)
+            throws BeansException;
 }

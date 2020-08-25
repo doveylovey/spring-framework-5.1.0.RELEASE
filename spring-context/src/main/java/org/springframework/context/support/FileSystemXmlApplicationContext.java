@@ -54,6 +54,11 @@ import org.springframework.lang.Nullable;
  * @see GenericApplicationContext
  */
 public class FileSystemXmlApplicationContext extends AbstractXmlApplicationContext {
+    // 该类继承自 AbstractXmlApplicationContext，说明具备了 ResourceLoader 读入以 Resource 定义的 BeanDefinition 的能力，
+    // 因为 AbstractXmlApplicationContext 基类就有 DefaultResourceLoader。
+    // 该类应用于文件系统中 Resource 的实现，通过构造一个 FileSystemResource 来得到一个在文件系统中定位的 BeanDefinition。
+    // 该类是一个支持 XML 定义 BeanDefinition 的 ApplicationContext，并且可以指定以文件形式的 BeanDefinition 的读入，
+    // 这些文件可以使用文件路径、URL 定义来表示。在测试环境和独立应用环境中，这个 ApplicationContext 实现非常有用。
 
     /**
      * Create a new FileSystemXmlApplicationContext for bean-style configuration.
@@ -81,7 +86,7 @@ public class FileSystemXmlApplicationContext extends AbstractXmlApplicationConte
      * Create a new FileSystemXmlApplicationContext, loading the definitions
      * from the given XML file and automatically refreshing the context.
      *
-     * @param configLocation file path
+     * @param configLocation file path. 定义 BeanDefinition 的文件路径
      * @throws BeansException if context creation failed
      */
     public FileSystemXmlApplicationContext(String configLocation) throws BeansException {
@@ -92,7 +97,7 @@ public class FileSystemXmlApplicationContext extends AbstractXmlApplicationConte
      * Create a new FileSystemXmlApplicationContext, loading the definitions
      * from the given XML files and automatically refreshing the context.
      *
-     * @param configLocations array of file paths
+     * @param configLocations array of file paths. 多个定义 BeanDefinition 的文件路径
      * @throws BeansException if context creation failed
      */
     public FileSystemXmlApplicationContext(String... configLocations) throws BeansException {
@@ -104,8 +109,8 @@ public class FileSystemXmlApplicationContext extends AbstractXmlApplicationConte
      * loading the definitions from the given XML files and automatically
      * refreshing the context.
      *
-     * @param configLocations array of file paths
-     * @param parent          the parent context
+     * @param configLocations array of file paths. 多个定义 BeanDefinition 的文件路径
+     * @param parent          the parent context. 自己的双亲 IOC 容器
      * @throws BeansException if context creation failed
      */
     public FileSystemXmlApplicationContext(String[] configLocations, ApplicationContext parent) throws BeansException {
@@ -139,19 +144,19 @@ public class FileSystemXmlApplicationContext extends AbstractXmlApplicationConte
      * @throws BeansException if context creation failed
      * @see #refresh()
      */
-    public FileSystemXmlApplicationContext(
-            String[] configLocations, boolean refresh, @Nullable ApplicationContext parent)
-            throws BeansException {
-
+    public FileSystemXmlApplicationContext(String[] configLocations, boolean refresh, @Nullable ApplicationContext parent) throws BeansException {
         super(parent);
         setConfigLocations(configLocations);
         if (refresh) {
+            // 在对象的初始化过程中，调用 refresh() 函数载入 BeanDefinition，refresh() 启动了 BeanDefinition 的载入过程
             refresh();
         }
     }
 
 
     /**
+     * 将资源路径解析为文件系统路径。该方法是一个模板方法，是为读取 Resource 服务的。
+     * <p>
      * Resolve resource paths as file system paths.
      * <p>Note: Even if a given path starts with a slash, it will get
      * interpreted as relative to the current VM working directory.
@@ -168,5 +173,4 @@ public class FileSystemXmlApplicationContext extends AbstractXmlApplicationConte
         }
         return new FileSystemResource(path);
     }
-
 }

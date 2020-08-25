@@ -42,12 +42,10 @@ import org.springframework.util.StringUtils;
  * @since 28.12.2003
  */
 public class ClassPathResource extends AbstractFileResolvingResource {
-
     private final String path;
 
     @Nullable
     private ClassLoader classLoader;
-
     @Nullable
     private Class<?> clazz;
 
@@ -210,7 +208,8 @@ public class ClassPathResource extends AbstractFileResolvingResource {
     @Override
     public Resource createRelative(String relativePath) {
         String pathToUse = StringUtils.applyRelativePath(this.path, relativePath);
-        return (this.clazz != null ? new ClassPathResource(pathToUse, this.clazz) :
+        return (this.clazz != null ?
+                new ClassPathResource(pathToUse, this.clazz) :
                 new ClassPathResource(pathToUse, this.classLoader));
     }
 
@@ -271,5 +270,4 @@ public class ClassPathResource extends AbstractFileResolvingResource {
     public int hashCode() {
         return this.path.hashCode();
     }
-
 }

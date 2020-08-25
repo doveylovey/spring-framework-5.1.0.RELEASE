@@ -119,7 +119,6 @@ import org.springframework.util.StringUtils;
  */
 public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFactory
         implements AutowireCapableBeanFactory {
-
     /**
      * Strategy for creating bean instances.
      */
@@ -173,9 +172,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
     /**
      * Cache of filtered PropertyDescriptors: bean Class to PropertyDescriptor array.
      */
-    private final ConcurrentMap<Class<?>, PropertyDescriptor[]> filteredPropertyDescriptorsCache =
-            new ConcurrentHashMap<>();
-
+    private final ConcurrentMap<Class<?>, PropertyDescriptor[]> filteredPropertyDescriptorsCache = new ConcurrentHashMap<>();
 
     /**
      * Create a new AbstractAutowireCapableBeanFactory.
@@ -296,8 +293,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
     public void copyConfigurationFrom(ConfigurableBeanFactory otherFactory) {
         super.copyConfigurationFrom(otherFactory);
         if (otherFactory instanceof AbstractAutowireCapableBeanFactory) {
-            AbstractAutowireCapableBeanFactory otherAutowireFactory =
-                    (AbstractAutowireCapableBeanFactory) otherFactory;
+            AbstractAutowireCapableBeanFactory otherAutowireFactory = (AbstractAutowireCapableBeanFactory) otherFactory;
             this.instantiationStrategy = otherAutowireFactory.instantiationStrategy;
             this.allowCircularReferences = otherAutowireFactory.allowCircularReferences;
             this.ignoredDependencyTypes.addAll(otherAutowireFactory.ignoredDependencyTypes);
@@ -383,9 +379,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
             Object bean;
             final BeanFactory parent = this;
             if (System.getSecurityManager() != null) {
-                bean = AccessController.doPrivileged((PrivilegedAction<Object>) () ->
-                                getInstantiationStrategy().instantiate(bd, null, parent),
-                        getAccessControlContext());
+                bean = AccessController.doPrivileged((PrivilegedAction<Object>) () -> getInstantiationStrategy().instantiate(bd, null, parent), getAccessControlContext());
             } else {
                 bean = getInstantiationStrategy().instantiate(bd, null, parent);
             }
@@ -395,15 +389,12 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
     }
 
     @Override
-    public void autowireBeanProperties(Object existingBean, int autowireMode, boolean dependencyCheck)
-            throws BeansException {
-
+    public void autowireBeanProperties(Object existingBean, int autowireMode, boolean dependencyCheck) throws BeansException {
         if (autowireMode == AUTOWIRE_CONSTRUCTOR) {
             throw new IllegalArgumentException("AUTOWIRE_CONSTRUCTOR not supported for existing bean instance");
         }
         // Use non-singleton bean definition, to avoid registering bean as dependent bean.
-        RootBeanDefinition bd =
-                new RootBeanDefinition(ClassUtils.getUserClass(existingBean), autowireMode, dependencyCheck);
+        RootBeanDefinition bd = new RootBeanDefinition(ClassUtils.getUserClass(existingBean), autowireMode, dependencyCheck);
         bd.setScope(BeanDefinition.SCOPE_PROTOTYPE);
         BeanWrapper bw = new BeanWrapperImpl(existingBean);
         initBeanWrapper(bw);
@@ -425,9 +416,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
     }
 
     @Override
-    public Object applyBeanPostProcessorsBeforeInitialization(Object existingBean, String beanName)
-            throws BeansException {
-
+    public Object applyBeanPostProcessorsBeforeInitialization(Object existingBean, String beanName) throws BeansException {
         Object result = existingBean;
         for (BeanPostProcessor processor : getBeanPostProcessors()) {
             Object current = processor.postProcessBeforeInitialization(result, beanName);
@@ -440,9 +429,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
     }
 
     @Override
-    public Object applyBeanPostProcessorsAfterInitialization(Object existingBean, String beanName)
-            throws BeansException {
-
+    public Object applyBeanPostProcessorsAfterInitialization(Object existingBean, String beanName) throws BeansException {
         Object result = existingBean;
         for (BeanPostProcessor processor : getBeanPostProcessors()) {
             Object current = processor.postProcessAfterInitialization(result, beanName);
@@ -471,9 +458,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
      * @see #doCreateBean
      */
     @Override
-    protected Object createBean(String beanName, RootBeanDefinition mbd, @Nullable Object[] args)
-            throws BeanCreationException {
-
+    protected Object createBean(String beanName, RootBeanDefinition mbd, @Nullable Object[] args) throws BeanCreationException {
         if (logger.isTraceEnabled()) {
             logger.trace("Creating instance of bean '" + beanName + "'");
         }
@@ -492,8 +477,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         try {
             mbdToUse.prepareMethodOverrides();
         } catch (BeanDefinitionValidationException ex) {
-            throw new BeanDefinitionStoreException(mbdToUse.getResourceDescription(),
-                    beanName, "Validation of method overrides failed", ex);
+            throw new BeanDefinitionStoreException(mbdToUse.getResourceDescription(), beanName, "Validation of method overrides failed", ex);
         }
 
         try {
@@ -503,8 +487,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
                 return bean;
             }
         } catch (Throwable ex) {
-            throw new BeanCreationException(mbdToUse.getResourceDescription(), beanName,
-                    "BeanPostProcessor before instantiation of bean failed", ex);
+            throw new BeanCreationException(mbdToUse.getResourceDescription(), beanName, "BeanPostProcessor before instantiation of bean failed", ex);
         }
 
         try {
@@ -518,8 +501,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
             // or illegal singleton state to be communicated up to DefaultSingletonBeanRegistry.
             throw ex;
         } catch (Throwable ex) {
-            throw new BeanCreationException(
-                    mbdToUse.getResourceDescription(), beanName, "Unexpected exception during bean creation", ex);
+            throw new BeanCreationException(mbdToUse.getResourceDescription(), beanName, "Unexpected exception during bean creation", ex);
         }
     }
 
@@ -538,9 +520,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
      * @see #instantiateUsingFactoryMethod
      * @see #autowireConstructor
      */
-    protected Object doCreateBean(final String beanName, final RootBeanDefinition mbd, final @Nullable Object[] args)
-            throws BeanCreationException {
-
+    protected Object doCreateBean(final String beanName, final RootBeanDefinition mbd, final @Nullable Object[] args) throws BeanCreationException {
         // Instantiate the bean.
         BeanWrapper instanceWrapper = null;
         if (mbd.isSingleton()) {
@@ -561,8 +541,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
                 try {
                     applyMergedBeanDefinitionPostProcessors(mbd, beanType, beanName);
                 } catch (Throwable ex) {
-                    throw new BeanCreationException(mbd.getResourceDescription(), beanName,
-                            "Post-processing of merged bean definition failed", ex);
+                    throw new BeanCreationException(mbd.getResourceDescription(), beanName, "Post-processing of merged bean definition failed", ex);
                 }
                 mbd.postProcessed = true;
             }
@@ -570,12 +549,10 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
         // Eagerly cache singletons to be able to resolve circular references
         // even when triggered by lifecycle interfaces like BeanFactoryAware.
-        boolean earlySingletonExposure = (mbd.isSingleton() && this.allowCircularReferences &&
-                isSingletonCurrentlyInCreation(beanName));
+        boolean earlySingletonExposure = (mbd.isSingleton() && this.allowCircularReferences && isSingletonCurrentlyInCreation(beanName));
         if (earlySingletonExposure) {
             if (logger.isTraceEnabled()) {
-                logger.trace("Eagerly caching bean '" + beanName +
-                        "' to allow for resolving potential circular references");
+                logger.trace("Eagerly caching bean '" + beanName + "' to allow for resolving potential circular references");
             }
             addSingletonFactory(beanName, () -> getEarlyBeanReference(beanName, mbd, bean));
         }
@@ -589,8 +566,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
             if (ex instanceof BeanCreationException && beanName.equals(((BeanCreationException) ex).getBeanName())) {
                 throw (BeanCreationException) ex;
             } else {
-                throw new BeanCreationException(
-                        mbd.getResourceDescription(), beanName, "Initialization of bean failed", ex);
+                throw new BeanCreationException(mbd.getResourceDescription(), beanName, "Initialization of bean failed", ex);
             }
         }
 
@@ -624,10 +600,8 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         try {
             registerDisposableBeanIfNecessary(beanName, bean, mbd);
         } catch (BeanDefinitionValidationException ex) {
-            throw new BeanCreationException(
-                    mbd.getResourceDescription(), beanName, "Invalid destruction signature", ex);
+            throw new BeanCreationException(mbd.getResourceDescription(), beanName, "Invalid destruction signature", ex);
         }
-
         return exposedObject;
     }
 
@@ -635,7 +609,6 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
     @Nullable
     protected Class<?> predictBeanType(String beanName, RootBeanDefinition mbd, Class<?>... typesToMatch) {
         Class<?> targetType = determineTargetType(beanName, mbd, typesToMatch);
-
         // Apply SmartInstantiationAwareBeanPostProcessors to predict the
         // eventual type after a before-instantiation shortcut.
         if (targetType != null && !mbd.isSynthetic() && hasInstantiationAwareBeanPostProcessors()) {
@@ -643,8 +616,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
                 if (bp instanceof SmartInstantiationAwareBeanPostProcessor) {
                     SmartInstantiationAwareBeanPostProcessor ibp = (SmartInstantiationAwareBeanPostProcessor) bp;
                     Class<?> predicted = ibp.predictBeanType(targetType, beanName);
-                    if (predicted != null && (typesToMatch.length != 1 || FactoryBean.class != typesToMatch[0] ||
-                            FactoryBean.class.isAssignableFrom(predicted))) {
+                    if (predicted != null && (typesToMatch.length != 1 || FactoryBean.class != typesToMatch[0] || FactoryBean.class.isAssignableFrom(predicted))) {
                         return predicted;
                     }
                 }
@@ -704,8 +676,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         String factoryBeanName = mbd.getFactoryBeanName();
         if (factoryBeanName != null) {
             if (factoryBeanName.equals(beanName)) {
-                throw new BeanDefinitionStoreException(mbd.getResourceDescription(), beanName,
-                        "factory-bean reference points back to the same bean definition");
+                throw new BeanDefinitionStoreException(mbd.getResourceDescription(), beanName, "factory-bean reference points back to the same bean definition");
             }
             // Check declared factory method return type on factory class.
             factoryClass = getType(factoryBeanName);
@@ -724,14 +695,11 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         // Can't clearly figure out exact method due to type converting / autowiring!
         Class<?> commonType = null;
         Method uniqueCandidate = null;
-        int minNrOfArgs =
-                (mbd.hasConstructorArgumentValues() ? mbd.getConstructorArgumentValues().getArgumentCount() : 0);
-        Method[] candidates = this.factoryMethodCandidateCache.computeIfAbsent(
-                factoryClass, ReflectionUtils::getUniqueDeclaredMethods);
+        int minNrOfArgs = (mbd.hasConstructorArgumentValues() ? mbd.getConstructorArgumentValues().getArgumentCount() : 0);
+        Method[] candidates = this.factoryMethodCandidateCache.computeIfAbsent(factoryClass, ReflectionUtils::getUniqueDeclaredMethods);
 
         for (Method candidate : candidates) {
-            if (Modifier.isStatic(candidate.getModifiers()) == isStatic && mbd.isFactoryMethod(candidate) &&
-                    candidate.getParameterCount() >= minNrOfArgs) {
+            if (Modifier.isStatic(candidate.getModifiers()) == isStatic && mbd.isFactoryMethod(candidate) && candidate.getParameterCount() >= minNrOfArgs) {
                 // Declared type variables to inspect?
                 if (candidate.getTypeParameters().length > 0) {
                     try {
@@ -746,8 +714,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
                         Set<ConstructorArgumentValues.ValueHolder> usedValueHolders = new HashSet<>(paramTypes.length);
                         Object[] args = new Object[paramTypes.length];
                         for (int i = 0; i < args.length; i++) {
-                            ConstructorArgumentValues.ValueHolder valueHolder = cav.getArgumentValue(
-                                    i, paramTypes[i], (paramNames != null ? paramNames[i] : null), usedValueHolders);
+                            ConstructorArgumentValues.ValueHolder valueHolder = cav.getArgumentValue(i, paramTypes[i], (paramNames != null ? paramNames[i] : null), usedValueHolders);
                             if (valueHolder == null) {
                                 valueHolder = cav.getGenericArgumentValue(null, null, usedValueHolders);
                             }
@@ -756,10 +723,8 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
                                 usedValueHolders.add(valueHolder);
                             }
                         }
-                        Class<?> returnType = AutowireUtils.resolveReturnTypeForFactoryMethod(
-                                candidate, args, getBeanClassLoader());
-                        uniqueCandidate = (commonType == null && returnType == candidate.getReturnType() ?
-                                candidate : null);
+                        Class<?> returnType = AutowireUtils.resolveReturnTypeForFactoryMethod(candidate, args, getBeanClassLoader());
+                        uniqueCandidate = (commonType == null && returnType == candidate.getReturnType() ? candidate : null);
                         commonType = ClassUtils.determineCommonAncestor(returnType, commonType);
                         if (commonType == null) {
                             // Ambiguous return types found: return null to indicate "not determinable".
@@ -786,8 +751,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         }
         // Common return type found: all factory methods return same type. For a non-parameterized
         // unique candidate, cache the full type declaration context of the target factory method.
-        cachedReturnType = (uniqueCandidate != null ?
-                ResolvableType.forMethodReturnType(uniqueCandidate) : ResolvableType.forClass(commonType));
+        cachedReturnType = (uniqueCandidate != null ? ResolvableType.forMethodReturnType(uniqueCandidate) : ResolvableType.forClass(commonType));
         mbd.factoryMethodReturnType = cachedReturnType;
         return cachedReturnType.resolve();
     }
@@ -874,7 +838,6 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
                 return GenericTypeResolver.resolveTypeArgument(mbd.getBeanClass(), FactoryBean.class);
             }
         }
-
         return null;
     }
 
@@ -888,12 +851,10 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
      */
     @Nullable
     private Class<?> getTypeForFactoryBeanFromMethod(Class<?> beanClass, final String factoryMethodName) {
-
         /**
          * Holder used to keep a reference to a {@code Class} value.
          */
         class Holder {
-
             @Nullable
             Class<?> value = null;
         }
@@ -906,8 +867,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         // Find the given factory method, taking into account that in the case of
         // @Bean methods, there may be parameters present.
         ReflectionUtils.doWithMethods(fbClass, method -> {
-            if (method.getName().equals(factoryMethodName) &&
-                    FactoryBean.class.isAssignableFrom(method.getReturnType())) {
+            if (method.getName().equals(factoryMethodName) && FactoryBean.class.isAssignableFrom(method.getReturnType())) {
                 Class<?> currentType = GenericTypeResolver.resolveReturnTypeArgument(method, FactoryBean.class);
                 if (currentType != null) {
                     objectType.value = ClassUtils.determineCommonAncestor(currentType, objectType.value);
@@ -965,8 +925,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
             if (beanInstance instanceof FactoryBean) {
                 return (FactoryBean<?>) beanInstance;
             }
-            if (isSingletonCurrentlyInCreation(beanName) ||
-                    (mbd.getFactoryBeanName() != null && isSingletonCurrentlyInCreation(mbd.getFactoryBeanName()))) {
+            if (isSingletonCurrentlyInCreation(beanName) || (mbd.getFactoryBeanName() != null && isSingletonCurrentlyInCreation(mbd.getFactoryBeanName()))) {
                 return null;
             }
 
@@ -1029,7 +988,6 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
             // Finished partial creation of this bean.
             afterPrototypeCreation(beanName);
         }
-
         return getFactoryBean(beanName, instance);
     }
 
@@ -1122,8 +1080,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         Class<?> beanClass = resolveBeanClass(mbd, beanName);
 
         if (beanClass != null && !Modifier.isPublic(beanClass.getModifiers()) && !mbd.isNonPublicAccessAllowed()) {
-            throw new BeanCreationException(mbd.getResourceDescription(), beanName,
-                    "Bean class isn't public, and non-public access not allowed: " + beanClass.getName());
+            throw new BeanCreationException(mbd.getResourceDescription(), beanName, "Bean class isn't public, and non-public access not allowed: " + beanClass.getName());
         }
 
         Supplier<?> instanceSupplier = mbd.getInstanceSupplier();
@@ -1156,8 +1113,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
         // Candidate constructors for autowiring?
         Constructor<?>[] ctors = determineConstructorsFromBeanPostProcessors(beanClass, beanName);
-        if (ctors != null || mbd.getResolvedAutowireMode() == AUTOWIRE_CONSTRUCTOR ||
-                mbd.hasConstructorArgumentValues() || !ObjectUtils.isEmpty(args)) {
+        if (ctors != null || mbd.getResolvedAutowireMode() == AUTOWIRE_CONSTRUCTOR || mbd.hasConstructorArgumentValues() || !ObjectUtils.isEmpty(args)) {
             return autowireConstructor(beanName, mbd, ctors, args);
         }
 
@@ -1212,14 +1168,11 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
      * @since 5.0
      */
     @Override
-    protected Object getObjectForBeanInstance(
-            Object beanInstance, String name, String beanName, @Nullable RootBeanDefinition mbd) {
-
+    protected Object getObjectForBeanInstance(Object beanInstance, String name, String beanName, @Nullable RootBeanDefinition mbd) {
         String currentlyCreatedBean = this.currentlyCreatedBean.get();
         if (currentlyCreatedBean != null) {
             registerDependentBean(beanName, currentlyCreatedBean);
         }
-
         return super.getObjectForBeanInstance(beanInstance, name, beanName, mbd);
     }
 
@@ -1236,7 +1189,6 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
     @Nullable
     protected Constructor<?>[] determineConstructorsFromBeanPostProcessors(@Nullable Class<?> beanClass, String beanName)
             throws BeansException {
-
         if (beanClass != null && hasInstantiationAwareBeanPostProcessors()) {
             for (BeanPostProcessor bp : getBeanPostProcessors()) {
                 if (bp instanceof SmartInstantiationAwareBeanPostProcessor) {
@@ -1264,8 +1216,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
             final BeanFactory parent = this;
             if (System.getSecurityManager() != null) {
                 beanInstance = AccessController.doPrivileged((PrivilegedAction<Object>) () ->
-                                getInstantiationStrategy().instantiate(mbd, beanName, parent),
-                        getAccessControlContext());
+                        getInstantiationStrategy().instantiate(mbd, beanName, parent), getAccessControlContext());
             } else {
                 beanInstance = getInstantiationStrategy().instantiate(mbd, beanName, parent);
             }
@@ -1273,8 +1224,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
             initBeanWrapper(bw);
             return bw;
         } catch (Throwable ex) {
-            throw new BeanCreationException(
-                    mbd.getResourceDescription(), beanName, "Instantiation of bean failed", ex);
+            throw new BeanCreationException(mbd.getResourceDescription(), beanName, "Instantiation of bean failed", ex);
         }
     }
 
@@ -1290,9 +1240,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
      * @return a BeanWrapper for the new instance
      * @see #getBean(String, Object[])
      */
-    protected BeanWrapper instantiateUsingFactoryMethod(
-            String beanName, RootBeanDefinition mbd, @Nullable Object[] explicitArgs) {
-
+    protected BeanWrapper instantiateUsingFactoryMethod(String beanName, RootBeanDefinition mbd, @Nullable Object[] explicitArgs) {
         return new ConstructorResolver(this).instantiateUsingFactoryMethod(beanName, mbd, explicitArgs);
     }
 
@@ -1311,9 +1259,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
      *                     or {@code null} if none (-> use constructor argument values from bean definition)
      * @return a BeanWrapper for the new instance
      */
-    protected BeanWrapper autowireConstructor(
-            String beanName, RootBeanDefinition mbd, @Nullable Constructor<?>[] ctors, @Nullable Object[] explicitArgs) {
-
+    protected BeanWrapper autowireConstructor(String beanName, RootBeanDefinition mbd, @Nullable Constructor<?>[] ctors, @Nullable Object[] explicitArgs) {
         return new ConstructorResolver(this).autowireConstructor(beanName, mbd, ctors, explicitArgs);
     }
 
@@ -1329,8 +1275,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
     protected void populateBean(String beanName, RootBeanDefinition mbd, @Nullable BeanWrapper bw) {
         if (bw == null) {
             if (mbd.hasPropertyValues()) {
-                throw new BeanCreationException(
-                        mbd.getResourceDescription(), beanName, "Cannot apply property values to null instance");
+                throw new BeanCreationException(mbd.getResourceDescription(), beanName, "Cannot apply property values to null instance");
             } else {
                 // Skip property population phase for null instance.
                 return;
@@ -1420,9 +1365,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
      * @param bw       the BeanWrapper from which we can obtain information about the bean
      * @param pvs      the PropertyValues to register wired objects with
      */
-    protected void autowireByName(
-            String beanName, AbstractBeanDefinition mbd, BeanWrapper bw, MutablePropertyValues pvs) {
-
+    protected void autowireByName(String beanName, AbstractBeanDefinition mbd, BeanWrapper bw, MutablePropertyValues pvs) {
         String[] propertyNames = unsatisfiedNonSimpleProperties(mbd, bw);
         for (String propertyName : propertyNames) {
             if (containsBean(propertyName)) {
@@ -1430,13 +1373,11 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
                 pvs.add(propertyName, bean);
                 registerDependentBean(propertyName, beanName);
                 if (logger.isTraceEnabled()) {
-                    logger.trace("Added autowiring by name from bean name '" + beanName +
-                            "' via property '" + propertyName + "' to bean named '" + propertyName + "'");
+                    logger.trace("Added autowiring by name from bean name '" + beanName + "' via property '" + propertyName + "' to bean named '" + propertyName + "'");
                 }
             } else {
                 if (logger.isTraceEnabled()) {
-                    logger.trace("Not autowiring property '" + propertyName + "' of bean '" + beanName +
-                            "' by name: no matching bean found");
+                    logger.trace("Not autowiring property '" + propertyName + "' of bean '" + beanName + "' by name: no matching bean found");
                 }
             }
         }
@@ -1454,9 +1395,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
      * @param bw       the BeanWrapper from which we can obtain information about the bean
      * @param pvs      the PropertyValues to register wired objects with
      */
-    protected void autowireByType(
-            String beanName, AbstractBeanDefinition mbd, BeanWrapper bw, MutablePropertyValues pvs) {
-
+    protected void autowireByType(String beanName, AbstractBeanDefinition mbd, BeanWrapper bw, MutablePropertyValues pvs) {
         TypeConverter converter = getCustomTypeConverter();
         if (converter == null) {
             converter = bw;
@@ -1481,8 +1420,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
                     for (String autowiredBeanName : autowiredBeanNames) {
                         registerDependentBean(autowiredBeanName, beanName);
                         if (logger.isTraceEnabled()) {
-                            logger.trace("Autowiring by type from bean name '" + beanName + "' via property '" +
-                                    propertyName + "' to bean named '" + autowiredBeanName + "'");
+                            logger.trace("Autowiring by type from bean name '" + beanName + "' via property '" + propertyName + "' to bean named '" + autowiredBeanName + "'");
                         }
                     }
                     autowiredBeanNames.clear();
@@ -1509,8 +1447,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         PropertyValues pvs = mbd.getPropertyValues();
         PropertyDescriptor[] pds = bw.getPropertyDescriptors();
         for (PropertyDescriptor pd : pds) {
-            if (pd.getWriteMethod() != null && !isExcludedFromDependencyCheck(pd) && !pvs.contains(pd.getName()) &&
-                    !BeanUtils.isSimpleProperty(pd.getPropertyType())) {
+            if (pd.getWriteMethod() != null && !isExcludedFromDependencyCheck(pd) && !pvs.contains(pd.getName()) && !BeanUtils.isSimpleProperty(pd.getPropertyType())) {
                 result.add(pd.getName());
             }
         }
@@ -1532,8 +1469,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         if (filtered == null) {
             filtered = filterPropertyDescriptorsForDependencyCheck(bw);
             if (cache) {
-                PropertyDescriptor[] existing =
-                        this.filteredPropertyDescriptorsCache.putIfAbsent(bw.getWrappedClass(), filtered);
+                PropertyDescriptor[] existing = this.filteredPropertyDescriptorsCache.putIfAbsent(bw.getWrappedClass(), filtered);
                 if (existing != null) {
                     filtered = existing;
                 }
@@ -1584,10 +1520,8 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
      * @param pvs      the property values to be applied to the bean
      * @see #isExcludedFromDependencyCheck(java.beans.PropertyDescriptor)
      */
-    protected void checkDependencies(
-            String beanName, AbstractBeanDefinition mbd, PropertyDescriptor[] pds, @Nullable PropertyValues pvs)
+    protected void checkDependencies(String beanName, AbstractBeanDefinition mbd, PropertyDescriptor[] pds, @Nullable PropertyValues pvs)
             throws UnsatisfiedDependencyException {
-
         int dependencyCheck = mbd.getDependencyCheck();
         for (PropertyDescriptor pd : pds) {
             if (pd.getWriteMethod() != null && (pvs == null || !pvs.contains(pd.getName()))) {
@@ -1596,8 +1530,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
                         (isSimple && dependencyCheck == AbstractBeanDefinition.DEPENDENCY_CHECK_SIMPLE) ||
                         (!isSimple && dependencyCheck == AbstractBeanDefinition.DEPENDENCY_CHECK_OBJECTS);
                 if (unsatisfied) {
-                    throw new UnsatisfiedDependencyException(mbd.getResourceDescription(), beanName, pd.getName(),
-                            "Set this property value or disable dependency checking for this bean.");
+                    throw new UnsatisfiedDependencyException(mbd.getResourceDescription(), beanName, pd.getName(), "Set this property value or disable dependency checking for this bean.");
                 }
             }
         }
@@ -1633,8 +1566,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
                     bw.setPropertyValues(mpvs);
                     return;
                 } catch (BeansException ex) {
-                    throw new BeanCreationException(
-                            mbd.getResourceDescription(), beanName, "Error setting property values", ex);
+                    throw new BeanCreationException(mbd.getResourceDescription(), beanName, "Error setting property values", ex);
                 }
             }
             original = mpvs.getPropertyValueList();
@@ -1659,8 +1591,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
                 Object originalValue = pv.getValue();
                 Object resolvedValue = valueResolver.resolveValueIfNecessary(pv, originalValue);
                 Object convertedValue = resolvedValue;
-                boolean convertible = bw.isWritableProperty(propertyName) &&
-                        !PropertyAccessorUtils.isNestedOrIndexedProperty(propertyName);
+                boolean convertible = bw.isWritableProperty(propertyName) && !PropertyAccessorUtils.isNestedOrIndexedProperty(propertyName);
                 if (convertible) {
                     convertedValue = convertForProperty(resolvedValue, propertyName, bw, converter);
                 }
@@ -1690,8 +1621,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         try {
             bw.setPropertyValues(new MutablePropertyValues(deepCopy));
         } catch (BeansException ex) {
-            throw new BeanCreationException(
-                    mbd.getResourceDescription(), beanName, "Error setting property values", ex);
+            throw new BeanCreationException(mbd.getResourceDescription(), beanName, "Error setting property values", ex);
         }
     }
 
@@ -1699,9 +1629,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
      * Convert the given value for the specified target property.
      */
     @Nullable
-    private Object convertForProperty(
-            @Nullable Object value, String propertyName, BeanWrapper bw, TypeConverter converter) {
-
+    private Object convertForProperty(@Nullable Object value, String propertyName, BeanWrapper bw, TypeConverter converter) {
         if (converter instanceof BeanWrapperImpl) {
             return ((BeanWrapperImpl) converter).convertForProperty(value, propertyName);
         } else {
@@ -1748,14 +1676,11 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         try {
             invokeInitMethods(beanName, wrappedBean, mbd);
         } catch (Throwable ex) {
-            throw new BeanCreationException(
-                    (mbd != null ? mbd.getResourceDescription() : null),
-                    beanName, "Invocation of init method failed", ex);
+            throw new BeanCreationException((mbd != null ? mbd.getResourceDescription() : null), beanName, "Invocation of init method failed", ex);
         }
         if (mbd == null || !mbd.isSynthetic()) {
             wrappedBean = applyBeanPostProcessorsAfterInitialization(wrappedBean, beanName);
         }
-
         return wrappedBean;
     }
 
@@ -1789,9 +1714,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
      * @throws Throwable if thrown by init methods or by the invocation process
      * @see #invokeCustomInitMethod
      */
-    protected void invokeInitMethods(String beanName, final Object bean, @Nullable RootBeanDefinition mbd)
-            throws Throwable {
-
+    protected void invokeInitMethods(String beanName, final Object bean, @Nullable RootBeanDefinition mbd) throws Throwable {
         boolean isInitializingBean = (bean instanceof InitializingBean);
         if (isInitializingBean && (mbd == null || !mbd.isExternallyManagedInitMethod("afterPropertiesSet"))) {
             if (logger.isTraceEnabled()) {
@@ -1829,9 +1752,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
      *
      * @see #invokeInitMethods
      */
-    protected void invokeCustomInitMethod(String beanName, final Object bean, RootBeanDefinition mbd)
-            throws Throwable {
-
+    protected void invokeCustomInitMethod(String beanName, final Object bean, RootBeanDefinition mbd) throws Throwable {
         String initMethodName = mbd.getInitMethodName();
         Assert.state(initMethodName != null, "No init method set");
         final Method initMethod = (mbd.isNonPublicAccessAllowed() ?
@@ -1840,12 +1761,10 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
         if (initMethod == null) {
             if (mbd.isEnforceInitMethod()) {
-                throw new BeanDefinitionValidationException("Could not find an init method named '" +
-                        initMethodName + "' on bean with name '" + beanName + "'");
+                throw new BeanDefinitionValidationException("Could not find an init method named '" + initMethodName + "' on bean with name '" + beanName + "'");
             } else {
                 if (logger.isTraceEnabled()) {
-                    logger.trace("No default init method named '" + initMethodName +
-                            "' found on bean with name '" + beanName + "'");
+                    logger.trace("No default init method named '" + initMethodName + "' found on bean with name '" + beanName + "'");
                 }
                 // Ignore non-existent default lifecycle methods.
                 return;
@@ -1862,8 +1781,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
                 return null;
             });
             try {
-                AccessController.doPrivileged((PrivilegedExceptionAction<Object>) () ->
-                        initMethod.invoke(bean), getAccessControlContext());
+                AccessController.doPrivileged((PrivilegedExceptionAction<Object>) () -> initMethod.invoke(bean), getAccessControlContext());
             } catch (PrivilegedActionException pae) {
                 InvocationTargetException ex = (InvocationTargetException) pae.getException();
                 throw ex.getTargetException();
@@ -1929,7 +1847,6 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
      */
     @SuppressWarnings("serial")
     private static class AutowireByTypeDependencyDescriptor extends DependencyDescriptor {
-
         public AutowireByTypeDependencyDescriptor(MethodParameter methodParameter, boolean eager) {
             super(methodParameter, false, eager);
         }
@@ -1939,5 +1856,4 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
             return null;
         }
     }
-
 }

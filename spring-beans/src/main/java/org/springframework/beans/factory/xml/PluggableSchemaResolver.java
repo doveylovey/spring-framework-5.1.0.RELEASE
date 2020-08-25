@@ -111,8 +111,7 @@ public class PluggableSchemaResolver implements EntityResolver {
     @Nullable
     public InputSource resolveEntity(String publicId, @Nullable String systemId) throws IOException {
         if (logger.isTraceEnabled()) {
-            logger.trace("Trying to resolve XML entity with public id [" + publicId +
-                    "] and system id [" + systemId + "]");
+            logger.trace("Trying to resolve XML entity with public id [" + publicId + "] and system id [" + systemId + "]");
         }
 
         if (systemId != null) {

@@ -46,14 +46,10 @@ import org.springframework.util.StringUtils;
  * @since 10.03.2004
  */
 public class DefaultResourceLoader implements ResourceLoader {
-
     @Nullable
     private ClassLoader classLoader;
-
     private final Set<ProtocolResolver> protocolResolvers = new LinkedHashSet<>(4);
-
     private final Map<Class<?>, Map<Resource, ?>> resourceCaches = new ConcurrentHashMap<>(4);
-
 
     /**
      * Create a new DefaultResourceLoader.
@@ -196,7 +192,6 @@ public class DefaultResourceLoader implements ResourceLoader {
      * through implementing the ContextResource interface.
      */
     protected static class ClassPathContextResource extends ClassPathResource implements ContextResource {
-
         public ClassPathContextResource(String path, @Nullable ClassLoader classLoader) {
             super(path, classLoader);
         }
@@ -212,5 +207,4 @@ public class DefaultResourceLoader implements ResourceLoader {
             return new ClassPathContextResource(pathToUse, getClassLoader());
         }
     }
-
 }

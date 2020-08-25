@@ -24,25 +24,39 @@ import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.lang.Nullable;
 
 /**
+ * ApplicationContext在BeanFactory的基础上添加了附加功能，这些功能为ApplicationContext提供了以下BeanFactory不具备的新特性：
+ * 1、支持不同的信息源。ApplicationContext继承自MessageSource接口，这些信息源的扩展功能可以支持国际化的实现，为开发多语言版本的应用提供服务。
+ * 2、访问资源。体现在对ResourceLoader和Resource的支持上，这样就可以从不同地方得到Bean定义资源。这在接口关系上看不出来，
+ * 一般来说，具体ApplicationContext都是继承了DefaultResourceLoader的子类，因为DefaultResourceLoader是AbstractApplicationContext的基类。
+ * 3、支持应用事件。继承了ApplicationEventPublisher接口，这样在上下文中引入了事件机制，这些事件和Bean生命周期的结合为Bean的管理提供了便利。
+ * 4、在ApplicationContext中提供的附加服务。这些服务使得基本IOC容器的功能更丰富。因为具备了这些丰富的附加功能，使得ApplicationContext与简单的BeanFactory相比，
+ * 对它的使用是一种面向框架的风格，所以在开发工作中建议使用ApplicationContext作为IOC容器的基本形式。
+ * <p>
  * Central interface to provide configuration for an application.
- * This is read-only while the application is running, but may be
- * reloaded if the implementation supports this.
- *
- * <p>An ApplicationContext provides:
- * <ul>
- * <li>Bean factory methods for accessing application components.
+ * This is read-only while the application is running,
+ * but may be reloaded if the implementation supports this.
+ * <p>
+ * An ApplicationContext provides:
+ * 1、用于访问应用程序组件的Bean工厂方法。
+ * Bean factory methods for accessing application components.
  * Inherited from {@link org.springframework.beans.factory.ListableBeanFactory}.
- * <li>The ability to load file resources in a generic fashion.
+ * <p>
+ * 2、以通用方式加载文件资源的能力。
+ * The ability to load file resources in a generic fashion.
  * Inherited from the {@link org.springframework.core.io.ResourceLoader} interface.
- * <li>The ability to publish events to registered listeners.
+ * <p>
+ * 3、将事件发布给注册的侦听器的能力。
+ * The ability to publish events to registered listeners.
  * Inherited from the {@link ApplicationEventPublisher} interface.
- * <li>The ability to resolve messages, supporting internationalization.
+ * <p>
+ * 4、解决消息的能力，支持国际化。
+ * The ability to resolve messages, supporting internationalization.
  * Inherited from the {@link MessageSource} interface.
- * <li>Inheritance from a parent context. Definitions in a descendant context
+ * <p>
+ * Inheritance from a parent context. Definitions in a descendant context
  * will always take priority. This means, for example, that a single parent
  * context can be used by an entire web application, while each servlet has
  * its own child context that is independent of that of any other servlet.
- * </ul>
  *
  * <p>In addition to standard {@link org.springframework.beans.factory.BeanFactory}
  * lifecycle capabilities, ApplicationContext implementations detect and invoke
@@ -57,7 +71,6 @@ import org.springframework.lang.Nullable;
  */
 public interface ApplicationContext extends EnvironmentCapable, ListableBeanFactory, HierarchicalBeanFactory,
         MessageSource, ApplicationEventPublisher, ResourcePatternResolver {
-
     /**
      * Return the unique id of this application context.
      *
@@ -119,5 +132,4 @@ public interface ApplicationContext extends EnvironmentCapable, ListableBeanFact
      * @see ConfigurableApplicationContext#getBeanFactory()
      */
     AutowireCapableBeanFactory getAutowireCapableBeanFactory() throws IllegalStateException;
-
 }

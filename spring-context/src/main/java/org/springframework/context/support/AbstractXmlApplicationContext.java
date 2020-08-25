@@ -44,9 +44,7 @@ import org.springframework.lang.Nullable;
  * @see org.springframework.beans.factory.xml.XmlBeanDefinitionReader
  */
 public abstract class AbstractXmlApplicationContext extends AbstractRefreshableConfigApplicationContext {
-
     private boolean validating = true;
-
 
     /**
      * Create a new AbstractXmlApplicationContext with no parent.
@@ -63,14 +61,12 @@ public abstract class AbstractXmlApplicationContext extends AbstractRefreshableC
         super(parent);
     }
 
-
     /**
      * Set whether to use XML validation. Default is {@code true}.
      */
     public void setValidating(boolean validating) {
         this.validating = validating;
     }
-
 
     /**
      * Loads the bean definitions via an XmlBeanDefinitionReader.
@@ -146,5 +142,4 @@ public abstract class AbstractXmlApplicationContext extends AbstractRefreshableC
     protected Resource[] getConfigResources() {
         return null;
     }
-
 }

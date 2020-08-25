@@ -73,6 +73,9 @@ public class SpringReadPropertiesTests {
     @Test
     public void classPathResourceTest() {
         System.setProperty("spring.profiles.active", "dev");
+        // Resource是Spring用来封装IO处理的类，假如BeanDefinition信息是以xml文件形式存在的，
+        // 那么就可以使用ClassPathResource来构造需要的Resource，然后作为参数传递给XmlBeanFactory的构造函数。
+        // 这样IOC容器就可以方便的定位到需要的BeanDefinition信息来对Bean完成容器的初始化和依赖注入过程。
         //Resource resource = new ClassPathResource("com/study/hello/hello-properties.xml");
         Resource resource = new ClassPathResource("hello-properties.xml", this.getClass());
         BeanFactory beanFactory = new XmlBeanFactory(resource);

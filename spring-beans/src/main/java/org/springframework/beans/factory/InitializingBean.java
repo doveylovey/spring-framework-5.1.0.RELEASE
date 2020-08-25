@@ -32,7 +32,6 @@ package org.springframework.beans.factory;
  * @see org.springframework.beans.factory.support.AbstractBeanDefinition#getInitMethodName()
  */
 public interface InitializingBean {
-
     /**
      * Invoked by the containing {@code BeanFactory} after it has set all bean properties
      * and satisfied {@link BeanFactoryAware}, {@code ApplicationContextAware} etc.
@@ -43,5 +42,4 @@ public interface InitializingBean {
      *                   essential property) or if initialization fails for any other reason
      */
     void afterPropertiesSet() throws Exception;
-
 }

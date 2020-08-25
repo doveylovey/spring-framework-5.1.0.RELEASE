@@ -63,10 +63,8 @@ import org.springframework.lang.Nullable;
  * @since 1.1.3
  */
 public abstract class AbstractRefreshableApplicationContext extends AbstractApplicationContext {
-
     @Nullable
     private Boolean allowBeanDefinitionOverriding;
-
     @Nullable
     private Boolean allowCircularReferences;
 
@@ -80,7 +78,6 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
      * Synchronization monitor for the internal BeanFactory.
      */
     private final Object beanFactoryMonitor = new Object();
-
 
     /**
      * Create a new AbstractRefreshableApplicationContext with no parent.
@@ -96,7 +93,6 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
     public AbstractRefreshableApplicationContext(@Nullable ApplicationContext parent) {
         super(parent);
     }
-
 
     /**
      * Set whether it should be allowed to override bean definitions by registering
@@ -130,13 +126,18 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
     @Override
     protected final void refreshBeanFactory() throws BeansException {
         if (hasBeanFactory()) {
+            // 这里判断，如果已经创建了 BeanFactory 则销毁并关闭它
             destroyBeans();
             closeBeanFactory();
         }
         try {
+            // 通过 createBeanFactory() 方法构建一个 IOC 容器供 ApplicationContext 使用，
+            // 这里构建出来的 IOC 容器就是 DefaultListableBeanFactory，它启动了 loadBeanDefinitions() 来载入 BeanDefinition
             DefaultListableBeanFactory beanFactory = createBeanFactory();
             beanFactory.setSerializationId(getId());
+            // 设置持有的 BeanFactory
             customizeBeanFactory(beanFactory);
+            // 载入 BeanDefinition 信息
             loadBeanDefinitions(beanFactory);
             synchronized (this.beanFactoryMonitor) {
                 this.beanFactory = beanFactory;
@@ -180,8 +181,7 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
     public final ConfigurableListableBeanFactory getBeanFactory() {
         synchronized (this.beanFactoryMonitor) {
             if (this.beanFactory == null) {
-                throw new IllegalStateException("BeanFactory not initialized or already closed - " +
-                        "call 'refresh' before accessing beans via the ApplicationContext");
+                throw new IllegalStateException("BeanFactory not initialized or already closed - call 'refresh' before accessing beans via the ApplicationContext");
             }
             return this.beanFactory;
         }
@@ -211,6 +211,8 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
      * @see org.springframework.beans.factory.support.DefaultListableBeanFactory#setAllowRawInjectionDespiteWrapping
      */
     protected DefaultListableBeanFactory createBeanFactory() {
+        // 在上下文中创建 DefaultListableBeanFactory，getInternalParentBeanFactory() 的具体实现可以参考 AbstractApplicationContext，
+        // 会根据容器已有的双亲 IOC 容器信息来生成 DefaultListableBeanFactory 的双亲 IOC 容器。
         return new DefaultListableBeanFactory(getInternalParentBeanFactory());
     }
 
@@ -239,8 +241,9 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
     }
 
     /**
-     * Load bean definitions into the given bean factory, typically through
-     * delegating to one or more bean definition readers.
+     * 通常通过委派给一个或多个bean定义读取器，将bean定义加载到给定的bean工厂中。
+     * Load bean definitions into the given bean factory, typically
+     * through delegating to one or more bean definition readers.
      *
      * @param beanFactory the bean factory to load bean definitions into
      * @throws BeansException if parsing of the bean definitions failed
@@ -248,7 +251,6 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
      * @see org.springframework.beans.factory.support.PropertiesBeanDefinitionReader
      * @see org.springframework.beans.factory.xml.XmlBeanDefinitionReader
      */
-    protected abstract void loadBeanDefinitions(DefaultListableBeanFactory beanFactory)
-            throws BeansException, IOException;
-
+    // 这里使用 BeanDefinitionReader 载入 Bean 定义，因为允许有多种载入方式(常用的是 XML)，所以通过抽象函数把具体实现委托给子类。
+    protected abstract void loadBeanDefinitions(DefaultListableBeanFactory beanFactory) throws BeansException, IOException;
 }

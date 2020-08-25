@@ -32,7 +32,6 @@ import org.springframework.lang.Nullable;
  * @since 07.07.2003
  */
 public interface HierarchicalBeanFactory extends BeanFactory {
-
     /**
      * Return the parent bean factory, or {@code null} if there is none.
      */
@@ -50,5 +49,4 @@ public interface HierarchicalBeanFactory extends BeanFactory {
      * @see BeanFactory#containsBean
      */
     boolean containsLocalBean(String name);
-
 }

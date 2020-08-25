@@ -50,10 +50,8 @@ import org.springframework.util.Assert;
  * @see GenericApplicationContext
  */
 public class ClassPathXmlApplicationContext extends AbstractXmlApplicationContext {
-
     @Nullable
     private Resource[] configResources;
-
 
     /**
      * Create a new ClassPathXmlApplicationContext for bean-style configuration.
@@ -108,9 +106,7 @@ public class ClassPathXmlApplicationContext extends AbstractXmlApplicationContex
      * @param parent          the parent context
      * @throws BeansException if context creation failed
      */
-    public ClassPathXmlApplicationContext(String[] configLocations, @Nullable ApplicationContext parent)
-            throws BeansException {
-
+    public ClassPathXmlApplicationContext(String[] configLocations, @Nullable ApplicationContext parent) throws BeansException {
         this(configLocations, true, parent);
     }
 
@@ -141,13 +137,11 @@ public class ClassPathXmlApplicationContext extends AbstractXmlApplicationContex
      * @throws BeansException if context creation failed
      * @see #refresh()
      */
-    public ClassPathXmlApplicationContext(
-            String[] configLocations, boolean refresh, @Nullable ApplicationContext parent)
-            throws BeansException {
-
+    public ClassPathXmlApplicationContext(String[] configLocations, boolean refresh, @Nullable ApplicationContext parent) throws BeansException {
         super(parent);
         setConfigLocations(configLocations);
         if (refresh) {
+            // 在对象的初始化过程中，调用 refresh() 函数载入 BeanDefinition，refresh() 启动了 BeanDefinition 的载入过程
             refresh();
         }
     }
@@ -199,9 +193,7 @@ public class ClassPathXmlApplicationContext extends AbstractXmlApplicationContex
      * @see org.springframework.context.support.GenericApplicationContext
      * @see org.springframework.beans.factory.xml.XmlBeanDefinitionReader
      */
-    public ClassPathXmlApplicationContext(String[] paths, Class<?> clazz, @Nullable ApplicationContext parent)
-            throws BeansException {
-
+    public ClassPathXmlApplicationContext(String[] paths, Class<?> clazz, @Nullable ApplicationContext parent) throws BeansException {
         super(parent);
         Assert.notNull(paths, "Path array must not be null");
         Assert.notNull(clazz, "Class argument must not be null");
@@ -218,5 +210,4 @@ public class ClassPathXmlApplicationContext extends AbstractXmlApplicationContex
     protected Resource[] getConfigResources() {
         return this.configResources;
     }
-
 }

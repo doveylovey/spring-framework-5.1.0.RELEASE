@@ -38,7 +38,6 @@ import org.springframework.lang.Nullable;
  * @see org.springframework.context.support.ReloadableResourceBundleMessageSource
  */
 public interface MessageSource {
-
     /**
      * Try to resolve the message. Return default message if no message was found.
      *
@@ -85,5 +84,4 @@ public interface MessageSource {
      * @see java.text.MessageFormat
      */
     String getMessage(MessageSourceResolvable resolvable, Locale locale) throws NoSuchMessageException;
-
 }

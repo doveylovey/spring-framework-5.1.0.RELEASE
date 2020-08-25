@@ -479,8 +479,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
                         // In case of FactoryBean, match object created by FactoryBean.
                         boolean isFactoryBean = isFactoryBean(beanName, mbd);
                         BeanDefinitionHolder dbd = mbd.getDecoratedDefinition();
-                        boolean matchFound =
-                                (allowEagerInit || !isFactoryBean || (dbd != null && !mbd.isLazyInit()) || containsSingleton(beanName)) &&
+                        boolean matchFound = (allowEagerInit || !isFactoryBean || (dbd != null && !mbd.isLazyInit()) || containsSingleton(beanName)) &&
                                         (includeNonSingletons || (dbd != null ? mbd.isSingleton() : isSingleton(beanName))) &&
                                         isTypeMatch(beanName, type);
                         if (!matchFound && isFactoryBean) {
@@ -559,8 +558,8 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T> Map<String, T> getBeansOfType(@Nullable Class<T> type, boolean includeNonSingletons, boolean allowEagerInit) throws BeansException {
-
+    public <T> Map<String, T> getBeansOfType(@Nullable Class<T> type, boolean includeNonSingletons, boolean allowEagerInit)
+            throws BeansException {
         String[] beanNames = getBeanNamesForType(type, includeNonSingletons, allowEagerInit);
         Map<String, T> result = new LinkedHashMap<>(beanNames.length);
         for (String beanName : beanNames) {
@@ -1007,7 +1006,8 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 
     @SuppressWarnings("unchecked")
     @Nullable
-    private <T> NamedBeanHolder<T> resolveNamedBean(ResolvableType requiredType, @Nullable Object[] args, boolean nonUniqueAsNull) throws BeansException {
+    private <T> NamedBeanHolder<T> resolveNamedBean(ResolvableType requiredType, @Nullable Object[] args, boolean nonUniqueAsNull)
+            throws BeansException {
         Assert.notNull(requiredType, "Required type must not be null");
         Class<?> clazz = requiredType.getRawClass();
         Assert.notNull(clazz, "Required type must have a raw Class");
@@ -1056,7 +1056,8 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 
     @Override
     @Nullable
-    public Object resolveDependency(DependencyDescriptor descriptor, @Nullable String requestingBeanName, @Nullable Set<String> autowiredBeanNames, @Nullable TypeConverter typeConverter) throws BeansException {
+    public Object resolveDependency(DependencyDescriptor descriptor, @Nullable String requestingBeanName, @Nullable Set<String> autowiredBeanNames, @Nullable TypeConverter typeConverter)
+            throws BeansException {
         descriptor.initParameterNameDiscovery(getParameterNameDiscoverer());
         if (Optional.class == descriptor.getDependencyType()) {
             return createOptionalDependency(descriptor, requestingBeanName);

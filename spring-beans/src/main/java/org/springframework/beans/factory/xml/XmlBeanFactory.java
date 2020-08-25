@@ -22,8 +22,11 @@ import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.core.io.Resource;
 
 /**
- * Spring为我们提供了许多易用的BeanFactory实现，XmlBeanFactory就是常用的一个，该实现以XML方式描述组成应用的对象及对象间的依赖关系。XmlBeanFactory类将持有此XML配置元数据，并用它来构建一个完全可配置的系统或应用。
- * 该类与 {@link XmlBeanDefinitionReader} 的不同点在于该类使用了自定义的XML读取器XmlBeanDefinitionReader，实现了自己的BeanDefinitionReader读取
+ * Spring为我们提供了许多易用的BeanFactory实现，XmlBeanFactory就是常用的一个，该实现以XML方式描述组成应用的对象及对象间的依赖关系。
+ * XmlBeanFactory类将持有此XML配置元数据，并用它来构建一个完全可配置的系统或应用。该类与 {@link XmlBeanDefinitionReader}
+ * 的不同点在于该类使用了自定义的XML读取器XmlBeanDefinitionReader，实现了自己的BeanDefinitionReader读取。
+ * <p>
+ * XmlBeanFactory的功能是建立在DefaultListableBeanFactory这个基本容器的基础上的，只是在这个基本容器的基础上实现了其他诸如XML读取的附加功能。
  * <p>
  * Convenience extension of {@link DefaultListableBeanFactory} that reads bean definitions
  * from an XML document. Delegates to {@link XmlBeanDefinitionReader} underneath; effectively
@@ -73,8 +76,8 @@ public class XmlBeanFactory extends DefaultListableBeanFactory {
     }
 
     /**
-     * Create a new XmlBeanFactory with the given input stream,
-     * which must be parsable using DOM.
+     * 使用给定的输入流创建一个新的XmlBeanFactory，必须使用DOM对其进行解析。
+     * Create a new XmlBeanFactory with the given input stream, which must be parsable using DOM.
      *
      * @param resource          the XML resource to load bean definitions from
      * @param parentBeanFactory parent bean factory
@@ -82,6 +85,8 @@ public class XmlBeanFactory extends DefaultListableBeanFactory {
      */
     public XmlBeanFactory(Resource resource, BeanFactory parentBeanFactory) throws BeansException {
         super(parentBeanFactory);
+        // 对XmlBeanDefinitionReader对象的初始化，以及使用这个对象来完成loadBeanDefinitions()的调用，就是这个
+        // 调用启动了从Resource中载入BeanDefinitions的过程，loadBeanDefinitions()是IOC容器初始化的重要组成部分。
         this.reader.loadBeanDefinitions(resource);
     }
 }

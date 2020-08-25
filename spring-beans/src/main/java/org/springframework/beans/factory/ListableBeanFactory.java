@@ -56,7 +56,6 @@ import org.springframework.lang.Nullable;
  * @since 16 April 2001
  */
 public interface ListableBeanFactory extends BeanFactory {
-
     /**
      * Check if this bean factory contains a bean definition with the given name.
      * <p>Does not consider any hierarchy this factory may participate in,
@@ -286,5 +285,4 @@ public interface ListableBeanFactory extends BeanFactory {
     @Nullable
     <A extends Annotation> A findAnnotationOnBean(String beanName, Class<A> annotationType)
             throws NoSuchBeanDefinitionException;
-
 }

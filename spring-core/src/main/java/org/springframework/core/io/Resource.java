@@ -16,6 +16,8 @@
 
 package org.springframework.core.io;
 
+import org.springframework.lang.Nullable;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,15 +26,17 @@ import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 
-import org.springframework.lang.Nullable;
-
 /**
+ * Resource类是Spring用来封装IO处理的类。
+ * <p>
  * Interface for a resource descriptor that abstracts from the actual
  * type of underlying resource, such as a file or class path resource.
- *
- * <p>An InputStream can be opened for every resource if it exists in
+ * 资源描述符的接口，该描述符从基础资源的实际类型中抽象出来，例如文件或类路径资源。
+ * <p>
+ * An InputStream can be opened for every resource if it exists in
  * physical form, but a URL or File handle can just be returned for
  * certain resources. The actual behavior is implementation-specific.
+ * 如果InputStream以物理形式存在，则可以为每个资源打开InputStream，但仅可以为某些资源返回URL或File句柄。实际行为是特定于实现的。
  *
  * @author Juergen Hoeller
  * @see #getInputStream()
@@ -50,19 +54,16 @@ import org.springframework.lang.Nullable;
  * @since 28.12.2003
  */
 public interface Resource extends InputStreamSource {
-
     /**
      * Determine whether this resource actually exists in physical form.
-     * <p>This method performs a definitive existence check, whereas the
-     * existence of a {@code Resource} handle only guarantees a valid
-     * descriptor handle.
+     * This method performs a definitive existence check, whereas the
+     * existence of a {@code Resource} handle only guarantees a valid descriptor handle.
      */
     boolean exists();
 
     /**
-     * Indicate whether non-empty contents of this resource can be read via
-     * {@link #getInputStream()}.
-     * <p>Will be {@code true} for typical resource descriptors that exist
+     * Indicate whether non-empty contents of this resource can be read via {@link #getInputStream()}.
+     * Will be {@code true} for typical resource descriptors that exist
      * since it strictly implies {@link #exists()} semantics as of 5.1.
      * Note that actual content reading may still fail when attempted.
      * However, a value of {@code false} is a definitive indication
@@ -79,7 +80,7 @@ public interface Resource extends InputStreamSource {
      * Indicate whether this resource represents a handle with an open stream.
      * If {@code true}, the InputStream cannot be read multiple times,
      * and must be read and closed to avoid resource leaks.
-     * <p>Will be {@code false} for typical resource descriptors.
+     * Will be {@code false} for typical resource descriptors.
      */
     default boolean isOpen() {
         return false;
@@ -89,7 +90,7 @@ public interface Resource extends InputStreamSource {
      * Determine whether this resource represents a file in a file system.
      * A value of {@code true} strongly suggests (but does not guarantee)
      * that a {@link #getFile()} call will succeed.
-     * <p>This is conservatively {@code false} by default.
+     * This is conservatively {@code false} by default.
      *
      * @see #getFile()
      * @since 5.0
@@ -127,8 +128,8 @@ public interface Resource extends InputStreamSource {
 
     /**
      * Return a {@link ReadableByteChannel}.
-     * <p>It is expected that each call creates a <i>fresh</i> channel.
-     * <p>The default implementation returns {@link Channels#newChannel(InputStream)}
+     * It is expected that each call creates a <i>fresh</i> channel.
+     * The default implementation returns {@link Channels#newChannel(InputStream)}
      * with the result of {@link #getInputStream()}.
      *
      * @return the byte channel for the underlying resource (must not be {@code null})
@@ -167,22 +168,17 @@ public interface Resource extends InputStreamSource {
     Resource createRelative(String relativePath) throws IOException;
 
     /**
-     * Determine a filename for this resource, i.e. typically the last
-     * part of the path: for example, "myfile.txt".
-     * <p>Returns {@code null} if this type of resource does not
-     * have a filename.
+     * Determine a filename for this resource, i.e. typically the last part of the path: for example, "myfile.txt".
+     * Returns {@code null} if this type of resource does not have a filename.
      */
     @Nullable
     String getFilename();
 
     /**
-     * Return a description for this resource,
-     * to be used for error output when working with the resource.
-     * <p>Implementations are also encouraged to return this value
-     * from their {@code toString} method.
+     * Return a description for this resource, to be used for error output when working with the resource.
+     * Implementations are also encouraged to return this value from their {@code toString} method.
      *
      * @see Object#toString()
      */
     String getDescription();
-
 }

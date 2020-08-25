@@ -34,7 +34,6 @@ package org.springframework.beans.factory;
  * @since 01.11.2003
  */
 public interface BeanNameAware extends Aware {
-
     /**
      * Set the name of the bean in the bean factory that created this bean.
      * <p>Invoked after population of normal bean properties but before an
@@ -49,5 +48,4 @@ public interface BeanNameAware extends Aware {
      *             method to extract the original bean name (without suffix), if desired.
      */
     void setBeanName(String name);
-
 }

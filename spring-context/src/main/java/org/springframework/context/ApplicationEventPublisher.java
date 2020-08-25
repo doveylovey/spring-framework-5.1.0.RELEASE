@@ -30,7 +30,6 @@ package org.springframework.context;
  */
 @FunctionalInterface
 public interface ApplicationEventPublisher {
-
     /**
      * Notify all <strong>matching</strong> listeners registered with this
      * application of an application event. Events may be framework events
@@ -54,5 +53,4 @@ public interface ApplicationEventPublisher {
      * @since 4.2
      */
     void publishEvent(Object event);
-
 }

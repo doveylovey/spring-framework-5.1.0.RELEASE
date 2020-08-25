@@ -126,7 +126,6 @@ import org.springframework.util.ReflectionUtils;
  */
 public abstract class AbstractApplicationContext extends DefaultResourceLoader
         implements ConfigurableApplicationContext {
-
     /**
      * Name of the MessageSource bean in the factory.
      * If none is supplied, message resolution is delegated to the parent.
@@ -153,13 +152,11 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
      */
     public static final String APPLICATION_EVENT_MULTICASTER_BEAN_NAME = "applicationEventMulticaster";
 
-
     static {
         // Eagerly load the ContextClosedEvent class to avoid weird classloader issues
         // on application shutdown in WebLogic 8.1. (Reported by Dustin Woods.)
         ContextClosedEvent.class.getName();
     }
-
 
     /**
      * Logger used by this class. Available to subclasses.
@@ -253,7 +250,6 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
     @Nullable
     private Set<ApplicationEvent> earlyApplicationEvents;
 
-
     /**
      * Create a new AbstractApplicationContext with no parent.
      */
@@ -270,7 +266,6 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
         this();
         setParent(parent);
     }
-
 
     //---------------------------------------------------------------------
     // Implementation of ApplicationContext interface
@@ -459,8 +454,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
      */
     ApplicationEventMulticaster getApplicationEventMulticaster() throws IllegalStateException {
         if (this.applicationEventMulticaster == null) {
-            throw new IllegalStateException("ApplicationEventMulticaster not initialized - " +
-                    "call 'refresh' before multicasting events via the context: " + this);
+            throw new IllegalStateException("ApplicationEventMulticaster not initialized - call 'refresh' before multicasting events via the context: " + this);
         }
         return this.applicationEventMulticaster;
     }
@@ -473,8 +467,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
      */
     LifecycleProcessor getLifecycleProcessor() throws IllegalStateException {
         if (this.lifecycleProcessor == null) {
-            throw new IllegalStateException("LifecycleProcessor not initialized - " +
-                    "call 'refresh' before invoking lifecycle methods via the context: " + this);
+            throw new IllegalStateException("LifecycleProcessor not initialized - call 'refresh' before invoking lifecycle methods via the context: " + this);
         }
         return this.lifecycleProcessor;
     }
@@ -497,7 +490,6 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
     protected ResourcePatternResolver getResourcePatternResolver() {
         return new PathMatchingResourcePatternResolver(this);
     }
-
 
     //---------------------------------------------------------------------
     // Implementation of ConfigurableApplicationContext interface
@@ -528,7 +520,6 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
         Assert.notNull(postProcessor, "BeanFactoryPostProcessor must not be null");
         this.beanFactoryPostProcessors.add(postProcessor);
     }
-
 
     /**
      * Return the list of BeanFactoryPostProcessors that will get applied
@@ -596,8 +587,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
                 finishRefresh();
             } catch (BeansException ex) {
                 if (logger.isWarnEnabled()) {
-                    logger.warn("Exception encountered during context initialization - " +
-                            "cancelling refresh attempt: " + ex);
+                    logger.warn("Exception encountered during context initialization - cancelling refresh attempt: " + ex);
                 }
 
                 // Destroy already created singletons to avoid dangling resources.
@@ -765,8 +755,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
             if (this.parent != null && this.messageSource instanceof HierarchicalMessageSource) {
                 HierarchicalMessageSource hms = (HierarchicalMessageSource) this.messageSource;
                 if (hms.getParentMessageSource() == null) {
-                    // Only set parent context as parent MessageSource if no parent MessageSource
-                    // registered already.
+                    // Only set parent context as parent MessageSource if no parent MessageSource registered already.
                     hms.setParentMessageSource(getInternalParentMessageSource());
                 }
             }
@@ -794,8 +783,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
     protected void initApplicationEventMulticaster() {
         ConfigurableListableBeanFactory beanFactory = getBeanFactory();
         if (beanFactory.containsLocalBean(APPLICATION_EVENT_MULTICASTER_BEAN_NAME)) {
-            this.applicationEventMulticaster =
-                    beanFactory.getBean(APPLICATION_EVENT_MULTICASTER_BEAN_NAME, ApplicationEventMulticaster.class);
+            this.applicationEventMulticaster = beanFactory.getBean(APPLICATION_EVENT_MULTICASTER_BEAN_NAME, ApplicationEventMulticaster.class);
             if (logger.isTraceEnabled()) {
                 logger.trace("Using ApplicationEventMulticaster [" + this.applicationEventMulticaster + "]");
             }
@@ -803,8 +791,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
             this.applicationEventMulticaster = new SimpleApplicationEventMulticaster(beanFactory);
             beanFactory.registerSingleton(APPLICATION_EVENT_MULTICASTER_BEAN_NAME, this.applicationEventMulticaster);
             if (logger.isTraceEnabled()) {
-                logger.trace("No '" + APPLICATION_EVENT_MULTICASTER_BEAN_NAME + "' bean, using " +
-                        "[" + this.applicationEventMulticaster.getClass().getSimpleName() + "]");
+                logger.trace("No '" + APPLICATION_EVENT_MULTICASTER_BEAN_NAME + "' bean, using [" + this.applicationEventMulticaster.getClass().getSimpleName() + "]");
             }
         }
     }
@@ -818,8 +805,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
     protected void initLifecycleProcessor() {
         ConfigurableListableBeanFactory beanFactory = getBeanFactory();
         if (beanFactory.containsLocalBean(LIFECYCLE_PROCESSOR_BEAN_NAME)) {
-            this.lifecycleProcessor =
-                    beanFactory.getBean(LIFECYCLE_PROCESSOR_BEAN_NAME, LifecycleProcessor.class);
+            this.lifecycleProcessor = beanFactory.getBean(LIFECYCLE_PROCESSOR_BEAN_NAME, LifecycleProcessor.class);
             if (logger.isTraceEnabled()) {
                 logger.trace("Using LifecycleProcessor [" + this.lifecycleProcessor + "]");
             }
@@ -829,8 +815,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
             this.lifecycleProcessor = defaultProcessor;
             beanFactory.registerSingleton(LIFECYCLE_PROCESSOR_BEAN_NAME, this.lifecycleProcessor);
             if (logger.isTraceEnabled()) {
-                logger.trace("No '" + LIFECYCLE_PROCESSOR_BEAN_NAME + "' bean, using " +
-                        "[" + this.lifecycleProcessor.getClass().getSimpleName() + "]");
+                logger.trace("No '" + LIFECYCLE_PROCESSOR_BEAN_NAME + "' bean, using [" + this.lifecycleProcessor.getClass().getSimpleName() + "]");
             }
         }
     }
@@ -880,10 +865,8 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
      */
     protected void finishBeanFactoryInitialization(ConfigurableListableBeanFactory beanFactory) {
         // Initialize conversion service for this context.
-        if (beanFactory.containsBean(CONVERSION_SERVICE_BEAN_NAME) &&
-                beanFactory.isTypeMatch(CONVERSION_SERVICE_BEAN_NAME, ConversionService.class)) {
-            beanFactory.setConversionService(
-                    beanFactory.getBean(CONVERSION_SERVICE_BEAN_NAME, ConversionService.class));
+        if (beanFactory.containsBean(CONVERSION_SERVICE_BEAN_NAME) && beanFactory.isTypeMatch(CONVERSION_SERVICE_BEAN_NAME, ConversionService.class)) {
+            beanFactory.setConversionService(beanFactory.getBean(CONVERSION_SERVICE_BEAN_NAME, ConversionService.class));
         }
 
         // Register a default embedded value resolver if no bean post-processor
@@ -1254,9 +1237,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
     }
 
     @Override
-    public <T> Map<String, T> getBeansOfType(@Nullable Class<T> type, boolean includeNonSingletons, boolean allowEagerInit)
-            throws BeansException {
-
+    public <T> Map<String, T> getBeansOfType(@Nullable Class<T> type, boolean includeNonSingletons, boolean allowEagerInit) throws BeansException {
         assertBeanFactoryActive();
         return getBeanFactory().getBeansOfType(type, includeNonSingletons, allowEagerInit);
     }
@@ -1268,18 +1249,14 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
     }
 
     @Override
-    public Map<String, Object> getBeansWithAnnotation(Class<? extends Annotation> annotationType)
-            throws BeansException {
-
+    public Map<String, Object> getBeansWithAnnotation(Class<? extends Annotation> annotationType) throws BeansException {
         assertBeanFactoryActive();
         return getBeanFactory().getBeansWithAnnotation(annotationType);
     }
 
     @Override
     @Nullable
-    public <A extends Annotation> A findAnnotationOnBean(String beanName, Class<A> annotationType)
-            throws NoSuchBeanDefinitionException {
-
+    public <A extends Annotation> A findAnnotationOnBean(String beanName, Class<A> annotationType) throws NoSuchBeanDefinitionException {
         assertBeanFactoryActive();
         return getBeanFactory().findAnnotationOnBean(beanName, annotationType);
     }
@@ -1308,8 +1285,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
      */
     @Nullable
     protected BeanFactory getInternalParentBeanFactory() {
-        return (getParent() instanceof ConfigurableApplicationContext ?
-                ((ConfigurableApplicationContext) getParent()).getBeanFactory() : getParent());
+        return (getParent() instanceof ConfigurableApplicationContext ? ((ConfigurableApplicationContext) getParent()).getBeanFactory() : getParent());
     }
 
 
@@ -1340,8 +1316,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
      */
     private MessageSource getMessageSource() throws IllegalStateException {
         if (this.messageSource == null) {
-            throw new IllegalStateException("MessageSource not initialized - " +
-                    "call 'refresh' before accessing messages via the context: " + this);
+            throw new IllegalStateException("MessageSource not initialized - call 'refresh' before accessing messages via the context: " + this);
         }
         return this.messageSource;
     }
@@ -1352,8 +1327,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
      */
     @Nullable
     protected MessageSource getInternalParentMessageSource() {
-        return (getParent() instanceof AbstractApplicationContext ?
-                ((AbstractApplicationContext) getParent()).messageSource : getParent());
+        return (getParent() instanceof AbstractApplicationContext ? ((AbstractApplicationContext) getParent()).messageSource : getParent());
     }
 
 
@@ -1430,7 +1404,6 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
     @Override
     public abstract ConfigurableListableBeanFactory getBeanFactory() throws IllegalStateException;
 
-
     /**
      * Return information about this context.
      */
@@ -1444,5 +1417,4 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
         }
         return sb.toString();
     }
-
 }
