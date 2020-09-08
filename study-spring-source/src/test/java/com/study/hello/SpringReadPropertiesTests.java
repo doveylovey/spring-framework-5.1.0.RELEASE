@@ -9,7 +9,10 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
+import org.springframework.util.ResourceUtils;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -25,6 +28,32 @@ import java.util.Properties;
  */
 public class SpringReadPropertiesTests {
     protected static final Log log = LogFactory.getLog(JavaReadPropertiesTests.class);
+
+    @Test
+    public void readPropertiesFromClasspath() throws IOException {
+        // 第一种
+        ClassPathResource classPathResource = new ClassPathResource("com/study/hello/java.properties");
+        InputStream inputStream1 = classPathResource.getInputStream();
+
+        // 第二种
+        InputStream inputStream2 = Thread.currentThread().getContextClassLoader().getResourceAsStream("com/study/hello/java.properties");
+
+        // 第三种
+        //InputStream inputStream3 = this.getClass().getResourceAsStream("/com/study/hello/java.properties");
+        InputStream inputStream3 = SpringReadPropertiesTests.class.getResourceAsStream("/com/study/hello/java.properties");
+
+        //第四种
+        File file = ResourceUtils.getFile("classpath:com/study/hello/java.properties");
+        InputStream inputStream4 = new FileInputStream(file);
+
+        Properties properties = new Properties();
+        properties.load(inputStream4);
+        String propertiesKey = "java.key";
+        String value = properties.getProperty(propertiesKey, "指定键 " + propertiesKey + " 没有配置，这是默认值！");
+        String result = new String(value.getBytes("ISO-8859-1"), StandardCharsets.UTF_8);
+        log.info(result);
+        System.out.println(result);
+    }
 
     @Test
     public void getProjectPathOrFilePathTest() {
