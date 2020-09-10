@@ -127,11 +127,8 @@ public class PropertyPlaceholderHelper {
         return parseStringValue(value, placeholderResolver, new HashSet<>());
     }
 
-    protected String parseStringValue(
-            String value, PlaceholderResolver placeholderResolver, Set<String> visitedPlaceholders) {
-
+    protected String parseStringValue(String value, PlaceholderResolver placeholderResolver, Set<String> visitedPlaceholders) {
         StringBuilder result = new StringBuilder(value);
-
         int startIndex = value.indexOf(this.placeholderPrefix);
         while (startIndex != -1) {
             int endIndex = findPlaceholderEndIndex(result, startIndex);
@@ -139,8 +136,7 @@ public class PropertyPlaceholderHelper {
                 String placeholder = result.substring(startIndex + this.placeholderPrefix.length(), endIndex);
                 String originalPlaceholder = placeholder;
                 if (!visitedPlaceholders.add(originalPlaceholder)) {
-                    throw new IllegalArgumentException(
-                            "Circular placeholder reference '" + originalPlaceholder + "' in property definitions");
+                    throw new IllegalArgumentException("Circular placeholder reference '" + originalPlaceholder + "' in property definitions");
                 }
                 // Recursive invocation, parsing placeholders contained in the placeholder key.
                 placeholder = parseStringValue(placeholder, placeholderResolver, visitedPlaceholders);
@@ -170,15 +166,13 @@ public class PropertyPlaceholderHelper {
                     // Proceed with unprocessed value.
                     startIndex = result.indexOf(this.placeholderPrefix, endIndex + this.placeholderSuffix.length());
                 } else {
-                    throw new IllegalArgumentException("Could not resolve placeholder '" +
-                            placeholder + "'" + " in value \"" + value + "\"");
+                    throw new IllegalArgumentException("Could not resolve placeholder '" + placeholder + "'" + " in value \"" + value + "\"");
                 }
                 visitedPlaceholders.remove(originalPlaceholder);
             } else {
                 startIndex = -1;
             }
         }
-
         return result.toString();
     }
 

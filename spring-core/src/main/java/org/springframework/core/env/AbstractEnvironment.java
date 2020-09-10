@@ -582,11 +582,8 @@ public abstract class AbstractEnvironment implements ConfigurableEnvironment {
         return this.propertyResolver.resolveRequiredPlaceholders(text);
     }
 
-
     @Override
     public String toString() {
-        return getClass().getSimpleName() + " {activeProfiles=" + this.activeProfiles +
-                ", defaultProfiles=" + this.defaultProfiles + ", propertySources=" + this.propertySources + "}";
+        return getClass().getSimpleName() + " {activeProfiles=" + this.activeProfiles + ", defaultProfiles=" + this.defaultProfiles + ", propertySources=" + this.propertySources + "}";
     }
-
 }

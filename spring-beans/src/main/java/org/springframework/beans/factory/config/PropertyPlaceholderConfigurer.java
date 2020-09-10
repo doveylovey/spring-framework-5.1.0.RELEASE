@@ -227,7 +227,6 @@ public class PropertyPlaceholderConfigurer extends PlaceholderConfigurerSupport 
     @Override
     protected void processProperties(ConfigurableListableBeanFactory beanFactoryToProcess, Properties props)
             throws BeansException {
-
         StringValueResolver valueResolver = new PlaceholderResolvingStringValueResolver(props);
         doProcessProperties(beanFactoryToProcess, valueResolver);
     }
@@ -240,8 +239,7 @@ public class PropertyPlaceholderConfigurer extends PlaceholderConfigurerSupport 
         private final PlaceholderResolver resolver;
 
         public PlaceholderResolvingStringValueResolver(Properties props) {
-            this.helper = new PropertyPlaceholderHelper(
-                    placeholderPrefix, placeholderSuffix, valueSeparator, ignoreUnresolvablePlaceholders);
+            this.helper = new PropertyPlaceholderHelper(placeholderPrefix, placeholderSuffix, valueSeparator, ignoreUnresolvablePlaceholders);
             this.resolver = new PropertyPlaceholderConfigurerResolver(props);
         }
 

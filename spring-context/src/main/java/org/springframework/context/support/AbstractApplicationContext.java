@@ -164,6 +164,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
     protected final Log logger = LogFactory.getLog(getClass());
 
     /**
+     * 上下文使用的唯一 Id，标识此 ApplicationContext
      * Unique id for this context, if any.
      */
     private String id = ObjectUtils.identityToString(this);
@@ -174,6 +175,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
     private String displayName = ObjectUtils.identityToString(this);
 
     /**
+     * 父级 ApplicationContext
      * Parent context.
      */
     @Nullable
@@ -186,6 +188,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
     private ConfigurableEnvironment environment;
 
     /**
+     * 存储 BeanFactoryPostProcessor 接口，Spring 提供的一个扩展点
      * BeanFactoryPostProcessors to apply on refresh.
      */
     private final List<BeanFactoryPostProcessor> beanFactoryPostProcessors = new ArrayList<>();
@@ -206,40 +209,47 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
     private final AtomicBoolean closed = new AtomicBoolean();
 
     /**
+     * refresh 方法和 destroy 方法公用的一个监视器，避免两个方法同时执行
      * Synchronization monitor for the "refresh" and "destroy".
      */
     private final Object startupShutdownMonitor = new Object();
 
     /**
+     * Spring 提供的一个钩子，JVM 停止执行时会运行 Thread 里面的方法
      * Reference to the JVM shutdown hook, if registered.
      */
     @Nullable
     private Thread shutdownHook;
 
     /**
+     * 上下文使用的资源格式解析器
      * ResourcePatternResolver used by this context.
      */
     private ResourcePatternResolver resourcePatternResolver;
 
     /**
+     * 用于管理 Bean 生命周期的生命周期处理器接口
      * LifecycleProcessor for managing the lifecycle of beans within this context.
      */
     @Nullable
     private LifecycleProcessor lifecycleProcessor;
 
     /**
+     * 用于实现国际化的一个接口
      * MessageSource we delegate our implementation of this interface to.
      */
     @Nullable
     private MessageSource messageSource;
 
     /**
+     * Spring 提供的事件管理机制中的事件多播器接口
      * Helper class used in event publishing.
      */
     @Nullable
     private ApplicationEventMulticaster applicationEventMulticaster;
 
     /**
+     * Spring 提供的事件管理机制中的应用监听器
      * Statically specified listeners.
      */
     private final Set<ApplicationListener<?>> applicationListeners = new LinkedHashSet<>();
@@ -548,6 +558,8 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 
     @Override
     public void refresh() throws BeansException, IllegalStateException {
+        // 1、加锁：避免多线程同时刷新Spring上下文。
+        // 2、加锁的方式
         synchronized (this.startupShutdownMonitor) {
             // Prepare this context for refreshing.
             prepareRefresh();

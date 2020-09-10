@@ -5,6 +5,8 @@ import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.io.ClassPathResource;
 
 /**
@@ -13,7 +15,7 @@ import org.springframework.core.io.ClassPathResource;
  * @author doveylovey
  * @version v1.0.0
  * @email 1135782208@qq.com
- * @date 2020年08月25日R
+ * @date 2020年08月25日
  */
 public class IocImplTests {
     protected static final Log log = LogFactory.getLog(IocImplTests.class);
@@ -49,6 +51,18 @@ public class IocImplTests {
         reader.loadBeanDefinitions(resource);
         // 完成整个载入和注册Bean定义之后，需要的IOC容器就建立起来了，这时IOC容器就可以直接使用了
         IocBean iocBean = factory.getBean("iocBean", IocBean.class);
+        String result = iocBean.toString();
+        log.info(result);
+        System.out.println(result);
+    }
+
+    @Test
+    public void defaultListableBeanFactoryTest02() {
+        System.setProperty("spring.profiles.active", "dev");
+        // 参考 https://www.cnblogs.com/xrq730/p/6285358.html
+        // ClassPathXmlApplicationContext 用于加载 CLASSPATH 下的 Spring 配置文件
+        ApplicationContext context = new ClassPathXmlApplicationContext("com/study/ioc/ioc-bean.xml");
+        IocBean iocBean = context.getBean(IocBean.class);
         String result = iocBean.toString();
         log.info(result);
         System.out.println(result);

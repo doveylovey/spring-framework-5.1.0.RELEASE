@@ -31,6 +31,7 @@ public class SpringReadPropertiesTests {
 
     @Test
     public void readPropertiesFromClasspath() throws IOException {
+        // 参考 https://blog.csdn.net/FENGQIYUNRAN/article/details/108013523
         // 第一种
         ClassPathResource classPathResource = new ClassPathResource("com/study/hello/java.properties");
         InputStream inputStream1 = classPathResource.getInputStream();
