@@ -24,7 +24,6 @@ package org.springframework.core;
  * @since 2.5.2
  */
 public interface AliasRegistry {
-
     /**
      * Given a name, register an alias for it.
      *
@@ -59,5 +58,4 @@ public interface AliasRegistry {
      * @return the aliases, or an empty array if none
      */
     String[] getAliases(String name);
-
 }

@@ -41,7 +41,6 @@ import org.springframework.lang.Nullable;
  */
 public interface ConfigurableListableBeanFactory
         extends ListableBeanFactory, AutowireCapableBeanFactory, ConfigurableBeanFactory {
-
     /**
      * Ignore the given dependency type for autowiring:
      * for example, String. Default is none.
@@ -167,5 +166,4 @@ public interface ConfigurableListableBeanFactory
      * @see #destroySingletons()
      */
     void preInstantiateSingletons() throws BeansException;
-
 }

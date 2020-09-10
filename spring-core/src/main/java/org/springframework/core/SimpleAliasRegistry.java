@@ -39,13 +39,13 @@ import org.springframework.util.StringValueResolver;
  * @since 2.5.2
  */
 public class SimpleAliasRegistry implements AliasRegistry {
-
     /**
      * Logger available to subclasses.
      */
     protected final Log logger = LogFactory.getLog(getClass());
 
     /**
+     * 存储 Bean 名称 -> Bean 别名映射关系
      * Map from alias to canonical name.
      */
     private final Map<String, String> aliasMap = new ConcurrentHashMap<>(16);

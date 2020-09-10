@@ -69,38 +69,40 @@ import org.springframework.util.StringUtils;
  * @since 2.0
  */
 public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements SingletonBeanRegistry {
-
     /**
+     * 存储单例 Bean 名称 -> 单例 Bean 实现的映射关系
      * Cache of singleton objects: bean name to bean instance.
      */
     private final Map<String, Object> singletonObjects = new ConcurrentHashMap<>(256);
 
     /**
+     * 存储 Bean 名称 -> ObjectFactory 实现的映射关系
      * Cache of singleton factories: bean name to ObjectFactory.
      */
     private final Map<String, ObjectFactory<?>> singletonFactories = new HashMap<>(16);
 
     /**
+     * 存储 Bean名称 -> 预加载 Bean 实现的映射关系
      * Cache of early singleton objects: bean name to bean instance.
      */
     private final Map<String, Object> earlySingletonObjects = new HashMap<>(16);
 
     /**
+     * 存储已经注册过的单例 Bean 名称
      * Set of registered singletons, containing the bean names in registration order.
      */
     private final Set<String> registeredSingletons = new LinkedHashSet<>(256);
 
     /**
+     * 存储当前正在创建的 Bean 名称
      * Names of beans that are currently in creation.
      */
-    private final Set<String> singletonsCurrentlyInCreation =
-            Collections.newSetFromMap(new ConcurrentHashMap<>(16));
+    private final Set<String> singletonsCurrentlyInCreation = Collections.newSetFromMap(new ConcurrentHashMap<>(16));
 
     /**
      * Names of beans currently excluded from in creation checks.
      */
-    private final Set<String> inCreationCheckExclusions =
-            Collections.newSetFromMap(new ConcurrentHashMap<>(16));
+    private final Set<String> inCreationCheckExclusions = Collections.newSetFromMap(new ConcurrentHashMap<>(16));
 
     /**
      * List of suppressed Exceptions, available for associating related causes.
@@ -114,6 +116,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
     private boolean singletonsCurrentlyInDestruction = false;
 
     /**
+     * 存储 Bean 名称 -> Disposable 接口的 Bean 实现的映射关系
      * Disposable bean instances: bean name to disposable instance.
      */
     private final Map<String, Object> disposableBeans = new LinkedHashMap<>();

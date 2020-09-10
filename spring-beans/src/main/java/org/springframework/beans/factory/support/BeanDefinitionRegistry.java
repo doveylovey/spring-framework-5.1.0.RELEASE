@@ -46,7 +46,6 @@ import org.springframework.core.AliasRegistry;
  * @since 26.11.2003
  */
 public interface BeanDefinitionRegistry extends AliasRegistry {
-
     /**
      * Register a new bean definition with this registry.
      * Must support RootBeanDefinition and ChildBeanDefinition.
@@ -111,5 +110,4 @@ public interface BeanDefinitionRegistry extends AliasRegistry {
      * @return whether the given bean name is already in use
      */
     boolean isBeanNameInUse(String beanName);
-
 }

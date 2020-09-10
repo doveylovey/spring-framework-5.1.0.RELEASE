@@ -125,6 +125,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
     private final Map<Class<?>, Object> resolvableDependencies = new ConcurrentHashMap<>(16);
 
     /**
+     * 存储 Bean 名称 -> Bean 定义的映射关系
      * Map of bean definition objects, keyed by bean name.
      */
     private final Map<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<>(256);
@@ -140,6 +141,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
     private final Map<Class<?>, String[]> singletonBeanNamesByType = new ConcurrentHashMap<>(64);
 
     /**
+     * 存储 Bean 定义名称的列表
      * List of bean definition names, in registration order.
      */
     private volatile List<String> beanDefinitionNames = new ArrayList<>(256);

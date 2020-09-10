@@ -42,8 +42,8 @@ import org.springframework.lang.Nullable;
  * @since 2.5.1
  */
 public abstract class FactoryBeanRegistrySupport extends DefaultSingletonBeanRegistry {
-
     /**
+     * 存储 Bean 名称 -> FactoryBean 接口 Bean 实现的映射关系
      * Cache of singleton objects created by FactoryBeans: FactoryBean name to object.
      */
     private final Map<String, Object> factoryBeanObjectCache = new ConcurrentHashMap<>(16);
@@ -60,15 +60,13 @@ public abstract class FactoryBeanRegistrySupport extends DefaultSingletonBeanReg
     protected Class<?> getTypeForFactoryBean(final FactoryBean<?> factoryBean) {
         try {
             if (System.getSecurityManager() != null) {
-                return AccessController.doPrivileged((PrivilegedAction<Class<?>>)
-                        factoryBean::getObjectType, getAccessControlContext());
+                return AccessController.doPrivileged((PrivilegedAction<Class<?>>) factoryBean::getObjectType, getAccessControlContext());
             } else {
                 return factoryBean.getObjectType();
             }
         } catch (Throwable ex) {
             // Thrown from the FactoryBean's getObjectType implementation.
-            logger.info("FactoryBean threw exception from getObjectType, despite the contract saying " +
-                    "that it should return null if the type of its object cannot be determined yet", ex);
+            logger.info("FactoryBean threw exception from getObjectType, despite the contract saying that it should return null if the type of its object cannot be determined yet", ex);
             return null;
         }
     }
@@ -117,8 +115,7 @@ public abstract class FactoryBeanRegistrySupport extends DefaultSingletonBeanReg
                             try {
                                 object = postProcessObjectFromFactoryBean(object, beanName);
                             } catch (Throwable ex) {
-                                throw new BeanCreationException(beanName,
-                                        "Post-processing of FactoryBean's singleton object failed", ex);
+                                throw new BeanCreationException(beanName, "Post-processing of FactoryBean's singleton object failed", ex);
                             } finally {
                                 afterSingletonCreation(beanName);
                             }
@@ -154,7 +151,6 @@ public abstract class FactoryBeanRegistrySupport extends DefaultSingletonBeanReg
      */
     private Object doGetObjectFromFactoryBean(final FactoryBean<?> factory, final String beanName)
             throws BeanCreationException {
-
         Object object;
         try {
             if (System.getSecurityManager() != null) {
@@ -177,8 +173,7 @@ public abstract class FactoryBeanRegistrySupport extends DefaultSingletonBeanReg
         // initialized yet: Many FactoryBeans just return null then.
         if (object == null) {
             if (isSingletonCurrentlyInCreation(beanName)) {
-                throw new BeanCurrentlyInCreationException(
-                        beanName, "FactoryBean which is currently in creation returned null from getObject");
+                throw new BeanCurrentlyInCreationException(beanName, "FactoryBean which is currently in creation returned null from getObject");
             }
             object = new NullBean();
         }
@@ -210,8 +205,7 @@ public abstract class FactoryBeanRegistrySupport extends DefaultSingletonBeanReg
      */
     protected FactoryBean<?> getFactoryBean(String beanName, Object beanInstance) throws BeansException {
         if (!(beanInstance instanceof FactoryBean)) {
-            throw new BeanCreationException(beanName,
-                    "Bean instance of type [" + beanInstance.getClass() + "] is not a FactoryBean");
+            throw new BeanCreationException(beanName, "Bean instance of type [" + beanInstance.getClass() + "] is not a FactoryBean");
         }
         return (FactoryBean<?>) beanInstance;
     }
@@ -248,5 +242,4 @@ public abstract class FactoryBeanRegistrySupport extends DefaultSingletonBeanReg
     protected AccessControlContext getAccessControlContext() {
         return AccessController.getContext();
     }
-
 }

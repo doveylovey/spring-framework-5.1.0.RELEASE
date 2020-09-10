@@ -556,15 +556,28 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
         return this.applicationListeners;
     }
 
+    /**
+     * 该方法里面的多个子方法定义了整个 refresh() 的流程，使整个流程清晰易懂，这是值得学习的地方，我认为一个方法里写百行、千行代码会有以下几个弊端：
+     * 1、扩展性降低。反过来讲，如果把流程定义为方法，则子类可以继承父类，还可以根据需要重写父类中的方法。
+     * 2、代码可读性差。道理很简单，您是愿意看一段 500 行的代码，还是愿意看 10 段 50 行的代码呢？
+     * 3、代码可维护性差。意思是，一段几百行的代码，功能点不明确，不易后人修改，可能会导致 "牵一发而动全身"。
+     *
+     * @throws BeansException
+     * @throws IllegalStateException
+     */
     @Override
     public void refresh() throws BeansException, IllegalStateException {
         // 1、加锁：避免多线程同时刷新Spring上下文。
-        // 2、加锁的方式
+        // 2、synchronized 加锁的方式有几种，而这里使用的是 startUpShutdownMonitor 对象锁，这样有两个好处：
+        // 其一、refresh() 方法和 close() 方法都使用了 startUpShutdownMonitor 对象锁加锁，这就保证了在调用 refresh() 方法时无法调用 close() 方法，反之亦然，避免了冲突；
+        // 其二、使用对象锁可以减小同步的范围，只对不能并发的代码块进行加锁，提高了整体代码运行的效率。
         synchronized (this.startupShutdownMonitor) {
             // Prepare this context for refreshing.
+            // 准备刷新 Spring 上下文
             prepareRefresh();
 
             // Tell the subclass to refresh the internal bean factory.
+            // 获取刷新 Spring 上下文的 Bean 工厂
             ConfigurableListableBeanFactory beanFactory = obtainFreshBeanFactory();
 
             // Prepare the bean factory for use in this context.
@@ -619,16 +632,21 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
     }
 
     /**
+     * 准备此上下文以进行刷新，设置其启动日期和 active 标志以及执行属性源的任何初始化。
      * Prepare this context for refreshing, setting its startup date and
      * active flag as well as performing any initialization of property sources.
      */
     protected void prepareRefresh() {
+        // 设置刷新 Spring 上下文的开始时间
         this.startupDate = System.currentTimeMillis();
+        // 设置 closed 标识位的值为 false
         this.closed.set(false);
+        // 设置 active 标识位的值为 true
         this.active.set(true);
 
         if (logger.isDebugEnabled()) {
             if (logger.isTraceEnabled()) {
+                // 注意：这句日志打印了真正加载 Spring 上下文的 Java 类
                 logger.trace("Refreshing " + this);
             } else {
                 logger.debug("Refreshing " + getDisplayName());
@@ -665,6 +683,8 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
      * @see #getBeanFactory()
      */
     protected ConfigurableListableBeanFactory obtainFreshBeanFactory() {
+        // refreshBeanFactory()是一个抽象方法，AbstractRefreshableApplicationContext 和 GenericApplicationContext 两个子类实现了这个方法，
+        // 由 ClassPathXmlApplicationContext 的继承关系图可知，这里调用的应该是 AbstractRefreshableApplicationContext 类中实现的 refreshBeanFactory() 方法
         refreshBeanFactory();
         return getBeanFactory();
     }
