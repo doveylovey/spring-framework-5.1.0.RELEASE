@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd"
+       profile="dev">
+
+    <bean id="prototypeBean" class="com.study.bean.PrototypeBean" scope="prototype"/>
+
+    <bean id="singletonBean" class="com.study.bean.SingletonBean" scope="singleton">
+        <property name="prototypeBean" ref="prototypeBean"/>
+    </bean>
+
+    <bean id="singletonBean1" class="com.study.bean.SingletonBean1" scope="singleton"/>
+
+    <bean id="applicationContext" autowire="byType" class="org.springframework.context.support.ClassPathXmlApplicationContext"/>
+    <bean id="singletonBean11" class="com.study.bean.SingletonBean11" scope="singleton">
+        <property name="applicationContext" ref="applicationContext"/>
+    </bean>
+
+    <bean id="singletonBean2" class="com.study.bean.SingletonBean2" scope="singleton">
+        <lookup-method name="getPrototypeBean" bean="prototypeBean"/>
+    </bean>
+</beans>
