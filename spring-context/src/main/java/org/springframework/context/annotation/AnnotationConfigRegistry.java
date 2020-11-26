@@ -17,21 +17,18 @@
 package org.springframework.context.annotation;
 
 /**
- * Common interface for annotation config application contexts,
- * defining {@link #register} and {@link #scan} methods.
+ * Common interface for annotation config application contexts, defining {@link #register} and {@link #scan} methods.
  *
  * @author Juergen Hoeller
  * @since 4.1
  */
 public interface AnnotationConfigRegistry {
-
     /**
      * Register one or more annotated classes to be processed.
-     * <p>Calls to {@code register} are idempotent; adding the same
-     * annotated class more than once has no additional effect.
+     * <p>
+     * Calls to {@code register} are idempotent; adding the same annotated class more than once has no additional effect.
      *
-     * @param annotatedClasses one or more annotated classes,
-     *                         e.g. {@link Configuration @Configuration} classes
+     * @param annotatedClasses one or more annotated classes, e.g. {@link Configuration @Configuration} classes
      */
     void register(Class<?>... annotatedClasses);
 
@@ -41,5 +38,4 @@ public interface AnnotationConfigRegistry {
      * @param basePackages the packages to check for annotated classes
      */
     void scan(String... basePackages);
-
 }

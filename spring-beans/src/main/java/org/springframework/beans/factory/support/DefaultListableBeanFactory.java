@@ -482,8 +482,8 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
                         boolean isFactoryBean = isFactoryBean(beanName, mbd);
                         BeanDefinitionHolder dbd = mbd.getDecoratedDefinition();
                         boolean matchFound = (allowEagerInit || !isFactoryBean || (dbd != null && !mbd.isLazyInit()) || containsSingleton(beanName)) &&
-                                        (includeNonSingletons || (dbd != null ? mbd.isSingleton() : isSingleton(beanName))) &&
-                                        isTypeMatch(beanName, type);
+                                (includeNonSingletons || (dbd != null ? mbd.isSingleton() : isSingleton(beanName))) &&
+                                isTypeMatch(beanName, type);
                         if (!matchFound && isFactoryBean) {
                             // In case of FactoryBean, try to match FactoryBean instance itself next.
                             beanName = FACTORY_BEAN_PREFIX + beanName;
@@ -779,11 +779,14 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
         for (String beanName : beanNames) {
             RootBeanDefinition bd = getMergedLocalBeanDefinition(beanName);
             if (!bd.isAbstract() && bd.isSingleton() && !bd.isLazyInit()) {
+                // 判断是不是一个 FactoryBean
                 if (isFactoryBean(beanName)) {
+                    // 若是一个 FactoryBean，则在 getBean() 时添加前缀 "&" 来获取这个 FactoryBean
                     Object bean = getBean(FACTORY_BEAN_PREFIX + beanName);
                     if (bean instanceof FactoryBean) {
                         final FactoryBean<?> factory = (FactoryBean<?>) bean;
                         boolean isEagerInit;
+                        // 做权限校验：判断是不是一个 SmartFactoryBean
                         if (System.getSecurityManager() != null && factory instanceof SmartFactoryBean) {
                             isEagerInit = AccessController.doPrivileged((PrivilegedAction<Boolean>) ((SmartFactoryBean<?>) factory)::isEagerInit, getAccessControlContext());
                         } else {
@@ -794,6 +797,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
                         }
                     }
                 } else {
+                    // 若不是 FactoryBean 则直接创建这个 Bean
                     getBean(beanName);
                 }
             }

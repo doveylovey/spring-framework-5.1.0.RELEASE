@@ -40,7 +40,6 @@ package org.springframework.beans.factory;
  * @since 2.0.3
  */
 public interface SmartFactoryBean<T> extends FactoryBean<T> {
-
     /**
      * Is the object managed by this factory a prototype? That is,
      * will {@link #getObject()} always return an independent instance?
@@ -80,5 +79,4 @@ public interface SmartFactoryBean<T> extends FactoryBean<T> {
     default boolean isEagerInit() {
         return false;
     }
-
 }
