@@ -46,11 +46,9 @@ import org.springframework.core.type.AnnotationMetadata;
  * @since 3.1
  */
 public interface ImportSelector {
-
     /**
      * Select and return the names of which class(es) should be imported based on
      * the {@link AnnotationMetadata} of the importing @{@link Configuration} class.
      */
     String[] selectImports(AnnotationMetadata importingClassMetadata);
-
 }

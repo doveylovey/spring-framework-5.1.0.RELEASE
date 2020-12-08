@@ -16,10 +16,6 @@
 
 package org.springframework.test.context.junit4;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.concurrent.TimeUnit;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Ignore;
@@ -34,24 +30,20 @@ import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.Statement;
-
 import org.springframework.lang.Nullable;
 import org.springframework.test.annotation.ProfileValueUtils;
 import org.springframework.test.annotation.TestAnnotationUtils;
 import org.springframework.test.context.TestContextManager;
 import org.springframework.test.context.junit4.rules.SpringClassRule;
 import org.springframework.test.context.junit4.rules.SpringMethodRule;
-import org.springframework.test.context.junit4.statements.RunAfterTestClassCallbacks;
-import org.springframework.test.context.junit4.statements.RunAfterTestExecutionCallbacks;
-import org.springframework.test.context.junit4.statements.RunAfterTestMethodCallbacks;
-import org.springframework.test.context.junit4.statements.RunBeforeTestClassCallbacks;
-import org.springframework.test.context.junit4.statements.RunBeforeTestExecutionCallbacks;
-import org.springframework.test.context.junit4.statements.RunBeforeTestMethodCallbacks;
-import org.springframework.test.context.junit4.statements.SpringFailOnTimeout;
-import org.springframework.test.context.junit4.statements.SpringRepeat;
+import org.springframework.test.context.junit4.statements.*;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ReflectionUtils;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.concurrent.TimeUnit;
 
 /**
  * {@code SpringJUnit4ClassRunner} is a custom extension of JUnit's
@@ -95,17 +87,13 @@ import org.springframework.util.ReflectionUtils;
  * @since 2.5
  */
 public class SpringJUnit4ClassRunner extends BlockJUnit4ClassRunner {
-
     private static final Log logger = LogFactory.getLog(SpringJUnit4ClassRunner.class);
 
     private static final Method withRulesMethod;
 
     static {
-        Assert.state(ClassUtils.isPresent("org.junit.internal.Throwables", SpringJUnit4ClassRunner.class.getClassLoader()),
-                "SpringJUnit4ClassRunner requires JUnit 4.12 or higher.");
-
-        Method method = ReflectionUtils.findMethod(SpringJUnit4ClassRunner.class, "withRules",
-                FrameworkMethod.class, Object.class, Statement.class);
+        Assert.state(ClassUtils.isPresent("org.junit.internal.Throwables", SpringJUnit4ClassRunner.class.getClassLoader()), "SpringJUnit4ClassRunner requires JUnit 4.12 or higher.");
+        Method method = ReflectionUtils.findMethod(SpringJUnit4ClassRunner.class, "withRules", FrameworkMethod.class, Object.class, Statement.class);
         Assert.state(method != null, "SpringJUnit4ClassRunner requires JUnit 4.12 or higher");
         ReflectionUtils.makeAccessible(method);
         withRulesMethod = method;
@@ -117,12 +105,8 @@ public class SpringJUnit4ClassRunner extends BlockJUnit4ClassRunner {
 
     private static void ensureSpringRulesAreNotPresent(Class<?> testClass) {
         for (Field field : testClass.getFields()) {
-            Assert.state(!SpringClassRule.class.isAssignableFrom(field.getType()), () -> String.format(
-                    "Detected SpringClassRule field in test class [%s], " +
-                            "but SpringClassRule cannot be used with the SpringJUnit4ClassRunner.", testClass.getName()));
-            Assert.state(!SpringMethodRule.class.isAssignableFrom(field.getType()), () -> String.format(
-                    "Detected SpringMethodRule field in test class [%s], " +
-                            "but SpringMethodRule cannot be used with the SpringJUnit4ClassRunner.", testClass.getName()));
+            Assert.state(!SpringClassRule.class.isAssignableFrom(field.getType()), () -> String.format("Detected SpringClassRule field in test class [%s], but SpringClassRule cannot be used with the SpringJUnit4ClassRunner.", testClass.getName()));
+            Assert.state(!SpringMethodRule.class.isAssignableFrom(field.getType()), () -> String.format("Detected SpringMethodRule field in test class [%s], but SpringMethodRule cannot be used with the SpringJUnit4ClassRunner.", testClass.getName()));
         }
     }
 
@@ -329,8 +313,7 @@ public class SpringJUnit4ClassRunner extends BlockJUnit4ClassRunner {
      */
     protected boolean isTestMethodIgnored(FrameworkMethod frameworkMethod) {
         Method method = frameworkMethod.getMethod();
-        return (method.isAnnotationPresent(Ignore.class) ||
-                !ProfileValueUtils.isTestEnabledInThisEnvironment(method, getTestClass().getJavaClass()));
+        return (method.isAnnotationPresent(Ignore.class) || !ProfileValueUtils.isTestEnabledInThisEnvironment(method, getTestClass().getJavaClass()));
     }
 
     /**
@@ -382,9 +365,7 @@ public class SpringJUnit4ClassRunner extends BlockJUnit4ClassRunner {
         long springTimeout = getSpringTimeout(frameworkMethod);
         long junitTimeout = getJUnitTimeout(frameworkMethod);
         if (springTimeout > 0 && junitTimeout > 0) {
-            String msg = String.format("Test method [%s] has been configured with Spring's @Timed(millis=%s) and " +
-                    "JUnit's @Test(timeout=%s) annotations, but only one declaration of a 'timeout' is " +
-                    "permitted per test method.", frameworkMethod.getMethod(), springTimeout, junitTimeout);
+            String msg = String.format("Test method [%s] has been configured with Spring's @Timed(millis=%s) and JUnit's @Test(timeout=%s) annotations, but only one declaration of a 'timeout' is permitted per test method.", frameworkMethod.getMethod(), springTimeout, junitTimeout);
             logger.error(msg);
             throw new IllegalStateException(msg);
         } else if (springTimeout > 0) {
@@ -482,5 +463,4 @@ public class SpringJUnit4ClassRunner extends BlockJUnit4ClassRunner {
     protected Statement withPotentialRepeat(FrameworkMethod frameworkMethod, Object testInstance, Statement next) {
         return new SpringRepeat(next, frameworkMethod.getMethod());
     }
-
 }

@@ -34,8 +34,8 @@ import org.springframework.lang.Nullable;
  * @author Stephane Nicoll
  */
 public interface ApplicationEventMulticaster {
-
     /**
+     * 添加一个监听器以通知所有事件。
      * Add a listener to be notified of all events.
      *
      * @param listener the listener to add
@@ -43,6 +43,7 @@ public interface ApplicationEventMulticaster {
     void addApplicationListener(ApplicationListener<?> listener);
 
     /**
+     * 添加一个监听器 bean，以通知所有事件。
      * Add a listener bean to be notified of all events.
      *
      * @param listenerBeanName the name of the listener bean to add
@@ -50,6 +51,7 @@ public interface ApplicationEventMulticaster {
     void addApplicationListenerBean(String listenerBeanName);
 
     /**
+     * 从通知列表中删除一个监听器。
      * Remove a listener from the notification list.
      *
      * @param listener the listener to remove
@@ -57,6 +59,7 @@ public interface ApplicationEventMulticaster {
     void removeApplicationListener(ApplicationListener<?> listener);
 
     /**
+     * 从通知列表中删除一个监听器 bean。
      * Remove a listener bean from the notification list.
      *
      * @param listenerBeanName the name of the listener bean to add
@@ -64,15 +67,16 @@ public interface ApplicationEventMulticaster {
     void removeApplicationListenerBean(String listenerBeanName);
 
     /**
-     * Remove all listeners registered with this multicaster.
-     * <p>After a remove call, the multicaster will perform no action
-     * on event notification until new listeners are being registered.
+     * 删除在此多播器上注册的所有监听器。删除后，多播程序将不会对事件通知执行任何操作，直到注册新的监听器为止。
+     * Remove all listeners registered with this multicaster. After a remove call, the multicaster
+     * will perform no action on event notification until new listeners are being registered.
      */
     void removeAllListeners();
 
     /**
+     * 将给定的应用程序事件多播到适当的监听器。如果可能的话，请考虑使用 {@link #multicastEvent(ApplicationEvent, ResolvableType)}，因为它为基于泛型的事件提供了更好的支持。
      * Multicast the given application event to appropriate listeners.
-     * <p>Consider using {@link #multicastEvent(ApplicationEvent, ResolvableType)}
+     * Consider using {@link #multicastEvent(ApplicationEvent, ResolvableType)}
      * if possible as it provides a better support for generics-based events.
      *
      * @param event the event to multicast
@@ -80,14 +84,13 @@ public interface ApplicationEventMulticaster {
     void multicastEvent(ApplicationEvent event);
 
     /**
-     * Multicast the given application event to appropriate listeners.
-     * <p>If the {@code eventType} is {@code null}, a default type is built
-     * based on the {@code event} instance.
+     * 将给定的应用程序事件多播到适当的监听器。如果 eventType 为 null，则会基于 event 实例构建默认类型。
+     * Multicast the given application event to appropriate listeners. If the {@code eventType}
+     * is {@code null}, a default type is built based on the {@code event} instance.
      *
      * @param event     the event to multicast
      * @param eventType the type of event (can be null)
      * @since 4.2
      */
     void multicastEvent(ApplicationEvent event, @Nullable ResolvableType eventType);
-
 }

@@ -16,16 +16,12 @@
 
 package org.springframework.context.annotation;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.annotation.AliasFor;
 import org.springframework.stereotype.Component;
+
+import java.lang.annotation.*;
 
 /**
  * Indicates that a class declares one or more {@link Bean @Bean} methods and
@@ -419,12 +415,15 @@ import org.springframework.stereotype.Component;
 @Documented
 @Component
 public @interface Configuration {
+    // 任何一个标注了 @Configuration 的 Java 类定义都是一个 JavaConfig 配置类
+    // 带 @Configuration 的类标识这个类可以使用 Spring IoC 容器作为 Bean 定义的来源
 
     /**
      * Explicitly specify the name of the Spring bean definition associated with the
      * {@code @Configuration} class. If left unspecified (the common case), a bean
      * name will be automatically generated.
-     * <p>The custom name applies only if the {@code @Configuration} class is picked
+     * <p>
+     * The custom name applies only if the {@code @Configuration} class is picked
      * up via component scanning or supplied directly to an
      * {@link AnnotationConfigApplicationContext}. If the {@code @Configuration} class
      * is registered as a traditional XML bean definition, the name/id of the bean
@@ -435,5 +434,4 @@ public @interface Configuration {
      */
     @AliasFor(annotation = Component.class)
     String value() default "";
-
 }

@@ -16,40 +16,26 @@
 
 package org.springframework.core.io.support;
 
-import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.springframework.core.io.UrlResource;
 import org.springframework.lang.Nullable;
-import org.springframework.util.Assert;
-import org.springframework.util.ClassUtils;
-import org.springframework.util.ConcurrentReferenceHashMap;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.util.ReflectionUtils;
-import org.springframework.util.StringUtils;
+import org.springframework.util.*;
+
+import java.io.IOException;
+import java.net.URL;
+import java.util.*;
 
 /**
  * General purpose factory loading mechanism for internal use within the framework.
- *
- * <p>{@code SpringFactoriesLoader} {@linkplain #loadFactories loads} and instantiates
+ * <p>
+ * {@code SpringFactoriesLoader} {@linkplain #loadFactories loads} and instantiates
  * factories of a given type from {@value #FACTORIES_RESOURCE_LOCATION} files which
  * may be present in multiple JAR files in the classpath. The {@code spring.factories}
  * file must be in {@link Properties} format, where the key is the fully qualified
  * name of the interface or abstract class, and the value is a comma-separated list of
  * implementation class names. For example:
- *
  * <pre class="code">example.MyService=example.MyServiceImpl1,example.MyServiceImpl2</pre>
  * <p>
  * where {@code example.MyService} is the name of the interface, and {@code MyServiceImpl1}
@@ -61,34 +47,35 @@ import org.springframework.util.StringUtils;
  * @since 3.2
  */
 public final class SpringFactoriesLoader {
-
-    /**
-     * The location to look for factories.
-     * <p>Can be present in multiple JAR files.
-     */
-    public static final String FACTORIES_RESOURCE_LOCATION = "META-INF/spring.factories";
-
+    // SpringFactoriesLoader 属于 Spring 框架私有的一种扩展方案，其主要功能就是从指定的配置文件 META-INF/spring.factories 中加载配置
+    // SpringFactoriesLoader 是一个供 Spring 内部使用的通用工厂加载器
 
     private static final Log logger = LogFactory.getLog(SpringFactoriesLoader.class);
 
-    private static final Map<ClassLoader, MultiValueMap<String, String>> cache = new ConcurrentReferenceHashMap<>();
+    /**
+     * The location to look for factories. Can be present in multiple JAR files.
+     */
+    public static final String FACTORIES_RESOURCE_LOCATION = "META-INF/spring.factories";
 
+    private static final Map<ClassLoader, MultiValueMap<String, String>> cache = new ConcurrentReferenceHashMap<>();
 
     private SpringFactoriesLoader() {
     }
 
-
     /**
+     * 使用给定的类加载器从 {@value #FACTORIES_RESOURCE_LOCATION} 加载并实例化给定类型的工厂实现。
+     *
      * Load and instantiate the factory implementations of the given type from
      * {@value #FACTORIES_RESOURCE_LOCATION}, using the given class loader.
-     * <p>The returned factories are sorted through {@link AnnotationAwareOrderComparator}.
-     * <p>If a custom instantiation strategy is required, use {@link #loadFactoryNames}
+     * <p>
+     * The returned factories are sorted through {@link AnnotationAwareOrderComparator}.
+     * <p>
+     * If a custom instantiation strategy is required, use {@link #loadFactoryNames}
      * to obtain all registered factory names.
      *
      * @param factoryClass the interface or abstract class representing the factory
      * @param classLoader  the ClassLoader to use for loading (can be {@code null} to use the default)
-     * @throws IllegalArgumentException if any factory implementation class cannot
-     *                                  be loaded or if an error occurs while instantiating any factory
+     * @throws IllegalArgumentException if any factory implementation class cannot be loaded or if an error occurs while instantiating any factory
      * @see #loadFactoryNames
      */
     public static <T> List<T> loadFactories(Class<T> factoryClass, @Nullable ClassLoader classLoader) {
@@ -110,13 +97,13 @@ public final class SpringFactoriesLoader {
     }
 
     /**
-     * Load the fully qualified class names of factory implementations of the
-     * given type from {@value #FACTORIES_RESOURCE_LOCATION}, using the given
-     * class loader.
+     * 使用给定的类加载器从 {@value #FACTORIES_RESOURCE_LOCATION} 加载给定类型的工厂实现的全限定类名。
+     *
+     * Load the fully qualified class names of factory implementations of the given
+     * type from {@value #FACTORIES_RESOURCE_LOCATION}, using the given class loader.
      *
      * @param factoryClass the interface or abstract class representing the factory
-     * @param classLoader  the ClassLoader to use for loading resources; can be
-     *                     {@code null} to use the default
+     * @param classLoader  the ClassLoader to use for loading resources; can be {@code null} to use the default
      * @throws IllegalArgumentException if an error occurs while loading factory names
      * @see #loadFactories
      */
@@ -130,27 +117,22 @@ public final class SpringFactoriesLoader {
         if (result != null) {
             return result;
         }
-
         try {
-            Enumeration<URL> urls = (classLoader != null ?
-                    classLoader.getResources(FACTORIES_RESOURCE_LOCATION) :
-                    ClassLoader.getSystemResources(FACTORIES_RESOURCE_LOCATION));
+            Enumeration<URL> urls = (classLoader != null ? classLoader.getResources(FACTORIES_RESOURCE_LOCATION) : ClassLoader.getSystemResources(FACTORIES_RESOURCE_LOCATION));
             result = new LinkedMultiValueMap<>();
             while (urls.hasMoreElements()) {
                 URL url = urls.nextElement();
                 UrlResource resource = new UrlResource(url);
                 Properties properties = PropertiesLoaderUtils.loadProperties(resource);
                 for (Map.Entry<?, ?> entry : properties.entrySet()) {
-                    List<String> factoryClassNames = Arrays.asList(
-                            StringUtils.commaDelimitedListToStringArray((String) entry.getValue()));
+                    List<String> factoryClassNames = Arrays.asList(StringUtils.commaDelimitedListToStringArray((String) entry.getValue()));
                     result.addAll((String) entry.getKey(), factoryClassNames);
                 }
             }
             cache.put(classLoader, result);
             return result;
         } catch (IOException ex) {
-            throw new IllegalArgumentException("Unable to load factories from location [" +
-                    FACTORIES_RESOURCE_LOCATION + "]", ex);
+            throw new IllegalArgumentException("Unable to load factories from location [" + FACTORIES_RESOURCE_LOCATION + "]", ex);
         }
     }
 
@@ -159,13 +141,11 @@ public final class SpringFactoriesLoader {
         try {
             Class<?> instanceClass = ClassUtils.forName(instanceClassName, classLoader);
             if (!factoryClass.isAssignableFrom(instanceClass)) {
-                throw new IllegalArgumentException(
-                        "Class [" + instanceClassName + "] is not assignable to [" + factoryClass.getName() + "]");
+                throw new IllegalArgumentException("Class [" + instanceClassName + "] is not assignable to [" + factoryClass.getName() + "]");
             }
             return (T) ReflectionUtils.accessibleConstructor(instanceClass).newInstance();
         } catch (Throwable ex) {
             throw new IllegalArgumentException("Unable to instantiate factory class: " + factoryClass.getName(), ex);
         }
     }
-
 }

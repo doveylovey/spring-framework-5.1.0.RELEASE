@@ -16,11 +16,8 @@
 
 package org.springframework.context.event;
 
-import java.util.concurrent.Executor;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
@@ -28,15 +25,17 @@ import org.springframework.core.ResolvableType;
 import org.springframework.lang.Nullable;
 import org.springframework.util.ErrorHandler;
 
+import java.util.concurrent.Executor;
+
 /**
  * Simple implementation of the {@link ApplicationEventMulticaster} interface.
- *
- * <p>Multicasts all events to all registered listeners, leaving it up to
+ * <p>
+ * Multicasts all events to all registered listeners, leaving it up to
  * the listeners to ignore events that they are not interested in.
  * Listeners will usually perform corresponding {@code instanceof}
  * checks on the passed-in event object.
- *
- * <p>By default, all listeners are invoked in the calling thread.
+ * <p>
+ * By default, all listeners are invoked in the calling thread.
  * This allows the danger of a rogue listener blocking the entire application,
  * but adds minimal overhead. Specify an alternative task executor to have
  * listeners executed in different threads, for example from a thread pool.
@@ -47,13 +46,11 @@ import org.springframework.util.ErrorHandler;
  * @see #setTaskExecutor
  */
 public class SimpleApplicationEventMulticaster extends AbstractApplicationEventMulticaster {
-
     @Nullable
     private Executor taskExecutor;
 
     @Nullable
     private ErrorHandler errorHandler;
-
 
     /**
      * Create a new SimpleApplicationEventMulticaster.
@@ -68,13 +65,14 @@ public class SimpleApplicationEventMulticaster extends AbstractApplicationEventM
         setBeanFactory(beanFactory);
     }
 
-
     /**
      * Set a custom executor (typically a {@link org.springframework.core.task.TaskExecutor})
      * to invoke each listener with.
-     * <p>Default is equivalent to {@link org.springframework.core.task.SyncTaskExecutor},
+     * <p>
+     * Default is equivalent to {@link org.springframework.core.task.SyncTaskExecutor},
      * executing all listeners synchronously in the calling thread.
-     * <p>Consider specifying an asynchronous task executor here to not block the
+     * <p>
+     * Consider specifying an asynchronous task executor here to not block the
      * caller until all listeners have been executed. However, note that asynchronous
      * execution will not participate in the caller's thread context (class loader,
      * transaction association) unless the TaskExecutor explicitly supports this.
@@ -97,12 +95,14 @@ public class SimpleApplicationEventMulticaster extends AbstractApplicationEventM
     /**
      * Set the {@link ErrorHandler} to invoke in case an exception is thrown
      * from a listener.
-     * <p>Default is none, with a listener exception stopping the current
+     * <p>
+     * Default is none, with a listener exception stopping the current
      * multicast and getting propagated to the publisher of the current event.
      * If a {@linkplain #setTaskExecutor task executor} is specified, each
      * individual listener exception will get propagated to the executor but
      * won't necessarily stop execution of other listeners.
-     * <p>Consider setting an {@link ErrorHandler} implementation that catches
+     * <p>
+     * Consider setting an {@link ErrorHandler} implementation that catches
      * and logs exceptions (a la
      * {@link org.springframework.scheduling.support.TaskUtils#LOG_AND_SUPPRESS_ERROR_HANDLER})
      * or an implementation that logs exceptions while nevertheless propagating them
@@ -124,7 +124,6 @@ public class SimpleApplicationEventMulticaster extends AbstractApplicationEventM
         return this.errorHandler;
     }
 
-
     @Override
     public void multicastEvent(ApplicationEvent event) {
         multicastEvent(event, resolveDefaultEventType(event));
@@ -133,11 +132,14 @@ public class SimpleApplicationEventMulticaster extends AbstractApplicationEventM
     @Override
     public void multicastEvent(final ApplicationEvent event, @Nullable ResolvableType eventType) {
         ResolvableType type = (eventType != null ? eventType : resolveDefaultEventType(event));
+        // 遍历容器中定义的所有事件监听器
         for (final ApplicationListener<?> listener : getApplicationListeners(event, type)) {
             Executor executor = getTaskExecutor();
             if (executor != null) {
+                // 异步调用事件监听器
                 executor.execute(() -> invokeListener(listener, event));
             } else {
+                // 调用事件监听器
                 invokeListener(listener, event);
             }
         }
@@ -170,6 +172,7 @@ public class SimpleApplicationEventMulticaster extends AbstractApplicationEventM
     @SuppressWarnings({"unchecked", "rawtypes"})
     private void doInvokeListener(ApplicationListener listener, ApplicationEvent event) {
         try {
+            // 处理监听器监听到的事件
             listener.onApplicationEvent(event);
         } catch (ClassCastException ex) {
             String msg = ex.getMessage();
@@ -203,5 +206,4 @@ public class SimpleApplicationEventMulticaster extends AbstractApplicationEventM
         // Assuming an unrelated class cast failure...
         return false;
     }
-
 }
