@@ -30,25 +30,25 @@ import org.springframework.lang.Nullable;
  * interface to be implemented by bean factories that are capable of
  * autowiring, provided that they want to expose this functionality for
  * existing bean instances.
- *
- * <p>This subinterface of BeanFactory is not meant to be used in normal
+ * <p>
+ * This subinterface of BeanFactory is not meant to be used in normal
  * application code: stick to {@link org.springframework.beans.factory.BeanFactory}
  * or {@link org.springframework.beans.factory.ListableBeanFactory} for
  * typical use cases.
- *
- * <p>Integration code for other frameworks can leverage this interface to
+ * <p>
+ * Integration code for other frameworks can leverage this interface to
  * wire and populate existing bean instances that Spring does not control
  * the lifecycle of. This is particularly useful for WebWork Actions and
  * Tapestry Page objects, for example.
- *
- * <p>Note that this interface is not implemented by
+ * <p>
+ * Note that this interface is not implemented by
  * {@link org.springframework.context.ApplicationContext} facades,
  * as it is hardly ever used by application code. That said, it is available
  * from an application context too, accessible through ApplicationContext's
  * {@link org.springframework.context.ApplicationContext#getAutowireCapableBeanFactory()}
  * method.
- *
- * <p>You may also implement the {@link org.springframework.beans.factory.BeanFactoryAware}
+ * <p>
+ * You may also implement the {@link org.springframework.beans.factory.BeanFactoryAware}
  * interface, which exposes the internal BeanFactory even when running in an
  * ApplicationContext, to get access to an AutowireCapableBeanFactory:
  * simply cast the passed-in BeanFactory to AutowireCapableBeanFactory.
@@ -113,8 +113,8 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
 
     /**
      * Suffix for the "original instance" convention when initializing an existing
-     * bean instance: to be appended to the fully-qualified bean class name,
-     * e.g. "com.mypackage.MyClass.ORIGINAL", in order to enforce the given instance
+     * bean instance: to be appended to the fully-qualified bean class name, e.g.
+     * "com.mypackage.MyClass.ORIGINAL", in order to enforce the given instance
      * to be returned, i.e. no proxies etc.
      *
      * @see #initializeBean(Object, String)
@@ -131,9 +131,11 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
 
     /**
      * Fully create a new bean instance of the given class.
-     * <p>Performs full initialization of the bean, including all applicable
+     * <p>
+     * Performs full initialization of the bean, including all applicable
      * {@link BeanPostProcessor BeanPostProcessors}.
-     * <p>Note: This is intended for creating a fresh instance, populating annotated
+     * <p>
+     * Note: This is intended for creating a fresh instance, populating annotated
      * fields and methods as well as applying all standard bean initialization callbacks.
      * It does <i>not</i> imply traditional by-name or by-type autowiring of properties;
      * use {@link #createBean(Class, int, boolean)} for those purposes.
@@ -147,7 +149,8 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
     /**
      * Populate the given bean instance through applying after-instantiation callbacks
      * and bean property post-processing (e.g. for annotation-driven injection).
-     * <p>Note: This is essentially intended for (re-)populating annotated fields and
+     * <p>
+     * Note: This is essentially intended for (re-)populating annotated fields and
      * methods, either for new instances or for deserialized instances. It does
      * <i>not</i> imply traditional by-name or by-type autowiring of properties;
      * use {@link #autowireBeanProperties} for those purposes.
@@ -162,9 +165,12 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
      * bean property values, applying factory callbacks such as {@code setBeanName}
      * and {@code setBeanFactory}, and also applying all bean post processors
      * (including ones which might wrap the given raw bean).
-     * <p>This is effectively a superset of what {@link #initializeBean} provides,
+     * <p>
+     * This is effectively a superset of what {@link #initializeBean} provides,
      * fully applying the configuration specified by the corresponding bean definition.
-     * <b>Note: This method requires a bean definition for the given name!</b>
+     * <b>
+     * Note: This method requires a bean definition for the given name!
+     * </b>
      *
      * @param existingBean the existing bean instance
      * @param beanName     the name of the bean, to be passed to it if necessary
@@ -184,7 +190,8 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
     /**
      * Fully create a new bean instance of the given class with the specified
      * autowire strategy. All constants defined in this interface are supported here.
-     * <p>Performs full initialization of the bean, including all applicable
+     * <p>
+     * Performs full initialization of the bean, including all applicable
      * {@link BeanPostProcessor BeanPostProcessors}. This is effectively a superset
      * of what {@link #autowire} provides, adding {@link #initializeBean} behavior.
      *
@@ -199,15 +206,15 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
      * @see #AUTOWIRE_BY_TYPE
      * @see #AUTOWIRE_CONSTRUCTOR
      */
-    Object createBean(Class<?> beanClass, int autowireMode, boolean dependencyCheck)
-            throws BeansException;
+    Object createBean(Class<?> beanClass, int autowireMode, boolean dependencyCheck) throws BeansException;
 
     /**
      * Instantiate a new bean instance of the given class with the specified autowire
      * strategy. All constants defined in this interface are supported here.
      * Can also be invoked with {@code AUTOWIRE_NO} in order to just apply
      * before-instantiation callbacks (e.g. for annotation-driven injection).
-     * <p>Does <i>not</i> apply standard {@link BeanPostProcessor BeanPostProcessors}
+     * <p>
+     * Does <i>not</i> apply standard {@link BeanPostProcessor BeanPostProcessors}
      * callbacks or perform any further initialization of the bean. This interface
      * offers distinct, fine-grained operations for those purposes, for example
      * {@link #initializeBean}. However, {@link InstantiationAwareBeanPostProcessor}
@@ -229,14 +236,14 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
      * @see #applyBeanPostProcessorsBeforeInitialization
      * @see #applyBeanPostProcessorsAfterInitialization
      */
-    Object autowire(Class<?> beanClass, int autowireMode, boolean dependencyCheck)
-            throws BeansException;
+    Object autowire(Class<?> beanClass, int autowireMode, boolean dependencyCheck) throws BeansException;
 
     /**
      * Autowire the bean properties of the given bean instance by name or type.
      * Can also be invoked with {@code AUTOWIRE_NO} in order to just apply
      * after-instantiation callbacks (e.g. for annotation-driven injection).
-     * <p>Does <i>not</i> apply standard {@link BeanPostProcessor BeanPostProcessors}
+     * <p>
+     * Does <i>not</i> apply standard {@link BeanPostProcessor BeanPostProcessors}
      * callbacks or perform any further initialization of the bean. This interface
      * offers distinct, fine-grained operations for those purposes, for example
      * {@link #initializeBean}. However, {@link InstantiationAwareBeanPostProcessor}
@@ -251,19 +258,20 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
      * @see #AUTOWIRE_BY_TYPE
      * @see #AUTOWIRE_NO
      */
-    void autowireBeanProperties(Object existingBean, int autowireMode, boolean dependencyCheck)
-            throws BeansException;
+    void autowireBeanProperties(Object existingBean, int autowireMode, boolean dependencyCheck) throws BeansException;
 
     /**
      * Apply the property values of the bean definition with the given name to
      * the given bean instance. The bean definition can either define a fully
      * self-contained bean, reusing its property values, or just property values
      * meant to be used for existing bean instances.
-     * <p>This method does <i>not</i> autowire bean properties; it just applies
+     * <p>
+     * This method does <i>not</i> autowire bean properties; it just applies
      * explicitly defined property values. Use the {@link #autowireBeanProperties}
      * method to autowire an existing bean instance.
      * <b>Note: This method requires a bean definition for the given name!</b>
-     * <p>Does <i>not</i> apply standard {@link BeanPostProcessor BeanPostProcessors}
+     * <p>
+     * Does <i>not</i> apply standard {@link BeanPostProcessor BeanPostProcessors}
      * callbacks or perform any further initialization of the bean. This interface
      * offers distinct, fine-grained operations for those purposes, for example
      * {@link #initializeBean}. However, {@link InstantiationAwareBeanPostProcessor}
@@ -283,7 +291,8 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
      * such as {@code setBeanName} and {@code setBeanFactory},
      * also applying all bean post processors (including ones which
      * might wrap the given raw bean).
-     * <p>Note that no bean definition of the given name has to exist
+     * <p>
+     * Note that no bean definition of the given name has to exist
      * in the bean factory. The passed-in bean name will simply be used
      * for callbacks but not checked against the registered bean definitions.
      *
@@ -303,8 +312,7 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
      * instance, invoking their {@code postProcessBeforeInitialization} methods.
      * The returned bean instance may be a wrapper around the original.
      *
-     * @param existingBean the new bean instance
-     *                     (only passed to {@link BeanPostProcessor BeanPostProcessors};
+     * @param existingBean the new bean instance (only passed to {@link BeanPostProcessor BeanPostProcessors};
      *                     can follow the {@link #ORIGINAL_INSTANCE_SUFFIX} convention in order to
      *                     enforce the given instance to be returned, i.e. no proxies etc)
      * @return the bean instance to use, either the original or a wrapped one
@@ -320,8 +328,7 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
      * instance, invoking their {@code postProcessAfterInitialization} methods.
      * The returned bean instance may be a wrapper around the original.
      *
-     * @param existingBean the new bean instance
-     *                     (only passed to {@link BeanPostProcessor BeanPostProcessors};
+     * @param existingBean the new bean instance (only passed to {@link BeanPostProcessor BeanPostProcessors};
      *                     can follow the {@link #ORIGINAL_INSTANCE_SUFFIX} convention in order to
      *                     enforce the given instance to be returned, i.e. no proxies etc)
      * @return the bean instance to use, either the original or a wrapped one
@@ -336,7 +343,8 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
      * Destroy the given bean instance (typically coming from {@link #createBean}),
      * applying the {@link org.springframework.beans.factory.DisposableBean} contract as well as
      * registered {@link DestructionAwareBeanPostProcessor DestructionAwareBeanPostProcessors}.
-     * <p>Any exception that arises during destruction should be caught
+     * <p>
+     * Any exception that arises during destruction should be caught
      * and logged instead of propagated to the caller of this method.
      *
      * @param existingBean the bean instance to destroy
@@ -351,11 +359,11 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
     /**
      * Resolve the bean instance that uniquely matches the given object type, if any,
      * including its bean name.
-     * <p>This is effectively a variant of {@link #getBean(Class)} which preserves the
+     * <p>
+     * This is effectively a variant of {@link #getBean(Class)} which preserves the
      * bean name of the matching instance.
      *
-     * @param requiredType type the bean must match; can be an interface or superclass.
-     *                     {@code null} is disallowed.
+     * @param requiredType type the bean must match; can be an interface or superclass. {@code null} is disallowed.
      * @return the bean name plus bean instance
      * @throws NoSuchBeanDefinitionException   if no matching bean was found
      * @throws NoUniqueBeanDefinitionException if more than one matching bean was found
@@ -397,7 +405,5 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
      * @since 2.5
      */
     @Nullable
-    Object resolveDependency(DependencyDescriptor descriptor, @Nullable String requestingBeanName,
-                             @Nullable Set<String> autowiredBeanNames, @Nullable TypeConverter typeConverter)
-            throws BeansException;
+    Object resolveDependency(DependencyDescriptor descriptor, @Nullable String requestingBeanName, @Nullable Set<String> autowiredBeanNames, @Nullable TypeConverter typeConverter) throws BeansException;
 }

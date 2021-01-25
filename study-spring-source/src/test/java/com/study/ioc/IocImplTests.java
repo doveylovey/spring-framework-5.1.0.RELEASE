@@ -3,6 +3,7 @@ package com.study.ioc;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.ApplicationContext;
@@ -62,6 +63,8 @@ public class IocImplTests {
         // 参考 https://www.cnblogs.com/xrq730/p/6285358.html
         // ClassPathXmlApplicationContext 用于加载 CLASSPATH 下的 Spring 配置文件
         ApplicationContext context = new ClassPathXmlApplicationContext("com/study/ioc/ioc-bean.xml");
+        //AutowireCapableBeanFactory autowireCapableBeanFactory = context.getAutowireCapableBeanFactory();
+        //System.out.println("向下转型结果：" + (autowireCapableBeanFactory instanceof DefaultListableBeanFactory));
         IocBean iocBean = context.getBean(IocBean.class);
         String result = iocBean.toString();
         log.info(result);

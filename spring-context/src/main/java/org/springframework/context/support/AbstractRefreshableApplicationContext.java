@@ -16,14 +16,14 @@
 
 package org.springframework.context.support;
 
-import java.io.IOException;
-
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextException;
 import org.springframework.lang.Nullable;
+
+import java.io.IOException;
 
 /**
  * Base class for {@link org.springframework.context.ApplicationContext}
@@ -128,7 +128,8 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
     @Override
     protected final void refreshBeanFactory() throws BeansException {
         if (hasBeanFactory()) {
-            // 这里判断，如果已经创建了 BeanFactory 则销毁并关闭它
+            // 如果 ApplicationContext 中已经加载过 BeanFactory，则销毁所有 Bean 并关闭 BeanFactory
+            // 注意，应用中的 BeanFactory 是可以有多个的，这里是指当前 ApplicationContext 是否有 BeanFactory，而不是指应用全局
             destroyBeans();
             closeBeanFactory();
         }
@@ -136,10 +137,11 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
             // 通过 createBeanFactory() 方法构建一个 IOC 容器供 ApplicationContext 使用，
             // 这里构建出来的 IOC 容器就是 DefaultListableBeanFactory，它启动了 loadBeanDefinitions() 来载入 BeanDefinition
             DefaultListableBeanFactory beanFactory = createBeanFactory();
+            // 用于 BeanFactory 的序列化
             beanFactory.setSerializationId(getId());
-            // 设置持有的 BeanFactory
+            // 设置 BeanFactory 的两个配置属性：是否允许 Bean 覆盖、是否允许循环引用
             customizeBeanFactory(beanFactory);
-            // 载入 BeanDefinition 信息
+            // 载入 BeanDefinition 信息，即加载 Bean 到 BeanFactory 中
             loadBeanDefinitions(beanFactory);
             synchronized (this.beanFactoryMonitor) {
                 this.beanFactory = beanFactory;

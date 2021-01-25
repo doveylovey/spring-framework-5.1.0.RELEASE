@@ -78,6 +78,7 @@ public abstract class AbstractRefreshableConfigApplicationContext extends Abstra
             Assert.noNullElements(locations, "Config locations must not be null");
             this.configLocations = new String[locations.length];
             for (int i = 0; i < locations.length; i++) {
+                // 解析Spring配置文件路径中的${PlaceHolder}占位符，替换为系统变量中PlaceHolder对应的Value值，System本身就自带一些系统变量比如class.path、os.name、user.dir等，也可以通过System.setProperty()方法设置自己需要的系统变量
                 this.configLocations[i] = resolvePath(locations[i]).trim();
             }
         } else {
