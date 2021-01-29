@@ -29,7 +29,6 @@ import org.springframework.util.Assert;
  * @see AdvisedSupport
  */
 public class ProxyConfig implements Serializable {
-
     /**
      * use serialVersionUID from Spring 1.2 for interoperability.
      */
@@ -50,11 +49,13 @@ public class ProxyConfig implements Serializable {
     /**
      * Set whether to proxy the target class directly, instead of just proxying
      * specific interfaces. Default is "false".
-     * <p>Set this to "true" to force proxying for the TargetSource's exposed
+     * <p>
+     * Set this to "true" to force proxying for the TargetSource's exposed
      * target class. If that target class is an interface, a JDK proxy will be
      * created for the given interface. If that target class is any other class,
      * a CGLIB proxy will be created for the given class.
-     * <p>Note: Depending on the configuration of the concrete proxy factory,
+     * <p>
+     * Note: Depending on the configuration of the concrete proxy factory,
      * the proxy-target-class behavior will also be applied if no interfaces
      * have been specified (and no interface autodetection is activated).
      *
@@ -76,7 +77,8 @@ public class ProxyConfig implements Serializable {
      * The exact meaning of "aggressive optimizations" will differ
      * between proxies, but there is usually some tradeoff.
      * Default is "false".
-     * <p>For example, optimization will usually mean that advice changes won't
+     * <p>
+     * For example, optimization will usually mean that advice changes won't
      * take effect after a proxy has been created. For this reason, optimization
      * is disabled by default. An optimize value of "true" may be ignored
      * if other settings preclude optimization: for example, if "exposeProxy"
@@ -96,7 +98,8 @@ public class ProxyConfig implements Serializable {
     /**
      * Set whether proxies created by this configuration should be prevented
      * from being cast to {@link Advised} to query proxy status.
-     * <p>Default is "false", meaning that any AOP proxy can be cast to
+     * <p>
+     * Default is "false", meaning that any AOP proxy can be cast to
      * {@link Advised}.
      */
     public void setOpaque(boolean opaque) {
@@ -116,7 +119,8 @@ public class ProxyConfig implements Serializable {
      * ThreadLocal for retrieval via the AopContext class. This is useful
      * if an advised object needs to call another advised method on itself.
      * (If it uses {@code this}, the invocation will not be advised).
-     * <p>Default is "false", in order to avoid unnecessary extra interception.
+     * <p>
+     * Default is "false", in order to avoid unnecessary extra interception.
      * This means that no guarantees are provided that AopContext access will
      * work consistently within any method of the advised object.
      */
@@ -134,7 +138,8 @@ public class ProxyConfig implements Serializable {
 
     /**
      * Set whether this config should be frozen.
-     * <p>When a config is frozen, no advice changes can be made. This is
+     * <p>
+     * When a config is frozen, no advice changes can be made. This is
      * useful for optimization, and useful when we don't want callers to
      * be able to manipulate configuration after casting to Advised.
      */
@@ -174,5 +179,4 @@ public class ProxyConfig implements Serializable {
         sb.append("frozen=").append(this.frozen);
         return sb.toString();
     }
-
 }

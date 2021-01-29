@@ -45,7 +45,8 @@ public interface ApplicationEventPublisher {
     /**
      * Notify all <strong>matching</strong> listeners registered with this
      * application of an event.
-     * <p>If the specified {@code event} is not an {@link ApplicationEvent},
+     * <p>
+     * If the specified {@code event} is not an {@link ApplicationEvent},
      * it is wrapped in a {@link PayloadApplicationEvent}.
      *
      * @param event the event to publish

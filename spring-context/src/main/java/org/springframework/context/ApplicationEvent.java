@@ -26,7 +26,6 @@ import java.util.EventObject;
  * @author Juergen Hoeller
  */
 public abstract class ApplicationEvent extends EventObject {
-
     /**
      * use serialVersionUID from Spring 1.2 for interoperability.
      */
@@ -36,7 +35,6 @@ public abstract class ApplicationEvent extends EventObject {
      * System time when the event happened.
      */
     private final long timestamp;
-
 
     /**
      * Create a new ApplicationEvent.
@@ -48,12 +46,10 @@ public abstract class ApplicationEvent extends EventObject {
         this.timestamp = System.currentTimeMillis();
     }
 
-
     /**
      * Return the system time in milliseconds when the event happened.
      */
     public final long getTimestamp() {
         return this.timestamp;
     }
-
 }

@@ -34,13 +34,13 @@ import org.springframework.transaction.PlatformTransactionManager;
  * AOP Alliance MethodInterceptor for declarative transaction
  * management using the common Spring transaction infrastructure
  * ({@link org.springframework.transaction.PlatformTransactionManager}).
- *
- * <p>Derives from the {@link TransactionAspectSupport} class which
+ * <p>
+ * Derives from the {@link TransactionAspectSupport} class which
  * contains the integration with Spring's underlying transaction API.
  * TransactionInterceptor simply calls the relevant superclass methods
  * such as {@link #invokeWithinTransaction} in the correct order.
- *
- * <p>TransactionInterceptors are thread-safe.
+ * <p>
+ * TransactionInterceptors are thread-safe.
  *
  * @author Rod Johnson
  * @author Juergen Hoeller
@@ -50,10 +50,10 @@ import org.springframework.transaction.PlatformTransactionManager;
  */
 @SuppressWarnings("serial")
 public class TransactionInterceptor extends TransactionAspectSupport implements MethodInterceptor, Serializable {
-
     /**
      * Create a new TransactionInterceptor.
-     * <p>Transaction manager and transaction attributes still need to be set.
+     * <p>
+     * Transaction manager and transaction attributes still need to be set.
      *
      * @see #setTransactionManager
      * @see #setTransactionAttributes(java.util.Properties)
@@ -88,7 +88,6 @@ public class TransactionInterceptor extends TransactionAspectSupport implements 
         setTransactionAttributeSource(tas);
     }
 
-
     @Override
     @Nullable
     public Object invoke(MethodInvocation invocation) throws Throwable {
@@ -96,7 +95,6 @@ public class TransactionInterceptor extends TransactionAspectSupport implements 
         // The TransactionAttributeSource should be passed the target class
         // as well as the method, which may be from an interface.
         Class<?> targetClass = (invocation.getThis() != null ? AopUtils.getTargetClass(invocation.getThis()) : null);
-
         // Adapt to TransactionAspectSupport's invokeWithinTransaction...
         return invokeWithinTransaction(invocation.getMethod(), targetClass, invocation::proceed);
     }
@@ -109,7 +107,6 @@ public class TransactionInterceptor extends TransactionAspectSupport implements 
     private void writeObject(ObjectOutputStream oos) throws IOException {
         // Rely on default serialization, although this class itself doesn't carry state anyway...
         oos.defaultWriteObject();
-
         // Deserialize superclass fields.
         oos.writeObject(getTransactionManagerBeanName());
         oos.writeObject(getTransactionManager());
@@ -120,7 +117,6 @@ public class TransactionInterceptor extends TransactionAspectSupport implements 
     private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
         // Rely on default serialization, although this class itself doesn't carry state anyway...
         ois.defaultReadObject();
-
         // Serialize all relevant superclass fields.
         // Superclass can't implement Serializable because it also serves as base class
         // for AspectJ aspects (which are not allowed to implement Serializable)!
@@ -129,5 +125,4 @@ public class TransactionInterceptor extends TransactionAspectSupport implements 
         setTransactionAttributeSource((TransactionAttributeSource) ois.readObject());
         setBeanFactory((BeanFactory) ois.readObject());
     }
-
 }

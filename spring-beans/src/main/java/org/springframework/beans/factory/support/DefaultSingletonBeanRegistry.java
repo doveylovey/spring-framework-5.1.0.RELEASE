@@ -42,20 +42,20 @@ import org.springframework.util.StringUtils;
  * {@link org.springframework.beans.factory.config.SingletonBeanRegistry}.
  * Allows for registering singleton instances that should be shared
  * for all callers of the registry, to be obtained via bean name.
- *
- * <p>Also supports registration of
+ * <p>
+ * Also supports registration of
  * {@link org.springframework.beans.factory.DisposableBean} instances,
  * (which might or might not correspond to registered singletons),
  * to be destroyed on shutdown of the registry. Dependencies between
  * beans can be registered to enforce an appropriate shutdown order.
- *
- * <p>This class mainly serves as base class for
+ * <p>
+ * This class mainly serves as base class for
  * {@link org.springframework.beans.factory.BeanFactory} implementations,
  * factoring out the common management of singleton bean instances. Note that
  * the {@link org.springframework.beans.factory.config.ConfigurableBeanFactory}
  * interface extends the {@link SingletonBeanRegistry} interface.
- *
- * <p>Note that this class assumes neither a bean definition concept
+ * <p>
+ * Note that this class assumes neither a bean definition concept
  * nor a specific creation process for bean instances, in contrast to
  * {@link AbstractBeanFactory} and {@link DefaultListableBeanFactory}
  * (which inherit from it). Can alternatively also be used as a nested
@@ -153,7 +153,8 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 
     /**
      * Add the given singleton object to the singleton cache of this factory.
-     * <p>To be called for eager registration of singletons.
+     * <p>
+     * To be called for eager registration of singletons.
      *
      * @param beanName        the name of the bean
      * @param singletonObject the singleton object
@@ -170,7 +171,8 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
     /**
      * Add the given singleton factory for building the specified singleton
      * if necessary.
-     * <p>To be called for eager registration of singletons, e.g. to be able to
+     * <p>
+     * To be called for eager registration of singletons, e.g. to be able to
      * resolve circular references.
      *
      * @param beanName         the name of the bean
@@ -195,7 +197,8 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 
     /**
      * Return the (raw) singleton object registered under the given name.
-     * <p>Checks already instantiated singletons and also allows for an early
+     * <p>
+     * Checks already instantiated singletons and also allows for an early
      * reference to a currently created singleton (resolving a circular reference).
      *
      * @param beanName            the name of the bean to look for
@@ -360,7 +363,8 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 
     /**
      * Callback before singleton creation.
-     * <p>The default implementation register the singleton as currently in creation.
+     * <p>
+     * The default implementation register the singleton as currently in creation.
      *
      * @param beanName the name of the singleton about to be created
      * @see #isSingletonCurrentlyInCreation
@@ -373,7 +377,8 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 
     /**
      * Callback after singleton creation.
-     * <p>The default implementation marks the singleton as not in creation anymore.
+     * <p>
+     * The default implementation marks the singleton as not in creation anymore.
      *
      * @param beanName the name of the singleton that has been created
      * @see #isSingletonCurrentlyInCreation
@@ -387,7 +392,8 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 
     /**
      * Add the given bean to the list of disposable beans in this registry.
-     * <p>Disposable beans usually correspond to registered singletons,
+     * <p>
+     * Disposable beans usually correspond to registered singletons,
      * matching the bean name but potentially being a different instance
      * (for example, a DisposableBean adapter for a singleton that does not
      * naturally implement Spring's DisposableBean interface).
@@ -404,7 +410,8 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
     /**
      * Register a containment relationship between two beans,
      * e.g. between an inner bean and its containing outer bean.
-     * <p>Also registers the containing bean as dependent on the contained bean
+     * <p>
+     * Also registers the containing bean as dependent on the contained bean
      * in terms of destruction order.
      *
      * @param containedBeanName  the name of the contained (inner) bean
@@ -648,7 +655,8 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 
     /**
      * Exposes the singleton mutex to subclasses and external collaborators.
-     * <p>Subclasses should synchronize on the given Object if they perform
+     * <p>
+     * Subclasses should synchronize on the given Object if they perform
      * any sort of extended singleton creation phase. In particular, subclasses
      * should <i>not</i> have their own mutexes involved in singleton creation,
      * to avoid the potential for deadlocks in lazy-init situations.
@@ -656,5 +664,4 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
     public final Object getSingletonMutex() {
         return this.singletonObjects;
     }
-
 }

@@ -43,20 +43,19 @@ import java.util.stream.Stream;
  * Spring's default implementation of the {@link ConfigurableListableBeanFactory}
  * and {@link BeanDefinitionRegistry} interfaces: a full-fledged bean factory
  * based on bean definition metadata, extensible through post-processors.
- *
- * <p>Typical usage is registering all bean definitions first (possibly read
+ * <p>
+ * Typical usage is registering all bean definitions first (possibly read
  * from a bean definition file), before accessing beans. Bean lookup by name
  * is therefore an inexpensive operation in a local bean definition table,
  * operating on pre-resolved bean definition metadata objects.
- *
- * <p>Note that readers for specific bean definition formats are typically
+ * <p>
+ * Note that readers for specific bean definition formats are typically
  * implemented separately rather than as bean factory subclasses:
  * see for example {@link PropertiesBeanDefinitionReader} and
  * {@link org.springframework.beans.factory.xml.XmlBeanDefinitionReader}.
- *
- * <p>For an alternative implementation of the
- * {@link org.springframework.beans.factory.ListableBeanFactory} interface,
- * have a look at {@link StaticListableBeanFactory}, which manages existing
+ * <p>
+ * For an alternative implementation of the {@link org.springframework.beans.factory.ListableBeanFactory}
+ * interface, have a look at {@link StaticListableBeanFactory}, which manages existing
  * bean instances rather than creating new ones based on bean definitions.
  *
  * @author Rod Johnson
@@ -206,7 +205,8 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
      * Set whether it should be allowed to override bean definitions by registering
      * a different definition with the same name, automatically replacing the former.
      * If not, an exception will be thrown. This also applies to overriding aliases.
-     * <p>Default is "true".
+     * <p>
+     * Default is "true".
      *
      * @see #registerBeanDefinition
      */
@@ -227,7 +227,8 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
     /**
      * Set whether the factory is allowed to eagerly load bean classes
      * even for bean definitions that are marked as "lazy-init".
-     * <p>Default is "true". Turn this flag off to suppress class loading
+     * <p>
+     * Default is "true". Turn this flag off to suppress class loading
      * for lazy-init beans unless such a bean is explicitly requested.
      * In particular, by-type lookups will then simply ignore bean definitions
      * without resolved class name, instead of loading the bean classes on
@@ -909,7 +910,8 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
     /**
      * Reset all bean definition caches for the given bean,
      * including the caches of beans that are derived from it.
-     * <p>Called after an existing bean definition has been replaced or removed,
+     * <p>
+     * Called after an existing bean definition has been replaced or removed,
      * triggering {@link #clearMergedBeanDefinition}, {@link #destroySingleton}
      * and {@link MergedBeanDefinitionPostProcessor#resetBeanDefinition} on the
      * given bean and on all bean definitions that have the given bean as parent.
@@ -1347,7 +1349,8 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 
     /**
      * Determine the autowire candidate in the given set of beans.
-     * <p>Looks for {@code @Primary} and {@code @Priority} (in that order).
+     * <p>
+     * Looks for {@code @Primary} and {@code @Priority} (in that order).
      *
      * @param candidates a Map of candidate names and candidate instances
      *                   that match the required type, as returned by {@link #findAutowireCandidates}
@@ -1411,7 +1414,8 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 
     /**
      * Determine the candidate with the highest priority in the given set of beans.
-     * <p>Based on {@code @javax.annotation.Priority}. As defined by the related
+     * <p>
+     * Based on {@code @javax.annotation.Priority}. As defined by the related
      * {@link org.springframework.core.Ordered} interface, the lowest value has
      * the highest priority.
      *
@@ -1468,7 +1472,8 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
     /**
      * Return the priority assigned for the given bean instance by
      * the {@code javax.annotation.Priority} annotation.
-     * <p>The default implementation delegates to the specified
+     * <p>
+     * The default implementation delegates to the specified
      * {@link #setDependencyComparator dependency comparator}, checking its
      * {@link OrderComparator#getPriority method} if it is an extension of
      * Spring's common {@link OrderComparator} - typically, an
@@ -1787,7 +1792,8 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
     /**
      * An {@link org.springframework.core.OrderComparator.OrderSourceProvider} implementation
      * that is aware of the bean metadata of the instances to sort.
-     * <p>Lookup for the method factory of an instance to sort, if any, and let the
+     * <p>
+     * Lookup for the method factory of an instance to sort, if any, and let the
      * comparator retrieve the {@link org.springframework.core.annotation.Order}
      * value defined on it. This essentially allows for the following construct:
      */
