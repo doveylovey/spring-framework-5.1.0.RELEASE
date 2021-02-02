@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.study.tx.mapper.OrderMapper">
+    <resultMap id="BaseResultMap" type="com.study.tx.entity.Order">
+        <id column="order_id" jdbcType="BIGINT" property="orderId"/>
+        <result column="user_id" jdbcType="BIGINT" property="userId"/>
+        <result column="order_status" jdbcType="TINYINT" property="orderStatus"/>
+        <result column="pay_type" jdbcType="TINYINT" property="payType"/>
+        <result column="pay_money" jdbcType="DECIMAL" property="payMoney"/>
+        <result column="gmt_create" jdbcType="TIMESTAMP" property="gmtCreate"/>
+        <result column="gmt_update" jdbcType="TIMESTAMP" property="gmtUpdate"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        order_id, user_id, order_status, pay_type, pay_money, gmt_create, gmt_update
+    </sql>
+
+    <insert id="insert" keyColumn="order_id" keyProperty="orderId" useGeneratedKeys="true"
+            parameterType="com.study.tx.entity.Order">
+        insert into t_order
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="orderId != null">
+                order_id,
+            </if>
+            <if test="userId != null">
+                user_id,
+            </if>
+            <if test="orderStatus != null">
+                order_status,
+            </if>
+            <if test="payType != null">
+                pay_type,
+            </if>
+            <if test="payMoney != null">
+                pay_money,
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create,
+            </if>
+            <if test="gmtUpdate != null">
+                gmt_update,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="orderId != null">
+                #{orderId,jdbcType=BIGINT},
+            </if>
+            <if test="userId != null">
+                #{userId,jdbcType=BIGINT},
+            </if>
+            <if test="orderStatus != null">
+                #{orderStatus,jdbcType=TINYINT},
+            </if>
+            <if test="payType != null">
+                #{payType,jdbcType=TINYINT},
+            </if>
+            <if test="payMoney != null">
+                #{payMoney,jdbcType=DECIMAL},
+            </if>
+            <if test="gmtCreate != null">
+                #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="gmtUpdate != null">
+                #{gmtUpdate,jdbcType=TIMESTAMP},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="update" parameterType="com.study.tx.entity.Order">
+        update t_order
+        <set>
+            <if test="userId != null">
+                user_id = #{userId,jdbcType=BIGINT},
+            </if>
+            <if test="orderStatus != null">
+                order_status = #{orderStatus,jdbcType=TINYINT},
+            </if>
+            <if test="payType != null">
+                pay_type = #{payType,jdbcType=TINYINT},
+            </if>
+            <if test="payMoney != null">
+                pay_money = #{payMoney,jdbcType=DECIMAL},
+            </if>
+            <if test="gmtCreate != null">
+                gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="gmtUpdate != null">
+                gmt_update = #{gmtUpdate,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where order_id = #{orderId,jdbcType=BIGINT}
+    </update>
+
+    <delete id="delete" parameterType="java.lang.Long">
+        delete
+        from t_order
+        where order_id = #{orderId,jdbcType=BIGINT}
+    </delete>
+
+    <select id="findByUserId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_order
+        where user_id = #{userId,jdbcType=BIGINT}
+    </select>
+</mapper>

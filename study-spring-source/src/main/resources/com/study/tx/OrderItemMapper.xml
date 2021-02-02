@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.study.tx.mapper.OrderItemMapper">
+    <resultMap id="BaseResultMap" type="com.study.tx.entity.OrderItem">
+        <id column="item_id" jdbcType="BIGINT" property="itemId"/>
+        <result column="order_id" jdbcType="BIGINT" property="orderId"/>
+        <result column="user_id" jdbcType="BIGINT" property="userId"/>
+        <result column="product_id" jdbcType="BIGINT" property="productId"/>
+        <result column="product_name" jdbcType="VARCHAR" property="productName"/>
+        <result column="product_price" jdbcType="DECIMAL" property="productPrice"/>
+        <result column="purchase_count" jdbcType="INTEGER" property="purchaseCount"/>
+        <result column="pay_money" jdbcType="DECIMAL" property="payMoney"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        item_id, order_id, user_id, product_id, product_name, product_price, purchase_count, pay_money
+    </sql>
+
+    <insert id="insert" keyColumn="item_id" keyProperty="itemId" useGeneratedKeys="true"
+            parameterType="com.study.tx.entity.OrderItem">
+        insert into t_order_item
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="itemId != null">
+                item_id,
+            </if>
+            <if test="orderId != null">
+                order_id,
+            </if>
+            <if test="userId != null">
+                user_id,
+            </if>
+            <if test="productId != null">
+                product_id,
+            </if>
+            <if test="productName != null">
+                product_name,
+            </if>
+            <if test="productPrice != null">
+                product_price,
+            </if>
+            <if test="purchaseCount != null">
+                purchase_count,
+            </if>
+            <if test="payMoney != null">
+                pay_money,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="itemId != null">
+                #{itemId,jdbcType=BIGINT},
+            </if>
+            <if test="orderId != null">
+                #{orderId,jdbcType=BIGINT},
+            </if>
+            <if test="userId != null">
+                #{userId,jdbcType=BIGINT},
+            </if>
+            <if test="productId != null">
+                #{productId,jdbcType=BIGINT},
+            </if>
+            <if test="productName != null">
+                #{productName,jdbcType=VARCHAR},
+            </if>
+            <if test="productPrice != null">
+                #{productPrice,jdbcType=DECIMAL},
+            </if>
+            <if test="purchaseCount != null">
+                #{purchaseCount,jdbcType=INTEGER},
+            </if>
+            <if test="payMoney != null">
+                #{payMoney,jdbcType=DECIMAL},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="update" parameterType="com.study.tx.entity.OrderItem">
+        update t_order_item
+        <set>
+            <if test="orderId != null">
+                order_id = #{orderId,jdbcType=BIGINT},
+            </if>
+            <if test="userId != null">
+                user_id = #{userId,jdbcType=BIGINT},
+            </if>
+            <if test="productId != null">
+                product_id = #{productId,jdbcType=BIGINT},
+            </if>
+            <if test="productName != null">
+                product_name = #{productName,jdbcType=VARCHAR},
+            </if>
+            <if test="productPrice != null">
+                product_price = #{productPrice,jdbcType=DECIMAL},
+            </if>
+            <if test="purchaseCount != null">
+                purchase_count = #{purchaseCount,jdbcType=INTEGER},
+            </if>
+            <if test="payMoney != null">
+                pay_money = #{payMoney,jdbcType=DECIMAL},
+            </if>
+        </set>
+        where item_id = #{itemId,jdbcType=BIGINT}
+    </update>
+
+    <delete id="delete" parameterType="java.lang.Long">
+        delete
+        from t_order_item
+        where order_id = #{orderId,jdbcType=BIGINT}
+    </delete>
+
+    <select id="findByOrderId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_order_item
+        where order_id = #{orderId,jdbcType=BIGINT}
+    </select>
+</mapper>

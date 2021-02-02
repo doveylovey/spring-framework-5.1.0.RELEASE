@@ -41,21 +41,21 @@ import java.util.concurrent.ConcurrentMap;
 /**
  * Base class for transactional aspects, such as the {@link TransactionInterceptor}
  * or an AspectJ aspect.
- *
- * <p>This enables the underlying Spring transaction infrastructure to be used easily
+ * <p>
+ * This enables the underlying Spring transaction infrastructure to be used easily
  * to implement an aspect for any aspect system.
- *
- * <p>Subclasses are responsible for calling methods in this class in the correct order.
- *
- * <p>If no transaction name has been specified in the {@code TransactionAttribute},
+ * <p>
+ * Subclasses are responsible for calling methods in this class in the correct order.
+ * <p>
+ * If no transaction name has been specified in the {@code TransactionAttribute},
  * the exposed name will be the {@code fully-qualified class name + "." + method name}
  * (by default).
- *
- * <p>Uses the <b>Strategy</b> design pattern. A {@code PlatformTransactionManager}
+ * <p>
+ * Uses the <b>Strategy</b> design pattern. A {@code PlatformTransactionManager}
  * implementation will perform the actual transaction management, and a
  * {@code TransactionAttributeSource} is used for determining transaction definitions.
- *
- * <p>A transaction aspect is serializable if its {@code PlatformTransactionManager}
+ * <p>
+ * A transaction aspect is serializable if its {@code PlatformTransactionManager}
  * and {@code TransactionAttributeSource} are serializable.
  *
  * @author Rod Johnson
@@ -95,9 +95,11 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
      * need to use this mechanism to get at the current TransactionInfo.
      * An around advice such as an AOP Alliance MethodInterceptor can hold a
      * reference to the TransactionInfo throughout the aspect method.
-     * <p>A TransactionInfo will be returned even if no transaction was created.
+     * <p>
+     * A TransactionInfo will be returned even if no transaction was created.
      * The {@code TransactionInfo.hasTransaction()} method can be used to query this.
-     * <p>To find out about specific transaction characteristics, consider using
+     * <p>
+     * To find out about specific transaction characteristics, consider using
      * TransactionSynchronizationManager's {@code isSynchronizationActive()}
      * and/or {@code isActualTransactionActive()} methods.
      *
@@ -162,7 +164,8 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 
     /**
      * Specify the <em>default</em> transaction manager to use to drive transactions.
-     * <p>The default transaction manager will be used if a <em>qualifier</em>
+     * <p>
+     * The default transaction manager will be used if a <em>qualifier</em>
      * has not been declared for a given transaction or if an explicit name for the
      * default transaction manager bean has not been specified.
      *
@@ -184,9 +187,11 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
      * Set properties with method names as keys and transaction attribute
      * descriptors (parsed via TransactionAttributeEditor) as values:
      * e.g. key = "myMethod", value = "PROPAGATION_REQUIRED,readOnly".
-     * <p>Note: Method names are always applied to the target class,
+     * <p>
+     * Note: Method names are always applied to the target class,
      * no matter if defined in an interface or the class itself.
-     * <p>Internally, a NameMatchTransactionAttributeSource will be
+     * <p>
+     * Internally, a NameMatchTransactionAttributeSource will be
      * created from the given properties.
      *
      * @see #setTransactionAttributeSource
@@ -256,14 +261,10 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
     @Override
     public void afterPropertiesSet() {
         if (getTransactionManager() == null && this.beanFactory == null) {
-            throw new IllegalStateException(
-                    "Set the 'transactionManager' property or make sure to run within a BeanFactory " +
-                            "containing a PlatformTransactionManager bean!");
+            throw new IllegalStateException("Set the 'transactionManager' property or make sure to run within a BeanFactory containing a PlatformTransactionManager bean!");
         }
         if (getTransactionAttributeSource() == null) {
-            throw new IllegalStateException(
-                    "Either 'transactionAttributeSource' or 'transactionAttributes' is required: " +
-                            "If there are no transactional methods, then don't use a transaction aspect.");
+            throw new IllegalStateException("Either 'transactionAttributeSource' or 'transactionAttributes' is required: If there are no transactional methods, then don't use a transaction aspect.");
         }
     }
 
@@ -280,8 +281,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
      * @throws Throwable propagated from the target invocation
      */
     @Nullable
-    protected Object invokeWithinTransaction(Method method, @Nullable Class<?> targetClass,
-                                             final InvocationCallback invocation) throws Throwable {
+    protected Object invokeWithinTransaction(Method method, @Nullable Class<?> targetClass, final InvocationCallback invocation) throws Throwable {
         // If the transaction attribute is null, the method is non-transactional.
         // 如果 transaction 属性为 null，则该方法为非事务处理。
 
@@ -423,9 +423,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
      * @param txAttr
      * @return
      */
-    private String methodIdentification(Method method,
-                                        @Nullable Class<?> targetClass,
-                                        @Nullable TransactionAttribute txAttr) {
+    private String methodIdentification(Method method, @Nullable Class<?> targetClass, @Nullable TransactionAttribute txAttr) {
         String methodIdentification = methodIdentification(method, targetClass);
         if (methodIdentification == null) {
             if (txAttr instanceof DefaultTransactionAttribute) {
@@ -442,7 +440,8 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
      * Convenience method to return a String representation of this Method
      * for use in logging. Can be overridden in subclasses to provide a
      * different identifier for the given method.
-     * <p>The default implementation returns {@code null}, indicating the
+     * <p>
+     * The default implementation returns {@code null}, indicating the
      * use of {@link DefaultTransactionAttribute#getDescriptor()} instead,
      * ending up as {@link ClassUtils#getQualifiedMethodName(Method, Class)}.
      *
@@ -458,21 +457,19 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 
     /**
      * Create a transaction if necessary based on the given TransactionAttribute.
-     * <p>Allows callers to perform custom TransactionAttribute lookups through
+     * <p>
+     * Allows callers to perform custom TransactionAttribute lookups through
      * the TransactionAttributeSource.
      *
      * @param txAttr                  the TransactionAttribute (may be {@code null})
-     * @param joinpointIdentification the fully qualified method name
-     *                                (used for monitoring and logging purposes)
+     * @param joinpointIdentification the fully qualified method name (used for monitoring and logging purposes)
      * @return a TransactionInfo object, whether or not a transaction was created.
      * The {@code hasTransaction()} method on TransactionInfo can be used to
      * tell if there was a transaction created.
      * @see #getTransactionAttributeSource()
      */
     @SuppressWarnings("serial")
-    protected TransactionInfo createTransactionIfNecessary(@Nullable PlatformTransactionManager tm,
-                                                           @Nullable TransactionAttribute txAttr,
-                                                           final String joinpointIdentification) {
+    protected TransactionInfo createTransactionIfNecessary(@Nullable PlatformTransactionManager tm, @Nullable TransactionAttribute txAttr, final String joinpointIdentification) {
         // If no name specified, apply method identification as transaction name.
         if (txAttr != null && txAttr.getName() == null) {
             txAttr = new DelegatingTransactionAttribute(txAttr) {
@@ -501,15 +498,11 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
      * Prepare a TransactionInfo for the given attribute and status object.
      *
      * @param txAttr                  the TransactionAttribute (may be {@code null})
-     * @param joinpointIdentification the fully qualified method name
-     *                                (used for monitoring and logging purposes)
+     * @param joinpointIdentification the fully qualified method name (used for monitoring and logging purposes)
      * @param status                  the TransactionStatus for the current transaction
      * @return the prepared TransactionInfo object
      */
-    protected TransactionInfo prepareTransactionInfo(@Nullable PlatformTransactionManager tm,
-                                                     @Nullable TransactionAttribute txAttr,
-                                                     String joinpointIdentification,
-                                                     @Nullable TransactionStatus status) {
+    protected TransactionInfo prepareTransactionInfo(@Nullable PlatformTransactionManager tm, @Nullable TransactionAttribute txAttr, String joinpointIdentification, @Nullable TransactionStatus status) {
         TransactionInfo txInfo = new TransactionInfo(tm, txAttr, joinpointIdentification);
         if (txAttr != null) {
             // We need a transaction for this method...
@@ -592,7 +585,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 
     /**
      * Reset the TransactionInfo ThreadLocal.
-     * <p>Call this in all cases: exception or normal return!
+     * Call this in all cases: exception or normal return!
      *
      * @param txInfo information about the current transaction (may be {@code null})
      */
@@ -622,9 +615,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
         @Nullable
         private TransactionInfo oldTransactionInfo;// 上一个事务信息。当传播行为是 REQUIRE_NEW 时，它指事务挂起后前一个事务的事务信息
 
-        public TransactionInfo(@Nullable PlatformTransactionManager transactionManager,
-                               @Nullable TransactionAttribute transactionAttribute,
-                               String joinpointIdentification) {
+        public TransactionInfo(@Nullable PlatformTransactionManager transactionManager, @Nullable TransactionAttribute transactionAttribute, String joinpointIdentification) {
             this.transactionManager = transactionManager;
             this.transactionAttribute = transactionAttribute;
             this.joinpointIdentification = joinpointIdentification;
@@ -691,7 +682,6 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
      */
     @FunctionalInterface
     protected interface InvocationCallback {
-
         Object proceedWithInvocation() throws Throwable;
     }
 
@@ -712,7 +702,6 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
      */
     @SuppressWarnings("serial")
     private static class ThrowableHolderException extends RuntimeException {
-
         public ThrowableHolderException(Throwable throwable) {
             super(throwable);
         }
@@ -722,5 +711,4 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
             return getCause().toString();
         }
     }
-
 }
