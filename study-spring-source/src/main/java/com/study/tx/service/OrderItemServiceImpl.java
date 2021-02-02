@@ -36,10 +36,10 @@ public class OrderItemServiceImpl implements OrderItemService {
         orderItem.setPurchaseCount(10);
         orderItem.setPayMoney(BigDecimal.TEN);
 
-        /*if (orderItem.getOrderId() % 2 == 0) {
+        if (orderItem.getOrderId() % 2 == 0) {
             // 模拟异常
             throw new RuntimeException("操作 t_order_item 之前抛出了异常！");
-        }*/
+        }
 
         int result = orderItemMapper.insert(orderItem);
         System.out.println("操作 t_order_item 结果：" + result);

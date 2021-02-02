@@ -62,7 +62,7 @@ public class LiteralTests extends AbstractExpressionTests {
 
     @Test
     public void testLiteralString03() {
-        evaluate("'hello'", "hello", String.class);
+        evaluate("'file'", "hello", String.class);
     }
 
     @Test

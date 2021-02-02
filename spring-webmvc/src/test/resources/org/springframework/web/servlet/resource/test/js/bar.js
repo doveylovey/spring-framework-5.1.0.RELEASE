@@ -1,3 +1,3 @@
 function foo() {
-    console.log("hello bar");
+    console.log("file bar");
 }

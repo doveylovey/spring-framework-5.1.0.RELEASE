@@ -3,13 +3,13 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd"
        profile="dev">
 
-    <bean id="springReadProperties" class="com.study.hello.SpringReadProperties">
+    <bean id="springReadProperties" class="com.study.file.SpringReadProperties">
         <constructor-arg>
             <value>com/study/hello/java.properties</value>
         </constructor-arg>
     </bean>
 
-    <bean id="springReadPropertiesClient" class="com.study.hello.SpringReadPropertiesClient">
+    <bean id="springReadPropertiesClient" class="com.study.file.SpringReadPropertiesClient">
         <constructor-arg>
             <ref bean="springReadProperties"/>
         </constructor-arg>

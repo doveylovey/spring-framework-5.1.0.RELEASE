@@ -223,7 +223,7 @@ public class ResourceHttpRequestHandlerTests {
         this.handler.handleRequest(this.request, this.response);
 
         assertEquals("text/javascript", this.response.getContentType());
-        assertEquals("function foo() { console.log(\"hello world\"); }", this.response.getContentAsString());
+        assertEquals("function foo() { console.log(\"file world\"); }", this.response.getContentAsString());
     }
 
     @Test
@@ -232,7 +232,7 @@ public class ResourceHttpRequestHandlerTests {
         this.handler.handleRequest(this.request, this.response);
 
         assertEquals("text/javascript", this.response.getContentType());
-        assertEquals("function foo() { console.log(\"hello world\"); }", this.response.getContentAsString());
+        assertEquals("function foo() { console.log(\"file world\"); }", this.response.getContentAsString());
     }
 
     @Test  // SPR-13658

@@ -104,7 +104,7 @@ public class InProgressTests extends AbstractExpressionTests {
 
     @Test
     public void testSelection04() {
-        evaluateAndCheckError("mapOfNumbersUpToTen.?['hello'].size()",
+        evaluateAndCheckError("mapOfNumbersUpToTen.?['file'].size()",
                 SpelMessage.RESULT_OF_SELECTION_CRITERIA_IS_NOT_BOOLEAN);
     }
 

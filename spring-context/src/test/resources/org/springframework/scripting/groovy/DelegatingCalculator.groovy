@@ -7,7 +7,7 @@ class DelegatingCalculator implements Calculator {
     def Calculator delegate;
 
     int add(int x, int y) {
-        //println "hello"
+        //println "file"
         //println this.metaClass.getClass()
         //println delegate.metaClass.getClass()
         //delegate.metaClass.invokeMethod("add", [x,y])

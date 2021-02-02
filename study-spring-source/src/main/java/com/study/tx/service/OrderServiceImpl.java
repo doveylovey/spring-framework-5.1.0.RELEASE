@@ -42,10 +42,10 @@ public class OrderServiceImpl implements OrderService {
         int result = orderMapper.insert(order);
         System.out.println("操作 t_order 结果：" + result);
 
-        /*if (order.getOrderId() % 3 == 0) {
+        if (order.getOrderId() % 3 == 0) {
             // 模拟异常
             throw new RuntimeException("操作 t_order 之后、 t_order_item 之前抛出了异常！");
-        }*/
+        }
 
         result = orderItemService.insert(order, productId);
 

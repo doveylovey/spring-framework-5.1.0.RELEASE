@@ -212,7 +212,7 @@ public class DispatcherHandlerErrorTests {
         @RequestMapping("/request-body")
         @ResponseBody
         public Publisher<String> requestBody(@RequestBody Publisher<String> body) {
-            return Mono.from(body).map(s -> "hello " + s);
+            return Mono.from(body).map(s -> "file " + s);
         }
     }
 

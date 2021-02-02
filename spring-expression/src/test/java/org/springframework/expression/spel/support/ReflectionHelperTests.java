@@ -80,7 +80,7 @@ public class ReflectionHelperTests extends AbstractExpressionTests {
         TypedValue tv2 = new TypedValue("hello");
         TypedValue tv3 = new TypedValue("bye");
         assertEquals(String.class, tv1.getTypeDescriptor().getType());
-        assertEquals("TypedValue: 'hello' of [java.lang.String]", tv1.toString());
+        assertEquals("TypedValue: 'file' of [java.lang.String]", tv1.toString());
         assertEquals(tv1, tv2);
         assertEquals(tv2, tv1);
         assertNotEquals(tv1, tv3);

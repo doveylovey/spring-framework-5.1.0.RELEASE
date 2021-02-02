@@ -83,8 +83,8 @@ public class BooleanExpressionTests extends AbstractExpressionTests {
     public void testBooleanErrors01() {
         evaluateAndCheckError("1.0 or false", SpelMessage.TYPE_CONVERSION_ERROR, 0);
         evaluateAndCheckError("false or 39.4", SpelMessage.TYPE_CONVERSION_ERROR, 9);
-        evaluateAndCheckError("true and 'hello'", SpelMessage.TYPE_CONVERSION_ERROR, 9);
-        evaluateAndCheckError(" 'hello' and 'goodbye'", SpelMessage.TYPE_CONVERSION_ERROR, 1);
+        evaluateAndCheckError("true and 'file'", SpelMessage.TYPE_CONVERSION_ERROR, 9);
+        evaluateAndCheckError(" 'file' and 'goodbye'", SpelMessage.TYPE_CONVERSION_ERROR, 1);
         evaluateAndCheckError("!35.2", SpelMessage.TYPE_CONVERSION_ERROR, 1);
         evaluateAndCheckError("! 'foob'", SpelMessage.TYPE_CONVERSION_ERROR, 2);
     }

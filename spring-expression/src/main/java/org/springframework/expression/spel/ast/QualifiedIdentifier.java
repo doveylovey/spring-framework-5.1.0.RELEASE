@@ -25,7 +25,7 @@ import org.springframework.lang.Nullable;
  * Represents a dot separated sequence of strings that indicate a package qualified type
  * reference.
  *
- * <p>Example: "java.lang.String" as in the expression "new java.lang.String('hello')"
+ * <p>Example: "java.lang.String" as in the expression "new java.lang.String('file')"
  *
  * @author Andy Clement
  * @since 3.0

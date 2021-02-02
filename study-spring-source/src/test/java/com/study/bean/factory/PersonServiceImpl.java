@@ -17,6 +17,6 @@ public class PersonServiceImpl implements PersonService {
 
     @Override
     public void sayHello(Person person) {
-        System.out.println("方法被执行了：hello " + person.toString());
+        System.out.println("方法被执行了：file " + person.toString());
     }
 }

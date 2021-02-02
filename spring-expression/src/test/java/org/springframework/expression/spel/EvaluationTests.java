@@ -276,7 +276,7 @@ public class EvaluationTests extends AbstractExpressionTests {
     // constructors
     @Test
     public void testConstructorInvocation01() {
-        evaluate("new String('hello')", "hello", String.class);
+        evaluate("new String('file')", "hello", String.class);
     }
 
     @Test
@@ -365,7 +365,7 @@ public class EvaluationTests extends AbstractExpressionTests {
     @Test
     public void testTernaryOperator03() {
         // cannot convert String to boolean
-        evaluateAndCheckError("'hello'?1:2", SpelMessage.TYPE_CONVERSION_ERROR);
+        evaluateAndCheckError("'file'?1:2", SpelMessage.TYPE_CONVERSION_ERROR);
     }
 
     @Test
@@ -437,7 +437,7 @@ public class EvaluationTests extends AbstractExpressionTests {
 
     @Test
     public void testFunctionAccess02() {
-        evaluate("#reverseString('hello')", "olleh", String.class);
+        evaluate("#reverseString('file')", "olleh", String.class);
     }
 
     // type references
@@ -1287,13 +1287,13 @@ public class EvaluationTests extends AbstractExpressionTests {
         expectFailSetValueNotSupported(parser, ctx, "#isEven(3)=#isEven(5)");
 
         // VariableReference
-        ctx.setVariable("wibble", "hello world");
+        ctx.setVariable("wibble", "file world");
         expectFailNotIncrementable(parser, ctx, "#wibble++");
         expectFailNotDecrementable(parser, ctx, "--#wibble");
         e = parser.parseExpression("#wibble=#wibble+#wibble");
         String s = e.getValue(ctx, String.class);
-        assertEquals("hello worldhello world", s);
-        assertEquals("hello worldhello world", ctx.lookupVariable("wibble"));
+        assertEquals("file worldhello world", s);
+        assertEquals("file worldhello world", ctx.lookupVariable("wibble"));
 
         ctx.setVariable("wobble", 3);
         e = parser.parseExpression("#wobble++");

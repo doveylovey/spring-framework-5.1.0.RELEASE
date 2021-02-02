@@ -179,7 +179,7 @@ public class SetValueTests extends AbstractExpressionTests {
 
     @Test
     public void testIndexingIntoUnsupportedType() {
-        setValueExpectError("'hello'[3]", 'p');
+        setValueExpectError("'file'[3]", 'p');
     }
 
     @Test

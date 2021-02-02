@@ -74,17 +74,17 @@ public class TemplateExpressionParsingTests extends AbstractExpressionTests {
     @Test
     public void testParsingSimpleTemplateExpression01() throws Exception {
         SpelExpressionParser parser = new SpelExpressionParser();
-        Expression expr = parser.parseExpression("hello ${'world'}", DEFAULT_TEMPLATE_PARSER_CONTEXT);
+        Expression expr = parser.parseExpression("file ${'world'}", DEFAULT_TEMPLATE_PARSER_CONTEXT);
         Object o = expr.getValue();
-        assertEquals("hello world", o.toString());
+        assertEquals("file world", o.toString());
     }
 
     @Test
     public void testParsingSimpleTemplateExpression02() throws Exception {
         SpelExpressionParser parser = new SpelExpressionParser();
-        Expression expr = parser.parseExpression("hello ${'to'} you", DEFAULT_TEMPLATE_PARSER_CONTEXT);
+        Expression expr = parser.parseExpression("file ${'to'} you", DEFAULT_TEMPLATE_PARSER_CONTEXT);
         Object o = expr.getValue();
-        assertEquals("hello to you", o.toString());
+        assertEquals("file to you", o.toString());
     }
 
     @Test
@@ -99,9 +99,9 @@ public class TemplateExpressionParsingTests extends AbstractExpressionTests {
     @Test
     public void testParsingSimpleTemplateExpression04() throws Exception {
         SpelExpressionParser parser = new SpelExpressionParser();
-        Expression expr = parser.parseExpression("${'hello'} world", DEFAULT_TEMPLATE_PARSER_CONTEXT);
+        Expression expr = parser.parseExpression("${'file'} world", DEFAULT_TEMPLATE_PARSER_CONTEXT);
         Object o = expr.getValue();
-        assertEquals("hello world", o.toString());
+        assertEquals("file world", o.toString());
 
         expr = parser.parseExpression("", DEFAULT_TEMPLATE_PARSER_CONTEXT);
         o = expr.getValue();
@@ -119,21 +119,21 @@ public class TemplateExpressionParsingTests extends AbstractExpressionTests {
     @Test
     public void testCompositeStringExpression() throws Exception {
         SpelExpressionParser parser = new SpelExpressionParser();
-        Expression ex = parser.parseExpression("hello ${'world'}", DEFAULT_TEMPLATE_PARSER_CONTEXT);
-        checkString("hello world", ex.getValue());
-        checkString("hello world", ex.getValue(String.class));
-        checkString("hello world", ex.getValue((Object) null, String.class));
-        checkString("hello world", ex.getValue(new Rooty()));
-        checkString("hello world", ex.getValue(new Rooty(), String.class));
+        Expression ex = parser.parseExpression("file ${'world'}", DEFAULT_TEMPLATE_PARSER_CONTEXT);
+        checkString("file world", ex.getValue());
+        checkString("file world", ex.getValue(String.class));
+        checkString("file world", ex.getValue((Object) null, String.class));
+        checkString("file world", ex.getValue(new Rooty()));
+        checkString("file world", ex.getValue(new Rooty(), String.class));
 
         EvaluationContext ctx = new StandardEvaluationContext();
-        checkString("hello world", ex.getValue(ctx));
-        checkString("hello world", ex.getValue(ctx, String.class));
-        checkString("hello world", ex.getValue(ctx, null, String.class));
-        checkString("hello world", ex.getValue(ctx, new Rooty()));
-        checkString("hello world", ex.getValue(ctx, new Rooty(), String.class));
-        checkString("hello world", ex.getValue(ctx, new Rooty(), String.class));
-        assertEquals("hello ${'world'}", ex.getExpressionString());
+        checkString("file world", ex.getValue(ctx));
+        checkString("file world", ex.getValue(ctx, String.class));
+        checkString("file world", ex.getValue(ctx, null, String.class));
+        checkString("file world", ex.getValue(ctx, new Rooty()));
+        checkString("file world", ex.getValue(ctx, new Rooty(), String.class));
+        checkString("file world", ex.getValue(ctx, new Rooty(), String.class));
+        assertEquals("file ${'world'}", ex.getExpressionString());
         assertFalse(ex.isWritable(new StandardEvaluationContext()));
         assertFalse(ex.isWritable(new Rooty()));
         assertFalse(ex.isWritable(new StandardEvaluationContext(), new Rooty()));
@@ -174,33 +174,33 @@ public class TemplateExpressionParsingTests extends AbstractExpressionTests {
     public void testNestedExpressions() throws Exception {
         SpelExpressionParser parser = new SpelExpressionParser();
         // treat the nested ${..} as a part of the expression
-        Expression ex = parser.parseExpression("hello ${listOfNumbersUpToTen.$[#this<5]} world", DEFAULT_TEMPLATE_PARSER_CONTEXT);
+        Expression ex = parser.parseExpression("file ${listOfNumbersUpToTen.$[#this<5]} world", DEFAULT_TEMPLATE_PARSER_CONTEXT);
         String s = ex.getValue(TestScenarioCreator.getTestEvaluationContext(), String.class);
-        assertEquals("hello 4 world", s);
+        assertEquals("file 4 world", s);
 
         // not a useful expression but tests nested expression syntax that clashes with template prefix/suffix
-        ex = parser.parseExpression("hello ${listOfNumbersUpToTen.$[#root.listOfNumbersUpToTen.$[#this%2==1]==3]} world", DEFAULT_TEMPLATE_PARSER_CONTEXT);
+        ex = parser.parseExpression("file ${listOfNumbersUpToTen.$[#root.listOfNumbersUpToTen.$[#this%2==1]==3]} world", DEFAULT_TEMPLATE_PARSER_CONTEXT);
         assertEquals(CompositeStringExpression.class, ex.getClass());
         CompositeStringExpression cse = (CompositeStringExpression) ex;
         Expression[] exprs = cse.getExpressions();
         assertEquals(3, exprs.length);
         assertEquals("listOfNumbersUpToTen.$[#root.listOfNumbersUpToTen.$[#this%2==1]==3]", exprs[1].getExpressionString());
         s = ex.getValue(TestScenarioCreator.getTestEvaluationContext(), String.class);
-        assertEquals("hello  world", s);
+        assertEquals("file  world", s);
 
-        ex = parser.parseExpression("hello ${listOfNumbersUpToTen.$[#this<5]} ${listOfNumbersUpToTen.$[#this>5]} world", DEFAULT_TEMPLATE_PARSER_CONTEXT);
+        ex = parser.parseExpression("file ${listOfNumbersUpToTen.$[#this<5]} ${listOfNumbersUpToTen.$[#this>5]} world", DEFAULT_TEMPLATE_PARSER_CONTEXT);
         s = ex.getValue(TestScenarioCreator.getTestEvaluationContext(), String.class);
-        assertEquals("hello 4 10 world", s);
+        assertEquals("file 4 10 world", s);
 
         try {
-            ex = parser.parseExpression("hello ${listOfNumbersUpToTen.$[#this<5]} ${listOfNumbersUpToTen.$[#this>5] world", DEFAULT_TEMPLATE_PARSER_CONTEXT);
+            ex = parser.parseExpression("file ${listOfNumbersUpToTen.$[#this<5]} ${listOfNumbersUpToTen.$[#this>5] world", DEFAULT_TEMPLATE_PARSER_CONTEXT);
             fail("Should have failed");
         } catch (ParseException pe) {
             assertEquals("No ending suffix '}' for expression starting at character 41: ${listOfNumbersUpToTen.$[#this>5] world", pe.getSimpleMessage());
         }
 
         try {
-            ex = parser.parseExpression("hello ${listOfNumbersUpToTen.$[#root.listOfNumbersUpToTen.$[#this%2==1==3]} world", DEFAULT_TEMPLATE_PARSER_CONTEXT);
+            ex = parser.parseExpression("file ${listOfNumbersUpToTen.$[#root.listOfNumbersUpToTen.$[#this%2==1==3]} world", DEFAULT_TEMPLATE_PARSER_CONTEXT);
             fail("Should have failed");
         } catch (ParseException pe) {
             assertEquals("Found closing '}' at position 74 but most recent opening is '[' at position 30", pe.getSimpleMessage());
@@ -211,17 +211,17 @@ public class TemplateExpressionParsingTests extends AbstractExpressionTests {
 
     public void testClashingWithSuffixes() throws Exception {
         // Just wanting to use the prefix or suffix within the template:
-        Expression ex = parser.parseExpression("hello ${3+4} world", DEFAULT_TEMPLATE_PARSER_CONTEXT);
+        Expression ex = parser.parseExpression("file ${3+4} world", DEFAULT_TEMPLATE_PARSER_CONTEXT);
         String s = ex.getValue(TestScenarioCreator.getTestEvaluationContext(), String.class);
-        assertEquals("hello 7 world", s);
+        assertEquals("file 7 world", s);
 
-        ex = parser.parseExpression("hello ${3+4} wo${'${'}rld", DEFAULT_TEMPLATE_PARSER_CONTEXT);
+        ex = parser.parseExpression("file ${3+4} wo${'${'}rld", DEFAULT_TEMPLATE_PARSER_CONTEXT);
         s = ex.getValue(TestScenarioCreator.getTestEvaluationContext(), String.class);
-        assertEquals("hello 7 wo${rld", s);
+        assertEquals("file 7 wo${rld", s);
 
-        ex = parser.parseExpression("hello ${3+4} wo}rld", DEFAULT_TEMPLATE_PARSER_CONTEXT);
+        ex = parser.parseExpression("file ${3+4} wo}rld", DEFAULT_TEMPLATE_PARSER_CONTEXT);
         s = ex.getValue(TestScenarioCreator.getTestEvaluationContext(), String.class);
-        assertEquals("hello 7 wo}rld", s);
+        assertEquals("file 7 wo}rld", s);
     }
 
     @Test
@@ -233,20 +233,20 @@ public class TemplateExpressionParsingTests extends AbstractExpressionTests {
     @Test
     public void testErrorCases() throws Exception {
         try {
-            parser.parseExpression("hello ${'world'", DEFAULT_TEMPLATE_PARSER_CONTEXT);
+            parser.parseExpression("file ${'world'", DEFAULT_TEMPLATE_PARSER_CONTEXT);
             fail("Should have failed");
         } catch (ParseException pe) {
             assertEquals("No ending suffix '}' for expression starting at character 6: ${'world'", pe.getSimpleMessage());
-            assertEquals("hello ${'world'", pe.getExpressionString());
+            assertEquals("file ${'world'", pe.getExpressionString());
         }
         try {
-            parser.parseExpression("hello ${'wibble'${'world'}", DEFAULT_TEMPLATE_PARSER_CONTEXT);
+            parser.parseExpression("file ${'wibble'${'world'}", DEFAULT_TEMPLATE_PARSER_CONTEXT);
             fail("Should have failed");
         } catch (ParseException pe) {
             assertEquals("No ending suffix '}' for expression starting at character 6: ${'wibble'${'world'}", pe.getSimpleMessage());
         }
         try {
-            parser.parseExpression("hello ${} world", DEFAULT_TEMPLATE_PARSER_CONTEXT);
+            parser.parseExpression("file ${} world", DEFAULT_TEMPLATE_PARSER_CONTEXT);
             fail("Should have failed");
         } catch (ParseException pe) {
             assertEquals("No expression defined within delimiter '${}' at character 6", pe.getSimpleMessage());

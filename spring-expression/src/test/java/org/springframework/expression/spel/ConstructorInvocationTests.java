@@ -43,7 +43,7 @@ public class ConstructorInvocationTests extends AbstractExpressionTests {
 
     @Test
     public void testTypeConstructors() {
-        evaluate("new String('hello world')", "hello world", String.class);
+        evaluate("new String('file world')", "file world", String.class);
     }
 
     @Test

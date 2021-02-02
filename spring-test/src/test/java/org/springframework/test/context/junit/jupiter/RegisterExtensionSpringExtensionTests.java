@@ -202,8 +202,8 @@ class RegisterExtensionSpringExtensionTests {
     void valueParameterFromSpelExpressionWithNestedPropertyPlaceholder(
             @Value("#{'Hello ' + ${enigma}}") String hello) {
         assertNotNull(hello,
-                "hello should have been injected via SpEL expression in @Value by Spring");
-        assertEquals("Hello 42", hello, "hello from SpEL expression");
+                "file should have been injected via SpEL expression in @Value by Spring");
+        assertEquals("Hello 42", hello, "file from SpEL expression");
     }
 
     @Test

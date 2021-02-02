@@ -112,16 +112,16 @@ public class PropertyAccessTests extends AbstractExpressionTests {
         // names the String class as the type it is interested in so is chosen in preference to
         // any 'default' ones
         ctx.addPropertyAccessor(new StringyPropertyAccessor());
-        Expression expr = parser.parseRaw("new String('hello').flibbles");
+        Expression expr = parser.parseRaw("new String('file').flibbles");
         Integer i = expr.getValue(ctx, Integer.class);
         assertEquals(7, (int) i);
 
         // The reflection one will be used for other properties...
-        expr = parser.parseRaw("new String('hello').CASE_INSENSITIVE_ORDER");
+        expr = parser.parseRaw("new String('file').CASE_INSENSITIVE_ORDER");
         Object o = expr.getValue(ctx);
         assertNotNull(o);
 
-        expr = parser.parseRaw("new String('hello').flibbles");
+        expr = parser.parseRaw("new String('file').flibbles");
         expr.setValue(ctx, 99);
         i = expr.getValue(ctx, Integer.class);
         assertEquals(99, (int) i);

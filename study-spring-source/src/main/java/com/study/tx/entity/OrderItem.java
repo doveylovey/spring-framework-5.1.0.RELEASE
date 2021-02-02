@@ -117,4 +117,18 @@ public class OrderItem implements Serializable {
     public void setPayMoney(BigDecimal payMoney) {
         this.payMoney = payMoney;
     }
+
+    @Override
+    public String toString() {
+        return "OrderItem{" +
+                "itemId=" + itemId +
+                ", orderId=" + orderId +
+                ", userId=" + userId +
+                ", productId=" + productId +
+                ", productName='" + productName + '\'' +
+                ", productPrice=" + productPrice +
+                ", purchaseCount=" + purchaseCount +
+                ", payMoney=" + payMoney +
+                '}';
+    }
 }

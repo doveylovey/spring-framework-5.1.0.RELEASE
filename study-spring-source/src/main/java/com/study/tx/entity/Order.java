@@ -105,4 +105,17 @@ public class Order implements Serializable {
     public void setGmtUpdate(LocalDateTime gmtUpdate) {
         this.gmtUpdate = gmtUpdate;
     }
+
+    @Override
+    public String toString() {
+        return "Order{" +
+                "orderId=" + orderId +
+                ", userId=" + userId +
+                ", orderStatus=" + orderStatus +
+                ", payType=" + payType +
+                ", payMoney=" + payMoney +
+                ", gmtCreate=" + gmtCreate +
+                ", gmtUpdate=" + gmtUpdate +
+                '}';
+    }
 }

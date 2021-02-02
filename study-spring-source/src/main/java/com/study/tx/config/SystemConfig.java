@@ -34,7 +34,7 @@ public class SystemConfig {
     @Bean
     public DruidDataSource dataSource() {
         DruidDataSource dataSource = new DruidDataSource();
-        dataSource.setUrl("jdbc:mysql://127.0.0.1:3326/test?allowMultiQueries=true&useAffectedRows=true&autoReconnect=true&failOverReadOnly=false&useUnicode=true&characterEncoding=utf8&nullNamePatternMatchesAll=true&serverTimezone=Asia/Shanghai");
+        dataSource.setUrl("jdbc:mysql://127.0.0.1:3306/test?allowMultiQueries=true&useAffectedRows=true&autoReconnect=true&failOverReadOnly=false&useUnicode=true&characterEncoding=utf8&nullNamePatternMatchesAll=true&serverTimezone=Asia/Shanghai");
         dataSource.setUsername("root");
         dataSource.setPassword("root");
         dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
@@ -51,6 +51,7 @@ public class SystemConfig {
     @Bean
     public SqlSessionTemplate sqlSessionTemplate(SqlSessionFactory sqlSessionFactory) {
         SqlSessionTemplate sqlSessionTemplate = new SqlSessionTemplate(sqlSessionFactory);
+        //sqlSessionTemplate.getMapper();
         return sqlSessionTemplate;
     }
 
@@ -63,6 +64,10 @@ public class SystemConfig {
         PageInterceptor pageInterceptor = new PageInterceptor();
         Properties properties = new Properties();
         properties.put("helperDialect", "mysql");
+        properties.setProperty("reasonable", "true");
+        properties.setProperty("supportMethodsArguments", "true");
+        properties.setProperty("returnPageInfo", "check");
+        properties.setProperty("params", "count=countSql");
         pageInterceptor.setProperties(properties);
         // 设置插件
         sqlSessionFactoryBean.setPlugins(new Interceptor[]{pageInterceptor});

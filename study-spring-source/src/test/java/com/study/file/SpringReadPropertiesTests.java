@@ -1,4 +1,4 @@
-package com.study.hello;
+package com.study.file;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -40,11 +40,11 @@ public class SpringReadPropertiesTests {
         InputStream inputStream2 = Thread.currentThread().getContextClassLoader().getResourceAsStream("com/study/hello/java.properties");
 
         // 第三种
-        //InputStream inputStream3 = this.getClass().getResourceAsStream("/com/study/hello/java.properties");
+        //InputStream inputStream3 = this.getClass().getResourceAsStream("/com/study/file/java.properties");
         InputStream inputStream3 = SpringReadPropertiesTests.class.getResourceAsStream("/com/study/hello/java.properties");
 
         //第四种
-        File file = ResourceUtils.getFile("classpath:com/study/hello/java.properties");
+        File file = ResourceUtils.getFile("classpath:com/study/file/java.properties");
         InputStream inputStream4 = new FileInputStream(file);
 
         Properties properties = new Properties();
@@ -86,10 +86,10 @@ public class SpringReadPropertiesTests {
     public void fileSystemResourceTest() {
         // 参考 https://www.cnblogs.com/harbin1900/p/9785882.html
         System.setProperty("spring.profiles.active", "dev");
-        Resource resource0 = new FileSystemResource("E:/workspace-idea-study/开源框架/spring-framework-5.1.0.RELEASE/study-spring-source/build/resources/test/com/study/hello/hello-properties.xml");
+        Resource resource0 = new FileSystemResource("E:/workspace-idea-study/开源框架/spring-framework-5.1.0.RELEASE/study-spring-source/build/resources/test/com/study/file/file-properties.xml");
 
         String path = SpringReadPropertiesTests.class.getResource("/com/study/hello/hello-properties.xml").getPath();
-        //String path = this.getClass().getResource("/com/study/hello/hello-properties.xml").getPath();
+        //String path = this.getClass().getResource("/com/study/file/file-properties.xml").getPath();
         //Resource resource1 = new FileSystemResource(new File(path));
         Resource resource1 = new FileSystemResource(path);
 
@@ -106,8 +106,8 @@ public class SpringReadPropertiesTests {
         // Resource是Spring用来封装IO处理的类，假如BeanDefinition信息是以xml文件形式存在的，
         // 那么就可以使用ClassPathResource来构造需要的Resource，然后作为参数传递给XmlBeanFactory的构造函数。
         // 这样IOC容器就可以方便的定位到需要的BeanDefinition信息来对Bean完成容器的初始化和依赖注入过程。
-        //Resource resource = new ClassPathResource("com/study/hello/hello-properties.xml");
-        Resource resource = new ClassPathResource("hello-properties.xml", this.getClass());
+        //Resource resource = new ClassPathResource("com/study/file/file-properties.xml");
+        Resource resource = new ClassPathResource("file-properties.xml", this.getClass());
         BeanFactory beanFactory = new XmlBeanFactory(resource);
         SpringReadPropertiesClient springReadPropertiesClient = (SpringReadPropertiesClient) beanFactory.getBean("springReadPropertiesClient");
         String content = springReadPropertiesClient.readContent("java.key");
@@ -118,8 +118,8 @@ public class SpringReadPropertiesTests {
     @Test
     public void classPathXmlApplicationContextTest() {
         System.setProperty("spring.profiles.active", "dev");
-        //BeanFactory beanFactory = new ClassPathXmlApplicationContext(new String[]{"com/study/hello/hello-properties.xml"});
-        BeanFactory beanFactory = new ClassPathXmlApplicationContext(new String[]{"hello-properties.xml"}, this.getClass());
+        //BeanFactory beanFactory = new ClassPathXmlApplicationContext(new String[]{"com/study/file/file-properties.xml"});
+        BeanFactory beanFactory = new ClassPathXmlApplicationContext(new String[]{"file-properties.xml"}, this.getClass());
         SpringReadPropertiesClient springReadPropertiesClient = (SpringReadPropertiesClient) beanFactory.getBean("springReadPropertiesClient");
         String content = springReadPropertiesClient.readContent("java.key");
         log.info(content);

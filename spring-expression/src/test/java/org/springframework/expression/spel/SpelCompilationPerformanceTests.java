@@ -221,12 +221,12 @@ public class SpelCompilationPerformanceTests extends AbstractExpressionTests {
 
     @Test
     public void stringConcatenation() throws Exception {
-        expression = parser.parseExpression("'hello' + getWorld() + ' spring'");
+        expression = parser.parseExpression("'file' + getWorld() + ' spring'");
         Greeter g = new Greeter();
         Object o = expression.getValue(g);
         assertEquals("helloworld spring", o);
 
-        System.out.println("Performance check for SpEL expression: 'hello' + getWorld() + ' spring'");
+        System.out.println("Performance check for SpEL expression: 'file' + getWorld() + ' spring'");
         long stime = System.currentTimeMillis();
         for (int i = 0; i < 1000000; i++) {
             o = expression.getValue(g);
@@ -332,7 +332,7 @@ public class SpelCompilationPerformanceTests extends AbstractExpressionTests {
         String interpretedResult = null, compiledResult = null;
 
         HW testdata = new HW();
-        Expression expression = parser.parseExpression("hello()");
+        Expression expression = parser.parseExpression("file()");
 
         // warmup
         for (int i = 0; i < count; i++) {

@@ -103,7 +103,7 @@ public class MethodInvokerTests {
         methodInvoker.setArguments(new Purchaser());
         methodInvoker.prepare();
         String greeting = (String) methodInvoker.invoke();
-        assertEquals("purchaser: hello", greeting);
+        assertEquals("purchaser: file", greeting);
     }
 
     @Test

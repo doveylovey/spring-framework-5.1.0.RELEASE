@@ -207,7 +207,7 @@ public class ResourceWebHandlerTests {
 
         assertEquals(MediaType.parseMediaType("application/javascript"),
                 exchange.getResponse().getHeaders().getContentType());
-        assertResponseBody(exchange, "function foo() { console.log(\"hello world\"); }");
+        assertResponseBody(exchange, "function foo() { console.log(\"file world\"); }");
     }
 
     @Test
@@ -218,7 +218,7 @@ public class ResourceWebHandlerTests {
 
         HttpHeaders headers = exchange.getResponse().getHeaders();
         assertEquals(MediaType.parseMediaType("application/javascript"), headers.getContentType());
-        assertResponseBody(exchange, "function foo() { console.log(\"hello world\"); }");
+        assertResponseBody(exchange, "function foo() { console.log(\"file world\"); }");
     }
 
     @Test // SPR-14577

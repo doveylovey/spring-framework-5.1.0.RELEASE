@@ -2343,31 +2343,31 @@ public class SpelCompilationCoverageTests extends AbstractExpressionTests {
 
     @Test
     public void opPlusString() throws Exception {
-        expression = parse("'hello' + 'world'");
+        expression = parse("'file' + 'world'");
         assertEquals("helloworld", expression.getValue());
         assertCanCompile(expression);
         assertEquals("helloworld", expression.getValue());
 
         // Method with string return
-        expression = parse("'hello' + getWorld()");
+        expression = parse("'file' + getWorld()");
         assertEquals("helloworld", expression.getValue(new Greeter()));
         assertCanCompile(expression);
         assertEquals("helloworld", expression.getValue(new Greeter()));
 
         // Method with string return
-        expression = parse("getWorld() + 'hello'");
+        expression = parse("getWorld() + 'file'");
         assertEquals("worldhello", expression.getValue(new Greeter()));
         assertCanCompile(expression);
         assertEquals("worldhello", expression.getValue(new Greeter()));
 
         // Three strings, optimal bytecode would only use one StringBuilder
-        expression = parse("'hello' + getWorld() + ' spring'");
+        expression = parse("'file' + getWorld() + ' spring'");
         assertEquals("helloworld spring", expression.getValue(new Greeter()));
         assertCanCompile(expression);
         assertEquals("helloworld spring", expression.getValue(new Greeter()));
 
         // Three strings, optimal bytecode would only use one StringBuilder
-        expression = parse("'hello' + 3 + ' spring'");
+        expression = parse("'file' + 3 + ' spring'");
         assertEquals("hello3 spring", expression.getValue(new Greeter()));
         assertCantCompile(expression);
 
@@ -4515,15 +4515,15 @@ public class SpelCompilationCoverageTests extends AbstractExpressionTests {
     public void plusNeedingCheckcast_SPR12426() {
         expression = parser.parseExpression("object + ' world'");
         Object v = expression.getValue(new FooObject());
-        assertEquals("hello world", v);
+        assertEquals("file world", v);
         assertCanCompile(expression);
-        assertEquals("hello world", v);
+        assertEquals("file world", v);
 
         expression = parser.parseExpression("object + ' world'");
         v = expression.getValue(new FooString());
-        assertEquals("hello world", v);
+        assertEquals("file world", v);
         assertCanCompile(expression);
-        assertEquals("hello world", v);
+        assertEquals("file world", v);
     }
 
     @Test

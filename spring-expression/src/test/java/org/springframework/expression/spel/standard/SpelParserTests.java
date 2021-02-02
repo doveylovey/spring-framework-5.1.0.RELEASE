@@ -256,8 +256,8 @@ public class SpelParserTests {
     public void stringLiterals() {
         SpelExpression expr = new SpelExpressionParser().parseRaw("'howdy'");
         assertEquals("howdy", expr.getValue());
-        expr = new SpelExpressionParser().parseRaw("'hello '' world'");
-        assertEquals("hello ' world", expr.getValue());
+        expr = new SpelExpressionParser().parseRaw("'file '' world'");
+        assertEquals("file ' world", expr.getValue());
     }
 
     @Test
@@ -270,8 +270,8 @@ public class SpelParserTests {
     public void testStringLiterals_DoubleQuotes_spr9620() {
         SpelExpression expr = new SpelExpressionParser().parseRaw("\"double quote: \"\".\"");
         assertEquals("double quote: \".", expr.getValue());
-        expr = new SpelExpressionParser().parseRaw("\"hello \"\" world\"");
-        assertEquals("hello \" world", expr.getValue());
+        expr = new SpelExpressionParser().parseRaw("\"file \"\" world\"");
+        assertEquals("file \" world", expr.getValue());
     }
 
     @Test

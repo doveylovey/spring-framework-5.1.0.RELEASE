@@ -362,7 +362,7 @@ public class OperatorTests extends AbstractExpressionTests {
 
     @Test
     public void testMathOperatorAdd02() {
-        evaluate("'hello' + ' ' + 'world'", "hello world", String.class);
+        evaluate("'file' + ' ' + 'world'", "file world", String.class);
     }
 
     @Test

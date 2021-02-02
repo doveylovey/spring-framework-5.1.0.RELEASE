@@ -67,7 +67,7 @@ public class ParsingTests {
 
     @Test
     public void testLiteralString01() {
-        parseCheck("'hello'");
+        parseCheck("'file'");
     }
 
     @Test
@@ -206,7 +206,7 @@ public class ParsingTests {
 
     @Test
     public void testMathOperatorsAdd03() {
-        parseCheck("'hello'+' '+'world'", "(('hello' + ' ') + 'world')");
+        parseCheck("'file'+' '+'world'", "(('file' + ' ') + 'world')");
     }
 
     @Test
@@ -338,7 +338,7 @@ public class ParsingTests {
     // constructors
     @Test
     public void testConstructors01() {
-        parseCheck("new String('hello')");
+        parseCheck("new String('file')");
     }
 
     // public void testConstructors02() {
@@ -367,7 +367,7 @@ public class ParsingTests {
 
     @Test
     public void testFunctions02() {
-        parseCheck("#fn('hello')");
+        parseCheck("#fn('file')");
     }
 
     // projections and selections

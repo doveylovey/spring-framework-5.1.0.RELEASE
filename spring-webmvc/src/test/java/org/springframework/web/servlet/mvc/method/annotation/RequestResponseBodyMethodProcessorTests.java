@@ -375,22 +375,22 @@ public class RequestResponseBodyMethodProcessorTests {
                 Collections.singletonList(new StringHttpMessageConverter()),
                 factory.getObject());
 
-        assertContentDisposition(processor, false, "/hello.json", "whitelisted extension");
-        assertContentDisposition(processor, false, "/hello.pdf", "registered extension");
-        assertContentDisposition(processor, true, "/hello.dataless", "unknown extension");
+        assertContentDisposition(processor, false, "/file.json", "whitelisted extension");
+        assertContentDisposition(processor, false, "/file.pdf", "registered extension");
+        assertContentDisposition(processor, true, "/file.dataless", "unknown extension");
 
         // path parameters
-        assertContentDisposition(processor, false, "/hello.json;a=b", "path param shouldn't cause issue");
-        assertContentDisposition(processor, true, "/hello.json;a=b;setup.dataless", "unknown ext in path params");
-        assertContentDisposition(processor, true, "/hello.dataless;a=b;setup.json", "unknown ext in filename");
-        assertContentDisposition(processor, false, "/hello.json;a=b;setup.json", "whitelisted extensions");
+        assertContentDisposition(processor, false, "/file.json;a=b", "path param shouldn't cause issue");
+        assertContentDisposition(processor, true, "/file.json;a=b;setup.dataless", "unknown ext in path params");
+        assertContentDisposition(processor, true, "/file.dataless;a=b;setup.json", "unknown ext in filename");
+        assertContentDisposition(processor, false, "/file.json;a=b;setup.json", "whitelisted extensions");
 
         // encoded dot
-        assertContentDisposition(processor, true, "/hello%2Edataless;a=b;setup.json", "encoded dot in filename");
-        assertContentDisposition(processor, true, "/hello.json;a=b;setup%2Edataless", "encoded dot in path params");
-        assertContentDisposition(processor, true, "/hello.dataless%3Bsetup.bat", "encoded dot in path params");
+        assertContentDisposition(processor, true, "/file%2Edataless;a=b;setup.json", "encoded dot in filename");
+        assertContentDisposition(processor, true, "/file.json;a=b;setup%2Edataless", "encoded dot in path params");
+        assertContentDisposition(processor, true, "/file.dataless%3Bsetup.bat", "encoded dot in path params");
 
-        this.servletRequest.setAttribute(WebUtils.FORWARD_REQUEST_URI_ATTRIBUTE, "/hello.bat");
+        this.servletRequest.setAttribute(WebUtils.FORWARD_REQUEST_URI_ATTRIBUTE, "/file.bat");
         assertContentDisposition(processor, true, "/bonjour", "forwarded URL");
         this.servletRequest.removeAttribute(WebUtils.FORWARD_REQUEST_URI_ATTRIBUTE);
     }

@@ -220,7 +220,7 @@ public class SpelReproTests extends AbstractExpressionTests {
         checkTemplateParsing("abc ${\"def''g}hi\"} jkl", "abc def'g}hi jkl");
         checkTemplateParsing("abc ${'def''g}hi'} jkl", "abc def'g}hi jkl");
         checkTemplateParsing("}", "}");
-        checkTemplateParsing("${'hello'} world", "hello world");
+        checkTemplateParsing("${'file'} world", "file world");
         checkTemplateParsing("Hello ${'}'}]", "Hello }]");
         checkTemplateParsing("Hello ${'}'}", "Hello }");
         checkTemplateParsingError("Hello ${ ( ", "No ending suffix '}' for expression starting at character 6: ${ ( ");

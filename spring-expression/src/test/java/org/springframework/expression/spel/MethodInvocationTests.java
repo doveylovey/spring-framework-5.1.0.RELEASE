@@ -56,8 +56,8 @@ public class MethodInvocationTests extends AbstractExpressionTests {
 
     @Test
     public void testStringClass() {
-        evaluate("new java.lang.String('hello').charAt(2)", 'l', Character.class);
-        evaluate("new java.lang.String('hello').charAt(2).equals('l'.charAt(0))", true, Boolean.class);
+        evaluate("new java.lang.String('file').charAt(2)", 'l', Character.class);
+        evaluate("new java.lang.String('file').charAt(2).equals('l'.charAt(0))", true, Boolean.class);
         evaluate("'HELLO'.toLowerCase()", "hello", String.class);
         evaluate("'   abcba '.trim()", "abcba", String.class);
     }
@@ -79,7 +79,7 @@ public class MethodInvocationTests extends AbstractExpressionTests {
     @Test
     public void testArgumentConversion01() {
         // Rely on Double>String conversion for calling startsWith()
-        evaluate("new String('hello 2.0 to you').startsWith(7.0d)", false, Boolean.class);
+        evaluate("new String('file 2.0 to you').startsWith(7.0d)", false, Boolean.class);
         evaluate("new String('7.0 foobar').startsWith(7.0d)", true, Boolean.class);
     }
 

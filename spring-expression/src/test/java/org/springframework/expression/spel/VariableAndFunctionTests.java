@@ -51,7 +51,7 @@ public class VariableAndFunctionTests extends AbstractExpressionTests {
 
     @Test
     public void testFunctionAccess02() {
-        evaluate("#reverseString('hello')", "olleh", String.class);
+        evaluate("#reverseString('file')", "olleh", String.class);
         evaluate("#reverseString(37)", "73", String.class); // requires type conversion of 37 to '37'
     }
 

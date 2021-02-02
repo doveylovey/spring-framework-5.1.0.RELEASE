@@ -81,7 +81,7 @@ public class ArrayConstructorTests extends AbstractExpressionTests {
     public void errorCases() {
         evaluateAndCheckError("new char[7]{'a','c','d','e'}", SpelMessage.INITIALIZER_LENGTH_INCORRECT);
         evaluateAndCheckError("new char[3]{'a','c','d','e'}", SpelMessage.INITIALIZER_LENGTH_INCORRECT);
-        evaluateAndCheckError("new char[2]{'hello','world'}", SpelMessage.TYPE_CONVERSION_ERROR);
+        evaluateAndCheckError("new char[2]{'file','world'}", SpelMessage.TYPE_CONVERSION_ERROR);
         evaluateAndCheckError("new String('a','c','d')", SpelMessage.CONSTRUCTOR_INVOCATION_PROBLEM);
     }
 

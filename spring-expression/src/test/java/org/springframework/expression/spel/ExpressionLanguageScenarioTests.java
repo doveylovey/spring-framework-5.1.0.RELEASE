@@ -71,13 +71,13 @@ public class ExpressionLanguageScenarioTests extends AbstractExpressionTests {
             // Create a parser
             SpelExpressionParser parser = new SpelExpressionParser();
             // Parse an expression
-            Expression expr = parser.parseRaw("new String('hello world')");
+            Expression expr = parser.parseRaw("new String('file world')");
             // Evaluate it using a 'standard' context
             Object value = expr.getValue();
             // They are reusable
             value = expr.getValue();
 
-            assertEquals("hello world", value);
+            assertEquals("file world", value);
             assertEquals(String.class, value.getClass());
         } catch (EvaluationException ee) {
             ee.printStackTrace();
@@ -190,7 +190,7 @@ public class ExpressionLanguageScenarioTests extends AbstractExpressionTests {
             StandardEvaluationContext ctx = new StandardEvaluationContext();
             ctx.registerFunction("repeat", ExpressionLanguageScenarioTests.class.getDeclaredMethod("repeat", String.class));
 
-            Expression expr = parser.parseRaw("#repeat('hello')");
+            Expression expr = parser.parseRaw("#repeat('file')");
             Object value = expr.getValue(ctx);
             assertEquals("hellohello", value);
 

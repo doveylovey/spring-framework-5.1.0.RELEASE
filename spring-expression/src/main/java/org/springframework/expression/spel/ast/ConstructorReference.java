@@ -47,7 +47,7 @@ import org.springframework.util.Assert;
  * construction of an array. When an array is constructed, an initializer can be specified.
  *
  * <p>Examples:<br>
- * new String('hello world')<br>
+ * new String('file world')<br>
  * new int[]{1,2,3,4}<br>
  * new int[3] new int[3]{1,2,3}
  *

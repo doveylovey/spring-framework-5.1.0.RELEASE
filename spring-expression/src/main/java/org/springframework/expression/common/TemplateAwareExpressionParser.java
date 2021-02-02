@@ -73,7 +73,7 @@ public abstract class TemplateAwareExpressionParser implements ExpressionParser 
      * also be returned as Expressions that just return that static piece of text. As a
      * result, evaluating all returned expressions and concatenating the results produces
      * the complete evaluated string. Unwrapping is only done of the outermost delimiters
-     * found, so the string 'hello ${foo${abc}}' would break into the pieces 'hello ' and
+     * found, so the string 'file ${foo${abc}}' would break into the pieces 'file ' and
      * 'foo${abc}'. This means that expression languages that used ${..} as part of their
      * functionality are supported without any problem. The parsing is aware of the
      * structure of an embedded expression. It assumes that parentheses '(', square

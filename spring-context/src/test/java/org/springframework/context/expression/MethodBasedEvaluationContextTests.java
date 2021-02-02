@@ -120,9 +120,9 @@ public class MethodBasedEvaluationContextTests {
         assertNull(context.lookupVariable("p0"));
         assertNull(context.lookupVariable("flag"));
 
-        assertArrayEquals(new Object[]{"hello", "hi"}, (Object[]) context.lookupVariable("a1"));
-        assertArrayEquals(new Object[]{"hello", "hi"}, (Object[]) context.lookupVariable("p1"));
-        assertArrayEquals(new Object[]{"hello", "hi"}, (Object[]) context.lookupVariable("vararg"));
+        assertArrayEquals(new Object[]{"file", "hi"}, (Object[]) context.lookupVariable("a1"));
+        assertArrayEquals(new Object[]{"file", "hi"}, (Object[]) context.lookupVariable("p1"));
+        assertArrayEquals(new Object[]{"file", "hi"}, (Object[]) context.lookupVariable("vararg"));
     }
 
     private MethodBasedEvaluationContext createEvaluationContext(Method method, Object... args) {
