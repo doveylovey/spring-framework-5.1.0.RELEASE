@@ -24,7 +24,7 @@ import java.util.List;
  * @date 2021年02月02日
  */
 @Repository("annotationOrderDao")
-public class OrderDaoImpl implements OrderDao {
+public class AnnotationOrderDaoImpl implements AnnotationOrderDao {
     @Resource
     private JdbcTemplate jdbcTemplate;
 

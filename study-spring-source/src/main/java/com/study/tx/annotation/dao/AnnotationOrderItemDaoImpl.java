@@ -20,7 +20,7 @@ import java.sql.Statement;
  * @date 2021年02月02日
  */
 @Repository("annotationOrderItemDao")
-public class OrderItemDaoImpl implements OrderItemDao {
+public class AnnotationOrderItemDaoImpl implements AnnotationOrderItemDao {
     @Resource
     private JdbcTemplate jdbcTemplate;
 

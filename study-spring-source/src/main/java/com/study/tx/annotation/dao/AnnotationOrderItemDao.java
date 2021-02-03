@@ -1,6 +1,8 @@
-package com.study.tx.xml.dao;
+package com.study.tx.annotation.dao;
 
 import com.study.tx.entity.OrderItem;
+
+import java.util.List;
 
 /**
  * 订单项 DAO 接口
@@ -10,7 +12,7 @@ import com.study.tx.entity.OrderItem;
  * @email 1135782208@qq.com
  * @date 2021年02月02日
  */
-public interface OrderItemDao {
+public interface AnnotationOrderItemDao {
     /**
      * 新增
      *

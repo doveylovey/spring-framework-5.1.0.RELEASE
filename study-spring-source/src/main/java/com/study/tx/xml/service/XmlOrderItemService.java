@@ -1,9 +1,6 @@
-package com.study.tx.annotation.service;
+package com.study.tx.xml.service;
 
 import com.study.tx.entity.Order;
-import com.study.tx.entity.OrderItem;
-
-import java.util.List;
 
 /**
  * 订单项接口
@@ -13,7 +10,7 @@ import java.util.List;
  * @email 1135782208@qq.com
  * @date 2021年02月02日
  */
-public interface OrderItemService {
+public interface XmlOrderItemService {
     /**
      * 新增
      *

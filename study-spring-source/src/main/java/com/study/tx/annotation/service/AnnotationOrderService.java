@@ -1,4 +1,4 @@
-package com.study.tx.xml.service;
+package com.study.tx.annotation.service;
 
 import com.study.tx.entity.Order;
 
@@ -12,7 +12,7 @@ import java.util.List;
  * @email 1135782208@qq.com
  * @date 2021年02月02日
  */
-public interface OrderService {
+public interface AnnotationOrderService {
     /**
      * 新增
      *

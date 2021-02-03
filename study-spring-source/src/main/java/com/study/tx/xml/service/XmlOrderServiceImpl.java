@@ -1,12 +1,10 @@
-package com.study.tx.annotation.service;
+package com.study.tx.xml.service;
 
-import com.study.tx.annotation.dao.OrderDao;
 import com.study.tx.entity.Order;
-import org.springframework.stereotype.Service;
+import com.study.tx.xml.dao.XmlOrderDao;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -19,12 +17,17 @@ import java.util.List;
  * @email 1135782208@qq.com
  * @date 2021年02月02日
  */
-@Service
-public class OrderServiceImpl implements OrderService {
-    @Resource
-    private OrderDao orderDao;
-    @Resource
-    private OrderItemService orderItemService;
+public class XmlOrderServiceImpl implements XmlOrderService {
+    private XmlOrderDao xmlOrderDao;
+    private XmlOrderItemService xmlOrderItemService;
+
+    public void setXmlOrderDao(XmlOrderDao xmlOrderDao) {
+        this.xmlOrderDao = xmlOrderDao;
+    }
+
+    public void setXmlOrderItemService(XmlOrderItemService xmlOrderItemService) {
+        this.xmlOrderItemService = xmlOrderItemService;
+    }
 
     @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
     @Override
@@ -37,7 +40,7 @@ public class OrderServiceImpl implements OrderService {
         order.setPayMoney(BigDecimal.TEN);
         order.setGmtCreate(now);
         order.setGmtUpdate(now);
-        int result = orderDao.insert(order);
+        int result = xmlOrderDao.insert(order);
         System.out.println("操作 t_order 结果：" + result);
 
         if (order.getOrderId() % 3 == 0) {
@@ -45,7 +48,7 @@ public class OrderServiceImpl implements OrderService {
             throw new RuntimeException("操作 t_order 之后、 t_order_item 之前抛出了异常！");
         }
 
-        result = orderItemService.insert(order, productId);
+        result = xmlOrderItemService.insert(order, productId);
 
         /*if (orderItem.getOrderId() % 2 == 0) {
             // 模拟异常
@@ -57,18 +60,18 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(rollbackFor = Exception.class)
     @Override
     public int update(Order order) {
-        return orderDao.update(order);
+        return xmlOrderDao.update(order);
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
     public int delete(Long orderId) {
-        return orderDao.delete(orderId);
+        return xmlOrderDao.delete(orderId);
     }
 
     @Transactional(readOnly = true)
     @Override
     public List<Order> findByUserId(Long userId) {
-        return orderDao.findByUserId(userId);
+        return xmlOrderDao.findByUserId(userId);
     }
 }

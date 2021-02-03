@@ -21,7 +21,7 @@ import java.util.List;
  * @email 1135782208@qq.com
  * @date 2021年02月02日
  */
-public class OrderDaoImpl implements OrderDao {
+public class XmlOrderDaoImpl implements XmlOrderDao {
     private JdbcTemplate jdbcTemplate;
 
     public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {

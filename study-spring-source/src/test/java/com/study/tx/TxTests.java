@@ -1,7 +1,8 @@
 package com.study.tx;
 
+import com.study.tx.annotation.service.AnnotationOrderService;
 import com.study.tx.config.SystemConfig;
-import com.study.tx.annotation.service.OrderService;
+import com.study.tx.xml.service.XmlOrderService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
@@ -23,9 +24,7 @@ public class TxTests {
     @Test
     public void txXmlAopTest() {
         ApplicationContext context = new ClassPathXmlApplicationContext("classpath*:application-context-tx-xml-aop.xml");
-        OrderService orderService = context.getBean(OrderService.class);
-        //OrderItemService orderItemService = context.getBean(OrderItemService.class);
-
+        XmlOrderService orderService = context.getBean(XmlOrderService.class);
         String result = orderService.insert(1L, 1L);
         System.out.println("操作结果：" + result);
     }
@@ -33,9 +32,7 @@ public class TxTests {
     @Test
     public void txAnnotationTest() {
         ApplicationContext context = new ClassPathXmlApplicationContext("classpath*:application-context-tx-annotation.xml");
-        OrderService orderService = context.getBean(OrderService.class);
-        //OrderItemService orderItemService = context.getBean(OrderItemService.class);
-
+        AnnotationOrderService orderService = context.getBean(AnnotationOrderService.class);
         String result = orderService.insert(1L, 1L);
         System.out.println("操作结果：" + result);
     }
@@ -43,9 +40,7 @@ public class TxTests {
     @Test
     public void txConfigTest() {
         ApplicationContext context = new AnnotationConfigApplicationContext(SystemConfig.class);
-        OrderService orderService = context.getBean(OrderService.class);
-        //OrderItemService orderItemService = context.getBean(OrderItemService.class);
-
+        AnnotationOrderService orderService = context.getBean(AnnotationOrderService.class);
         String result = orderService.insert(1L, 1L);
         System.out.println("操作结果：" + result);
     }

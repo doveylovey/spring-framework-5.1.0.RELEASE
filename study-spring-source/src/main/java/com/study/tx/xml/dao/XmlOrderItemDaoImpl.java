@@ -5,9 +5,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
-import org.springframework.stereotype.Repository;
 
-import javax.annotation.Resource;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 
@@ -19,7 +17,7 @@ import java.sql.Statement;
  * @email 1135782208@qq.com
  * @date 2021年02月02日
  */
-public class OrderItemDaoImpl implements OrderItemDao {
+public class XmlOrderItemDaoImpl implements XmlOrderItemDao {
     private JdbcTemplate jdbcTemplate;
 
     public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {

@@ -1,7 +1,7 @@
-package com.study.tx.xml.service;
+package com.study.tx.annotation.service;
 
+import com.study.tx.annotation.dao.AnnotationOrderDao;
 import com.study.tx.entity.Order;
-import com.study.tx.xml.dao.OrderDao;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,17 +19,12 @@ import java.util.List;
  * @email 1135782208@qq.com
  * @date 2021年02月02日
  */
-public class OrderServiceImpl implements OrderService {
-    private OrderDao orderDao;
-    private OrderItemService orderItemService;
-
-    public void setOrderDao(OrderDao orderDao) {
-        this.orderDao = orderDao;
-    }
-
-    public void setOrderItemService(OrderItemService orderItemService) {
-        this.orderItemService = orderItemService;
-    }
+@Service
+public class AnnotationOrderServiceImpl implements AnnotationOrderService {
+    @Resource
+    private AnnotationOrderDao annotationOrderDao;
+    @Resource
+    private AnnotationOrderItemService annotationOrderItemService;
 
     @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
     @Override
@@ -42,7 +37,7 @@ public class OrderServiceImpl implements OrderService {
         order.setPayMoney(BigDecimal.TEN);
         order.setGmtCreate(now);
         order.setGmtUpdate(now);
-        int result = orderDao.insert(order);
+        int result = annotationOrderDao.insert(order);
         System.out.println("操作 t_order 结果：" + result);
 
         if (order.getOrderId() % 3 == 0) {
@@ -50,7 +45,7 @@ public class OrderServiceImpl implements OrderService {
             throw new RuntimeException("操作 t_order 之后、 t_order_item 之前抛出了异常！");
         }
 
-        result = orderItemService.insert(order, productId);
+        result = annotationOrderItemService.insert(order, productId);
 
         /*if (orderItem.getOrderId() % 2 == 0) {
             // 模拟异常
@@ -62,18 +57,18 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(rollbackFor = Exception.class)
     @Override
     public int update(Order order) {
-        return orderDao.update(order);
+        return annotationOrderDao.update(order);
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
     public int delete(Long orderId) {
-        return orderDao.delete(orderId);
+        return annotationOrderDao.delete(orderId);
     }
 
     @Transactional(readOnly = true)
     @Override
     public List<Order> findByUserId(Long userId) {
-        return orderDao.findByUserId(userId);
+        return annotationOrderDao.findByUserId(userId);
     }
 }

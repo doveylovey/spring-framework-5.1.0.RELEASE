@@ -1,13 +1,11 @@
-package com.study.tx.annotation.service;
+package com.study.tx.xml.service;
 
-import com.study.tx.annotation.dao.OrderItemDao;
 import com.study.tx.entity.Order;
 import com.study.tx.entity.OrderItem;
-import org.springframework.stereotype.Service;
+import com.study.tx.xml.dao.XmlOrderItemDao;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.Resource;
 import java.math.BigDecimal;
 
 /**
@@ -18,10 +16,12 @@ import java.math.BigDecimal;
  * @email 1135782208@qq.com
  * @date 2021年02月02日
  */
-@Service
-public class OrderItemServiceImpl implements OrderItemService {
-    @Resource
-    private OrderItemDao orderItemDao;
+public class XmlOrderItemServiceImpl implements XmlOrderItemService {
+    private XmlOrderItemDao xmlOrderItemDao;
+
+    public void setXmlOrderItemDao(XmlOrderItemDao xmlOrderItemDao) {
+        this.xmlOrderItemDao = xmlOrderItemDao;
+    }
 
     @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
     @Override
@@ -40,7 +40,7 @@ public class OrderItemServiceImpl implements OrderItemService {
             throw new RuntimeException("操作 t_order_item 之前抛出了异常！");
         }*/
 
-        int result = orderItemDao.insert(orderItem);
+        int result = xmlOrderItemDao.insert(orderItem);
         System.out.println("操作 t_order_item 结果：" + result);
 
         if (orderItem.getOrderId() % 2 == 0) {

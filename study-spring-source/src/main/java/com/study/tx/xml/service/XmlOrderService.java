@@ -1,25 +1,26 @@
-package com.study.tx.xml.dao;
+package com.study.tx.xml.service;
 
 import com.study.tx.entity.Order;
 
 import java.util.List;
 
 /**
- * 订单 DAO 接口
+ * 订单接口
  *
  * @author doveylovey
  * @version v1.0.0
  * @email 1135782208@qq.com
  * @date 2021年02月02日
  */
-public interface OrderDao {
+public interface XmlOrderService {
     /**
      * 新增
      *
-     * @param order
+     * @param userId
+     * @param productId
      * @return
      */
-    int insert(Order order);
+    String insert(Long userId, Long productId);
 
     /**
      * 修改
@@ -44,12 +45,4 @@ public interface OrderDao {
      * @return
      */
     List<Order> findByUserId(Long userId);
-
-    Integer userOrderNum(Long userId);
-
-    List<Integer> userOrderIds(Long userId);
-
-    Order findOne(Long orderId);
-
-    List<Order> findPage(Long userId, Integer pageNum, Integer pageSize);
 }

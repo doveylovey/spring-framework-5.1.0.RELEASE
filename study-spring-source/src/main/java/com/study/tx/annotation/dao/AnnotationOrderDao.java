@@ -12,7 +12,7 @@ import java.util.List;
  * @email 1135782208@qq.com
  * @date 2021年02月02日
  */
-public interface OrderDao {
+public interface AnnotationOrderDao {
     /**
      * 新增
      *
