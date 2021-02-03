@@ -1,26 +1,26 @@
-package com.study.tx.mapper;
+package com.study.tx.annotation.service;
 
 import com.study.tx.entity.Order;
-import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
 /**
- * 订单 Mapper 接口
+ * 订单接口
  *
  * @author doveylovey
  * @version v1.0.0
  * @email 1135782208@qq.com
  * @date 2021年02月02日
  */
-public interface OrderMapper {
+public interface OrderService {
     /**
      * 新增
      *
-     * @param order
+     * @param userId
+     * @param productId
      * @return
      */
-    int insert(Order order);
+    String insert(Long userId, Long productId);
 
     /**
      * 修改
@@ -36,7 +36,7 @@ public interface OrderMapper {
      * @param orderId
      * @return
      */
-    int delete(@Param("orderId") Long orderId);
+    int delete(Long orderId);
 
     /**
      * 查询
@@ -44,5 +44,5 @@ public interface OrderMapper {
      * @param userId
      * @return
      */
-    List<Order> findByUserId(@Param("userId") Long userId);
+    List<Order> findByUserId(Long userId);
 }

@@ -1,4 +1,4 @@
-package com.study.tx.service;
+package com.study.tx.annotation.service;
 
 import com.study.tx.entity.Order;
 import com.study.tx.entity.OrderItem;
@@ -22,28 +22,4 @@ public interface OrderItemService {
      * @return
      */
     int insert(Order order, Long productId);
-
-    /**
-     * 修改
-     *
-     * @param orderItem
-     * @return
-     */
-    int update(OrderItem orderItem);
-
-    /**
-     * 删除
-     *
-     * @param itemId
-     * @return
-     */
-    int delete(Long itemId);
-
-    /**
-     * 查询
-     *
-     * @param orderId
-     * @return
-     */
-    List<OrderItem> findByOrderId(Long orderId);
 }

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+       http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <!-- 指定 spring 注解注入层 -->
+    <context:component-scan base-package="com.study.tx.xml.dao,com.study.tx.xml.service,com.study.tx.controller"/>
+
+    <!-- 加载配置文件 -->
+    <context:property-placeholder location="classpath*:jdbc.properties"/>
+    <!-- 数据库连接管理 -->
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" destroy-method="close">
+        <property name="driverClassName" value="${db.driverClassName}"/>
+        <property name="url" value="${db.url}"/>
+        <property name="username" value="${db.username}"/>
+        <property name="password" value="${db.password}"/>
+    </bean>
+
+    <!-- ================================ 事务相关配置 ================================================= -->
+    <bean name="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+        <!-- <constructor-arg name="dataSource" ref="dataSource"/>-->
+    </bean>
+
+    <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <!-- 定义事务通知 -->
+    <tx:advice id="txAdvice" transaction-manager="transactionManager">
+        <tx:attributes>
+            <tx:method name="delete*" propagation="REQUIRED" read-only="false"
+                       rollback-for="java.lang.Exception"/>
+            <tx:method name="insert*" propagation="REQUIRED" read-only="false"
+                       rollback-for="java.lang.Exception"/>
+            <tx:method name="update*" propagation="REQUIRED" read-only="false"
+                       rollback-for="java.lang.Exception"/>
+            <tx:method name="find*" propagation="SUPPORTS" read-only="true"/>
+            <tx:method name="get*" propagation="SUPPORTS" read-only="true"/>
+            <tx:method name="select*" propagation="SUPPORTS" read-only="true"/>
+        </tx:attributes>
+    </tx:advice>
+
+    <!-- AOP 配置 -->
+    <aop:config>
+        <aop:pointcut id="txPointcut" expression="execution(* com.study.tx.xml.service..*.*(..))"/>
+        <aop:advisor advice-ref="txAdvice" pointcut-ref="txPointcut"/>
+    </aop:config>
+
+    <bean id="orderDao" class="com.study.tx.xml.dao.OrderDaoImpl">
+        <property name="jdbcTemplate" ref="jdbcTemplate"/>
+    </bean>
+    <bean id="orderService" class="com.study.tx.xml.service.OrderServiceImpl">
+        <property name="orderDao" ref="orderDao"/>
+        <property name="OrderItemService" ref="orderItemService"/>
+    </bean>
+
+    <bean id="orderItemDao" class="com.study.tx.xml.dao.OrderItemDaoImpl">
+        <property name="jdbcTemplate" ref="jdbcTemplate"/>
+    </bean>
+    <bean id="orderItemService" class="com.study.tx.xml.service.OrderItemServiceImpl">
+        <property name="orderItemDao" ref="orderItemDao"/>
+    </bean>
+</beans>

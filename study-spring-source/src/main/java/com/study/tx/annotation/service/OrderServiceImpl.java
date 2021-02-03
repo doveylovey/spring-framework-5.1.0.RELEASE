@@ -1,11 +1,9 @@
-package com.study.tx.service;
+package com.study.tx.annotation.service;
 
-import com.github.pagehelper.PageHelper;
+import com.study.tx.annotation.dao.OrderDao;
 import com.study.tx.entity.Order;
-import com.study.tx.entity.OrderItem;
-import com.study.tx.mapper.OrderItemMapper;
-import com.study.tx.mapper.OrderMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
@@ -24,11 +22,11 @@ import java.util.List;
 @Service
 public class OrderServiceImpl implements OrderService {
     @Resource
-    private OrderMapper orderMapper;
+    private OrderDao orderDao;
     @Resource
     private OrderItemService orderItemService;
 
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRED)
     @Override
     public String insert(Long userId, Long productId) {
         LocalDateTime now = LocalDateTime.now();
@@ -39,7 +37,7 @@ public class OrderServiceImpl implements OrderService {
         order.setPayMoney(BigDecimal.TEN);
         order.setGmtCreate(now);
         order.setGmtUpdate(now);
-        int result = orderMapper.insert(order);
+        int result = orderDao.insert(order);
         System.out.println("操作 t_order 结果：" + result);
 
         if (order.getOrderId() % 3 == 0) {
@@ -59,19 +57,18 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(rollbackFor = Exception.class)
     @Override
     public int update(Order order) {
-        return orderMapper.update(order);
+        return orderDao.update(order);
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
     public int delete(Long orderId) {
-        return orderMapper.delete(orderId);
+        return orderDao.delete(orderId);
     }
 
     @Transactional(readOnly = true)
     @Override
     public List<Order> findByUserId(Long userId) {
-        PageHelper.startPage(1, 10);
-        return orderMapper.findByUserId(userId);
+        return orderDao.findByUserId(userId);
     }
 }
