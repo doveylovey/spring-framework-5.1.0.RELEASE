@@ -1,7 +1,8 @@
 package com.study.tx;
 
 import com.study.tx.annotation.service.AnnotationOrderService;
-import com.study.tx.config.SystemConfig;
+import com.study.tx.config.SpringTxConfig;
+import com.study.tx.config.service.ConfigOrderService;
 import com.study.tx.xml.service.XmlOrderService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -23,7 +24,7 @@ public class TxTests {
 
     @Test
     public void txXmlAopTest() {
-        ApplicationContext context = new ClassPathXmlApplicationContext("classpath*:application-context-tx-xml-aop.xml");
+        ApplicationContext context = new ClassPathXmlApplicationContext("classpath*:spring-tx-xml.xml");
         XmlOrderService orderService = context.getBean(XmlOrderService.class);
         String result = orderService.insert(1L, 1L);
         System.out.println("操作结果：" + result);
@@ -31,7 +32,7 @@ public class TxTests {
 
     @Test
     public void txAnnotationTest() {
-        ApplicationContext context = new ClassPathXmlApplicationContext("classpath*:application-context-tx-annotation.xml");
+        ApplicationContext context = new ClassPathXmlApplicationContext("classpath*:spring-tx-annotation.xml");
         AnnotationOrderService orderService = context.getBean(AnnotationOrderService.class);
         String result = orderService.insert(1L, 1L);
         System.out.println("操作结果：" + result);
@@ -39,8 +40,8 @@ public class TxTests {
 
     @Test
     public void txConfigTest() {
-        ApplicationContext context = new AnnotationConfigApplicationContext(SystemConfig.class);
-        AnnotationOrderService orderService = context.getBean(AnnotationOrderService.class);
+        ApplicationContext context = new AnnotationConfigApplicationContext(SpringTxConfig.class);
+        ConfigOrderService orderService = context.getBean(ConfigOrderService.class);
         String result = orderService.insert(1L, 1L);
         System.out.println("操作结果：" + result);
     }

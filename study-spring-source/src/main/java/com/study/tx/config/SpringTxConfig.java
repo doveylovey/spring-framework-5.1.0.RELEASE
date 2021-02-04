@@ -12,7 +12,8 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 /**
- * 全局配置类
+ * Spring 事务配置类。
+ * 注意：@EnableTransactionManagement 的功能就是启用注解事务管理，等同于 xml 配置中的 <tx:annotation-driven />
  *
  * @author doveylovey
  * @version v1.0.0
@@ -20,10 +21,10 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
  * @date 2021年02月02日
  */
 @Configuration
-@PropertySource("classpath*:jdbc.properties")
 @EnableTransactionManagement
-@ComponentScan(value = {"com.study.tx.dao", "com.study.tx.service", "com.study.tx.controller"})
-public class SystemConfig {
+@PropertySource(value = {"classpath:jdbc.properties"})
+@ComponentScan(value = {"com.study.tx.config.dao", "com.study.tx.config.service"})
+public class SpringTxConfig {
     @Value("${db.driverClassName}")
     private String driverClassName;
     @Value("${db.url}")

@@ -1,4 +1,4 @@
-package com.study.tx.annotation.dao;
+package com.study.tx.config.dao;
 
 import com.study.tx.entity.Order;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -24,7 +24,7 @@ import java.util.List;
  * @date 2021年02月02日
  */
 @Repository
-public class AnnotationOrderDaoImpl implements AnnotationOrderDao {
+public class ConfigOrderDaoImpl implements ConfigOrderDao {
     @Resource
     private JdbcTemplate jdbcTemplate;
 

@@ -1,4 +1,4 @@
-package com.study.tx.annotation.dao;
+package com.study.tx.config.dao;
 
 import com.study.tx.entity.OrderItem;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -20,7 +20,7 @@ import java.sql.Statement;
  * @date 2021年02月02日
  */
 @Repository
-public class AnnotationOrderItemDaoImpl implements AnnotationOrderItemDao {
+public class ConfigOrderItemDaoImpl implements ConfigOrderItemDao {
     @Resource
     private JdbcTemplate jdbcTemplate;
 
