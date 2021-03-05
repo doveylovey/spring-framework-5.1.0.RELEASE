@@ -8,7 +8,7 @@
        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
 
     <!-- 加载配置文件 -->
-    <context:property-placeholder location="classpath*:jdbc.properties"/>
+    <context:property-placeholder location="classpath*:com/study/tx/jdbc.properties"/>
 
     <!-- 数据源配置 -->
     <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
