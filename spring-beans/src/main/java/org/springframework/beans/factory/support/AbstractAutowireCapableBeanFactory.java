@@ -1078,21 +1078,23 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
      */
     protected BeanWrapper createBeanInstance(String beanName, RootBeanDefinition mbd, @Nullable Object[] args) {
         // Make sure bean class is actually resolved at this point.
+        // 1、获取这个 bean 的 class 属性，确保 beanDefinition 中 beanClass 属性已经完成解析
+        // 我们通过 xml 从 <bean> 标签中解析出来的 class 属性在刚刚开始的时候必定是个字符串
         Class<?> beanClass = resolveBeanClass(mbd, beanName);
 
         if (beanClass != null && !Modifier.isPublic(beanClass.getModifiers()) && !mbd.isNonPublicAccessAllowed()) {
             throw new BeanCreationException(mbd.getResourceDescription(), beanName, "Bean class isn't public, and non-public access not allowed: " + beanClass.getName());
         }
-
+        // 2、通过 beanDefinition 中的 supplier 实例化这个 bean
         Supplier<?> instanceSupplier = mbd.getInstanceSupplier();
         if (instanceSupplier != null) {
             return obtainFromSupplier(instanceSupplier, beanName);
         }
-
+        // 3、通过 FactoryMethod 实例化这个 bean
         if (mbd.getFactoryMethodName() != null) {
             return instantiateUsingFactoryMethod(beanName, mbd, args);
         }
-
+        // 4、下面这段代码都是在通过构造函数实例化这个 Bean，分两种情况：一种是通过默认的无参构造，一种是通过推断出来的构造函数
         // Shortcut when re-creating the same bean...
         boolean resolved = false;
         boolean autowireNecessary = false;

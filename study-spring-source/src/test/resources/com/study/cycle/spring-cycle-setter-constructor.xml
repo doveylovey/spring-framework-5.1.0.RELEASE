@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- 参考 https://www.cnblogs.com/xubiao/p/5851309.html -->
+    <!-- A中注入B的方式是通过setter，B中注入A的方式也是通过构造器，这个时候的循环依赖可以被解决 -->
+    <bean id="setterConstructorA" class="com.study.cycle.SetterConstructorA">
+        <property name="setterConstructorB" ref="setterConstructorB"/>
+    </bean>
+
+    <bean id="setterConstructorB" class="com.study.cycle.SetterConstructorB">
+        <constructor-arg index="0" type="com.study.cycle.SetterConstructorA" ref="setterConstructorA"/>
+    </bean>
+</beans>
