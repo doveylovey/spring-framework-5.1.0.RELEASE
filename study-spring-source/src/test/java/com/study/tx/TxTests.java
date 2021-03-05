@@ -24,7 +24,7 @@ public class TxTests {
 
     @Test
     public void txXmlAopTest() {
-        ApplicationContext context = new ClassPathXmlApplicationContext("classpath*:spring-tx-xml.xml");
+        ApplicationContext context = new ClassPathXmlApplicationContext("classpath*:com/study/tx/spring-tx-xml.xml");
         XmlOrderService orderService = context.getBean(XmlOrderService.class);
         String result = orderService.insert(1L, 1L);
         System.out.println("操作结果：" + result);
@@ -32,7 +32,7 @@ public class TxTests {
 
     @Test
     public void txAnnotationTest() {
-        ApplicationContext context = new ClassPathXmlApplicationContext("classpath*:spring-tx-annotation.xml");
+        ApplicationContext context = new ClassPathXmlApplicationContext("classpath*:com/study/tx/spring-tx-annotation.xml");
         AnnotationOrderService orderService = context.getBean(AnnotationOrderService.class);
         String result = orderService.insert(1L, 1L);
         System.out.println("操作结果：" + result);
