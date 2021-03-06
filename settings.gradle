@@ -33,3 +33,6 @@ rootProject.children.each { project ->
 // 自定义测试模块
 include 'study-spring-source'
 findProject(':study-spring-source')?.name = 'study-spring-source'
+
+include 'study-spring-source-web'
+//findProject(':study-spring-source-web')?.name = 'study-spring-source-web'

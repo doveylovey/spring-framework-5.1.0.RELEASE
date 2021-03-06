@@ -1,9 +1,4 @@
-# 使用 IntelliJ IDEA 2018.3.6、Gradle 5.6.4 构建的 spring-framework-5.1.0.RELEASE 源码
-
-# spring源码环境搭建丢失spring-cglib-repack-3.2.8.jar和spring-objenesis-repack-3.0.1.jar的解决办法：
-在spring-framework目录下执行：gradle objenesisRepackJar、gradle cglibRepackJar，会在spring-framework-master\spring-core\build\libs 目录下生成jar包。
-
-# <img src="src/docs/asciidoc/images/spring-framework.png" width="80" height="80"> Spring Framework
+## ![Spring Framework](src/docs/asciidoc/images/spring-framework.png) Spring Framework
 This is the home of the Spring Framework, the foundation for all
 [Spring projects](https://spring.io/projects). Together the Spring Framework and the family of Spring projects make up what we call "Spring". 
 

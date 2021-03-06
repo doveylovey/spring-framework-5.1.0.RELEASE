@@ -22,7 +22,7 @@ public class JavaReadPropertiesTests {
 
     @Test
     public void readPropertiesByJavaTest01() {
-        JavaReadProperties1 javaReadProperties = new JavaReadProperties1("com/study/hello/java.properties");
+        JavaReadProperties1 javaReadProperties = new JavaReadProperties1("com/study/file/java.properties");
         String content = javaReadProperties.readContent("java.key");
         log.info(content);
         System.out.println(content);
@@ -30,7 +30,7 @@ public class JavaReadPropertiesTests {
 
     @Test
     public void readPropertiesByJavaTest02() {
-        JavaReadProperties2 javaReadProperties = new JavaReadProperties2("com/study/hello/java.properties");
+        JavaReadProperties2 javaReadProperties = new JavaReadProperties2("com/study/file/java.properties");
         JavaReadPropertiesClient javaReadPropertiesClient = new JavaReadPropertiesClient(javaReadProperties);
         String content = javaReadPropertiesClient.readContent("java.key");
         log.info(content);
@@ -39,7 +39,7 @@ public class JavaReadPropertiesTests {
 
     @Test
     public void readPropertiesByJavaTest03() {
-        JavaReadPropertiesClient javaReadPropertiesClient = JavaReadPropertiesFactory.getReadPropertiesClient("com/study/hello/java.properties");
+        JavaReadPropertiesClient javaReadPropertiesClient = JavaReadPropertiesFactory.getReadPropertiesClient("com/study/file/java.properties");
         String content = javaReadPropertiesClient.readContent("java.key");
         log.info(content);
         System.out.println(content);

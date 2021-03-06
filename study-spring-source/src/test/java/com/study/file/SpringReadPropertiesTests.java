@@ -33,15 +33,15 @@ public class SpringReadPropertiesTests {
     public void readPropertiesFromClasspath() throws IOException {
         // 参考 https://blog.csdn.net/FENGQIYUNRAN/article/details/108013523
         // 第一种
-        ClassPathResource classPathResource = new ClassPathResource("com/study/hello/java.properties");
+        ClassPathResource classPathResource = new ClassPathResource("com/study/file/java.properties");
         InputStream inputStream1 = classPathResource.getInputStream();
 
         // 第二种
-        InputStream inputStream2 = Thread.currentThread().getContextClassLoader().getResourceAsStream("com/study/hello/java.properties");
+        InputStream inputStream2 = Thread.currentThread().getContextClassLoader().getResourceAsStream("com/study/file/java.properties");
 
         // 第三种
         //InputStream inputStream3 = this.getClass().getResourceAsStream("/com/study/file/java.properties");
-        InputStream inputStream3 = SpringReadPropertiesTests.class.getResourceAsStream("/com/study/hello/java.properties");
+        InputStream inputStream3 = SpringReadPropertiesTests.class.getResourceAsStream("/com/study/file/java.properties");
 
         //第四种
         File file = ResourceUtils.getFile("classpath:com/study/file/java.properties");
@@ -88,7 +88,7 @@ public class SpringReadPropertiesTests {
         System.setProperty("spring.profiles.active", "dev");
         Resource resource0 = new FileSystemResource("E:/workspace-idea-study/开源框架/spring-framework-5.1.0.RELEASE/study-spring-source/build/resources/test/com/study/file/file-properties.xml");
 
-        String path = SpringReadPropertiesTests.class.getResource("/com/study/hello/hello-properties.xml").getPath();
+        String path = SpringReadPropertiesTests.class.getResource("/com/study/file/hello-properties.xml").getPath();
         //String path = this.getClass().getResource("/com/study/file/file-properties.xml").getPath();
         //Resource resource1 = new FileSystemResource(new File(path));
         Resource resource1 = new FileSystemResource(path);
