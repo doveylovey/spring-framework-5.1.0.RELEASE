@@ -15,4 +15,6 @@ repositories {
 dependencies {
     compile(project(":spring-context"))
     compile(project(":spring-webmvc"))
+
+    compileOnly group: 'javax.servlet', name: 'javax.servlet-api', version: '4.0.1'
 }

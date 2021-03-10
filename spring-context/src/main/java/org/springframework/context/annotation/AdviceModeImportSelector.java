@@ -34,7 +34,6 @@ import org.springframework.util.Assert;
  * @since 3.1
  */
 public abstract class AdviceModeImportSelector<A extends Annotation> implements ImportSelector {
-
     /**
      * The default advice mode attribute name.
      */
@@ -56,7 +55,8 @@ public abstract class AdviceModeImportSelector<A extends Annotation> implements 
      * {@code @Configuration} class and (b) that the given annotation has an
      * {@linkplain #getAdviceModeAttributeName() advice mode attribute} of type
      * {@link AdviceMode}.
-     * <p>The {@link #selectImports(AdviceMode)} method is then invoked, allowing the
+     * <p>
+     * The {@link #selectImports(AdviceMode)} method is then invoked, allowing the
      * concrete implementation to choose imports in a safe and convenient fashion.
      *
      * @throws IllegalArgumentException if expected annotation {@code A} is not present
@@ -67,14 +67,10 @@ public abstract class AdviceModeImportSelector<A extends Annotation> implements 
     public final String[] selectImports(AnnotationMetadata importingClassMetadata) {
         Class<?> annType = GenericTypeResolver.resolveTypeArgument(getClass(), AdviceModeImportSelector.class);
         Assert.state(annType != null, "Unresolvable type argument for AdviceModeImportSelector");
-
         AnnotationAttributes attributes = AnnotationConfigUtils.attributesFor(importingClassMetadata, annType);
         if (attributes == null) {
-            throw new IllegalArgumentException(String.format(
-                    "@%s is not present on importing class '%s' as expected",
-                    annType.getSimpleName(), importingClassMetadata.getClassName()));
+            throw new IllegalArgumentException(String.format("@%s is not present on importing class '%s' as expected", annType.getSimpleName(), importingClassMetadata.getClassName()));
         }
-
         AdviceMode adviceMode = attributes.getEnum(getAdviceModeAttributeName());
         String[] imports = selectImports(adviceMode);
         if (imports == null) {
@@ -85,7 +81,8 @@ public abstract class AdviceModeImportSelector<A extends Annotation> implements 
 
     /**
      * Determine which classes should be imported based on the given {@code AdviceMode}.
-     * <p>Returning {@code null} from this method indicates that the {@code AdviceMode}
+     * <p>
+     * Returning {@code null} from this method indicates that the {@code AdviceMode}
      * could not be handled or was unknown and that an {@code IllegalArgumentException}
      * should be thrown.
      *
@@ -96,5 +93,4 @@ public abstract class AdviceModeImportSelector<A extends Annotation> implements 
      */
     @Nullable
     protected abstract String[] selectImports(AdviceMode adviceMode);
-
 }

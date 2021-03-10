@@ -17,4 +17,27 @@
         <servlet-name>SpringMvc</servlet-name>
         <url-pattern>/</url-pattern>
     </servlet-mapping>
+
+    <!-- 测试filter -->
+    <filter>
+        <filter-name>TestFilter</filter-name>
+        <filter-class>com.study.filter.TestFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>TestFilter</filter-name>
+        <url-pattern>*.do</url-pattern>
+    </filter-mapping>
+    <!-- 测试servlet -->
+    <servlet>
+        <servlet-name>TestServlet</servlet-name>
+        <servlet-class>com.study.servlet.TestServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>TestServlet</servlet-name>
+        <url-pattern>/*</url-pattern>
+    </servlet-mapping>
+    <!-- 测试listener -->
+    <listener>
+        <listener-class>com.study.listener.TestListener</listener-class>
+    </listener>
 </web-app>

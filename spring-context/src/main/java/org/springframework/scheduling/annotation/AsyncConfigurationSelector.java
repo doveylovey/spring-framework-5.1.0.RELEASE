@@ -32,10 +32,7 @@ import org.springframework.lang.Nullable;
  * @since 3.1
  */
 public class AsyncConfigurationSelector extends AdviceModeImportSelector<EnableAsync> {
-
-    private static final String ASYNC_EXECUTION_ASPECT_CONFIGURATION_CLASS_NAME =
-            "org.springframework.scheduling.aspectj.AspectJAsyncConfiguration";
-
+    private static final String ASYNC_EXECUTION_ASPECT_CONFIGURATION_CLASS_NAME = "org.springframework.scheduling.aspectj.AspectJAsyncConfiguration";
 
     /**
      * Returns {@link ProxyAsyncConfiguration} or {@code AspectJAsyncConfiguration}
@@ -54,5 +51,4 @@ public class AsyncConfigurationSelector extends AdviceModeImportSelector<EnableA
                 return null;
         }
     }
-
 }
