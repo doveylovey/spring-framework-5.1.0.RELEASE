@@ -18,7 +18,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 public class TestController {
     private final Log log = LogFactory.getLog(TestController.class);
-    @RequestMapping(value = {"/", "/index"})
+
+    @RequestMapping(path = {"/", "/index"})
     public String index() {
         log.info("调用 index()，跳转到 index.jsp 页面");
         return "index";
@@ -27,7 +28,7 @@ public class TestController {
     @RequestMapping("/hello")
     public String hello() {
         log.info("调用 hello()，跳转到 hello.jsp 页面");
-        return "hello";
+        return "page/hello";
     }
 
     @ResponseBody

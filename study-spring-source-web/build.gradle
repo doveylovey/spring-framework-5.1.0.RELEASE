@@ -17,4 +17,6 @@ dependencies {
     compile(project(":spring-webmvc"))
 
     compileOnly group: 'javax.servlet', name: 'javax.servlet-api', version: '4.0.1'
+    compileOnly group: 'javax.servlet.jsp', name: 'jsp-api', version: '2.2'
+    implementation group: 'javax.servlet', name: 'jstl', version: '1.2'
 }

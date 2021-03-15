@@ -3,7 +3,8 @@
        xmlns:context="http://www.springframework.org/schema/context"
        xmlns:mvc="http://www.springframework.org/schema/mvc"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd">
 
     <!-- 开启对 @Controller 注解的支持 -->
     <mvc:annotation-driven/>
@@ -22,8 +23,26 @@
     <bean id="jspViewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
         <property name="viewClass" value="org.springframework.web.servlet.view.JstlView"/>
         <!-- 后台默认返回视图寻找视图文件的路径 -->
-        <property name="prefix" value="/WEB-INF/page/"/>
+        <property name="prefix" value="/WEB-INF/"/>
         <!-- 后台返回视图默认添加的后缀 -->
         <property name="suffix" value=".jsp"/>
+    </bean>
+
+    <!-- 继承自 AbstractController 的自定义 Controller -->
+    <bean name="/abstract1" class="com.study.controller.MyAbstractController1">
+        <!-- (可选)提供了会话(session)的串行化访问功能，即同一会话，线程同步 -->
+        <property name="synchronizeOnSession" value="true"/>
+        <!-- 强制请求方法类型，如只支持 post 和 get 方法 -->
+        <property name="supportedMethods" value="POST,GET"/>
+        <!-- 当前请求的 session 前置条件检查，如果当前请求无 session 将抛出 HttpSessionRequiredException 异常 -->
+        <property name="requireSession" value="true"/>
+    </bean>
+    <bean name="/abstract2" class="com.study.controller.MyAbstractController2">
+        <!-- (可选)提供了会话(session)的串行化访问功能，即同一会话，线程同步 -->
+        <property name="synchronizeOnSession" value="true"/>
+        <!-- 强制请求方法类型，如只支持 post 和 get 方法 -->
+        <property name="supportedMethods" value="POST,GET"/>
+        <!-- 当前请求的 session 前置条件检查，如果当前请求无 session 将抛出 HttpSessionRequiredException 异常 -->
+        <property name="requireSession" value="true"/>
     </bean>
 </beans>

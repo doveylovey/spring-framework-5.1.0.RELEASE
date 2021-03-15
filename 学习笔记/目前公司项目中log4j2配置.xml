@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+    <Properties>
+        <!-- [时间] [日志级别] [线程名-线程ID] [显示从程序启动时到记录该条日志时已经经过的毫秒数] [名称空间简称#方法名:调用行] 消息换行 -->
+        <Property name="filePatternLayout">[%d{yyyy-MM-dd HH:mm:ss,SSS}] [%p] [%t-%T] [%r] [%c{1.}#%M:%L] [%X{traceId}] [%X{orderCode}] [%X{eqSn}] [%X{pbSn}] -- %m%n</Property>
+        <!-- <Property name="logHubPatternLayout">[%d{yyyy-MM-dd HH:mm:ss,SSS}] %-5level %class{36} %L %M - %msg%xEx</Property> -->
+        <Property name="logHubPatternLayout">%m</Property>
+        <!-- 日志的存放根路径 -->
+        <Property name="logBasePath">logs</Property>
+        <Property name="debugLogFilePath">${logBasePath}/debug/app.log</Property>
+        <Property name="infoLogFilePath">${logBasePath}/info/app.log</Property>
+        <Property name="errorLogFilePath">${logBasePath}/error/app.log</Property>
+        <!-- 单个日志文件大小 -->
+        <Property name="logFileSize">80M</Property>
+    </Properties>
+
+    <Appenders>
+        <Console name="STDOUT" target="SYSTEM_OUT">
+            <PatternLayout pattern="${filePatternLayout}"/>
+        </Console>
+
+        <RollingFile name="debugAppender" fileName="${debugLogFilePath}" filePattern="${logBasePath}/debug/debug-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="${filePatternLayout}"/>
+            <Filters>
+                <ThresholdFilter level="INFO" onMatch="DENY" onMismatch="NEUTRAL"/>
+                <ThresholdFilter level="DEBUG" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="${logFileSize}"/>
+            </Policies>
+            <DefaultRolloverStrategy fileIndex="nomax" max="5000"/>
+        </RollingFile>
+
+        <RollingFile name="infoAppender" fileName="${infoLogFilePath}" filePattern="${logBasePath}/info/info-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="${filePatternLayout}"/>
+            <Filters>
+                <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="${logFileSize}"/>
+            </Policies>
+            <DefaultRolloverStrategy fileIndex="nomax" max="5000"/>
+        </RollingFile>
+
+        <RollingFile name="errorAppender" fileName="${errorLogFilePath}" filePattern="${logBasePath}/error/error-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="${filePatternLayout}"/>
+            <Filters>
+                <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="${logFileSize}"/>
+            </Policies>
+            <DefaultRolloverStrategy fileIndex="nomax" max="5000"/>
+        </RollingFile>
+    </Appenders>
+
+    <Loggers>
+        <Logger name="com.study" additivity="false">
+            <AppenderRef ref="STDOUT" level="info"/>
+            <AppenderRef ref="debugAppender" level="debug"/>
+            <AppenderRef ref="infoAppender" level="info"/>
+            <AppenderRef ref="errorAppender" level="error"/>
+        </Logger>
+        <Logger name="org" level="info"/>
+        <Logger name="com.xxl.job" level="off"/>
+        <Logger name="com.aliyun.openservices.aliyun.log" level="info"/>
+        <Root level="DEBUG" additivity="false">
+            <AppenderRef ref="STDOUT"/>
+            <AppenderRef ref="debugAppender" level="debug"/>
+            <AppenderRef ref="infoAppender" level="info"/>
+            <AppenderRef ref="errorAppender" level="error"/>
+        </Root>
+    </Loggers>
+</Configuration>
