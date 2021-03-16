@@ -9,5 +9,10 @@
 <img src="https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=2010359379,2448363791&fm=26&gp=0.jpg">
 <hr>
 <h1>进入首页</h1>
+<hr>
+动态获取项目名：${pageContext.request.contextPath}
+动态获取项目名：<%=request.getContextPath()%>
+
+<img src="statics/images/灯泡.gif">
 </body>
 </html>
